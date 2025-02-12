@@ -130,7 +130,7 @@ public class Teleop_extended_LimeLight extends OpMode {
             //robot.lift.lift_target = 0;
         }else if(theGamepad1.getButton(TBDGamepad.Button.RIGHT_BUMPER)){
             //robot.lift.lift_target = robot.lift.LIFT_MAX;
-            strafe = robot.specimenOffsetX();
+            forward = robot.specimenOffsetX();
         }else if(theGamepad1.getButton(TBDGamepad.Button.A)){
             robot.lift.moveToMin();
 //            if (liftServoPos-0.01 > 0){
