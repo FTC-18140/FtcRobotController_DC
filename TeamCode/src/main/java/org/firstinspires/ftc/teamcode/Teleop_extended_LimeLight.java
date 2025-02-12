@@ -130,7 +130,7 @@ public class Teleop_extended_LimeLight extends OpMode {
             //robot.lift.lift_target = 0;
         }else if(theGamepad1.getButton(TBDGamepad.Button.RIGHT_BUMPER)){
             //robot.lift.lift_target = robot.lift.LIFT_MAX;
-            forward = robot.specimenOffsetX();
+            strafe = robot.specimenOffsetX();
         }else if(theGamepad1.getButton(TBDGamepad.Button.A)){
             robot.lift.moveToMin();
 //            if (liftServoPos-0.01 > 0){
@@ -234,11 +234,12 @@ public class Teleop_extended_LimeLight extends OpMode {
         }
         runningActions = newActions;
 
-        telemetry.addData("left lift servo: ",robot.lift.getLeftServoPos());
-        telemetry.addData("right lift servo: ",robot.lift.getRightServoPos());
-        telemetry.addData("left motor position: ", robot.lift.getLiftPosL());
-        telemetry.addData("right motor position: ", robot.lift.getLiftPosR());
-        telemetry.addData("lift target position: ", robot.lift.lift_target);
+//        telemetry.addData("left lift servo: ",robot.lift.getLeftServoPos());
+//        telemetry.addData("right lift servo: ",robot.lift.getRightServoPos());
+//        telemetry.addData("left motor position: ", robot.lift.getLiftPosL());
+//        telemetry.addData("right motor position: ", robot.lift.getLiftPosR());
+//        telemetry.addData("lift target position: ", robot.lift.lift_target);
+        telemetry.addData("AprilTag offset X: ", robot.limelight.getTargetX());
 
         dash.sendTelemetryPacket(packet);
     }

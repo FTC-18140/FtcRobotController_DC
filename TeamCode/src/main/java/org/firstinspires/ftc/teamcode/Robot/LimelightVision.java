@@ -72,17 +72,20 @@ public class LimelightVision
         logLimelightData(result);
 
         // Find the best color result based on target area.
-        LLResultTypes.ColorResult bestColorResult = findBestColorResult(result);
+        Pose3D botpose = result.getBotpose();
+        double offset = botpose.getPosition().x;
+        telemetry.addData("limelight return position X: ", offset);
+        //LLResultTypes.ColorResult bestColorResult = findBestColorResult(result);
 
-        if (bestColorResult != null)
-        {
-            return bestColorResult.getTargetXDegrees();
-        }
-        else
-        {
-            telemetry.addData("Limelight", "No suitable color target found.");
-            return DEFAULT_TARGET_X;
-        }
+//        if (result != null)
+//        {
+            return 48 - offset;
+//        }
+//        else
+//        {
+//            telemetry.addData("Limelight", "No target found.");
+//            return DEFAULT_TARGET_X;
+//        }
     }
 
     /**

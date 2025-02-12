@@ -46,7 +46,7 @@ public class Intake {
 
     public static double factor_p_down = 0.09;
     public static double factor_d_down = 1.25;
-    public static double f = 0.025;
+    public static double f = 0.02;
     public static double fSin = 0.025;
 
     public final double WRIST_INIT = 0.0;
@@ -69,7 +69,7 @@ public class Intake {
 
     public double armOffset;
     private boolean armOverride = false;
-    public static double COUNTS_PER_ELBOW_DEGREE = 21.64166666666667;
+    public static double COUNTS_PER_ELBOW_DEGREE = 8192.0 / 180.0;
 
     public static double target = 0;
     public static double directSetTarget = 0;

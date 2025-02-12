@@ -101,8 +101,8 @@ public class ThunderBot2024
         led = new LED();
         led.init(hwMap, telem);
 
-//        limelight = new LimelightVision();
-//        limelight.init(hwMap, telem);
+        limelight = new LimelightVision();
+        limelight.init(hwMap, telem);
 
         drive = new MecanumDrive(hwMap, new Pose2d(0,0,0));
 //  This code was somehow preventing the Odometry from updating
