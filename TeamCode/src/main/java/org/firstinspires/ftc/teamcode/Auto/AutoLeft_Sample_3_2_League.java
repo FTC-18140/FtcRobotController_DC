@@ -64,7 +64,7 @@ public class AutoLeft_Sample_3_2_League extends LinearOpMode {
                         ,robot.intake.presetAction(Intake.Positions.READY_TO_INTAKE),
                         robot.intake.armDownAction(1),
                         new ParallelAction(
-                                robot.intake.wristMoveAction(0.8),
+                                robot.intake.wristMoveAction(0.79),
                                 robot.intake.spinnerAction(1),
                                 robot.drive.actionBuilder(new Pose2d(basketPosStart, Math.toRadians(45)))
                                         .strafeToSplineHeading(new Vector2d(startPos.x-6, startPos.y+2), Math.toRadians(0))
