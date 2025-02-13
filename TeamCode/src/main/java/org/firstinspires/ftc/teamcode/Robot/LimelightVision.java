@@ -18,6 +18,8 @@ public class LimelightVision
 
     private Limelight3A limelight;
     private Telemetry telemetry;
+
+    public static final double SPECIMEN_X = 46 / 39.37008;
     private static final double DEFAULT_TARGET_X = 0.0;
     private static final double MINIMUM_TARGET_AREA = 10.0; // Example value, adjust as needed
 
@@ -42,7 +44,7 @@ public class LimelightVision
         try
         {
             limelight = hwMap.get(Limelight3A.class, "limelight");
-            limelight.pipelineSwitch(1); // color pipeline
+            limelight.pipelineSwitch(3); // color pipeline
             limelight.start();
         }
         catch (Exception e)
@@ -57,6 +59,9 @@ public class LimelightVision
      *
      * @return The target's X-coordinate in degrees, or DEFAULT_TARGET_X if no valid target is found.
      */
+    public void updateHeading(double h){
+        limelight.updateRobotOrientation(h);
+    }
     public double getTargetX()
     {
         LLResult result = limelight.getLatestResult();
@@ -75,11 +80,12 @@ public class LimelightVision
         Pose3D botpose = result.getBotpose();
         double offset = botpose.getPosition().x;
         telemetry.addData("limelight return position X: ", offset);
+        telemetry.addData("limelight return position X-inches: ", offset*39.37008);
         //LLResultTypes.ColorResult bestColorResult = findBestColorResult(result);
 
 //        if (result != null)
 //        {
-            return 48 - offset;
+            return SPECIMEN_X - offset;
 //        }
 //        else
 //        {

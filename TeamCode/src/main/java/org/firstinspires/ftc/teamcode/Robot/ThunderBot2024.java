@@ -397,9 +397,22 @@ public class ThunderBot2024
     }
 
     public double specimenOffsetX(){
-        double Kp = 0.5;
-        double targetX = limelight.getTargetX();
-        if(Math.abs(0-targetX) < 10)
+        double Kp = 10.0;
+        double targetX = limelight.getTargetX() * Kp;
+
+        if(targetX > 1)
+        {
+            targetX = 1;
+        }
+        else if(targetX < -1)
+        {
+            targetX = -1;
+        }
+        else if (targetX == 0.0)
+        {
+            return 0.0;
+        }
+        if(Math.abs(targetX / Kp) < 0.0254)
         {
             led.setToColor("green");
             return 0.0;
@@ -407,7 +420,7 @@ public class ThunderBot2024
         else
         {
             led.setToColor("purple");
-            return targetX*Kp;
+            return targetX;
         }
     }
 

@@ -90,6 +90,7 @@ public class Teleop_extended_LimeLight extends OpMode {
 //        robot.lift.leftServo.setPosition(liftServoPos);
 //        robot.lift.rightServo.setPosition(liftServoPos);
         robot.led.setToColor(robot.intake.getCalculatedColor());
+        robot.limelight.updateHeading(Math.toDegrees(robot.drive.pose.heading.toDouble()));
 
         if(gamepad1.a){
             //robot.lift.offsetPos = 0;
@@ -127,10 +128,11 @@ public class Teleop_extended_LimeLight extends OpMode {
         }else if(theGamepad1.getButton(TBDGamepad.Button.B)){
             robot.lift.moveToHanging();
         }else if(theGamepad1.getButton(TBDGamepad.Button.LEFT_BUMPER)){
-            //robot.lift.lift_target = 0;
+            robot.lift.lift_target = 0;
         }else if(theGamepad1.getButton(TBDGamepad.Button.RIGHT_BUMPER)){
             //robot.lift.lift_target = robot.lift.LIFT_MAX;
-            strafe = robot.specimenOffsetX();
+            strafe = -robot.specimenOffsetX();
+            //telemetry.addData("AprilTag offset X: ", robot.specimenOffsetX());
         }else if(theGamepad1.getButton(TBDGamepad.Button.A)){
             robot.lift.moveToMin();
 //            if (liftServoPos-0.01 > 0){
@@ -239,7 +241,6 @@ public class Teleop_extended_LimeLight extends OpMode {
 //        telemetry.addData("left motor position: ", robot.lift.getLiftPosL());
 //        telemetry.addData("right motor position: ", robot.lift.getLiftPosR());
 //        telemetry.addData("lift target position: ", robot.lift.lift_target);
-        telemetry.addData("AprilTag offset X: ", robot.limelight.getTargetX());
 
         dash.sendTelemetryPacket(packet);
     }
