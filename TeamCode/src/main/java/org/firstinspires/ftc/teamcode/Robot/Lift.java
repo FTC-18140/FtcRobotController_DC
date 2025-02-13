@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -30,8 +31,13 @@ public class Lift {
     public final double LIFT_SERVO_LIFT = 0.12;
     public final double LIFT_SERVO_LIFT_R = 0.12;
 
+    public ElapsedTime lift_timer;
+
+    public boolean hanging = false;
+
     public double lift_target = 0;
     public void init(HardwareMap hwMap, Telemetry telem, double startPos){
+        lift_timer = new ElapsedTime();
         offsetPos = startPos;
         hardwareMap = hwMap;
         telemetry = telem;
@@ -122,6 +128,7 @@ public class Lift {
         rightServo.setPosition(-0.35);
         podServoPos = 1;
         lift_target = LIFT_MAX;
+        hanging = false;
     }
     public void moveToMin(){
         leftServo.setPosition(LIFT_SERVO_MAX);
@@ -132,6 +139,14 @@ public class Lift {
         leftServo.setPosition(LIFT_SERVO_LIFT);
         rightServo.setPosition(LIFT_SERVO_LIFT_R);
         lift_target = 0;
+    }
+
+    public void hang(){
+        if(!hanging) {
+            hanging = true;
+            lift_timer.reset();
+            lift_target = 0;
+        }
     }
     public boolean liftUpTo(double position){
         if(Math.abs(position-getLiftPosR())<=1){
@@ -177,6 +192,14 @@ public class Lift {
         }
         liftLeft.setTargetPosition((int)lift_target);
         liftRight.setTargetPosition((int)lift_target);
+        if(hanging)
+        {
+            if(lift_timer.seconds() > 0.75)
+            {
+                leftServo.setPosition(LIFT_SERVO_LIFT);
+                rightServo.setPosition(LIFT_SERVO_LIFT_R);
+            }
+        }
         podServo.setPosition(podServoPos);
     }
 }

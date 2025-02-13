@@ -7,6 +7,7 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Auto.AutoPositions;
@@ -33,6 +34,8 @@ public class Teleop_extended_LimeLight extends OpMode {
 
     public double liftPower = 0;
 
+    private ElapsedTime teleopTimer = new ElapsedTime();
+
     @Override
     public void init() {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -51,8 +54,10 @@ public class Teleop_extended_LimeLight extends OpMode {
     @Override
     public void start() {
         robot.led.ledTimer.reset();
+        robot.lift.lift_timer.reset();
         robot.intake.start();
         robot.intake.setToExtended();
+        teleopTimer.reset();
     }
 
     @Override
@@ -89,8 +94,6 @@ public class Teleop_extended_LimeLight extends OpMode {
         robot.lift.update();
 //        robot.lift.leftServo.setPosition(liftServoPos);
 //        robot.lift.rightServo.setPosition(liftServoPos);
-        robot.led.setToColor(robot.intake.getCalculatedColor());
-        robot.limelight.updateHeading(Math.toDegrees(robot.drive.pose.heading.toDouble()));
 
         if(gamepad1.a){
             //robot.lift.offsetPos = 0;
@@ -105,6 +108,19 @@ public class Teleop_extended_LimeLight extends OpMode {
         }
         if(theGamepad2.getTrigger(TBDGamepad.Trigger.LEFT_TRIGGER)>0.1){
             armSlow = 0.4;
+        }
+
+        if(teleopTimer.seconds() > 105)
+        {
+            robot.led.setToColor("orange");
+        }
+        else if (slow == 1.0)
+        {
+            robot.led.setToColor("rainbow");
+        }
+        else
+        {
+            robot.led.setToColor(robot.intake.getCalculatedColor());
         }
 
         if(theGamepad2.getButton(TBDGamepad.Button.LEFT_STICK_BUTTON)){
@@ -126,7 +142,8 @@ public class Teleop_extended_LimeLight extends OpMode {
 //            }
             liftPower = 0;
         }else if(theGamepad1.getButton(TBDGamepad.Button.B)){
-            robot.lift.moveToHanging();
+            //robot.lift.moveToHanging();
+            robot.lift.hang();
         }else if(theGamepad1.getButton(TBDGamepad.Button.LEFT_BUMPER)){
             robot.lift.lift_target = 0;
         }else if(theGamepad1.getButton(TBDGamepad.Button.RIGHT_BUMPER)){
