@@ -427,13 +427,13 @@ public class ThunderBot2024
         double Kp = 0.1;
         double targetH = limelight.updateHeading(heading);
 
-        if(targetH > 1)
+        if(targetH > 10)
         {
-            targetH = 1;
+            targetH = 10;
         }
-        else if(targetH < -1)
+        else if(targetH < -10)
         {
-            targetH = -1;
+            targetH = -10;
         }
         else if(targetH == 0)
         {
