@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.Actions;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -21,6 +22,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
+
+import java.util.concurrent.TimeUnit;
 
 @Config
 public class Intake {
@@ -426,11 +429,20 @@ public class Intake {
     public Action checkForSample (String color,double limit){
         return new Action() {
             String c = color;
-            ElapsedTime timer = new ElapsedTime(0);
+            ElapsedTime ctimer = new ElapsedTime();
+            double l = limit;
+            boolean started = false;
 
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                if (c.equals(getCalculatedColor()) || timer.seconds() >= limit) {
+                if(!started){
+                    started = true;
+                    ctimer.reset();
+                }
+                telemetry.addData("Color sensor timer: ", ctimer.seconds());
+                telemetry.addData("Color sensor color: ", getCalculatedColor());
+                telemetry.update();
+                if (c.equals(getCalculatedColor()) || ctimer.seconds() > l) {
                     return false;
                 }
                 return true;

@@ -380,10 +380,10 @@ public class ThunderBot2024
     public boolean alignToSpecimen( double power )
     {
         double Kp = 0.5;
-        double targetX = limelight.getTargetX();
+        double targetX = limelight.getTargetX(false);
         if (targetX > 1)  // FIX THIS! - what is a proper termination condition?
         {
-            double powertoStrafe = Kp*limelight.getTargetX();
+            double powertoStrafe = Kp*limelight.getTargetX(false);
             led.setToColor("purple");
             joystickDrive(0, powertoStrafe, 0, power);
             return false;
@@ -396,9 +396,9 @@ public class ThunderBot2024
         }
     }
 
-    public double specimenOffsetX(){
+    public double specimenOffsetX(boolean isBlue){
         double Kp = 10.0;
-        double targetX = limelight.getTargetX() * Kp;
+        double targetX = limelight.getTargetX(isBlue) * Kp;
 
         if(targetX > 1)
         {
@@ -423,9 +423,9 @@ public class ThunderBot2024
             return targetX;
         }
     }
-    public double specimenAngle(double heading){
+    public double specimenAngle(boolean isBlue){
         double Kp = 0.1;
-        double targetH = limelight.updateHeading(heading);
+        double targetH = limelight.updateHeading(isBlue);
 
         if(targetH > 10)
         {

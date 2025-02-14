@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @TeleOp(group = "Teleop")
-public class Teleop_extended_LimeLight extends OpMode {
+public class Teleop_extended_LimeLight_BLUE extends OpMode {
     private FtcDashboard dash = FtcDashboard.getInstance();
     private List<Action> runningActions = new ArrayList<>();
 
@@ -146,10 +146,12 @@ public class Teleop_extended_LimeLight extends OpMode {
             robot.lift.hang();
         }else if(theGamepad1.getButton(TBDGamepad.Button.RIGHT_BUMPER)){
             //robot.lift.lift_target = 0;
+            strafe = robot.specimenOffsetX(true);
+            turn -= 0.5 * robot.specimenAngle(true);
         }else if(theGamepad1.getButton(TBDGamepad.Button.LEFT_BUMPER)){
             //robot.lift.lift_target = robot.lift.LIFT_MAX;
-            strafe = -robot.specimenOffsetX();
-            turn -= 0.5 * robot.specimenAngle(robot.drive.pose.heading.toDouble());
+            strafe = robot.specimenOffsetX(true);
+            turn -= 0.5 * robot.specimenAngle(true);
             //telemetry.addData("AprilTag offset X: ", robot.specimenOffsetX());
         }else if(theGamepad1.getButton(TBDGamepad.Button.A)){
             robot.lift.moveToMin();

@@ -26,17 +26,19 @@ public class AutoTest extends LinearOpMode {
 
         waitForStart();
         robot.intake.start();
-
         Actions.runBlocking(
                 new ParallelAction(
-                robot.intake.updateAction(),
                 new SequentialAction(
-                        robot.intake.presetAction(Intake.Positions.READY_TO_INTAKE),
-                        robot.intake.armUpAction(Intake.ARM_MAX_HORIZONTAL)
-                )
+                        new SleepAction(10),
+                        new ParallelAction(
+                                robot.intake.armUpAction(15),
+                                robot.intake.checkForSample("u", 15)
+                        ),
+                        robot.intake.armDownAction(1)
+                ),
+                robot.intake.updateAction()
             )
         );
-        telemetry.update();
 
     }
 }

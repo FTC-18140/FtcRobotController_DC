@@ -59,7 +59,7 @@ public class LimelightVision
      *
      * @return The target's X-coordinate in degrees, or DEFAULT_TARGET_X if no valid target is found.
      */
-    public double updateHeading(double h){
+    public double updateHeading(boolean isBLue){
         LLResult result = limelight.getLatestResult();
 
         // Early exit if no valid result is available.
@@ -77,9 +77,14 @@ public class LimelightVision
         double offset = botpose.getOrientation().getYaw();
         telemetry.addData("limelight return position Angle: ", offset);
 
-        return -90 - offset;
+        if(!isBLue){
+            return -90 - offset;
+        }else{
+            return 90 - offset;
+        }
+
     }
-    public double getTargetX()
+    public double getTargetX(boolean isBLue)
     {
         LLResult result = limelight.getLatestResult();
 
@@ -102,7 +107,12 @@ public class LimelightVision
 
 //        if (result != null)
 //        {
+        if(!isBLue){
             return SPECIMEN_X - offset;
+        }else{
+            return -SPECIMEN_X - offset;
+        }
+
 //        }
 //        else
 //        {
