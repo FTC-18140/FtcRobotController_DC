@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.Robot.ThunderBot2024;
 
 @Config
 @Autonomous
-public class AutoRight_sample extends LinearOpMode {
+public class AutoRight_Sample_Regional_RED extends LinearOpMode {
     public static Vector2d startPos = new Vector2d(15,-60);
     public static Vector2d basketPos = new Vector2d(-40,-54);
     public static Vector2d samplePos = new Vector2d(50,-40);
@@ -62,9 +62,8 @@ public class AutoRight_sample extends LinearOpMode {
                         new ParallelAction(
                                 robot.intake.spinnerAction(1),
                                 robot.intake.armUpAction(25),
-                                robot.intake.checkForSample("red", 8)
+                                robot.intake.checkForSample("red", 2)
                         ),
-                        new SleepAction(0.7),
                         new ParallelAction(
                             robot.intake.spinnerAction(0),
                             robot.intake.armDownAction(10),
@@ -84,9 +83,8 @@ public class AutoRight_sample extends LinearOpMode {
                         new ParallelAction(
                                 robot.intake.spinnerAction(1),
                                 robot.intake.armUpAction(28),
-                                robot.intake.checkForSample("red", 8)
+                                robot.intake.checkForSample("red", 1.5)
                         ),
-                        new SleepAction(0.7),
                         new ParallelAction(
                                 robot.intake.spinnerAction(0),
                                 robot.intake.armDownAction(10),
@@ -107,9 +105,8 @@ public class AutoRight_sample extends LinearOpMode {
                         new ParallelAction(
                                 robot.intake.spinnerAction(1),
                                 robot.intake.armUpAction(28),
-                                robot.intake.checkForSample("red", 8)
+                                robot.intake.checkForSample("red", 1.5)
                         ),
-                        new SleepAction(0.7),
                         new ParallelAction(
                                 robot.intake.spinnerAction(0),
                                 robot.intake.armDownAction(10),
