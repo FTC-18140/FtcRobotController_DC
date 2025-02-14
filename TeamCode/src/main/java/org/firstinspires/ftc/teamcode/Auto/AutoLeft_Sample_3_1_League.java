@@ -74,7 +74,7 @@ public class AutoLeft_Sample_3_1_League extends LinearOpMode {
                         ),
                         new ParallelAction(
                                 robot.intake.armUpAction(24),
-                                robot.intake.checkForSample("yellowred", 7)
+                                robot.intake.checkForSample("yellow", 7)
                         ),
                         new ParallelAction(
                                 robot.intake.presetAction(Intake.Positions.HIGH_BASKET),
@@ -103,7 +103,7 @@ public class AutoLeft_Sample_3_1_League extends LinearOpMode {
                         ),
                         new ParallelAction(
                                 robot.intake.armUpAction(24),
-                                robot.intake.checkForSample("yellowred", 7)
+                                robot.intake.checkForSample("yellow", 7)
                         ),
                         new ParallelAction(
                                 robot.intake.presetAction(Intake.Positions.HIGH_BASKET),
@@ -133,7 +133,7 @@ public class AutoLeft_Sample_3_1_League extends LinearOpMode {
                         new ParallelAction(
                                 robot.intake.wristMoveAction(0.81),
                                 robot.intake.armUpAction(17),
-                                robot.intake.checkForSample("yellowred", 10)
+                                robot.intake.checkForSample("yellow", 10)
                         ),
                         new SleepAction(1),
                         new ParallelAction(

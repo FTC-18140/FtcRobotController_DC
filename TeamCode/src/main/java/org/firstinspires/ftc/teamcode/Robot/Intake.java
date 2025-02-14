@@ -44,9 +44,9 @@ public class Intake {
     private PIDController controller;
     public static double p = 0.05, i = 0, d = 0.00025;
 
-    public static double factor_p_down = 0.09;
+    public static double factor_p_down = 0.1;
     public static double factor_d_down = 1.25;
-    public static double f = 0.02;
+    public static double f = 0.015;
     public static double fSin = 0.025;
 
     public final double WRIST_INIT = 0.0;
@@ -60,7 +60,7 @@ public class Intake {
     public static double ELBOW_MAX = 105;
     public static double ELBOW_LOW = 55;
     public static double ELBOW_HIGH_CHAMBER = 50;
-    public static double ELBOW_HIGH_CHAMBER_SCORING = 41;
+    public static double ELBOW_HIGH_CHAMBER_SCORING = 36;
 
     public int elbowDirection = 0;
     public final double ARM_MIN = 0;
@@ -88,13 +88,13 @@ public class Intake {
 
     public enum Positions{
         READY_TO_INTAKE(0.5,1.0,0, CLAW_MAX),
-        LOW_BASKET(0.25,10,ELBOW_MAX, CLAW_MAX),
+        LOW_BASKET(0.2,1.0,ELBOW_MAX, CLAW_MAX),
         HIGH_CHAMBER(0.3,20, ELBOW_HIGH_CHAMBER, CLAW_MAX),
-        HIGH_CHAMBER_SCORING(0.15,25, ELBOW_HIGH_CHAMBER_SCORING, CLAW_MAX),
-        HIGH_CHAMBER_SCORING_AUTO(0.15,25, ELBOW_HIGH_CHAMBER_SCORING, CLAW_MAX),
-        INTAKE_SPECIMEN(0.27, 5, 13, CLAW_MIN),
+        HIGH_CHAMBER_SCORING(0.15,27, ELBOW_HIGH_CHAMBER_SCORING, CLAW_MAX),
+        HIGH_CHAMBER_SCORING_AUTO(0.15,27, ELBOW_HIGH_CHAMBER_SCORING, CLAW_MAX),
+        INTAKE_SPECIMEN(0.26, 5, 10, CLAW_MIN),
         //Max elbow, Max arm extend, base of intake parallel with floor ↓
-        HIGH_BASKET(0.26,ARM_MAX,ELBOW_MAX, CLAW_MAX);
+        HIGH_BASKET(0.25,ARM_MAX,ELBOW_MAX, CLAW_MAX);
         public final double wristPos;
         public final double armPos;
         public final double elbowPos;
@@ -426,11 +426,11 @@ public class Intake {
     public Action checkForSample (String color,double limit){
         return new Action() {
             String c = color;
-            ElapsedTime timer = new ElapsedTime();
+            ElapsedTime timer = new ElapsedTime(0);
 
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                if (c.contains(getCalculatedColor()) || timer.seconds() >= limit) {
+                if (c.equals(getCalculatedColor()) || timer.seconds() >= limit) {
                     return false;
                 }
                 return true;

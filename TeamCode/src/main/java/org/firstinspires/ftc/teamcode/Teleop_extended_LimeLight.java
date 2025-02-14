@@ -144,11 +144,12 @@ public class Teleop_extended_LimeLight extends OpMode {
         }else if(theGamepad1.getButton(TBDGamepad.Button.B)){
             //robot.lift.moveToHanging();
             robot.lift.hang();
-        }else if(theGamepad1.getButton(TBDGamepad.Button.LEFT_BUMPER)){
-            robot.lift.lift_target = 0;
         }else if(theGamepad1.getButton(TBDGamepad.Button.RIGHT_BUMPER)){
+            //robot.lift.lift_target = 0;
+        }else if(theGamepad1.getButton(TBDGamepad.Button.LEFT_BUMPER)){
             //robot.lift.lift_target = robot.lift.LIFT_MAX;
             strafe = -robot.specimenOffsetX();
+            turn -= robot.specimenAngle(robot.drive.pose.heading.toDouble());
             //telemetry.addData("AprilTag offset X: ", robot.specimenOffsetX());
         }else if(theGamepad1.getButton(TBDGamepad.Button.A)){
             robot.lift.moveToMin();

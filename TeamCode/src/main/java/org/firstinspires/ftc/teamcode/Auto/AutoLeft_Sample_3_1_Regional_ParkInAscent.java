@@ -67,13 +67,12 @@ public class AutoLeft_Sample_3_1_Regional_ParkInAscent extends LinearOpMode {
                                 robot.intake.wristMoveAction(0.8),
                                 robot.intake.spinnerAction(1),
                                 robot.drive.actionBuilder(new Pose2d(basketPosStart, Math.toRadians(45)))
-                                        .strafeToSplineHeading(new Vector2d(samplePos_1.x, -48), Math.toRadians(90))
-                                        .strafeTo(samplePos_1)
+                                        .splineToSplineHeading(new Pose2d(samplePos_1, Math.toRadians(90)), Math.toRadians(90))
                                         .build()
                         ),
                         new ParallelAction(
                                 robot.intake.armUpAction(24),
-                                robot.intake.checkForSample("yellowred", 7)
+                                robot.intake.checkForSample("yellow", 7)
                         ),
                         new ParallelAction(
                                 robot.intake.presetAction(Intake.Positions.HIGH_BASKET),
@@ -95,14 +94,13 @@ public class AutoLeft_Sample_3_1_Regional_ParkInAscent extends LinearOpMode {
                         new ParallelAction(
                                 robot.intake.wristMoveAction(0.8),
                                 robot.intake.spinnerAction(1),
-                                robot.drive.actionBuilder(new Pose2d(basketPos, Math.toRadians(45)))
-                                        .strafeToSplineHeading(new Vector2d(samplePos_2.x, -48), Math.toRadians(90))
-                                        .strafeTo(samplePos_2)
+                                robot.drive.actionBuilder(new Pose2d(basketPosStart, Math.toRadians(45)))
+                                        .splineToSplineHeading(new Pose2d(samplePos_2, Math.toRadians(90)), Math.toRadians(90))
                                         .build()
                         ),
                         new ParallelAction(
                                 robot.intake.armUpAction(24),
-                                robot.intake.checkForSample("yellowred", 7)
+                                robot.intake.checkForSample("yellow", 7)
                         ),
                         new ParallelAction(
                                 robot.intake.presetAction(Intake.Positions.HIGH_BASKET),
@@ -124,15 +122,14 @@ public class AutoLeft_Sample_3_1_Regional_ParkInAscent extends LinearOpMode {
                         new ParallelAction(
                                 robot.intake.wristMoveAction(0.7),
                                 robot.intake.spinnerAction(1),
-                                robot.drive.actionBuilder(new Pose2d(basketPos, Math.toRadians(45)))
-                                        .strafeToSplineHeading(new Vector2d(samplePos_3.x, -50), Math.toRadians(135))
-                                        .strafeTo(samplePos_3)
+                                robot.drive.actionBuilder(new Pose2d(basketPosStart, Math.toRadians(45)))
+                                        .splineToSplineHeading(new Pose2d(samplePos_1, Math.toRadians(90)), Math.toRadians(90))
                                         .build()
                         ),
                         new ParallelAction(
                                 robot.intake.wristMoveAction(0.81),
                                 robot.intake.armUpAction(16),
-                                robot.intake.checkForSample("yellowred", 10)
+                                robot.intake.checkForSample("yellow", 10)
                         ),
                         new SleepAction(1),
                         new ParallelAction(

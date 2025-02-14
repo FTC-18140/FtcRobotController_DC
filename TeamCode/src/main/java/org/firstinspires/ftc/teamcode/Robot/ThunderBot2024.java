@@ -423,6 +423,32 @@ public class ThunderBot2024
             return targetX;
         }
     }
+    public double specimenAngle(double heading){
+        double Kp = 0.1;
+        double targetH = limelight.updateHeading(heading);
+
+        if(targetH > 1)
+        {
+            targetH = 1;
+        }
+        else if(targetH < -1)
+        {
+            targetH = -1;
+        }
+        else if(targetH == 0)
+        {
+            return 0;
+        }
+
+        if(Math.abs(targetH) < 1)
+        {
+            return 0;
+        }
+        else
+        {
+            return targetH * Kp;
+        }
+    }
 
     public Action alignToSpecimenAction ( double power){
         return new Action() {

@@ -52,7 +52,7 @@ public class AutoLeft_Specimen_3_1_League extends LinearOpMode {
                         new SleepAction(0.5),
                         robot.drive.actionBuilder(new Pose2d(startPos, Math.toRadians(90)))
                                 .strafeTo(new Vector2d(-7, -56))
-                                .strafeTo(new Vector2d(-7, -34))
+                                .strafeTo(new Vector2d(-7, -31))
                                 .build(),
                         robot.intake.clawAction(0),
 
@@ -72,7 +72,7 @@ public class AutoLeft_Specimen_3_1_League extends LinearOpMode {
                         ),
                         new ParallelAction(
                                 robot.intake.armUpAction(24),
-                                robot.intake.checkForSample("yellowred", 7)
+                                robot.intake.checkForSample("yellow", 7)
                         ),
                         new ParallelAction(
                                 robot.intake.presetAction(Intake.Positions.HIGH_BASKET),
@@ -101,7 +101,7 @@ public class AutoLeft_Specimen_3_1_League extends LinearOpMode {
                         ),
                         new ParallelAction(
                                 robot.intake.armUpAction(24),
-                                robot.intake.checkForSample("yellowred", 7)
+                                robot.intake.checkForSample("yellow", 7)
                         ),
                         new ParallelAction(
                                 robot.intake.presetAction(Intake.Positions.HIGH_BASKET),
@@ -131,7 +131,7 @@ public class AutoLeft_Specimen_3_1_League extends LinearOpMode {
                         new ParallelAction(
                                 robot.intake.wristMoveAction(0.8),
                                 robot.intake.armUpAction(15),
-                                robot.intake.checkForSample("yellowred", 10)
+                                robot.intake.checkForSample("yellow", 10)
                         ),
                         new SleepAction(1),
                         new ParallelAction(
