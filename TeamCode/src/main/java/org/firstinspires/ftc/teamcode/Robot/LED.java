@@ -57,7 +57,11 @@ public class LED {
                     theColor = Range.clip(0.22*Math.sin(ledTimer.seconds()/3)+0.5, 0.28, 0.72);
                     break;
                 case("orange"):
-                    theColor = orange;
+//                    if(Math.sin(ledTimer.seconds()/2) > 0){
+                        theColor = orange;
+//                    }else{
+//                        theColor = white;
+//                    }
                     break;
                 default:
                     theColor = white;

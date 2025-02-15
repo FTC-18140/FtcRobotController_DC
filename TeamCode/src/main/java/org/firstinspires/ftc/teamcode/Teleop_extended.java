@@ -111,7 +111,7 @@ public class Teleop_extended extends OpMode {
         }
 
 
-        if(teleopTimer.seconds() > 105)
+        if((teleopTimer.seconds() > 105 && Math.sin(2*teleopTimer.seconds()) > 0) || teleopTimer.seconds() > 120)
         {
             robot.led.setToColor("orange");
         }
@@ -137,7 +137,7 @@ public class Teleop_extended extends OpMode {
 
 
 
-        if(theGamepad1.getButton(TBDGamepad.Button.Y)){
+        if(theGamepad1.getButton(TBDGamepad.Button.Y) || (teleopTimer.seconds() > 110 && !robot.lift.hanging)){
             robot.lift.moveToTop();
 //            if (liftServoPos+0.01 < robot.lift.LIFT_SERVO_MAX){
 //                liftServoPos += 0.01;
