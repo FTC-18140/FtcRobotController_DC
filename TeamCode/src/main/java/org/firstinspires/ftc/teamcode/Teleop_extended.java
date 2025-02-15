@@ -137,14 +137,15 @@ public class Teleop_extended extends OpMode {
 
 
 
-        if(theGamepad1.getButton(TBDGamepad.Button.Y) || (teleopTimer.seconds() > 110 && !robot.lift.hanging)){
+        if(theGamepad1.getButton(TBDGamepad.Button.B)){
+            //robot.lift.moveToHanging();
+            robot.lift.hang();
+        }else if(theGamepad1.getButton(TBDGamepad.Button.Y) || (teleopTimer.seconds() > 110 && !robot.lift.hanging)){
             robot.lift.moveToTop();
 //            if (liftServoPos+0.01 < robot.lift.LIFT_SERVO_MAX){
 //                liftServoPos += 0.01;
 //            }
             liftPower = 0;
-        }else if(theGamepad1.getButton(TBDGamepad.Button.B)){
-            robot.lift.hang();
         }else if(theGamepad1.getButton(TBDGamepad.Button.LEFT_BUMPER)){
             robot.lift.lift_target = 0;
         }else if(theGamepad1.getButton(TBDGamepad.Button.RIGHT_BUMPER)){
