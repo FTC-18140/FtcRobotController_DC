@@ -84,6 +84,32 @@ public class LimelightVision
         }
 
     }
+    public double updateHeadingSmooth(boolean isBLue){
+        LLResult result = limelight.getLatestResult();
+
+        // Early exit if no valid result is available.
+        if (!isValidResult(result))
+        {
+            telemetry.addData("Limelight", "No valid result found.");
+            return DEFAULT_TARGET_X;
+        }
+
+        // Log basic Limelight data.
+        logLimelightData(result);
+
+        // Find the best color result based on target area.
+        Pose3D botpose = result.getBotpose();
+        double offset = Math.toRadians(botpose.getOrientation().getYaw());
+        telemetry.addData("limelight return position Angle: ", Math.toDegrees(offset));
+        telemetry.addData("limelight return position Angle(Radians): ", offset);
+
+        if(!isBLue){
+            return -Math.cos(offset);
+        }else{
+            return Math.cos(offset);
+        }
+
+    }
     public double getTargetX(boolean isBLue)
     {
         LLResult result = limelight.getLatestResult();
@@ -111,6 +137,42 @@ public class LimelightVision
             return SPECIMEN_X - offset;
         }else{
             return -SPECIMEN_X - offset;
+        }
+
+//        }
+//        else
+//        {
+//            telemetry.addData("Limelight", "No target found.");
+//            return DEFAULT_TARGET_X;
+//        }
+    }
+    public double getTargetXSmooth(boolean isBLue)
+    {
+        LLResult result = limelight.getLatestResult();
+
+        // Early exit if no valid result is available.
+        if (!isValidResult(result))
+        {
+            telemetry.addData("Limelight", "No valid result found.");
+            return DEFAULT_TARGET_X;
+        }
+
+        // Log basic Limelight data.
+        logLimelightData(result);
+
+        // Find the best color result based on target area.
+        Pose3D botpose = result.getBotpose();
+        double offset = botpose.getPosition().x;
+        telemetry.addData("limelight return position X: ", offset);
+        telemetry.addData("limelight return position X-inches: ", offset*39.37008);
+        //LLResultTypes.ColorResult bestColorResult = findBestColorResult(result);
+
+//        if (result != null)
+//        {
+        if(!isBLue){
+            return -2 * Math.sin(1.7176 * (offset-SPECIMEN_X));
+        }else{
+            return -2 * Math.sin(1.7176 * (offset+SPECIMEN_X));
         }
 
 //        }

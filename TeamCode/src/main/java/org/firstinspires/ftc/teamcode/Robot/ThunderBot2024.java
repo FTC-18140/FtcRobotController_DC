@@ -423,6 +423,33 @@ public class ThunderBot2024
             return targetX;
         }
     }
+    public double specimenOffsetXSmooth(boolean isBlue){
+        double Kp = 1.5;
+        double targetX = limelight.getTargetXSmooth(isBlue) * Kp;
+
+        if(targetX > 1)
+        {
+            targetX = 1;
+        }
+        else if(targetX < -1)
+        {
+            targetX = -1;
+        }
+        else if (targetX == 0.0)
+        {
+            return 0.0;
+        }
+        if(Math.abs(targetX / Kp) < 0.0254)
+        {
+            led.setToColor("green");
+            return 0.0;
+        }
+        else
+        {
+            led.setToColor("purple");
+            return targetX;
+        }
+    }
     public double specimenAngle(boolean isBlue){
         double Kp = 0.1;
         double targetH = limelight.updateHeading(isBlue);
@@ -448,6 +475,12 @@ public class ThunderBot2024
         {
             return targetH * Kp;
         }
+    }
+    public double specimenAngleSmooth(boolean isBlue){
+        double Kp = 1.0;
+        double targetH = limelight.updateHeadingSmooth(isBlue);
+
+        return targetH * Kp;
     }
 
     public Action alignToSpecimenAction ( double power){

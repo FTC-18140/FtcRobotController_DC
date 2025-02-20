@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @TeleOp(group = "Teleop")
-public class Teleop_extended_LimeLight_RED extends OpMode {
+public class Teleop_extended_LimeLight_RED_Smooth extends OpMode {
     private FtcDashboard dash = FtcDashboard.getInstance();
     private List<Action> runningActions = new ArrayList<>();
 
@@ -140,21 +140,23 @@ public class Teleop_extended_LimeLight_RED extends OpMode {
         }else if(theGamepad1.getButton(TBDGamepad.Button.Y) || (teleopTimer.seconds() > 110 && !robot.lift.hanging)){
             robot.lift.moveToTop();
             liftPower = 0;
-        }else if(theGamepad1.getButton(TBDGamepad.Button.RIGHT_BUMPER)){
-            //robot.lift.lift_target = 0;
-            strafe = -robot.specimenOffsetX(false);
-            turn -= 0.5 * robot.specimenAngle(false);
-        }else if(theGamepad1.getButton(TBDGamepad.Button.LEFT_BUMPER)){
-            //robot.lift.lift_target = robot.lift.LIFT_MAX;
-            strafe = -robot.specimenOffsetX(false);
-            turn -= 0.5 * robot.specimenAngle(false);
-            //telemetry.addData("AprilTag offset X: ", robot.specimenOffsetX());
         }else if(theGamepad1.getButton(TBDGamepad.Button.A)){
             robot.lift.moveToMin();
 //            if (liftServoPos-0.01 > 0){
 //                liftServoPos -= 0.01;
 //            }
             liftPower = 0;
+        }
+
+        if(theGamepad1.getButton(TBDGamepad.Button.RIGHT_BUMPER)){
+            //robot.lift.lift_target = 0;
+            strafe = -robot.specimenOffsetXSmooth(false);
+            turn -= robot.specimenAngleSmooth(false);
+        }else if(theGamepad1.getButton(TBDGamepad.Button.LEFT_BUMPER)){
+            //robot.lift.lift_target = robot.lift.LIFT_MAX;
+            strafe = -robot.specimenOffsetXSmooth(false);
+            turn -= robot.specimenAngleSmooth(false);
+            //telemetry.addData("AprilTag offset X: ", robot.specimenOffsetX());
         }
 
         //Elbow controls
