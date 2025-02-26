@@ -19,6 +19,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
@@ -177,10 +178,10 @@ public class Intake {
         update();
     }
     public void start(){
-        arm.setPower(0);
-        arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        arm.setPower(0);
+//        arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
     public void preset(Positions position){
         armPos = arm.getCurrentPosition() / COUNTS_PER_ARM_CM;
@@ -253,13 +254,16 @@ public class Intake {
             armOverride = false;
         }
     }
+    public void armTo(int position){
+        armTarget = position;
+    }
 
     public void armUp(double power) {
         telemetry.addData("arm position : ", armPos - armOffset);
         if (target < 30) {
             if (armPos - armOffset <= ARM_MAX_HORIZONTAL) {
                 telemetry.addData("arm position : ", armPos - armOffset);
-                arm.setPower(power);
+                armTarget += power;
             } else {
                 armStop();
             }
@@ -340,8 +344,10 @@ public class Intake {
                 double currentPos = arm.getCurrentPosition();
                 armTarget = pos;
                 armTo = 0;
+                arm.setTargetPosition((int)armTarget);
                 if (pos >= currentPos / COUNTS_PER_ARM_CM) {
-                    armUp(1);
+                    arm.setPower(1);
+//                    armUp(1);
                 } else {
                     armStop();
                     return false;
@@ -361,8 +367,10 @@ public class Intake {
                 double currentPos = arm.getCurrentPosition();
                 armTarget = pos;
                 armTo = 0;
+                arm.setTargetPosition((int)armTarget);
                 if (pos <= currentPos / COUNTS_PER_ARM_CM) {
-                    armDown(-1);
+                    arm.setPower(1);
+//                    armDown(-1);
                 } else {
                     armStop();
                     return false;
@@ -464,16 +472,18 @@ public class Intake {
         /////////////////////////
         // Update telescoping arm
         /////////////////////////
+        armTarget = Range.clip(armTarget, ARM_MIN, ARM_MAX);
         armPos = arm.getCurrentPosition() / COUNTS_PER_ARM_CM;
+        arm.setTargetPosition((int)armTarget);
         if (armTo > 0) {
             if (armPos - armOffset < armTarget) {
-                armUp(0.3);
+                arm.setPower(1);
             } else {
                 armTo = 0;
             }
         } else if (armTo < 0) {
             if (armPos - armOffset > armTarget) {
-                armDown(-1.0);
+                arm.setPower(1);
             } else {
                 armTo = 0;
             }

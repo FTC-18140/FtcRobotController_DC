@@ -30,6 +30,7 @@ public class Teleop_extended_LimeLight_RED_Smooth extends OpMode {
     public double clawPos;
     public double spinPos;
     public boolean turning = false;
+    public int armTarget = 0;
     public double liftServoPos;
 
     public double liftPower = 0;
@@ -90,6 +91,7 @@ public class Teleop_extended_LimeLight_RED_Smooth extends OpMode {
         double slow = 0.7;
         double armSlow = 1;
 
+        robot.intake.armTo(armTarget);
         robot.intake.update();
         robot.lift.update();
 //        robot.lift.leftServo.setPosition(liftServoPos);
@@ -204,10 +206,12 @@ public class Teleop_extended_LimeLight_RED_Smooth extends OpMode {
         }
         // Arm controls
         if(theGamepad2.getButton(TBDGamepad.Button.X)){
-            robot.intake.armUp(0.4*armSlow);
+//            robot.intake.armUp(0.4*armSlow);
+            armTarget += 1;
         }
         else if(theGamepad2.getButton(TBDGamepad.Button.B)){
-            robot.intake.armDown(-0.8*(armSlow*1.5));
+//            robot.intake.armDown(-0.8*(armSlow*1.5));
+            armTarget -= 1;
         }
         else{
             if(robot.intake.armTo == 0){
