@@ -200,7 +200,7 @@ public class Teleop_old extends OpMode
             robot.intake.armDown(-0.8*(armSlow*1.5));
         }
         else{
-            if(robot.intake.armTo == 0){
+            if(robot.intake.aDouble == 0){
                 robot.intake.armStop();
             }
         }

@@ -217,9 +217,9 @@ public class Teleop extends OpMode {
             robot.intake.armDown(-0.8*(armSlow*1.5));
         }
         else{
-            if(robot.intake.armTo == 0){
-                robot.intake.armStop();
-            }
+//            if(robot.intake.armTo == 0){
+//                robot.intake.armStop();
+//            }
         }
 
         if(theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER)){

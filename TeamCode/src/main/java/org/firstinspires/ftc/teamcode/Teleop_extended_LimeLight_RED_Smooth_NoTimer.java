@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @TeleOp(group = "Teleop")
-public class Teleop_extended_LimeLight_RED extends OpMode {
+public class Teleop_extended_LimeLight_RED_Smooth_NoTimer extends OpMode {
     private FtcDashboard dash = FtcDashboard.getInstance();
     private List<Action> runningActions = new ArrayList<>();
 
@@ -30,6 +30,7 @@ public class Teleop_extended_LimeLight_RED extends OpMode {
     public double clawPos;
     public double spinPos;
     public boolean turning = false;
+    int armTarget = 0;
     public double liftServoPos;
 
     public double liftPower = 0;
@@ -112,7 +113,7 @@ public class Teleop_extended_LimeLight_RED extends OpMode {
 
         if((teleopTimer.seconds() > 105 && Math.sin(2*teleopTimer.seconds()) > 0) || teleopTimer.seconds() > 120)
         {
-            robot.led.setToColor("orange");
+            // robot.led.setToColor("orange");
         }
         else if (slow == 1.0)
         {
@@ -137,24 +138,23 @@ public class Teleop_extended_LimeLight_RED extends OpMode {
 
         if(theGamepad1.getButton(TBDGamepad.Button.B)){
             robot.lift.hang();
-        }else if(theGamepad1.getButton(TBDGamepad.Button.Y) || (teleopTimer.seconds() > 110 && !robot.lift.hanging)){
-            robot.lift.moveToTop();
-            liftPower = 0;
-        }else if(theGamepad1.getButton(TBDGamepad.Button.RIGHT_BUMPER)){
-            //robot.lift.lift_target = 0;
-            strafe = -robot.specimenOffsetX(false);
-            turn -= 0.5 * robot.specimenAngle(false);
-        }else if(theGamepad1.getButton(TBDGamepad.Button.LEFT_BUMPER)){
-            //robot.lift.lift_target = robot.lift.LIFT_MAX;
-            strafe = -robot.specimenOffsetX(false);
-            turn -= 0.5 * robot.specimenAngle(false);
-            //telemetry.addData("AprilTag offset X: ", robot.specimenOffsetX());
         }else if(theGamepad1.getButton(TBDGamepad.Button.A)){
             robot.lift.moveToMin();
 //            if (liftServoPos-0.01 > 0){
 //                liftServoPos -= 0.01;
 //            }
             liftPower = 0;
+        }
+
+        if(theGamepad1.getButton(TBDGamepad.Button.RIGHT_BUMPER)){
+            //robot.lift.lift_target = 0;
+            strafe = -robot.specimenOffsetXSmooth(false);
+            turn = -robot.specimenAngleSmooth(false);
+        }else if(theGamepad1.getButton(TBDGamepad.Button.LEFT_BUMPER)){
+            //robot.lift.lift_target = robot.lift.LIFT_MAX;
+            strafe = -robot.specimenOffsetXSmooth(false);
+            turn = -robot.specimenAngleSmooth(false);
+            //telemetry.addData("AprilTag offset X: ", robot.specimenOffsetX());
         }
 
         //Elbow controls
@@ -174,6 +174,7 @@ public class Teleop_extended_LimeLight_RED extends OpMode {
             }
             else if (theGamepad2.getButton(TBDGamepad.Button.DPAD_DOWN)) {
                 robot.intake.preset(Intake.Positions.INTAKE_SPECIMEN);
+                armTarget = (int)Intake.Positions.INTAKE_SPECIMEN.armPos;
                 wristPos = Intake.Positions.INTAKE_SPECIMEN.wristPos;
             }
         } else {
@@ -188,30 +189,38 @@ public class Teleop_extended_LimeLight_RED extends OpMode {
 
             if (theGamepad2.getButton(TBDGamepad.Button.Y)) {
                 robot.intake.preset(Intake.Positions.HIGH_BASKET);
+                armTarget = (int)Intake.Positions.HIGH_BASKET.armPos;
                 wristPos = Intake.Positions.HIGH_BASKET.wristPos;
             } else if (theGamepad2.getButton(TBDGamepad.Button.A)) {
                 robot.intake.preset(Intake.Positions.READY_TO_INTAKE);
+                armTarget = (int)Intake.Positions.READY_TO_INTAKE.armPos;
                 wristPos = Intake.Positions.READY_TO_INTAKE.wristPos;
             } else if (theGamepad2.getButton(TBDGamepad.Button.DPAD_LEFT)) {
                 robot.intake.preset(Intake.Positions.LOW_BASKET);
+                armTarget = (int)Intake.Positions.LOW_BASKET.armPos;
                 wristPos = Intake.Positions.LOW_BASKET.wristPos;
             } else if (theGamepad2.getButton(TBDGamepad.Button.DPAD_RIGHT)) {
                 robot.intake.preset(Intake.Positions.HIGH_CHAMBER_SCORING);
+                armTarget = (int)Intake.Positions.HIGH_CHAMBER_SCORING.armPos;
                 wristPos = Intake.Positions.HIGH_CHAMBER_SCORING.wristPos;
             }
         }
         // Arm controls
         if(theGamepad2.getButton(TBDGamepad.Button.X)){
-            robot.intake.armUp(0.4*armSlow);
+//            robot.intake.armUp(0.4*armSlow);
+            armTarget += 2;
+            robot.intake.armTo(armTarget);
         }
         else if(theGamepad2.getButton(TBDGamepad.Button.B)){
-            robot.intake.armDown(-0.8*(armSlow*1.5));
+//            robot.intake.armDown(-0.8*(armSlow*1.5));
+            armTarget -= 2;
+            robot.intake.armTo(armTarget);
         }
-        else{
-            if(robot.intake.aDouble == 0){
-                robot.intake.armStop();
-            }
-        }
+//        else{
+//            if(robot.intake.armTo == 0){
+//                robot.intake.armStop();
+//            }
+//        }
 
         if(theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER)){
             robot.intake.spin(1);
@@ -223,6 +232,8 @@ public class Teleop_extended_LimeLight_RED extends OpMode {
             robot.intake.spinStop();
         }
 
+
+        armTarget = (int)Range.clip(armTarget, robot.intake.ARM_MIN, Intake.ARM_MAX);
         wristPos = Range.clip(wristPos, robot.intake.WRIST_MIN, robot.intake.WRIST_MAX);
         robot.intake.wristMove(wristPos);
 

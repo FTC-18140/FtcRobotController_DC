@@ -153,11 +153,11 @@ public class Teleop_extended_LimeLight_RED_Smooth extends OpMode {
         if(theGamepad1.getButton(TBDGamepad.Button.RIGHT_BUMPER)){
             //robot.lift.lift_target = 0;
             strafe = -robot.specimenOffsetXSmooth(false);
-            turn -= robot.specimenAngleSmooth(false);
+            turn = -robot.specimenAngleSmooth(false);
         }else if(theGamepad1.getButton(TBDGamepad.Button.LEFT_BUMPER)){
             //robot.lift.lift_target = robot.lift.LIFT_MAX;
             strafe = -robot.specimenOffsetXSmooth(false);
-            turn -= robot.specimenAngleSmooth(false);
+            turn = -robot.specimenAngleSmooth(false);
             //telemetry.addData("AprilTag offset X: ", robot.specimenOffsetX());
         }
 
@@ -214,7 +214,7 @@ public class Teleop_extended_LimeLight_RED_Smooth extends OpMode {
             armTarget -= 1;
         }
         else{
-            if(robot.intake.armTo == 0){
+            if(robot.intake.aDouble == 0){
                 robot.intake.armStop();
             }
         }

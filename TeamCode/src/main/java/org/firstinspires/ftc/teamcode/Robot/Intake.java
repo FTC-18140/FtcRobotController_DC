@@ -10,7 +10,6 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.Actions;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -24,8 +23,6 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 
-import java.util.concurrent.TimeUnit;
-
 @Config
 public class Intake {
     Telemetry telemetry;
@@ -37,7 +34,7 @@ public class Intake {
 
     public double clawPos;
 
-    public double armTo = 0;
+    public double aDouble = 0.5;
     double armTarget = 0;
 
     ColorSensor colorL = null;
@@ -189,8 +186,9 @@ public class Intake {
         wristMove(position.wristPos);
         clawMove(position.clawPos);
         armTarget = position.armPos;
-        armTo = armTarget - (armPos - armOffset);
-        telemetry.addData("preset arm: ", armTo);
+        arm.setTargetPosition((int)((armTarget + armOffset) * COUNTS_PER_ARM_CM));
+        //armTo = armTarget - (armPos - armOffset);
+        //telemetry.addData("preset arm: ", armTo);
     }
     public Action presetAction(Positions position){
         return new Action() {
@@ -256,6 +254,7 @@ public class Intake {
     }
     public void armTo(int position){
         armTarget = position;
+        //arm.setPower(1);
     }
 
     public void armUp(double power) {
@@ -264,12 +263,14 @@ public class Intake {
             if (armPos - armOffset <= ARM_MAX_HORIZONTAL) {
                 telemetry.addData("arm position : ", armPos - armOffset);
                 armTarget += power;
+                //arm.setPower(1);
             } else {
                 armStop();
             }
         } else {
             if (armPos - armOffset <= ARM_MAX) {
-                arm.setPower(power);
+                armTarget += power;
+                //arm.setPower(1);
             } else {
                 armStop();
             }
@@ -279,12 +280,16 @@ public class Intake {
         telemetry.addData("arm position : ", armPos - armOffset);
         if(!armOverride) {
             if (armPos - armOffset >= ARM_MIN) {
-                arm.setPower(power);
+                armTarget -= power;
+                arm.setTargetPosition((int)armTarget - (int)armOffset);
+                //arm.setPower(1);
             } else {
                 armStop();
             }
         }else{
-            arm.setPower(power);
+            armTarget -= power;
+            arm.setTargetPosition((int)armTarget - (int)armOffset);
+            //arm.setPower(1);
         }
     }
     public void armStop () {
@@ -343,13 +348,13 @@ public class Intake {
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 double currentPos = arm.getCurrentPosition();
                 armTarget = pos;
-                armTo = 0;
-                arm.setTargetPosition((int)armTarget);
+                //armTo = 0;
+                arm.setTargetPosition((int)armTarget - (int)armOffset);
                 if (pos >= currentPos / COUNTS_PER_ARM_CM) {
                     arm.setPower(1);
 //                    armUp(1);
                 } else {
-                    armStop();
+                    //armStop();
                     return false;
                 }
 
@@ -366,10 +371,10 @@ public class Intake {
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 double currentPos = arm.getCurrentPosition();
                 armTarget = pos;
-                armTo = 0;
-                arm.setTargetPosition((int)armTarget);
+                //armTo = 0;
+                arm.setTargetPosition((int)armTarget - (int)armOffset);
                 if (pos <= currentPos / COUNTS_PER_ARM_CM) {
-                    arm.setPower(1);
+                    //arm.setPower(1);
 //                    armDown(-1);
                 } else {
                     armStop();
@@ -472,26 +477,34 @@ public class Intake {
         /////////////////////////
         // Update telescoping arm
         /////////////////////////
-        armTarget = Range.clip(armTarget, ARM_MIN, ARM_MAX);
-        armPos = arm.getCurrentPosition() / COUNTS_PER_ARM_CM;
-        arm.setTargetPosition((int)armTarget);
-        if (armTo > 0) {
-            if (armPos - armOffset < armTarget) {
-                arm.setPower(1);
-            } else {
-                armTo = 0;
-            }
-        } else if (armTo < 0) {
-            if (armPos - armOffset > armTarget) {
-                arm.setPower(1);
-            } else {
-                armTo = 0;
+        if(!armOverride){
+            if(target<30){
+                armTarget = Range.clip(armTarget, ARM_MIN, ARM_MAX_HORIZONTAL);
+            }else {
+                armTarget = Range.clip(armTarget, ARM_MIN, ARM_MAX);
             }
         }
+        arm.setPower(1);
+        armPos = arm.getCurrentPosition() / COUNTS_PER_ARM_CM;
+        arm.setTargetPosition((int)((armTarget + armOffset) * COUNTS_PER_ARM_CM));
+//        if (armTo > 0) {
+//            if (armPos - armOffset < armTarget) {
+//                arm.setPower(1);
+//            } else {
+//                armTo = 0;
+//            }
+//        } else if (armTo < 0) {
+//            if (armPos - armOffset > armTarget) {
+//                arm.setPower(1);
+//            } else {
+//                armTo = 0;
+//            }
+//        }
 
 //        telemetry.addData("arm direction for preset ", armTarget-armPos/COUNTS_PER_CM);
-//        telemetry.addData("arm target: ", armTarget);
-//        telemetry.addData("armPos: ", armPos);
+        telemetry.addData("arm target: ", armTarget + armOffset);
+        telemetry.addData("armPos: ", armPos);
+        telemetry.addData("armOffset: ", armOffset);
 
         ////////////////
         // Update elbow
