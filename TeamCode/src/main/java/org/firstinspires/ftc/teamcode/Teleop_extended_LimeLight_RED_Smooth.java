@@ -30,7 +30,7 @@ public class Teleop_extended_LimeLight_RED_Smooth extends OpMode {
     public double clawPos;
     public double spinPos;
     public boolean turning = false;
-    public int armTarget = 0;
+    int armTarget = 0;
     public double liftServoPos;
 
     public double liftPower = 0;
@@ -178,6 +178,7 @@ public class Teleop_extended_LimeLight_RED_Smooth extends OpMode {
             }
             else if (theGamepad2.getButton(TBDGamepad.Button.DPAD_DOWN)) {
                 robot.intake.preset(Intake.Positions.INTAKE_SPECIMEN);
+                armTarget = (int)Intake.Positions.INTAKE_SPECIMEN.armPos;
                 wristPos = Intake.Positions.INTAKE_SPECIMEN.wristPos;
             }
         } else {
@@ -192,32 +193,38 @@ public class Teleop_extended_LimeLight_RED_Smooth extends OpMode {
 
             if (theGamepad2.getButton(TBDGamepad.Button.Y)) {
                 robot.intake.preset(Intake.Positions.HIGH_BASKET);
+                armTarget = (int)Intake.Positions.HIGH_BASKET.armPos;
                 wristPos = Intake.Positions.HIGH_BASKET.wristPos;
             } else if (theGamepad2.getButton(TBDGamepad.Button.A)) {
                 robot.intake.preset(Intake.Positions.READY_TO_INTAKE);
+                armTarget = (int)Intake.Positions.READY_TO_INTAKE.armPos;
                 wristPos = Intake.Positions.READY_TO_INTAKE.wristPos;
             } else if (theGamepad2.getButton(TBDGamepad.Button.DPAD_LEFT)) {
                 robot.intake.preset(Intake.Positions.LOW_BASKET);
+                armTarget = (int)Intake.Positions.LOW_BASKET.armPos;
                 wristPos = Intake.Positions.LOW_BASKET.wristPos;
             } else if (theGamepad2.getButton(TBDGamepad.Button.DPAD_RIGHT)) {
                 robot.intake.preset(Intake.Positions.HIGH_CHAMBER_SCORING);
+                armTarget = (int)Intake.Positions.HIGH_CHAMBER_SCORING.armPos;
                 wristPos = Intake.Positions.HIGH_CHAMBER_SCORING.wristPos;
             }
         }
         // Arm controls
         if(theGamepad2.getButton(TBDGamepad.Button.X)){
 //            robot.intake.armUp(0.4*armSlow);
-            armTarget += 1;
+            armTarget += (int)(2 * armSlow);
+            robot.intake.armTo(armTarget);
         }
         else if(theGamepad2.getButton(TBDGamepad.Button.B)){
 //            robot.intake.armDown(-0.8*(armSlow*1.5));
-            armTarget -= 1;
+            armTarget -= (int)(2 * armSlow);
+            robot.intake.armTo(armTarget);
         }
-        else{
-            if(robot.intake.aDouble == 0){
-                robot.intake.armStop();
-            }
-        }
+//        else{
+//            if(robot.intake.aDouble == 0){
+//                robot.intake.armStop();
+//            }
+//        }
 
         if(theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER)){
             robot.intake.spin(1);
@@ -229,6 +236,7 @@ public class Teleop_extended_LimeLight_RED_Smooth extends OpMode {
             robot.intake.spinStop();
         }
 
+        armTarget = (int)Range.clip(armTarget, robot.intake.ARM_MIN, Intake.ARM_MAX);
         wristPos = Range.clip(wristPos, robot.intake.WRIST_MIN, robot.intake.WRIST_MAX);
         robot.intake.wristMove(wristPos);
 

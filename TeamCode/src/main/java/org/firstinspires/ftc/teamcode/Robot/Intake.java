@@ -43,11 +43,12 @@ public class Intake {
     float hsvValuesL[] = {0,0,0};
     float hsvValuesR[] = {0,0,0};
     private PIDController controller;
-    public static double p = 0.05, i = 0, d = 0.00025;
+    public static double p = 0.03, i = 0, d = 0.00025;
 
-    public static double factor_p_down = 0.1;
+    public static double factor_p_down = 0.125;
     public static double factor_d_down = 1.25;
     public static double f = 0.015;
+    public static double fMin = 0.01;
     public static double fSin = 0.025;
 
     public final double WRIST_INIT = 0.0;
@@ -521,12 +522,17 @@ public class Intake {
         if (target >= elbowPosition/COUNTS_PER_ELBOW_DEGREE) {
             // the cosine lowers as it approaches half-PI/90°
             // the sine balances out the cosine, allowing the arm to raise fully
-            ff = f * Math.cos(Math.toRadians(clip(elbowPosition / COUNTS_PER_ELBOW_DEGREE, 0, 180))) + fSin * Math.sin(Math.toRadians(clip(elbowPosition / COUNTS_PER_ELBOW_DEGREE, 0, 180)));
+            ff = f * Math.cos(Math.toRadians(clip(elbowPosition / COUNTS_PER_ELBOW_DEGREE, 0, 180)));
             controller.setPID(p, i, d);
         } else {
             double pDown = Math.abs(p * factor_p_down * Math.cos(Math.toRadians(clip(elbowPosition / COUNTS_PER_ELBOW_DEGREE, 0, 180))));
             double dDown = Math.abs(d * factor_d_down * Math.cos(Math.toRadians(clip(elbowPosition / COUNTS_PER_ELBOW_DEGREE, 0, 180))));
             controller.setPID(pDown, i, dDown);
+        }
+
+        if(ff < fMin)
+        {
+            ff = fMin;
         }
         double pid = controller.calculate(elbowPosition / COUNTS_PER_ELBOW_DEGREE, target);
 

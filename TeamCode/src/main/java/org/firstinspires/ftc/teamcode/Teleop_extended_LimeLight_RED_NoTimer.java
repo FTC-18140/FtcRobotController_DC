@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @TeleOp(group = "Teleop")
-public class Teleop_extended_LimeLight_RED_Smooth_NoTimer extends OpMode {
+public class Teleop_extended_LimeLight_RED_NoTimer extends OpMode {
     private FtcDashboard dash = FtcDashboard.getInstance();
     private List<Action> runningActions = new ArrayList<>();
 
@@ -27,10 +27,10 @@ public class Teleop_extended_LimeLight_RED_Smooth_NoTimer extends OpMode {
     private TBDGamepad theGamepad2;
 
     public double wristPos;
+    public int armTarget;
     public double clawPos;
     public double spinPos;
     public boolean turning = false;
-    int armTarget = 0;
     public double liftServoPos;
 
     public double liftPower = 0;
@@ -91,7 +91,6 @@ public class Teleop_extended_LimeLight_RED_Smooth_NoTimer extends OpMode {
         double slow = 0.7;
         double armSlow = 1;
 
-        robot.intake.armTo(armTarget);
         robot.intake.update();
         robot.lift.update();
 //        robot.lift.leftServo.setPosition(liftServoPos);
@@ -149,12 +148,12 @@ public class Teleop_extended_LimeLight_RED_Smooth_NoTimer extends OpMode {
 
         if(theGamepad1.getButton(TBDGamepad.Button.RIGHT_BUMPER)){
             //robot.lift.lift_target = 0;
-            strafe = -robot.specimenOffsetXSmooth(false);
-            turn = -robot.specimenAngleSmooth(false);
+            strafe = -robot.specimenOffsetX(false);
+            turn = -0.2 * robot.specimenAngle(false);
         }else if(theGamepad1.getButton(TBDGamepad.Button.LEFT_BUMPER)){
             //robot.lift.lift_target = robot.lift.LIFT_MAX;
-            strafe = -robot.specimenOffsetXSmooth(false);
-            turn = -robot.specimenAngleSmooth(false);
+            strafe = -robot.specimenOffsetX(false);
+            turn = -0.2 * robot.specimenAngle(false);
             //telemetry.addData("AprilTag offset X: ", robot.specimenOffsetX());
         }
 
@@ -209,12 +208,12 @@ public class Teleop_extended_LimeLight_RED_Smooth_NoTimer extends OpMode {
         // Arm controls
         if(theGamepad2.getButton(TBDGamepad.Button.X)){
 //            robot.intake.armUp(0.4*armSlow);
-            armTarget += (int)(2 * armSlow);
+            armTarget += 2;
             robot.intake.armTo(armTarget);
         }
         else if(theGamepad2.getButton(TBDGamepad.Button.B)){
 //            robot.intake.armDown(-0.8*(armSlow*1.5));
-            armTarget -= (int)(2 * armSlow);
+            armTarget -= 2;
             robot.intake.armTo(armTarget);
         }
 //        else{
