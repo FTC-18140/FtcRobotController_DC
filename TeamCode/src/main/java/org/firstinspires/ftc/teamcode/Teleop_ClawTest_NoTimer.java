@@ -13,7 +13,6 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.Auto.AutoPositions;
 import org.firstinspires.ftc.teamcode.Robot.Intake;
 import org.firstinspires.ftc.teamcode.Robot.IntakeClaw;
-import org.firstinspires.ftc.teamcode.Robot.ThunderBot2024;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot_Claw_2024;
 
 import java.util.ArrayList;
@@ -173,7 +172,7 @@ public class Teleop_ClawTest_NoTimer extends OpMode {
                 robot.intake.clawMove(0);
             }
             else if(theGamepad2.getButton(TBDGamepad.Button.DPAD_RIGHT)){
-                robot.intake.clawMove(IntakeClaw.CLAW_MAX);
+                robot.intake.clawMove(IntakeClaw.CLAW_OPEN);
             }
             else if (theGamepad2.getButton(TBDGamepad.Button.DPAD_DOWN)) {
                 robot.intake.preset(IntakeClaw.Positions.INTAKE_SPECIMEN);
@@ -183,11 +182,11 @@ public class Teleop_ClawTest_NoTimer extends OpMode {
         } else {
             if(gamepad2.dpad_up){
                 wristPos = robot.intake.wristPos;
-                wristPos -= 0.05*armSlow;
+                wristPos -= 0.02*armSlow;
             }
             else if(gamepad2.dpad_down){
                 wristPos = robot.intake.wristPos;
-                wristPos += 0.05*armSlow;
+                wristPos += 0.02*armSlow;
             }
 
             if (theGamepad2.getButton(TBDGamepad.Button.Y)) {
@@ -198,14 +197,11 @@ public class Teleop_ClawTest_NoTimer extends OpMode {
                 robot.intake.preset(IntakeClaw.Positions.READY_TO_INTAKE);
                 armTarget = (int)IntakeClaw.Positions.READY_TO_INTAKE.armPos;
                 wristPos = IntakeClaw.Positions.READY_TO_INTAKE.wristPos;
-            } else if (theGamepad2.getButton(TBDGamepad.Button.DPAD_LEFT)) {
-                robot.intake.preset(IntakeClaw.Positions.LOW_BASKET);
-                armTarget = (int)IntakeClaw.Positions.LOW_BASKET.armPos;
-                wristPos = IntakeClaw.Positions.LOW_BASKET.wristPos;
+            }
+            if (theGamepad2.getButton(TBDGamepad.Button.DPAD_LEFT)) {
+                robot.intake.pivotTo(1.0);
             } else if (theGamepad2.getButton(TBDGamepad.Button.DPAD_RIGHT)) {
-                robot.intake.preset(IntakeClaw.Positions.HIGH_CHAMBER_SCORING);
-                armTarget = (int)IntakeClaw.Positions.HIGH_CHAMBER_SCORING.armPos;
-                wristPos = IntakeClaw.Positions.HIGH_CHAMBER_SCORING.wristPos;
+                robot.intake.pivotTo(0.0);
             }
         }
         // Arm controls
@@ -226,10 +222,10 @@ public class Teleop_ClawTest_NoTimer extends OpMode {
 //        }
 
         if(theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER)){
-            robot.intake.clawMove(IntakeClaw.CLAW_MAX);
+            robot.intake.clawMove(IntakeClaw.CLAW_CLOSE);
             telemetry.addData("intaking",0);
         } else if (theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER)) {
-            robot.intake.clawMove(0);
+            robot.intake.clawMove(IntakeClaw.CLAW_OPEN);
             telemetry.addData("outaking",0);
         }else{
             //robot.intake.spinStop();

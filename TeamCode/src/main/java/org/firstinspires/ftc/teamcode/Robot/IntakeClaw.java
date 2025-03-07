@@ -11,7 +11,6 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -53,13 +52,13 @@ public class IntakeClaw {
 
     public final double WRIST_INIT = 0.0;
     public final double WRIST_MIN = 0.0;
-    public final double WRIST_MAX = 1.0;
+    public final double WRIST_MAX = 0.8;
     public final double PIVOT_MIN = 0.0;
     public final double PIVOT_MAX = 1.0;
     public static double PIVOT_INIT = 0.5;
 
-    public static double CLAW_MIN = 0;
-    public static double CLAW_MAX = 0.35;
+    public static double CLAW_CLOSE = 0;
+    public static double CLAW_OPEN = 0.35;
     public final double ELBOW_MIN = 0;
     public final double ELBOW_MIN_SLOW = 30;
 
@@ -94,14 +93,14 @@ public class IntakeClaw {
 
 
     public enum Positions{
-        READY_TO_INTAKE(0.5,1.0,0, CLAW_MAX, PIVOT_INIT),
-        LOW_BASKET(0.2,1.0,ELBOW_MAX, CLAW_MAX, PIVOT_INIT),
-        HIGH_CHAMBER(0.3,20, ELBOW_HIGH_CHAMBER, CLAW_MAX, PIVOT_INIT),
-        HIGH_CHAMBER_SCORING(0.125,27, ELBOW_HIGH_CHAMBER_SCORING, CLAW_MAX, PIVOT_INIT),
-        HIGH_CHAMBER_SCORING_AUTO(0.14,27, ELBOW_HIGH_CHAMBER_SCORING, CLAW_MAX, PIVOT_INIT),
-        INTAKE_SPECIMEN(0.26, 5, 10, CLAW_MIN, PIVOT_INIT),
+        READY_TO_INTAKE(0.5,1.0,0, CLAW_CLOSE, PIVOT_INIT),
+        LOW_BASKET(0.2,1.0,ELBOW_MAX, CLAW_CLOSE, PIVOT_INIT),
+        HIGH_CHAMBER(0.3,20, ELBOW_HIGH_CHAMBER, CLAW_CLOSE, PIVOT_INIT),
+        HIGH_CHAMBER_SCORING(0.125,27, ELBOW_HIGH_CHAMBER_SCORING, CLAW_CLOSE, PIVOT_INIT),
+        HIGH_CHAMBER_SCORING_AUTO(0.14,27, ELBOW_HIGH_CHAMBER_SCORING, CLAW_CLOSE, PIVOT_INIT),
+        INTAKE_SPECIMEN(0.26, 5, 10, CLAW_OPEN, PIVOT_INIT),
         //Max elbow, Max arm extend, base of intake parallel with floor ↓
-        HIGH_BASKET(0.25,ARM_MAX,ELBOW_MAX, CLAW_MAX, PIVOT_INIT);
+        HIGH_BASKET(0.25,ARM_MAX,ELBOW_MAX, CLAW_CLOSE, PIVOT_INIT);
         public final double wristPos;
         public final double armPos;
         public final double elbowPos;
@@ -142,7 +141,8 @@ public class IntakeClaw {
         }
         try{
             claw = hwMap.servo.get("claw");
-            claw.setPosition(CLAW_MAX);
+            claw.setDirection(Servo.Direction.REVERSE);
+            claw.setPosition(CLAW_OPEN);
         }catch(Exception e){
             telemetry.addData("claw servo not found in configuration",0);
         }
@@ -240,7 +240,7 @@ public class IntakeClaw {
         }
     }
     public void clawMove(double position){
-        if(position<=CLAW_MAX && position>=CLAW_MIN) {
+        if(position<= CLAW_OPEN && position>= CLAW_CLOSE) {
             claw.setPosition(position);
         }
     }
