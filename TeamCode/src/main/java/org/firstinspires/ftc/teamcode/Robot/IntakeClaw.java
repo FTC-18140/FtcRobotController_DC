@@ -173,7 +173,7 @@ public class IntakeClaw {
             arm.setDirection(DcMotorSimple.Direction.REVERSE);
             arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-            arm.setPower(0.8);
+            arm.setPower(0.5);
 
         }catch(Exception e){
             telemetry.addData("arm motor not found in configuration", 0);
@@ -355,7 +355,7 @@ public class IntakeClaw {
                 //armTo = 0;
                 arm.setTargetPosition((int)armTarget - (int)armOffset);
                 if (pos >= currentPos / COUNTS_PER_ARM_CM) {
-                    arm.setPower(1);
+                    arm.setPower(0.5);
 //                    armUp(1);
                 } else {
                     //armStop();
@@ -487,7 +487,7 @@ public class IntakeClaw {
                 armTarget = Range.clip(armTarget, ARM_MIN, ARM_MAX);
             }
         }
-        arm.setPower(1);
+        arm.setPower(0.5);
         armPos = arm.getCurrentPosition() / COUNTS_PER_ARM_CM;
         arm.setTargetPosition((int)((armTarget + armOffset) * COUNTS_PER_ARM_CM));
 //        if (armTo > 0) {
