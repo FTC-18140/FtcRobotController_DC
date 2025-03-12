@@ -79,6 +79,7 @@ public class IntakeClaw {
     public static double target = Positions.READY_TO_INTAKE.elbowPos;
     public static double directSetTarget = Positions.READY_TO_INTAKE.elbowPos;
     public double armPos;
+    double armTo;
     public double elbowPosition;
     public double wristPos;
     public double pivotPos;
@@ -173,7 +174,7 @@ public class IntakeClaw {
             arm.setDirection(DcMotorSimple.Direction.REVERSE);
             arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-            arm.setPower(0.5);
+            arm.setPower(0.8);
 
         }catch(Exception e){
             telemetry.addData("arm motor not found in configuration", 0);
@@ -182,10 +183,10 @@ public class IntakeClaw {
     }
 
     public void start(){
-//        arm.setPower(0);
-//        arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        arm.setPower(0);
+        arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
     public void preset(Positions position){
         armPos = arm.getCurrentPosition() / COUNTS_PER_ARM_CM;
@@ -194,8 +195,8 @@ public class IntakeClaw {
         clawMove(position.clawPos);
         pivotTo(position.pivotPos);
         armTarget = position.armPos;
-        arm.setTargetPosition((int)((armTarget + armOffset) * COUNTS_PER_ARM_CM));
-        //armTo = armTarget - (armPos - armOffset);
+        //arm.setTargetPosition((int)((armTarget + armOffset) * COUNTS_PER_ARM_CM));
+        armTo = armTarget - (armPos - armOffset);
         //telemetry.addData("preset arm: ", armTo);
     }
     public Action presetAction(Positions position){
@@ -275,14 +276,15 @@ public class IntakeClaw {
         if (target < 30) {
             if (armPos - armOffset <= ARM_MAX_HORIZONTAL) {
                 telemetry.addData("arm position : ", armPos - armOffset);
-                armTarget += power;
-                //arm.setPower(1);
+                //armTarget += power;
+                arm.setPower(power);
             } else {
                 armStop();
             }
         } else {
             if (armPos - armOffset <= ARM_MAX) {
-                armTarget += power;
+                arm.setPower(power);
+                //armTarget += power;
                 //arm.setPower(1);
             } else {
                 armStop();
@@ -293,15 +295,16 @@ public class IntakeClaw {
         telemetry.addData("arm position : ", armPos - armOffset);
         if(!armOverride) {
             if (armPos - armOffset >= ARM_MIN) {
-                armTarget -= power;
-                arm.setTargetPosition((int)armTarget - (int)armOffset);
+                arm.setPower(power);
+                //arm.setTargetPosition((int)armTarget - (int)armOffset);
                 //arm.setPower(1);
             } else {
                 armStop();
             }
         }else{
-            armTarget -= power;
-            arm.setTargetPosition((int)armTarget - (int)armOffset);
+            arm.setPower(power);
+//            armTarget -= power;
+//            arm.setTargetPosition((int)armTarget - (int)armOffset);
             //arm.setPower(1);
         }
     }
@@ -353,12 +356,12 @@ public class IntakeClaw {
                 double currentPos = arm.getCurrentPosition();
                 armTarget = pos;
                 //armTo = 0;
-                arm.setTargetPosition((int)armTarget - (int)armOffset);
+                //arm.setTargetPosition((int)armTarget - (int)armOffset);
                 if (pos >= currentPos / COUNTS_PER_ARM_CM) {
-                    arm.setPower(0.5);
-//                    armUp(1);
+                    //arm.setPower(0.5);
+                    armUp(1);
                 } else {
-                    //armStop();
+                    armStop();
                     return false;
                 }
 
@@ -376,10 +379,9 @@ public class IntakeClaw {
                 double currentPos = arm.getCurrentPosition();
                 armTarget = pos;
                 //armTo = 0;
-                arm.setTargetPosition((int)armTarget - (int)armOffset);
+                //arm.setTargetPosition((int)armTarget - (int)armOffset);
                 if (pos <= currentPos / COUNTS_PER_ARM_CM) {
-                    //arm.setPower(1);
-//                    armDown(-1);
+                    armDown(-1);
                 } else {
                     armStop();
                     return false;
@@ -487,22 +489,24 @@ public class IntakeClaw {
                 armTarget = Range.clip(armTarget, ARM_MIN, ARM_MAX);
             }
         }
-        arm.setPower(0.5);
+        //arm.setPower(0.5);
         armPos = arm.getCurrentPosition() / COUNTS_PER_ARM_CM;
-        arm.setTargetPosition((int)((armTarget + armOffset) * COUNTS_PER_ARM_CM));
-//        if (armTo > 0) {
-//            if (armPos - armOffset < armTarget) {
-//                arm.setPower(1);
-//            } else {
-//                armTo = 0;
-//            }
-//        } else if (armTo < 0) {
-//            if (armPos - armOffset > armTarget) {
-//                arm.setPower(1);
-//            } else {
-//                armTo = 0;
-//            }
-//        }
+        //arm.setTargetPosition((int)((armTarget + armOffset) * COUNTS_PER_ARM_CM));
+        if (armTo > 0) {
+            if (armPos - armOffset < armTarget) {
+                arm.setPower(1);
+            } else {
+                armTo = 0;
+                armStop();
+            }
+        } else if (armTo < 0) {
+            if (armPos - armOffset > armTarget) {
+                arm.setPower(-1);
+            } else {
+                armTo = 0;
+                armStop();
+            }
+        }
 
 //        telemetry.addData("arm direction for preset ", armTarget-armPos/COUNTS_PER_CM);
         telemetry.addData("arm target: ", armTarget + armOffset);

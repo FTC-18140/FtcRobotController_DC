@@ -92,7 +92,7 @@ public class Teleop_ClawTest_NoTimer extends OpMode {
         double slow = 0.7;
         double armSlow = 1;
 
-        robot.intake.armTo(armTarget);
+        //robot.intake.armTo(armTarget);
         robot.intake.update();
         robot.lift.update();
 //        robot.lift.leftServo.setPosition(liftServoPos);
@@ -220,14 +220,14 @@ public class Teleop_ClawTest_NoTimer extends OpMode {
         }
         // Arm controls
         if(theGamepad2.getButton(TBDGamepad.Button.X)){
-//            robot.intake.armUp(0.4*armSlow);
-            armTarget += (int)(1 * armSlow);
+            robot.intake.armUp(0.4*armSlow);
+            //armTarget += (int)(1 * armSlow);
             //robot.intake.armTo(armTarget);
         }
         else if(theGamepad2.getButton(TBDGamepad.Button.B)){
-//            robot.intake.armDown(-0.8*(armSlow*1.5));
-            armTarget -= (int)(1 * armSlow);
-            robot.intake.armTo(armTarget);
+            robot.intake.armDown(-0.8*(armSlow*1.5));
+            //armTarget -= (int)(1 * armSlow);
+            //robot.intake.armTo(armTarget);
         }
 //        else{
 //            if(robot.intake.armTo == 0){
