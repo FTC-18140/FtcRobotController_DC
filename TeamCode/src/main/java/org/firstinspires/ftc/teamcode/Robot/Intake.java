@@ -52,8 +52,8 @@ public class Intake {
     public static double fSin = 0.025;
 
     public final double WRIST_INIT = 0.0;
-    public final double WRIST_MIN = 0.0;
-    public final double WRIST_MAX = 1.0;
+    public static double WRIST_MIN = 0.0;
+    public static double WRIST_MAX = 1.0;
     public static double CLAW_MIN = 0;
     public static double CLAW_MAX = 0.35;
     public final double ELBOW_MIN = 0;

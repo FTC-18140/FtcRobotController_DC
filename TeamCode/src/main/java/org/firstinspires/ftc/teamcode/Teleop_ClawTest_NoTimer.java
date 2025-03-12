@@ -163,16 +163,24 @@ public class Teleop_ClawTest_NoTimer extends OpMode {
         clawPos = robot.intake.clawPos;
         if(theGamepad2.getTrigger(TBDGamepad.Trigger.RIGHT_TRIGGER) > 0.1){
             if(theGamepad2.getButton(TBDGamepad.Button.Y)){
-                robot.intake.elbowUp(1.5*armSlow);
+                robot.intake.preset(IntakeClaw.Positions.HIGH_CHAMBER_SCORING);
+                armTarget = (int)IntakeClaw.Positions.HIGH_CHAMBER_SCORING.armPos;
+                wristPos = IntakeClaw.Positions.HIGH_CHAMBER_SCORING.wristPos;
             }
             else if(theGamepad2.getButton(TBDGamepad.Button.A)){
-                robot.intake.elbowDown(1.5*armSlow);
+                robot.intake.preset(IntakeClaw.Positions.INTAKE_SPECIMEN);
+                armTarget = (int)IntakeClaw.Positions.INTAKE_SPECIMEN.armPos;
+                wristPos = IntakeClaw.Positions.INTAKE_SPECIMEN.wristPos;
             }
             else if(theGamepad2.getButton(TBDGamepad.Button.DPAD_LEFT)){
                 robot.intake.clawMove(0);
             }
             else if(theGamepad2.getButton(TBDGamepad.Button.DPAD_RIGHT)){
                 robot.intake.clawMove(IntakeClaw.CLAW_OPEN);
+            }
+            else if(theGamepad2.getButton(TBDGamepad.Button.DPAD_UP)){
+                wristPos = robot.intake.wristPos;
+                wristPos -= 0.02*armSlow;
             }
             else if (theGamepad2.getButton(TBDGamepad.Button.DPAD_DOWN)) {
                 robot.intake.preset(IntakeClaw.Positions.INTAKE_SPECIMEN);
@@ -185,14 +193,20 @@ public class Teleop_ClawTest_NoTimer extends OpMode {
                 wristPos -= 0.02*armSlow;
             }
             else if(gamepad2.dpad_down){
-                wristPos = robot.intake.wristPos;
-                wristPos += 0.02*armSlow;
+                wristPos = IntakeClaw.WRIST_MAX;
+                robot.intake.pivotTo(IntakeClaw.PIVOT_INIT);
             }
 
             if (theGamepad2.getButton(TBDGamepad.Button.Y)) {
-                robot.intake.preset(IntakeClaw.Positions.HIGH_BASKET);
-                armTarget = (int)IntakeClaw.Positions.HIGH_BASKET.armPos;
-                wristPos = IntakeClaw.Positions.HIGH_BASKET.wristPos;
+                if(theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.LEFT_TRIGGER)){
+                    robot.intake.preset(IntakeClaw.Positions.LOW_BASKET);
+                    armTarget = (int) IntakeClaw.Positions.LOW_BASKET.armPos;
+                    wristPos = IntakeClaw.Positions.LOW_BASKET.wristPos;
+                } else {
+                    robot.intake.preset(IntakeClaw.Positions.HIGH_BASKET);
+                    armTarget = (int) IntakeClaw.Positions.HIGH_BASKET.armPos;
+                    wristPos = IntakeClaw.Positions.HIGH_BASKET.wristPos;
+                }
             } else if (theGamepad2.getButton(TBDGamepad.Button.A)) {
                 robot.intake.preset(IntakeClaw.Positions.READY_TO_INTAKE);
                 armTarget = (int)IntakeClaw.Positions.READY_TO_INTAKE.armPos;
@@ -207,13 +221,13 @@ public class Teleop_ClawTest_NoTimer extends OpMode {
         // Arm controls
         if(theGamepad2.getButton(TBDGamepad.Button.X)){
 //            robot.intake.armUp(0.4*armSlow);
-            armTarget += (int)(2 * armSlow);
+            armTarget += (int)(1 * armSlow);
             //robot.intake.armTo(armTarget);
         }
         else if(theGamepad2.getButton(TBDGamepad.Button.B)){
 //            robot.intake.armDown(-0.8*(armSlow*1.5));
-            armTarget -= (int)(2 * armSlow);
-            //robot.intake.armTo(armTarget);
+            armTarget -= (int)(1 * armSlow);
+            robot.intake.armTo(armTarget);
         }
 //        else{
 //            if(robot.intake.armTo == 0){
@@ -231,9 +245,10 @@ public class Teleop_ClawTest_NoTimer extends OpMode {
             //robot.intake.spinStop();
         }
 
-
-        armTarget = (int)Range.clip(armTarget, robot.intake.ARM_MIN, Intake.ARM_MAX);
-        wristPos = Range.clip(wristPos, robot.intake.WRIST_MIN, robot.intake.WRIST_MAX);
+        if(!theGamepad2.getButton(TBDGamepad.Button.LEFT_STICK_BUTTON)){
+            armTarget = (int)Range.clip(armTarget, robot.intake.ARM_MIN, Intake.ARM_MAX);
+        }
+        wristPos = Range.clip(wristPos, IntakeClaw.WRIST_MIN, IntakeClaw.WRIST_MAX);
         robot.intake.wristMove(wristPos);
 
         //robot.lift.moveLift(liftPower);
