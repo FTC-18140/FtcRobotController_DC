@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @TeleOp(group = "Teleop")
-public class Teleop_ClawTest_NoTimer extends OpMode {
+public class Teleop_ClawTest_PID_NoTimer extends OpMode {
     private FtcDashboard dash = FtcDashboard.getInstance();
     private List<Action> runningActions = new ArrayList<>();
 
@@ -220,21 +220,21 @@ public class Teleop_ClawTest_NoTimer extends OpMode {
         }
         // Arm controls
         if(theGamepad2.getButton(TBDGamepad.Button.X)){
-            robot.intake.armUp(0.3*armSlow);
+            robot.intake.armUp(0.4*armSlow);
             //armTarget += (int)(1 * armSlow);
             //robot.intake.armTo(armTarget);
         }
         else if(theGamepad2.getButton(TBDGamepad.Button.B)){
-            robot.intake.armDown(-0.65*(armSlow*1.5));
+            robot.intake.armDown(-0.8*(armSlow*1.5));
             //robot.intake.armTo
             //armTarget -= (int)(1 * armSlow);
             //robot.intake.armTo(armTarget);
         }
-        else{
-            if(robot.intake.armTo == 0){
-                robot.intake.armStop();
-            }
-        }
+//        else{
+//            if(robot.intake.armTo == 0){
+//                robot.intake.armStop();
+//            }
+//        }
 
         if(theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER)){
             robot.intake.clawMove(IntakeClaw.CLAW_CLOSE);

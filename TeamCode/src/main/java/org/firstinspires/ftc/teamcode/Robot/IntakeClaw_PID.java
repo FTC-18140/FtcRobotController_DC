@@ -23,7 +23,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 
 @Config
-public class IntakeClaw {
+public class IntakeClaw_PID {
     Telemetry telemetry;
     Servo wrist = null;
     Servo claw = null;
@@ -43,6 +43,9 @@ public class IntakeClaw {
     float hsvValuesR[] = {0,0,0};
     private PIDController controller;
     public static double p = 0.03, i = 0, d = 0.00025;
+
+    private PIDController armController;
+    public static double pArm = 0.03, iArm = 0, dArm = 0.00025;
 
     public static double factor_p_down = 0.4;
     public static double factor_d_down = 1.25;
@@ -119,6 +122,7 @@ public class IntakeClaw {
         armOffset = 0;
         telemetry = telem;
         controller = new PIDController(p, i, d);
+        armController = new PIDController(pArm, iArm, dArm);
 
         //Initialize Sensors
 //        try{
@@ -159,7 +163,7 @@ public class IntakeClaw {
 
             elbow.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             elbow.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            //elbow.setDirection(DcMotorSimple.Direction.REVERSE);
+            elbow.setDirection(DcMotorSimple.Direction.REVERSE);
             elbow.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         }catch (Exception e){
@@ -266,14 +270,13 @@ public class IntakeClaw {
             armOverride = false;
         }
     }
-    public void setArmTo(int position){
-        armTarget = position;
-        //arm.setPower(1);
-    }
+//    public void armTo(int position){
+//        armTarget = position;
+//        //arm.setPower(1);
+//    }
 
     public void armUp(double power) {
         telemetry.addData("arm position : ", armPos - armOffset);
-        armTo = 0;
         if (target < 30) {
             if (armPos - armOffset <= ARM_MAX_HORIZONTAL) {
                 telemetry.addData("arm position : ", armPos - armOffset);
@@ -294,7 +297,6 @@ public class IntakeClaw {
     }
     public void armDown ( double power){
         telemetry.addData("arm position : ", armPos - armOffset);
-        armTo = 0;
         if(!armOverride) {
             if (armPos - armOffset >= ARM_MIN) {
                 arm.setPower(power);
@@ -493,23 +495,25 @@ public class IntakeClaw {
 //        }
         //arm.setPower(0.5);
         armPos = arm.getCurrentPosition() / COUNTS_PER_ARM_CM;
+        armController.setPID(pArm, iArm, dArm);
+        double armPid = armController.calculate(armPos-armOffset, armTarget);
         //arm.setTargetPosition((int)((armTarget + armOffset) * COUNTS_PER_ARM_CM));
         if (armTo > 0) {
             if (armPos - armOffset < armTarget) {
-                arm.setPower(1.0);
+//                arm.setPower(1);
             } else {
-                armTo = 0;
-                armStop();
+                //armTo = 0;
+                //armStop();
             }
+            arm.setPower(armPid);
         } else if (armTo < 0) {
             if (armPos - armOffset > armTarget) {
-                arm.setPower(-1.0);
+//                arm.setPower(-1);
             } else {
-                armTo = 0;
-                armStop();
+                //armTo = 0;
+                //armStop();
             }
-        } else {
-            //armStop();
+            arm.setPower(armPid * 1.5);
         }
 
 //        telemetry.addData("arm direction for preset ", armTarget-armPos/COUNTS_PER_CM);
@@ -532,15 +536,15 @@ public class IntakeClaw {
         elbowPosition = elbow.getCurrentPosition();
 
         //controller.setPID(p,i,d);
-        double ff = f * Math.cos(Math.toRadians(clip((elbowPosition / COUNTS_PER_ELBOW_DEGREE)+3.5, 0, 180)));
-        if (target >= (elbowPosition/COUNTS_PER_ELBOW_DEGREE)+3.5) {
+        double ff = f * Math.cos(Math.toRadians(clip(elbowPosition / COUNTS_PER_ELBOW_DEGREE, 0, 180)));
+        if (target >= elbowPosition/COUNTS_PER_ELBOW_DEGREE) {
             // the cosine lowers as it approaches half-PI/90°
             // the sine balances out the cosine, allowing the arm to raise fully
-            ff = f * Math.cos(Math.toRadians(clip((elbowPosition / COUNTS_PER_ELBOW_DEGREE)+3.5, 0, 180)));
+            ff = f * Math.cos(Math.toRadians(clip(elbowPosition / COUNTS_PER_ELBOW_DEGREE, 0, 180)));
             controller.setPID(p, i, d);
         } else {
-            double pDown = Math.abs(p * factor_p_down * Math.cos(Math.toRadians(clip((elbowPosition / COUNTS_PER_ELBOW_DEGREE)+3.5, 0, 180))));
-            double dDown = Math.abs(d * factor_d_down * Math.cos(Math.toRadians(clip((elbowPosition / COUNTS_PER_ELBOW_DEGREE)+3.5, 0, 180))));
+            double pDown = Math.abs(p * factor_p_down * Math.cos(Math.toRadians(clip(elbowPosition / COUNTS_PER_ELBOW_DEGREE, 0, 180))));
+            double dDown = Math.abs(d * factor_d_down * Math.cos(Math.toRadians(clip(elbowPosition / COUNTS_PER_ELBOW_DEGREE, 0, 180))));
             controller.setPID(pDown, i, dDown);
         }
 
@@ -548,20 +552,19 @@ public class IntakeClaw {
         {
             ff = fMin;
         }
-        double pid = controller.calculate((elbowPosition / COUNTS_PER_ELBOW_DEGREE) +3.5, target);
+        double pid = controller.calculate(elbowPosition / COUNTS_PER_ELBOW_DEGREE, target);
 
         double power = pid + ff;
         elbow.setPower(power);
 
         clawPos = claw.getPosition();
 //                telemetry.addData("clawPos: ", claw.getPosition());
-        telemetry.addData("arm motor power : ", arm.getPower());
         telemetry.addData("power : ", power);
         telemetry.addData("ff : ", ff);
         telemetry.addData("pid : ", pid);
         telemetry.addData("target : ", target);
         telemetry.addData("elbowpos : ", elbowPosition);
-        telemetry.addData("elbowpos in degrees: ", (elbowPosition / COUNTS_PER_ELBOW_DEGREE)+3.5);
+        telemetry.addData("elbowpos in degrees: ", elbowPosition / COUNTS_PER_ELBOW_DEGREE);
 
         wristPos = wrist.getPosition();
         pivotPos = pivot.getPosition();
