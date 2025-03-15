@@ -194,7 +194,7 @@ public class Lift {
         liftRight.setTargetPosition((int)lift_target);
         if(hanging)
         {
-            if(lift_timer.seconds() > 0.75)
+            if(lift_timer.seconds() > 1.5)
             {
                 leftServo.setPosition(LIFT_SERVO_LIFT);
                 rightServo.setPosition(LIFT_SERVO_LIFT_R);

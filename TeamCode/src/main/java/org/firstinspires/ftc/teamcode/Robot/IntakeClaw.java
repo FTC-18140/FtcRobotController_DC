@@ -57,7 +57,7 @@ public class IntakeClaw {
     public final double PIVOT_MAX = 1.0;
     public static double PIVOT_INIT = 0.5;
 
-    public static double CLAW_CLOSE = 0;
+    public static double CLAW_CLOSE = 0.05;
     public static double CLAW_OPEN = 0.5;
     public final double ELBOW_MIN = 0;
     public final double ELBOW_MIN_SLOW = 30;
@@ -97,11 +97,11 @@ public class IntakeClaw {
         READY_TO_INTAKE(0.5,1.0,4, CLAW_CLOSE, PIVOT_INIT),
         LOW_BASKET(0.35,1.0,ELBOW_MAX, CLAW_CLOSE, PIVOT_INIT),
         HIGH_CHAMBER(0.3,20, ELBOW_HIGH_CHAMBER, CLAW_CLOSE, PIVOT_INIT),
-        HIGH_CHAMBER_SCORING(0.45,27, ELBOW_HIGH_CHAMBER_SCORING, CLAW_CLOSE, PIVOT_INIT),
+        HIGH_CHAMBER_SCORING(0.43,27, ELBOW_HIGH_CHAMBER_SCORING, CLAW_CLOSE, PIVOT_INIT),
         HIGH_CHAMBER_SCORING_AUTO(0.14,27, ELBOW_HIGH_CHAMBER_SCORING, CLAW_CLOSE, PIVOT_INIT),
         INTAKE_SPECIMEN(0.6, 5, 15, CLAW_OPEN, PIVOT_INIT),
         //Max elbow, Max arm extend, base of intake parallel with floor ↓
-        HIGH_BASKET(0.35,ARM_MAX,ELBOW_MAX, CLAW_CLOSE, PIVOT_INIT);
+        HIGH_BASKET(0.37,ARM_MAX,ELBOW_MAX, CLAW_CLOSE, PIVOT_INIT);
         public final double wristPos;
         public final double armPos;
         public final double elbowPos;
@@ -143,7 +143,7 @@ public class IntakeClaw {
         try{
             claw = hwMap.servo.get("claw");
             claw.setDirection(Servo.Direction.REVERSE);
-            claw.setPosition(CLAW_OPEN);
+            claw.setPosition(CLAW_CLOSE);
         }catch(Exception e){
             telemetry.addData("claw servo not found in configuration",0);
         }
@@ -406,6 +406,17 @@ public class IntakeClaw {
             }
         };
     }
+
+    public Action pivotAction (double position){
+        return new Action() {
+            private double pos = position;
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                pivotTo(pos);
+                return Math.abs(pivotPos - pos) > 0.1;
+            }
+        };
+    }
     public Action spinnerAction ( double power){
         return new Action() {
             private double pow = power;
@@ -527,7 +538,7 @@ public class IntakeClaw {
             target = ELBOW_MIN;
         }
         if(target < 30){
-            target += (armPos - armOffset)*0.17;
+            target += (armPos - armOffset)*0.135;
         }
         elbowPosition = elbow.getCurrentPosition();
 
