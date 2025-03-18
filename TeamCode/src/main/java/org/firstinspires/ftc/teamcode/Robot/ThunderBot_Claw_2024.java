@@ -30,6 +30,7 @@ public class ThunderBot_Claw_2024
     public MecanumDrive drive;
     public Lift lift;
     public LED led;
+    public WebCamVision webCam;
     public LimelightVision limelight;
     double heading = 0;
     long leftFrontPosition = 0;
@@ -97,6 +98,9 @@ public class ThunderBot_Claw_2024
 
         limelight = new LimelightVision();
         limelight.init(hwMap, telem);
+
+        webCam = new WebCamVision();
+        webCam.init(hwMap, telem);
 
         drive = new MecanumDrive(hwMap, new Pose2d(0,0,0));
 //  This code was somehow preventing the Odometry from updating
