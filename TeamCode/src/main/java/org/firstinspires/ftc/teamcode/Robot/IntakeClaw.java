@@ -35,6 +35,7 @@ public class IntakeClaw {
 
     public double aDouble = 0.5;
     double armTarget = 0;
+    public static double armFactor = 0.0;
 
     ColorSensor colorL = null;
     ColorSensor colorR = null;
@@ -50,15 +51,15 @@ public class IntakeClaw {
     public static double fMin = 0.01;
     public static double fSin = 0.025;
 
-    public final double WRIST_INIT = 0.0;
+    public final double WRIST_INIT = 0.2;
     public static double WRIST_MIN = 0.0;
     public static double WRIST_MAX = 1.0;
     public final double PIVOT_MIN = 0.0;
     public final double PIVOT_MAX = 1.0;
     public static double PIVOT_INIT = 0.5;
 
-    public static double CLAW_CLOSE = 0.05;
-    public static double CLAW_OPEN = 0.5;
+    public static double CLAW_CLOSE = 0.09;
+    public static double CLAW_OPEN = 0.75;
     public final double ELBOW_MIN = 0;
     public final double ELBOW_MIN_SLOW = 30;
 
@@ -94,7 +95,7 @@ public class IntakeClaw {
 
 
     public enum Positions{
-        READY_TO_INTAKE(0.5,1.0,4, CLAW_CLOSE, PIVOT_INIT),
+        READY_TO_INTAKE(0.45,1.0,4, CLAW_CLOSE, PIVOT_INIT),
         LOW_BASKET(0.35,1.0,ELBOW_MAX, CLAW_CLOSE, PIVOT_INIT),
         HIGH_CHAMBER(0.3,20, ELBOW_HIGH_CHAMBER, CLAW_CLOSE, PIVOT_INIT),
         HIGH_CHAMBER_SCORING(0.43,27, ELBOW_HIGH_CHAMBER_SCORING, CLAW_CLOSE, PIVOT_INIT),
@@ -538,7 +539,7 @@ public class IntakeClaw {
             target = ELBOW_MIN;
         }
         if(target < 30){
-            target += (armPos - armOffset)*0.135;
+            target += (armPos - armOffset)*armFactor;
         }
         elbowPosition = elbow.getCurrentPosition();
 

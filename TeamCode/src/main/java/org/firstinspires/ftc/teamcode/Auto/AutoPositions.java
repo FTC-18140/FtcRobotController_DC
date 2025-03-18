@@ -8,7 +8,7 @@ public class AutoPositions {
     @Config
     public enum Positions {
         START_LEFT(new Vector2d(-15,-60)),
-        START_RIGHT(new Vector2d(15, -60)),
+        START_RIGHT(new Vector2d(15,-60)),
         BASKET(new Vector2d(-55, -55)),
         SAMPLE_1_LEFT(new Vector2d(-49, -42)),
         SAMPLE_2_LEFT(new Vector2d(-59.5, -42)),
