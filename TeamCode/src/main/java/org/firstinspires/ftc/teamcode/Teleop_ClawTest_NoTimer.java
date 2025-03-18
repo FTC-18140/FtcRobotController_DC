@@ -52,6 +52,7 @@ public class Teleop_ClawTest_NoTimer extends OpMode {
         theGamepad2 = new TBDGamepad(gamepad2);
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
+        //robot.webCam.startSampleVisionProcessor();
     }
     @Override
     public void start() {

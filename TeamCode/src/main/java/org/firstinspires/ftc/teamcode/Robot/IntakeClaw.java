@@ -35,7 +35,7 @@ public class IntakeClaw {
 
     public double aDouble = 0.5;
     double armTarget = 0;
-    public static double armFactor = 0.0;
+    public static double armFactor = 0.165;
 
     ColorSensor colorL = null;
     ColorSensor colorR = null;

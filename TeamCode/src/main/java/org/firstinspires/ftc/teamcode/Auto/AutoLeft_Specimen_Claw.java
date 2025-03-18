@@ -19,8 +19,8 @@ public class AutoLeft_Specimen_Claw extends LinearOpMode {
     public static Vector2d basketPos = new Vector2d(-56, -56);
 
     public static Vector2d samplePos_1 = new Vector2d(-49, -42);
-    public static Vector2d samplePos_2 = new Vector2d(-60, -42);
-    public static Vector2d samplePos_3 = new Vector2d(-57, -33);
+    public static Vector2d samplePos_2 = new Vector2d(-59, -42);
+    public static Vector2d samplePos_3 = new Vector2d(-56, -33);
     public static Vector2d parkPos = AutoPositions.Positions.ASCENT_ZONE.position;
 
     @Override
@@ -82,7 +82,7 @@ public class AutoLeft_Specimen_Claw extends LinearOpMode {
                                 robot.drive.actionBuilder(new Pose2d(basketPos, Math.toRadians(45)))
                                         .strafeToSplineHeading(samplePos_2, Math.toRadians(90))
                                         .build(),
-                                robot.intake.armUpAction(14),
+                                robot.intake.armUpAction(17),
                                 robot.intake.wristMoveAction(IntakeClaw.WRIST_MAX)
                         ),
                         robot.intake.clawAction(IntakeClaw.CLAW_CLOSE),
@@ -108,7 +108,7 @@ public class AutoLeft_Specimen_Claw extends LinearOpMode {
                                 robot.drive.actionBuilder(new Pose2d(basketPos, Math.toRadians(45)))
                                         .strafeToSplineHeading(samplePos_3, Math.toRadians(150))
                                         .build(),
-                                robot.intake.armUpAction(11),
+                                robot.intake.armUpAction(10),
                                 robot.intake.wristMoveAction(IntakeClaw.WRIST_MAX),
                                 robot.intake.pivotAction(0.83)
                         ),

@@ -99,8 +99,8 @@ public class ThunderBot_Claw_2024
         limelight = new LimelightVision();
         limelight.init(hwMap, telem);
 
-        webCam = new WebCamVision();
-        webCam.init(hwMap, telem);
+        //webCam = new WebCamVision();
+        //webCam.init(hwMap, telem);
 
         drive = new MecanumDrive(hwMap, new Pose2d(0,0,0));
 //  This code was somehow preventing the Odometry from updating
