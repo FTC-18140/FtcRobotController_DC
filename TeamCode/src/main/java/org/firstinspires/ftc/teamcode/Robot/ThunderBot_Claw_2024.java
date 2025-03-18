@@ -491,6 +491,12 @@ public class ThunderBot_Claw_2024
             }
         };
     }
+    public double colorOffsetX(){
+        return webCam.getSampleX();
+    }
+    public double colorOffsetY(){
+        return  webCam.getSampleY();
+    }
 
     private void update()
     {
