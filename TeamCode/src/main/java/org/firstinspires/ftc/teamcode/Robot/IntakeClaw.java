@@ -66,7 +66,7 @@ public class IntakeClaw {
     public static double ELBOW_MAX = 105;
     public static double ELBOW_LOW = 55;
     public static double ELBOW_HIGH_CHAMBER = 50;
-    public static double ELBOW_HIGH_CHAMBER_SCORING = 40;
+    public static double ELBOW_HIGH_CHAMBER_SCORING = 41;
 
     public int elbowDirection = 0;
     public final double ARM_MIN = 0;
