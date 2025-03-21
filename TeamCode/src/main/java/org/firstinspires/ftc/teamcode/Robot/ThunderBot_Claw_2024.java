@@ -96,11 +96,11 @@ public class ThunderBot_Claw_2024
         led = new LED();
         led.init(hwMap, telem);
 
-        limelight = new LimelightVision();
-        limelight.init(hwMap, telem);
+//        limelight = new LimelightVision();
+//        limelight.init(hwMap, telem);
 
-        //webCam = new WebCamVision();
-        //webCam.init(hwMap, telem);
+        webCam = new WebCamVision();
+        webCam.init(hwMap, telem);
 
         drive = new MecanumDrive(hwMap, new Pose2d(0,0,0));
 //  This code was somehow preventing the Odometry from updating
@@ -477,6 +477,12 @@ public class ThunderBot_Claw_2024
     public double specimenAngleSmooth(boolean isBlue){
         double Kp = 1.0;
         double targetH = limelight.updateHeadingSmooth(isBlue);
+
+        return targetH * Kp;
+    }
+    public double moveToHeading(double heading, double target){
+        double Kp = 0.5;
+        double targetH = Math.cos(heading-target+(Math.PI/2));
 
         return targetH * Kp;
     }

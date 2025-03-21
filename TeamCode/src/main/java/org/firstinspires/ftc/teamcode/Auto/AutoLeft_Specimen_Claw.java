@@ -20,7 +20,7 @@ public class AutoLeft_Specimen_Claw extends LinearOpMode {
 
     public static Vector2d samplePos_1 = new Vector2d(-49, -42);
     public static Vector2d samplePos_2 = new Vector2d(-59, -42);
-    public static Vector2d samplePos_3 = new Vector2d(-56, -33);
+    public static Vector2d samplePos_3 = new Vector2d(-56, -31);
     public static Vector2d parkPos = AutoPositions.Positions.ASCENT_ZONE.position;
 
     @Override

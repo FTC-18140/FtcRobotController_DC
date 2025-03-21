@@ -35,7 +35,7 @@ public class IntakeClaw {
 
     public double aDouble = 0.5;
     double armTarget = 0;
-    public static double armFactor = 0.165;
+    public static double armFactor = 0.14;
 
     ColorSensor colorL = null;
     ColorSensor colorR = null;
@@ -71,7 +71,7 @@ public class IntakeClaw {
     public int elbowDirection = 0;
     public final double ARM_MIN = 0;
     public static double ARM_MAX = 42;
-    public static double ARM_MAX_HORIZONTAL = 32;
+    public static double ARM_MAX_HORIZONTAL = 37;
 
     public double armOffset;
     private boolean armOverride = false;
@@ -95,7 +95,7 @@ public class IntakeClaw {
 
 
     public enum Positions{
-        READY_TO_INTAKE(0.45,1.0,4, CLAW_CLOSE, PIVOT_INIT),
+        READY_TO_INTAKE(0.45,1.0,3.5, CLAW_CLOSE, PIVOT_INIT),
         LOW_BASKET(0.35,1.0,ELBOW_MAX, CLAW_CLOSE, PIVOT_INIT),
         HIGH_CHAMBER(0.3,20, ELBOW_HIGH_CHAMBER, CLAW_CLOSE, PIVOT_INIT),
         HIGH_CHAMBER_SCORING(0.43,27, ELBOW_HIGH_CHAMBER_SCORING, CLAW_CLOSE, PIVOT_INIT),
