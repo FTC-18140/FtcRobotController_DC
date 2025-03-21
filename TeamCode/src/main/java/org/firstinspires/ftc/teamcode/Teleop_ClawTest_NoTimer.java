@@ -70,23 +70,17 @@ public class Teleop_ClawTest_NoTimer extends OpMode {
 
         // updated based on gamepads
         if(theGamepad1.getButton(TBDGamepad.Button.DPAD_LEFT)){
-            if(!turning) {
                 //runningActions.add(robot.drive.actionBuilder(robot.drive.pose).turnTo(Math.toRadians(45)).build());
                 headingTarget = 45;
                 turning = true;
-            }
         }else if(theGamepad1.getButton(TBDGamepad.Button.DPAD_UP)){
-            if(!turning) {
                 //runningActions.add(robot.drive.actionBuilder(robot.drive.pose).turnTo(Math.toRadians(90)).build());
                 headingTarget = 90;
                 turning = true;
-            }
         }else if(theGamepad1.getButton(TBDGamepad.Button.DPAD_DOWN)){
-            if(!turning) {
                 //runningActions.add(robot.drive.actionBuilder(robot.drive.pose).turnTo(Math.toRadians(-90)).build());
                 headingTarget = -90;
                 turning = true;
-            }
         }
 
         double forward = theGamepad1.getLeftY();
@@ -101,7 +95,7 @@ public class Teleop_ClawTest_NoTimer extends OpMode {
 
         if(turning){
             turn = robot.moveToHeading(robot.drive.pose.heading.toDouble(), Math.toRadians(headingTarget));
-        }
+            }
 
         //robot.intake.armTo(armTarget);
         robot.intake.update();
@@ -268,9 +262,9 @@ public class Teleop_ClawTest_NoTimer extends OpMode {
         //robot.lift.moveLift(liftPower);
 
         // Send calculated power to wheels
-        if (!turning){
+//        if (!turning){
             robot.joystickDrive(forward, strafe, turn * 0.8 * slow, slow);
-        }
+//        }
 
 
 
@@ -289,6 +283,9 @@ public class Teleop_ClawTest_NoTimer extends OpMode {
 //        telemetry.addData("left motor position: ", robot.lift.getLiftPosL());
 //        telemetry.addData("right motor position: ", robot.lift.getLiftPosR());
 //        telemetry.addData("lift target position: ", robot.lift.lift_target);
+        telemetry.addData("robot heading: ", robot.drive.pose.heading.toDouble());
+        telemetry.addData("robot heading(degrees): ", Math.toDegrees(robot.drive.pose.heading.toDouble()));
+
         telemetry.addData("time: ", teleopTimer.seconds());
 
         dash.sendTelemetryPacket(packet);

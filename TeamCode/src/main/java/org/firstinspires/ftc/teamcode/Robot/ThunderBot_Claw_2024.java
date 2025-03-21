@@ -481,8 +481,8 @@ public class ThunderBot_Claw_2024
         return targetH * Kp;
     }
     public double moveToHeading(double heading, double target){
-        double Kp = 0.5;
-        double targetH = Math.cos(heading-target+(Math.PI/2));
+        double Kp = 1.0;
+        double targetH = -Math.sin((heading-target)/Math.PI);
 
         return targetH * Kp;
     }

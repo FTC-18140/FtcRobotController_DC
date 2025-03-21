@@ -65,9 +65,9 @@ public class SamplePipeline implements VisionProcessor
 
 	public static int erodeSize = 20;
 
-	static {
-		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-	}
+//	static {
+//		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+//	}
 
 
 	public void setTelemetry(Telemetry telemetry)
