@@ -17,9 +17,9 @@ public class AutoRight_Claw extends LinearOpMode {
     public static Vector2d startPos = AutoPositions.Positions.START_RIGHT.position;
     public static Vector2d basketPos = new Vector2d(56, -56);
 
-    public static Vector2d samplePos_1 = new Vector2d(57, -42);
-    public static Vector2d samplePos_2 = new Vector2d(57, -42);
-    public static Vector2d samplePos_3 = new Vector2d(57, -42);
+    public static Vector2d samplePos_1 = new Vector2d(48, -42);
+    public static Vector2d samplePos_2 = new Vector2d(42, -42);
+    public static Vector2d samplePos_3 = new Vector2d(42, -42);
     public static Vector2d parkPos = AutoPositions.Positions.ASCENT_ZONE.position;
 
     @Override
@@ -54,20 +54,20 @@ public class AutoRight_Claw extends LinearOpMode {
                         robot.intake.clawAction(IntakeClaw.CLAW_OPEN),
                         new ParallelAction(
                                 robot.drive.actionBuilder(new Pose2d(new Vector2d(10, -54), Math.toRadians(90)))
-                                        .strafeToSplineHeading(samplePos_1, Math.toRadians(45))
+                                        .strafeToSplineHeading(samplePos_1, Math.toRadians(90))
                                         .build(),
-                                robot.intake.armUpAction(17),
+                                robot.intake.armUpAction(12),
                                 robot.intake.wristMoveAction(IntakeClaw.WRIST_MAX)
                         ),
                         robot.intake.clawAction(IntakeClaw.CLAW_CLOSE),
                         new SleepAction(0.7),
                         new ParallelAction(
-                                robot.drive.actionBuilder(new Pose2d(samplePos_1, Math.toRadians(45)))
+                                robot.drive.actionBuilder(new Pose2d(samplePos_1, Math.toRadians(90)))
                                         .turnTo(Math.toRadians(-60))
                                         .build(),
                                 robot.intake.armDownAction(1)
                         ),
-                        robot.intake.armUpAction(12),
+                        robot.intake.armUpAction(8),
                         new ParallelAction(
                                 robot.intake.clawAction(IntakeClaw.CLAW_OPEN),
                                 new SleepAction(0.5)
@@ -78,15 +78,16 @@ public class AutoRight_Claw extends LinearOpMode {
                         robot.intake.clawAction(IntakeClaw.CLAW_OPEN),
                         new ParallelAction(
                                 robot.drive.actionBuilder(new Pose2d(samplePos_1, Math.toRadians(-60)))
-                                        .turnTo(Math.toRadians(30))
+                                        .turnTo(Math.toRadians(60))
                                         .build(),
                                 robot.intake.armUpAction(16),
-                                robot.intake.wristMoveAction(IntakeClaw.WRIST_MAX)
+                                robot.intake.wristMoveAction(IntakeClaw.WRIST_MAX),
+                                robot.intake.pivotAction(0.16)
                         ),
                         robot.intake.clawAction(IntakeClaw.CLAW_CLOSE),
                         new SleepAction(0.7),
                         new ParallelAction(
-                                robot.drive.actionBuilder(new Pose2d(samplePos_2, Math.toRadians(90)))
+                                robot.drive.actionBuilder(new Pose2d(samplePos_1, Math.toRadians(60)))
                                         .turnTo(Math.toRadians(-60))
                                         .build(),
                                 robot.intake.armDownAction(1)
@@ -101,17 +102,17 @@ public class AutoRight_Claw extends LinearOpMode {
                         //Third Cycle
                         robot.intake.clawAction(IntakeClaw.CLAW_OPEN),
                         new ParallelAction(
-                                robot.drive.actionBuilder(new Pose2d(samplePos_2, Math.toRadians(-90)))
-                                        .strafeToSplineHeading(samplePos_3, Math.toRadians(30))
+                                robot.drive.actionBuilder(new Pose2d(samplePos_1, Math.toRadians(-90)))
+                                        .turnTo(Math.toRadians(45))
                                         .build(),
                                 robot.intake.armUpAction(11),
                                 robot.intake.wristMoveAction(IntakeClaw.WRIST_MAX),
-                                robot.intake.pivotAction(0.83)
+                                robot.intake.pivotAction(0.25)
                         ),
                         robot.intake.clawAction(IntakeClaw.CLAW_CLOSE),
                         new SleepAction(0.7),
                         new ParallelAction(
-                                robot.drive.actionBuilder(new Pose2d(samplePos_3, Math.toRadians(30)))
+                                robot.drive.actionBuilder(new Pose2d(samplePos_1, Math.toRadians(45)))
                                         .turn(Math.toRadians(210))
                                         .build(),
                                 robot.intake.armDownAction(1)
@@ -125,8 +126,8 @@ public class AutoRight_Claw extends LinearOpMode {
                                 robot.intake.wristMoveAction(IntakeClaw.WRIST_MAX),
                                 robot.intake.presetAction(IntakeClaw.Positions.READY_TO_INTAKE),
                                 robot.intake.armDownAction(1),
-                                robot.drive.actionBuilder(new Pose2d(samplePos_3, Math.toRadians(-90)))
-                                        .strafeTo(new Vector2d(samplePos_3.x, samplePos_3.y+12))
+                                robot.drive.actionBuilder(new Pose2d(samplePos_1, Math.toRadians(-90)))
+                                        .strafeTo(new Vector2d(samplePos_1.x, samplePos_1.y+12))
                                         .build()
                         )
 

@@ -481,10 +481,10 @@ public class ThunderBot_Claw_2024
         return targetH * Kp;
     }
     public double moveToHeading(double heading, double target){
-        double Kp = 1.0;
-        double targetH = -Math.sin((heading-target)/Math.PI);
+        double Kp = 5.0;
+        double targetH = Math.sin((heading-target)/Math.PI);
 
-        return targetH * Kp;
+        return Range.clip(targetH*Kp, -1, 1);
     }
 
     public Action alignToSpecimenAction ( double power){
@@ -502,6 +502,15 @@ public class ThunderBot_Claw_2024
     }
     public double colorOffsetY(){
         return  webCam.getSampleY();
+    }
+
+    public Action alignToColorAction(){
+        return  new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                return false;
+            }
+        };
     }
 
     private void update()
