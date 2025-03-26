@@ -28,10 +28,13 @@ public class IntakeClaw {
     Servo wrist = null;
     Servo claw = null;
     Servo pivot = null;
+    Servo pusher = null;
     DcMotor arm = null;
     DcMotor elbow = null;
+    public ElapsedTime pushTimer;
 
     public double clawPos;
+    public double pusherPos;
 
     public double aDouble = 0.5;
     double armTarget = 0;
@@ -156,6 +159,14 @@ public class IntakeClaw {
             telemetry.addData("wrist pivot servo not found in configuration",0);
         }
         try{
+            pusher = hwMap.servo.get("pusher");
+            pusher.setDirection(Servo.Direction.REVERSE);
+            pusher.setPosition(0);
+
+        }catch(Exception e){
+            telemetry.addData("wrist pivot servo not found in configuration",0);
+        }
+        try{
             elbow = hwMap.dcMotor.get("elbow");
 
             elbow.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -180,6 +191,7 @@ public class IntakeClaw {
         }catch(Exception e){
             telemetry.addData("arm motor not found in configuration", 0);
         }
+        pushTimer = new ElapsedTime();
 
     }
 
@@ -209,6 +221,10 @@ public class IntakeClaw {
                 return false;
             }
         };
+    }
+    public void push(double position){
+        pushTimer.reset();
+        pusher.setPosition(position);
     }
     public void calculateSensorValues(){
         if(colorL != null) {
@@ -493,6 +509,10 @@ public class IntakeClaw {
     //
     public void update ()
     {
+        pusherPos = pusher.getPosition();
+        if(pushTimer.seconds()>= 0.5){
+            pusher.setPosition(0);
+        }
         /////////////////////////
         // Update telescoping arm
         /////////////////////////

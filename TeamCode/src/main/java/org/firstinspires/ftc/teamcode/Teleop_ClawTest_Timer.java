@@ -31,6 +31,7 @@ public class Teleop_ClawTest_Timer extends OpMode {
     public double clawPos;
     public double spinPos;
     public boolean turning = false;
+    public double headingTarget = 0;
     int armTarget = 0;
     public double liftServoPos;
 
@@ -68,29 +69,32 @@ public class Teleop_ClawTest_Timer extends OpMode {
 
         // updated based on gamepads
         if(theGamepad1.getButton(TBDGamepad.Button.DPAD_LEFT)){
-            if(!turning) {
-                runningActions.add(robot.drive.actionBuilder(robot.drive.pose).turnTo(Math.toRadians(45)).build());
-                turning = true;
-            }
+            //runningActions.add(robot.drive.actionBuilder(robot.drive.pose).turnTo(Math.toRadians(45)).build());
+            headingTarget = 45;
+            turning = true;
         }else if(theGamepad1.getButton(TBDGamepad.Button.DPAD_UP)){
-            if(!turning) {
-                runningActions.add(robot.drive.actionBuilder(robot.drive.pose).turnTo(Math.toRadians(90)).build());
-                turning = true;
-            }
+            //runningActions.add(robot.drive.actionBuilder(robot.drive.pose).turnTo(Math.toRadians(90)).build());
+            headingTarget = 90;
+            turning = true;
         }else if(theGamepad1.getButton(TBDGamepad.Button.DPAD_DOWN)){
-            if(!turning) {
-                runningActions.add(robot.drive.actionBuilder(robot.drive.pose).turnTo(Math.toRadians(-90)).build());
-                turning = true;
-            }
-        }else{
-            turning = false;
+            //runningActions.add(robot.drive.actionBuilder(robot.drive.pose).turnTo(Math.toRadians(-90)).build());
+            headingTarget = -90;
+            turning = true;
         }
 
         double forward = theGamepad1.getLeftY();
         double strafe = theGamepad1.getLeftX();
-        double turn  = theGamepad1.getRightX();
+        double turn = 0;
+        if(Math.abs(theGamepad1.getRightX()) >0.1) {
+            turn = theGamepad1.getRightX();
+            turning = false;
+        }
         double slow = 0.7;
         double armSlow = 1;
+
+        if(turning){
+            turn = robot.moveToHeading(robot.drive.pose.heading.toDouble(), Math.toRadians(headingTarget));
+        }
 
         //robot.intake.armTo(armTarget);
         robot.intake.update();
@@ -149,6 +153,10 @@ public class Teleop_ClawTest_Timer extends OpMode {
 //                liftServoPos -= 0.01;
 //            }
             liftPower = 0;
+        }
+
+        if(theGamepad1.getButton(TBDGamepad.Button.X)){
+            robot.intake.push(0.5);
         }
 
         if(theGamepad1.getButton(TBDGamepad.Button.RIGHT_BUMPER)){

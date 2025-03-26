@@ -145,12 +145,15 @@ public class Teleop_ClawTest_NoTimer extends OpMode {
 
         if(theGamepad1.getButton(TBDGamepad.Button.B)){
             robot.lift.hang();
-        }else if(theGamepad1.getButton(TBDGamepad.Button.A)){
+        }else if(theGamepad1.getButton(TBDGamepad.Button.A)) {
             robot.lift.moveToMin();
 //            if (liftServoPos-0.01 > 0){
 //                liftServoPos -= 0.01;
 //            }
-            liftPower = 0;
+        }
+
+        if(theGamepad1.getButton(TBDGamepad.Button.X)){
+            robot.intake.push(0.5);
         }
 
         if(theGamepad1.getButton(TBDGamepad.Button.RIGHT_BUMPER)){
