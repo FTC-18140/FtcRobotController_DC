@@ -152,7 +152,7 @@ public class Teleop_ClawTest_NoTimer extends OpMode {
 //            }
         }
 
-        if(theGamepad1.getButton(TBDGamepad.Button.X)){
+        if(theGamepad1.getButton(TBDGamepad.Button.X) || theGamepad1.getButton(TBDGamepad.Button.RIGHT_STICK_BUTTON)){
             robot.intake.push(0.5);
         }
 

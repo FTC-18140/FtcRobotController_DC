@@ -9,11 +9,13 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.Actions;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -504,14 +506,29 @@ public class ThunderBot_Claw_2024
         return  webCam.getSampleY();
     }
 
-    public Action alignToColorAction(){
-        return  new Action() {
+    public Action alignToColorAction(double Timeout){
+        return new Action() {
+            ElapsedTime timer = new ElapsedTime();
+            boolean started = false;
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                return false;
+                if(!started){
+                    started=true;
+                    timer.reset();
+                }
+                if(timer.seconds() > Timeout){
+                    return false;
+                }else{
+                    drive.actionBuilder(drive.pose)
+                            .lineToX(drive.pose.position.x+colorOffsetX())
+                            .lineToY(drive.pose.position.y+colorOffsetY())
+                            .build();
+                }
+                return true;
             }
         };
     }
+
 
     private void update()
     {
