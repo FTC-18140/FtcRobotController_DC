@@ -46,7 +46,7 @@ public class IntakeClaw {
     float hsvValuesL[] = {0,0,0};
     float hsvValuesR[] = {0,0,0};
     private PIDController controller;
-    public static double p = 0.03, i = 0, d = 0.00025;
+    public static double p = 0.031, i = 0, d = 0.00025;
 
     public static double factor_p_down = 0.4;
     public static double factor_d_down = 1.25;

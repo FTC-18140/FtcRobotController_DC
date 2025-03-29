@@ -18,8 +18,8 @@ public class AutoRight_Claw extends LinearOpMode {
     public static Vector2d basketPos = new Vector2d(56, -56);
 
     public static Vector2d samplePos_1 = new Vector2d(48, -42);
-    public static Vector2d samplePos_2 = new Vector2d(48, -40);
-    public static Vector2d samplePos_3 = new Vector2d(52, -38);
+    public static Vector2d samplePos_2 = new Vector2d(48.5, -39);
+    public static Vector2d samplePos_3 = new Vector2d(52.5, -36);
     public static Vector2d deposit = new Vector2d(48, -46);
     public static Vector2d parkPos = AutoPositions.Positions.ASCENT_ZONE.position;
 
@@ -62,6 +62,7 @@ public class AutoRight_Claw extends LinearOpMode {
                                 robot.intake.armUpAction(17),
                                 robot.intake.wristMoveAction(IntakeClaw.WRIST_MAX)
                         ),
+                        new SleepAction(0.25),
                         robot.intake.clawAction(IntakeClaw.CLAW_CLOSE),
                         new SleepAction(0.7),
                         new ParallelAction(
@@ -84,6 +85,7 @@ public class AutoRight_Claw extends LinearOpMode {
                                 robot.intake.wristMoveAction(IntakeClaw.WRIST_MAX),
                                 robot.intake.pivotAction(0.42)
                         ),
+                        new SleepAction(0.25),
                         robot.intake.clawAction(IntakeClaw.CLAW_CLOSE),
                         new SleepAction(0.7),
                         new ParallelAction(
@@ -112,6 +114,7 @@ public class AutoRight_Claw extends LinearOpMode {
                                 robot.intake.wristMoveAction(IntakeClaw.WRIST_MAX),
                                 robot.intake.pivotAction(0.25)
                         ),
+                        new SleepAction(0.25),
                         robot.intake.clawAction(IntakeClaw.CLAW_CLOSE),
                         new SleepAction(0.7),
                         new ParallelAction(

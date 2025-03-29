@@ -43,9 +43,9 @@ public class LimelightVision
     {
         try
         {
-//            limelight = hwMap.get(Limelight3A.class, "limelight");
-//            limelight.pipelineSwitch(3); // color pipeline
-//            limelight.start();
+            limelight = hwMap.get(Limelight3A.class, "limelight");
+            limelight.pipelineSwitch(3); // color pipeline
+            limelight.start();
         }
         catch (Exception e)
         {

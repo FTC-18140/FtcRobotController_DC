@@ -20,6 +20,8 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
+import org.firstinspires.ftc.teamcode.Robot.Pixycam.Pixy;
+import org.firstinspires.ftc.teamcode.Robot.Pixycam.PixyBlock;
 
 import java.util.List;
 
@@ -34,6 +36,8 @@ public class ThunderBot_Claw_2024
     public LED led;
     public WebCamVision webCam;
     public LimelightVision limelight;
+    public Pixy pixy;
+    private PixyBlock detectedBlock;
     double heading = 0;
     long leftFrontPosition = 0;
     long rightFrontPosition = 0;
@@ -98,11 +102,14 @@ public class ThunderBot_Claw_2024
         led = new LED();
         led.init(hwMap, telem);
 
-//        limelight = new LimelightVision();
-//        limelight.init(hwMap, telem);
+        limelight = new LimelightVision();
+        limelight.init(hwMap, telem);
 
-        webCam = new WebCamVision();
-        webCam.init(hwMap, telem);
+//        webCam = new WebCamVision();
+//        webCam.init(hwMap, telem);
+
+//        pixy = hwMap.get(Pixy.class, "pixy");
+//        detectedBlock = pixy.getBlock();
 
         drive = new MecanumDrive(hwMap, new Pose2d(0,0,0));
 //  This code was somehow preventing the Odometry from updating
@@ -500,10 +507,25 @@ public class ThunderBot_Claw_2024
         };
     }
     public double colorOffsetX(){
-        return webCam.getSampleX();
+        if(detectedBlock.isValid()) {
+            return detectedBlock.centerX;
+        }else{
+            return 0.5;
+        }
     }
     public double colorOffsetY(){
-        return  webCam.getSampleY();
+        if(detectedBlock.isValid()) {
+            return detectedBlock.centerY;
+        }else{
+            return 0;
+        }
+    }
+    public double colorOffsetAngle(){
+        return Range.scale(detectedBlock.angle, -Math.PI,Math.PI,0,1);
+    }
+
+    public void updatePixy(){
+        detectedBlock = pixy.getBlock();
     }
 
     public Action alignToColorAction(double Timeout){
