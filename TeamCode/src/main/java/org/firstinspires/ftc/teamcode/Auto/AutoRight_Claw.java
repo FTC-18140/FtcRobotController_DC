@@ -18,9 +18,10 @@ public class AutoRight_Claw extends LinearOpMode {
     public static Vector2d basketPos = new Vector2d(56, -56);
 
     public static Vector2d samplePos_1 = new Vector2d(48, -42);
-    public static Vector2d samplePos_2 = new Vector2d(48.5, -39);
-    public static Vector2d samplePos_3 = new Vector2d(52.5, -36);
+    public static Vector2d samplePos_2 = new Vector2d(49, -40);
+    public static Vector2d samplePos_3 = new Vector2d(52.5, -37);
     public static Vector2d deposit = new Vector2d(48, -46);
+    public static Vector2d pickup = new Vector2d(42, -51);
     public static Vector2d parkPos = AutoPositions.Positions.ASCENT_ZONE.position;
 
     @Override
@@ -37,15 +38,21 @@ public class AutoRight_Claw extends LinearOpMode {
         Actions.runBlocking(new ParallelAction(
                 robot.intake.updateAction(),
                 new SequentialAction(
-                        robot.intake.presetAction(IntakeClaw.Positions.HIGH_CHAMBER_SCORING),
-                        robot.intake.armUpAction(IntakeClaw.Positions.HIGH_CHAMBER_SCORING.armPos),
-                        new SleepAction(0.5),
-                        robot.drive.actionBuilder(new Pose2d(startPos, Math.toRadians(90)))
-                                .strafeTo(new Vector2d(7, -56))
-                                .strafeTo(new Vector2d(7, -31))
-                                .build(),
                         new ParallelAction(
-                            robot.intake.clawAction(IntakeClaw.CLAW_OPEN),
+                                robot.intake.presetAction(IntakeClaw.Positions.HIGH_CHAMBER_SCORING),
+                                robot.intake.armUpAction(IntakeClaw.Positions.HIGH_CHAMBER_SCORING.armPos),
+                                new SequentialAction(
+                                        new SleepAction(0.25),
+                                        robot.drive.actionBuilder(new Pose2d(startPos, Math.toRadians(90)))
+                                                .setTangent(Math.toRadians(90))
+                                                .splineToConstantHeading(new Vector2d(7, -42), Math.toRadians(90))
+                                                .splineToConstantHeading(new Vector2d(7, -31), Math.toRadians(90))
+                                                .build()
+                                )
+                        ),
+                        robot.intake.clawAction(IntakeClaw.CLAW_OPEN),
+                        new ParallelAction(
+
                             robot.drive.actionBuilder(new Pose2d(10,-42, Math.toRadians(90)))
                                     .strafeTo(new Vector2d(10, -54))
                                     .build(),
@@ -134,6 +141,35 @@ public class AutoRight_Claw extends LinearOpMode {
                                 robot.drive.actionBuilder(new Pose2d(deposit, Math.toRadians(-90)))
                                         .strafeTo(new Vector2d(samplePos_3.x, samplePos_3.y))
                                         .build()
+                        ),
+                        robot.intake.presetAction(IntakeClaw.Positions.INTAKE_SPECIMEN),
+                        robot.intake.clawAction(IntakeClaw.CLAW_OPEN),
+                        new SleepAction(0.5),
+                        robot.drive.actionBuilder(new Pose2d(samplePos_3, Math.toRadians(-90)))
+                                .setTangent(Math.toRadians(180))
+                                .splineToConstantHeading(pickup, Math.toRadians(-90))
+                                .build(),
+                        new SleepAction(0.5),
+                        robot.intake.clawAction(IntakeClaw.CLAW_CLOSE),
+                        new SleepAction(0.5),
+                        robot.intake.wristMoveAction(0.05),
+                        new SleepAction(0.5),
+                        new ParallelAction(
+                                robot.drive.actionBuilder(new Pose2d(pickup, Math.toRadians(-90)))
+                                        .setTangent(Math.toRadians(180))
+                                        .splineToSplineHeading(new Pose2d(10, -44, Math.toRadians(90)), Math.toRadians(90))
+                                        .stopAndAdd(robot.intake.presetAction(IntakeClaw.Positions.HIGH_CHAMBER_SCORING))
+                                        .stopAndAdd(robot.intake.armUpAction(IntakeClaw.Positions.HIGH_CHAMBER_SCORING.elbowPos))
+                                        .splineToConstantHeading(new Vector2d(10, -31), Math.toRadians(90))
+                                        .build()
+                        ),
+                        robot.intake.clawAction(IntakeClaw.CLAW_OPEN),
+                        new ParallelAction(
+                                robot.drive.actionBuilder(new Pose2d(10,-42, Math.toRadians(90)))
+                                        .strafeTo(new Vector2d(10, -52))
+                                        .build(),
+                                robot.intake.presetAction(IntakeClaw.Positions.READY_TO_INTAKE),
+                                robot.intake.armDownAction(1)
                         )
 
                 )
