@@ -39,6 +39,7 @@ public class IntakeClaw {
     public double aDouble = 0.5;
     double armTarget = 0;
     public static double armFactor = 3.2;
+    public static double startingOffset = 4.0;
 
     ColorSensor colorL = null;
     ColorSensor colorR = null;
@@ -46,20 +47,20 @@ public class IntakeClaw {
     float hsvValuesL[] = {0,0,0};
     float hsvValuesR[] = {0,0,0};
     private PIDController controller;
-    public static double p = 0.055, i = 0, d = 0.0005;
+    public static double p = 0.075, i = 0, d = 0.0005;
 
     public static double factor_p_down = 0.25;
     public static double factor_d_down = 1.5;
-    public static double f = 0.0075;
-    public static double fMin = 0.01;
+    public static double f = 0.025;
+    public static double fMin = 0.005;
     public static double fSin = 0.025;
 
-    public final double WRIST_INIT = 0.25;
-    public static double WRIST_MIN = 0.1;
-    public static double WRIST_MAX = 1.0;
+    public final double WRIST_INIT = 0.2;
+    public static double WRIST_MIN = 0.2;
+    public static double WRIST_MAX = 0.96;
     public final double PIVOT_MIN = 0.0;
     public final double PIVOT_MAX = 1.0;
-    public static double PIVOT_INIT = 0.5;
+    public static double PIVOT_INIT = 0.54;
 
     public static double CLAW_CLOSE = 0.09;
     public static double CLAW_OPEN = 0.75;
@@ -546,7 +547,7 @@ public class IntakeClaw {
 
 //        telemetry.addData("arm direction for preset ", armTarget-armPos/COUNTS_PER_CM);
         telemetry.addData("arm target: ", armTarget + armOffset);
-        telemetry.addData("armPos: ", armPos);
+        telemetry.addData("armPos: ", armPos - armOffset);
         telemetry.addData("armOffset: ", armOffset);
 
         ////////////////
@@ -560,27 +561,27 @@ public class IntakeClaw {
         }
         if(target < 30){
             target += armFactor * Math.pow((armPos - armOffset)/37, 2);
+            telemetry.addData("extension Offset: ", armFactor * Math.pow((armPos - armOffset)/37, 2));
         }
         elbowPosition = elbow.getCurrentPosition();
 
         //controller.setPID(p,i,d);
-        double ff = f * Math.cos(Math.toRadians(clip((elbowPosition / COUNTS_PER_ELBOW_DEGREE)+4.5, 0, 180)));
-        if (target >= (elbowPosition/COUNTS_PER_ELBOW_DEGREE)+4.5) {
+        double ff = f * Math.cos(Math.toRadians(clip((elbowPosition / COUNTS_PER_ELBOW_DEGREE)+startingOffset, 0, 180)));
+        if (target >= (elbowPosition/COUNTS_PER_ELBOW_DEGREE)+startingOffset) {
             // the cosine lowers as it approaches half-PI/90°
-            // the sine balances out the cosine, allowing the arm to raise fully
-            ff = f * Math.cos(Math.toRadians(clip((elbowPosition / COUNTS_PER_ELBOW_DEGREE)+4.5, 0, 180)));
+            //ff = f * Math.cos(Math.toRadians(clip((elbowPosition / COUNTS_PER_ELBOW_DEGREE)+4.5, 0, 180)));
+            if(ff < fMin)
+            {
+                ff = fMin;
+            }
             controller.setPID(p, i, d);
         } else {
-            double pDown = Math.abs(p * factor_p_down * Math.cos(Math.toRadians(clip((elbowPosition / COUNTS_PER_ELBOW_DEGREE)+4.5, 0, 180))));
-            double dDown = Math.abs(d * factor_d_down * Math.cos(Math.toRadians(clip((elbowPosition / COUNTS_PER_ELBOW_DEGREE)+4.5, 0, 180))));
+            double pDown = Math.abs(p * factor_p_down * Math.cos(Math.toRadians(clip((elbowPosition / COUNTS_PER_ELBOW_DEGREE)+startingOffset, 0, 180))));
+            double dDown = Math.abs(d * factor_d_down * Math.cos(Math.toRadians(clip((elbowPosition / COUNTS_PER_ELBOW_DEGREE)+startingOffset, 0, 180))));
             controller.setPID(pDown, i, dDown);
         }
 
-        if(ff < fMin)
-        {
-            ff = fMin;
-        }
-        double pid = controller.calculate((elbowPosition / COUNTS_PER_ELBOW_DEGREE) +3.5, target);
+        double pid = controller.calculate((elbowPosition / COUNTS_PER_ELBOW_DEGREE) +startingOffset, target);
 
         double power = pid + ff;
         elbow.setPower(power);
@@ -593,7 +594,7 @@ public class IntakeClaw {
         telemetry.addData("pid : ", pid);
         telemetry.addData("target : ", target);
         telemetry.addData("elbowpos : ", elbowPosition);
-        telemetry.addData("elbowpos in degrees: ", (elbowPosition / COUNTS_PER_ELBOW_DEGREE)+3.5);
+        telemetry.addData("elbowpos in degrees: ", (elbowPosition / COUNTS_PER_ELBOW_DEGREE)+startingOffset);
 
         wristPos = wrist.getPosition();
         pivotPos = pivot.getPosition();
