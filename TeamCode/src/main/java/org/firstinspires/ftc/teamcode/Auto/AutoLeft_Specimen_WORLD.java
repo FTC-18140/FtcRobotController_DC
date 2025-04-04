@@ -9,12 +9,11 @@ import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.Robot.Intake;
 import org.firstinspires.ftc.teamcode.Robot.IntakeClaw;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot_Claw_2024;
 
 @Autonomous
-public class AutoLeft_Specimen_Claw extends LinearOpMode {
+public class AutoLeft_Specimen_WORLD extends LinearOpMode {
     public static Vector2d startPos = AutoPositions.Positions.START_LEFT.position;
     public static Vector2d basketPos = new Vector2d(-56, -56);
 
@@ -43,10 +42,10 @@ public class AutoLeft_Specimen_Claw extends LinearOpMode {
                                 new SequentialAction(
                                         new SleepAction(0.25),
                                         robot.drive.actionBuilder(new Pose2d(startPos, Math.toRadians(90)))
-                                        .setTangent(Math.toRadians(90))
-                                        .splineToConstantHeading(new Vector2d(-7, -42), Math.toRadians(90))
-                                        .splineToConstantHeading(new Vector2d(-7, -31), Math.toRadians(90))
-                                        .build()
+                                            .setTangent(Math.toRadians(90))
+                                            .splineToConstantHeading(new Vector2d(-7, -42), Math.toRadians(90))
+                                            .splineToConstantHeading(new Vector2d(-7, -31), Math.toRadians(90))
+                                            .build()
                                 )
                         ),
                         robot.intake.clawAction(IntakeClaw.CLAW_OPEN),

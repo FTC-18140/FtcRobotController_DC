@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @TeleOp(group = "Teleop")
-public class Teleop_ClawTest_NoTimer extends OpMode {
+public class Teleop_NoTimer extends OpMode {
     private FtcDashboard dash = FtcDashboard.getInstance();
     private List<Action> runningActions = new ArrayList<>();
 

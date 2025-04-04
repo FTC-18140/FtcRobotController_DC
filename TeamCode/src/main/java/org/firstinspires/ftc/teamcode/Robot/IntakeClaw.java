@@ -38,8 +38,8 @@ public class IntakeClaw {
 
     public double aDouble = 0.5;
     double armTarget = 0;
-    public static double armFactor = 3.2;
-    public static double startingOffset = 4.0;
+    public static double armFactor = 3.3;
+    public static double startingOffset = 3.5;
 
     ColorSensor colorL = null;
     ColorSensor colorR = null;
@@ -47,12 +47,12 @@ public class IntakeClaw {
     float hsvValuesL[] = {0,0,0};
     float hsvValuesR[] = {0,0,0};
     private PIDController controller;
-    public static double p = 0.075, i = 0, d = 0.0005;
+    public static double p = 0.06, i = 0, d = 0.00065;
 
     public static double factor_p_down = 0.25;
-    public static double factor_d_down = 1.5;
-    public static double f = 0.025;
-    public static double fMin = 0.005;
+    public static double factor_d_down = 1.15;
+    public static double f = 0.035;
+    public static double fMin = 0.001;
     public static double fSin = 0.025;
 
     public final double WRIST_INIT = 0.2;
