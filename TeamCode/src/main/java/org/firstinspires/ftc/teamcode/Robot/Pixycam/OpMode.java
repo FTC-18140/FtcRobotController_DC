@@ -12,10 +12,11 @@ public class OpMode extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        pixy = hardwareMap.get(Pixy.class, "deviceName");
+        pixy = hardwareMap.get(Pixy.class, "pixy");
         PixyBlock detectedBlock;
 
         pixy.turnOffLamps();
+        pixy.turnOnLamps();
 
         waitForStart();
         while(opModeIsActive()){
