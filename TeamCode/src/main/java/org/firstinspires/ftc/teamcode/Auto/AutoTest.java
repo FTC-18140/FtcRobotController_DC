@@ -12,14 +12,16 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Robot.Intake;
+import org.firstinspires.ftc.teamcode.Robot.IntakeClaw;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2024;
+import org.firstinspires.ftc.teamcode.Robot.ThunderBot_Claw_2024;
 
 @Config
 @Autonomous
 public class AutoTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        ThunderBot2024 robot = new ThunderBot2024();
+        ThunderBot_Claw_2024 robot = new ThunderBot_Claw_2024();
         robot.init(hardwareMap,telemetry, 0);
         Pose2d startPos = new Pose2d(-15,-60,Math.toRadians(90));
         robot.drive.pose = startPos;
@@ -29,12 +31,15 @@ public class AutoTest extends LinearOpMode {
         Actions.runBlocking(
                 new ParallelAction(
                 new SequentialAction(
-                        new SleepAction(10),
+                        robot.intake.clawAction(IntakeClaw.CLAW_OPEN),
+                        robot.intake.armUpAction(37),
+                        robot.intake.wristMoveAction(IntakeClaw.WRIST_MAX),
                         new ParallelAction(
-                                robot.intake.armUpAction(15),
-                                robot.intake.checkForSample("u", 15)
+                                robot.alignToColorAction(2)
                         ),
-                        robot.intake.armDownAction(1)
+                        robot.intake.clawAction(IntakeClaw.CLAW_CLOSE),
+                        new SleepAction(0.9),
+                        robot.intake.presetAction(IntakeClaw.Positions.READY_TO_INTAKE)
                 ),
                 robot.intake.updateAction()
             )

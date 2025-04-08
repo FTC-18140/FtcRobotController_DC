@@ -23,6 +23,7 @@ import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Robot.Pixycam.Pixy;
 import org.firstinspires.ftc.teamcode.Robot.Pixycam.PixyBlock;
 
+import java.util.ArrayList;
 import java.util.List;
 
 ;
@@ -37,6 +38,7 @@ public class ThunderBot_Claw_2024
     public WebCamVision webCam;
     public LimelightVision limelight;
     public Pixy pixy;
+    public ArrayList<PixyBlock> blocks;
     private PixyBlock detectedBlock;
     double heading = 0;
     long leftFrontPosition = 0;
@@ -108,8 +110,9 @@ public class ThunderBot_Claw_2024
 //        webCam = new WebCamVision();
 //        webCam.init(hwMap, telem);
 
-//        pixy = hwMap.get(Pixy.class, "pixy");
-//        detectedBlock = pixy.getBlock();
+        pixy = hwMap.get(Pixy.class, "pixy");
+        detectedBlock = pixy.getBlock();
+        pixy.turnOnLamps();
 
         drive = new MecanumDrive(hwMap, new Pose2d(0,0,0));
 //  This code was somehow preventing the Odometry from updating
@@ -507,15 +510,17 @@ public class ThunderBot_Claw_2024
         };
     }
     public double colorOffsetX(){
+        detectedBlock = pixy.getBlock();
         if(detectedBlock.isValid()) {
-            return detectedBlock.centerX;
+            return Math.sin((double) (detectedBlock.centerX - 75) /150);
         }else{
-            return 0.5;
+            return 0;
         }
     }
     public double colorOffsetY(){
+        detectedBlock = pixy.getBlock();
         if(detectedBlock.isValid()) {
-            return detectedBlock.centerY;
+            return Math.sin((double) (detectedBlock.centerY - 163) /150);
         }else{
             return 0;
         }
@@ -526,6 +531,7 @@ public class ThunderBot_Claw_2024
 
     public void updatePixy(){
         detectedBlock = pixy.getBlock();
+
     }
 
     public Action alignToColorAction(double Timeout){
@@ -542,8 +548,7 @@ public class ThunderBot_Claw_2024
                     return false;
                 }else{
                     drive.actionBuilder(drive.pose)
-                            .lineToX(drive.pose.position.x+colorOffsetX())
-                            .lineToY(drive.pose.position.y+colorOffsetY())
+                            .strafeTo(new Vector2d(drive.pose.position.x+colorOffsetX(), drive.pose.position.y+colorOffsetY()))
                             .build();
                 }
                 return true;
