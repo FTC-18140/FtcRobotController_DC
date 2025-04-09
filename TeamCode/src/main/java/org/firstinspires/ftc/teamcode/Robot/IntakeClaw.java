@@ -102,11 +102,12 @@ public class IntakeClaw {
         READY_TO_INTAKE(0.45,1.0,3.5, CLAW_CLOSE, PIVOT_INIT),
         LOW_BASKET(0.35,1.0,ELBOW_MAX, CLAW_CLOSE, PIVOT_INIT),
         HIGH_CHAMBER(0.3,20, ELBOW_HIGH_CHAMBER, CLAW_CLOSE, PIVOT_INIT),
-        HIGH_CHAMBER_SCORING(0.5,22, ELBOW_HIGH_CHAMBER_SCORING, CLAW_CLOSE, PIVOT_INIT),
+        HIGH_CHAMBER_SCORING(0.45,22, ELBOW_HIGH_CHAMBER_SCORING, CLAW_CLOSE, PIVOT_INIT),
         HIGH_CHAMBER_SCORING_AUTO(0.14,27, ELBOW_HIGH_CHAMBER_SCORING, CLAW_CLOSE, PIVOT_INIT),
         INTAKE_SPECIMEN(0.6, 2, 12, CLAW_OPEN, PIVOT_INIT),
         //Max elbow, Max arm extend, base of intake parallel with floor ↓
-        HIGH_BASKET(0.42,ARM_MAX,ELBOW_MAX, CLAW_CLOSE, PIVOT_INIT);
+        HIGH_BASKET(0.44
+                ,ARM_MAX,ELBOW_MAX, CLAW_CLOSE, PIVOT_INIT);
         public final double wristPos;
         public final double armPos;
         public final double elbowPos;

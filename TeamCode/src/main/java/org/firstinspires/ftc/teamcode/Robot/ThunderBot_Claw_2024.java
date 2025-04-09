@@ -104,8 +104,8 @@ public class ThunderBot_Claw_2024
         led = new LED();
         led.init(hwMap, telem);
 
-        limelight = new LimelightVision();
-        limelight.init(hwMap, telem);
+//        limelight = new LimelightVision();
+//        limelight.init(hwMap, telem);
 
 //        webCam = new WebCamVision();
 //        webCam.init(hwMap, telem);
