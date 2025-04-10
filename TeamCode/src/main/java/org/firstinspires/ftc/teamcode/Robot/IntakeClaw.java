@@ -47,11 +47,11 @@ public class IntakeClaw {
     float hsvValuesL[] = {0,0,0};
     float hsvValuesR[] = {0,0,0};
     private PIDController controller;
-    public static double p = 0.06, i = 0, d = 0.00065;
+    public static double p = 0.065, i = 0, d = 0.00005;
 
-    public static double factor_p_down = 0.25;
+    public static double factor_p_down = 0.5;
     public static double factor_d_down = 1.15;
-    public static double f = 0.035;
+    public static double f = 0.065;
     public static double fMin = 0.001;
     public static double fSin = 0.025;
 
@@ -577,8 +577,8 @@ public class IntakeClaw {
             }
             controller.setPID(p, i, d);
         } else {
-            double pDown = Math.abs(p * factor_p_down * Math.cos(Math.toRadians(clip((elbowPosition / COUNTS_PER_ELBOW_DEGREE)+startingOffset, 0, 180))));
-            double dDown = Math.abs(d * factor_d_down * Math.cos(Math.toRadians(clip((elbowPosition / COUNTS_PER_ELBOW_DEGREE)+startingOffset, 0, 180))));
+            double pDown = Math.abs(p * factor_p_down * Math.cos(Math.toRadians(clip((elbowPosition / COUNTS_PER_ELBOW_DEGREE)+startingOffset, 0, 45))));
+            double dDown = Math.abs(d * factor_d_down * Math.cos(Math.toRadians(clip((elbowPosition / COUNTS_PER_ELBOW_DEGREE)+startingOffset, 0, 45))));
             controller.setPID(pDown, i, dDown);
         }
 

@@ -15,11 +15,11 @@ import org.firstinspires.ftc.teamcode.Robot.ThunderBot_Claw_2024;
 @Autonomous
 public class AutoLeft_Sample_WORLD extends LinearOpMode {
     public static Vector2d startPos = AutoPositions.Positions.START_LEFT.position;
-    public static Vector2d basketPos = new Vector2d(-56, -56);
+    public static Vector2d basketPos = new Vector2d(-54.5, -54.5);
 
     public static Vector2d samplePos_1 = new Vector2d(-49, -40);
     public static Vector2d samplePos_2 = new Vector2d(-59, -40);
-    public static Vector2d samplePos_3 = new Vector2d(-55.5, -29);
+    public static Vector2d samplePos_3 = new Vector2d(-56, -29);
     public static Vector2d parkPos = AutoPositions.Positions.ASCENT_ZONE.position;
 
     @Override
