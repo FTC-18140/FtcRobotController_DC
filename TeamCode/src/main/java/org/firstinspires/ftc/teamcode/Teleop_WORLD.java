@@ -235,12 +235,12 @@ public class Teleop_WORLD extends OpMode {
         }
         // Arm controls
         if(theGamepad2.getButton(TBDGamepad.Button.X)){
-            robot.intake.armUp(0.3*armSlow);
+            robot.intake.armUp(0.65*armSlow);
             //armTarget += (int)(1 * armSlow);
             //robot.intake.armTo(armTarget);
         }
         else if(theGamepad2.getButton(TBDGamepad.Button.B)){
-            robot.intake.armDown(-0.65*(armSlow*1.5));
+            robot.intake.armDown(-0.75*(armSlow*1.5));
             //robot.intake.armTo
             //armTarget -= (int)(1 * armSlow);
             //robot.intake.armTo(armTarget);
