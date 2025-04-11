@@ -100,6 +100,7 @@ public class Teleop_Pixy_NoTimer extends OpMode {
         //robot.intake.armTo(armTarget);
         robot.intake.update();
         robot.lift.update();
+        robot.updatePixy();
 //        robot.lift.leftServo.setPosition(liftServoPos);
 //        robot.lift.rightServo.setPosition(liftServoPos);
 
@@ -118,13 +119,12 @@ public class Teleop_Pixy_NoTimer extends OpMode {
             armSlow = 0.4;
         }
 
-        if((teleopTimer.seconds() > 105 && Math.sin(2*teleopTimer.seconds()) > 0) || teleopTimer.seconds() > 120)
-        {
-            // robot.led.setToColor("orange");
-        }
-        else if (slow == 1.0)
+        if (slow == 1.0 || robot.averageX < 150)
         {
             robot.led.setToColor("rainbow");
+            if(robot.averageWidth >200){
+                robot.intake.pivotTo(1.0);
+            }
         }
         else
         {
@@ -158,13 +158,13 @@ public class Teleop_Pixy_NoTimer extends OpMode {
 
         if(theGamepad1.getButton(TBDGamepad.Button.RIGHT_BUMPER)){
             //robot.lift.lift_target = 0;
-            strafe += robot.colorOffsetX();
-            forward += -robot.colorOffsetY();
+//            strafe += robot.colorOffsetX();
+//            forward += -robot.colorOffsetY();
 //            turn = -robot.specimenAngleSmooth(false);
         }else if(theGamepad1.getButton(TBDGamepad.Button.LEFT_BUMPER)){
             //robot.lift.lift_target = robot.lift.LIFT_MAX;
-            strafe += robot.colorOffsetX();
-            forward += -robot.colorOffsetY();
+//            strafe += robot.colorOffsetX();
+//            forward += -robot.colorOffsetY();
 //            turn = -robot.specimenAngleSmooth(false);
             //telemetry.addData("AprilTag offset X: ", robot.specimenOffsetX());
         }

@@ -19,6 +19,6 @@ public class PixyBlock {
 
     @Override
     public String toString(){
-        return "[ signature: " + signature + "\ncenterX: " + centerX + "\ncenterY: " + centerY + "\nwidth: " + width + "\nheight: " + height + "\nage: " + age + " ]";
+        return "signature: " + signature + "\ncenterX: " + centerX + "\ncenterY: " + centerY + "\nwidth: " + width + "\nheight: " + height + "\nage: " + age + "\nangle: " + angle;
     }
 }

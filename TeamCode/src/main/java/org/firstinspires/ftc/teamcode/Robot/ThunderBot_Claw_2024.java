@@ -9,7 +9,6 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.Actions;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
@@ -22,6 +21,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Robot.Pixycam.Pixy;
 import org.firstinspires.ftc.teamcode.Robot.Pixycam.PixyBlock;
+import org.firstinspires.ftc.teamcode.Utilities.MovingAverageFilter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +38,10 @@ public class ThunderBot_Claw_2024
     public WebCamVision webCam;
     public LimelightVision limelight;
     public Pixy pixy;
+    public MovingAverageFilter blockFilterX = new MovingAverageFilter(15);
+    public double averageX;
+    public MovingAverageFilter blockFilterWidth = new MovingAverageFilter(15);
+    public double averageWidth;
     public ArrayList<PixyBlock> blocks;
     private PixyBlock detectedBlock;
     double heading = 0;
@@ -110,9 +114,15 @@ public class ThunderBot_Claw_2024
 //        webCam = new WebCamVision();
 //        webCam.init(hwMap, telem);
 
-        pixy = hwMap.get(Pixy.class, "pixy");
-        detectedBlock = pixy.getBlock();
-        pixy.turnOnLamps();
+        try{
+            pixy = hwMap.get(Pixy.class, "pixy");
+            detectedBlock = pixy.getBlock();
+            pixy.turnOnLamps();
+        }catch(Exception e){
+            pixy = null;
+            telemetry.addData("pixy not found", 0);
+        }
+
 
         drive = new MecanumDrive(hwMap, new Pose2d(0,0,0));
 //  This code was somehow preventing the Odometry from updating
@@ -510,15 +520,13 @@ public class ThunderBot_Claw_2024
         };
     }
     public double colorOffsetX(){
-        detectedBlock = pixy.getBlock();
         if(detectedBlock.isValid()) {
-            return Math.sin((double) (detectedBlock.centerX - 75) /150);
+            return Math.sin((double) (averageX - 75) /150);
         }else{
             return 0;
         }
     }
     public double colorOffsetY(){
-        detectedBlock = pixy.getBlock();
         if(detectedBlock.isValid()) {
             return Math.sin((double) (detectedBlock.centerY - 163) /150);
         }else{
@@ -530,8 +538,16 @@ public class ThunderBot_Claw_2024
     }
 
     public void updatePixy(){
-        detectedBlock = pixy.getBlock();
-
+        if(pixy != null) {
+            detectedBlock = pixy.getBlock();
+            if(detectedBlock.isValid()) {
+                averageX = blockFilterX.addValue(detectedBlock.centerX);
+                averageWidth = blockFilterWidth.addValue(detectedBlock.width);
+            }
+            telemetry.addLine(detectedBlock.toString());
+            telemetry.addData("average X: ", averageX);
+            telemetry.addData("average Width: ", averageWidth);
+        }
     }
 
     public Action alignToColorAction(double Timeout){

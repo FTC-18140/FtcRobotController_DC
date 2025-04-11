@@ -125,7 +125,7 @@ public class Pixy extends I2cDeviceSynchDevice<I2cDeviceSynchSimple> {
      */
     private boolean isValidResult() {
         updateBlock();
-        return pixyBlock.signature == 1 || pixyBlock.signature == 2;
+        return pixyBlock.signature == 3;
     }
 
     /**
@@ -136,7 +136,7 @@ public class Pixy extends I2cDeviceSynchDevice<I2cDeviceSynchSimple> {
         /*
         this is the data request we send to pixy to get back the block/color object
          */
-        byte[] blockRequest = {(byte) 174, (byte) 193, (byte) 32, (byte) 2, (byte) 3, (byte) 1};
+        byte[] blockRequest = {(byte) 174, (byte) 193, (byte) 32, (byte) 2, (byte) 4, (byte) 1};
         // note that here, 3 indicates we wish to see blocks from signatures 1 and 2 (1 + 2)
         // and 1 indicates that we are only interested in seeing 1 block detected by pixy
 
