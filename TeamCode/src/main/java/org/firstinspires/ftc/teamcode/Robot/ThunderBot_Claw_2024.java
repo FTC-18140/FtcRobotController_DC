@@ -38,7 +38,7 @@ public class ThunderBot_Claw_2024
     public WebCamVision webCam;
     public LimelightVision limelight;
     public Pixy pixy;
-    public MovingAverageFilter blockFilterX = new MovingAverageFilter(15);
+    public MovingAverageFilter blockFilterX = new MovingAverageFilter(10);
     public double averageX;
     public MovingAverageFilter blockFilterWidth = new MovingAverageFilter(15);
     public double averageWidth;
@@ -521,7 +521,7 @@ public class ThunderBot_Claw_2024
     }
     public double colorOffsetX(){
         if(detectedBlock.isValid()) {
-            return Math.sin((double) (averageX - 75) /150);
+            return Range.scale(averageX-150, -150, 150, -1, 1);
         }else{
             return 0;
         }
@@ -537,6 +537,9 @@ public class ThunderBot_Claw_2024
         return Range.scale(detectedBlock.angle, -Math.PI,Math.PI,0,1);
     }
 
+    public boolean blockDetected(){
+        return detectedBlock.isValid();
+    }
     public void updatePixy(){
         if(pixy != null) {
             detectedBlock = pixy.getBlock();
@@ -549,23 +552,39 @@ public class ThunderBot_Claw_2024
             telemetry.addData("average Width: ", averageWidth);
         }
     }
+    public Action updatePixyAction(){
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                updatePixy();
+                return true;
+            }
+        };
+    }
 
     public Action alignToColorAction(double Timeout){
         return new Action() {
             ElapsedTime timer = new ElapsedTime();
             boolean started = false;
+            double distance = 0;
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 if(!started){
                     started=true;
                     timer.reset();
                 }
+
                 if(timer.seconds() > Timeout){
                     return false;
                 }else{
-                    drive.actionBuilder(drive.pose)
-                            .strafeTo(new Vector2d(drive.pose.position.x+colorOffsetX(), drive.pose.position.y+colorOffsetY()))
-                            .build();
+                    if(averageWidth > 200){
+                        intake.pivotTo(1.0);
+                    }else {
+                        intake.pivotTo(IntakeClaw.PIVOT_INIT);
+                    }
+                    if(averageX < 150 && detectedBlock.isValid()){
+                        return false;
+                    }
                 }
                 return true;
             }

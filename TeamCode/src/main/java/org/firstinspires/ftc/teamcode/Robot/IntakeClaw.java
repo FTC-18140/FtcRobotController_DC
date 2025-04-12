@@ -547,9 +547,9 @@ public class IntakeClaw {
         }
 
 //        telemetry.addData("arm direction for preset ", armTarget-armPos/COUNTS_PER_CM);
-        telemetry.addData("arm target: ", armTarget + armOffset);
-        telemetry.addData("armPos: ", armPos - armOffset);
-        telemetry.addData("armOffset: ", armOffset);
+//        telemetry.addData("arm target: ", armTarget + armOffset);
+//        telemetry.addData("armPos: ", armPos - armOffset);
+//        telemetry.addData("armOffset: ", armOffset);
 
         ////////////////
         // Update elbow
@@ -589,12 +589,12 @@ public class IntakeClaw {
 
         clawPos = claw.getPosition();
 //                telemetry.addData("clawPos: ", claw.getPosition());
-        telemetry.addData("arm motor power : ", arm.getPower());
+//        telemetry.addData("arm motor power : ", arm.getPower());
         telemetry.addData("power : ", power);
         telemetry.addData("ff : ", ff);
         telemetry.addData("pid : ", pid);
         telemetry.addData("target : ", target);
-        telemetry.addData("elbowpos : ", elbowPosition);
+//        telemetry.addData("elbowpos : ", elbowPosition);
         telemetry.addData("elbowpos in degrees: ", (elbowPosition / COUNTS_PER_ELBOW_DEGREE)+startingOffset);
 
         wristPos = wrist.getPosition();

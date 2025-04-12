@@ -162,13 +162,13 @@ public class Teleop_WORLD extends OpMode {
         if(theGamepad1.getButton(TBDGamepad.Button.RIGHT_BUMPER)){
             //robot.lift.lift_target = 0;
             strafe += robot.colorOffsetX();
-            forward += -robot.colorOffsetY();
+//            forward += -robot.colorOffsetY();
 //            strafe = -robot.specimenOffsetXSmooth(false);
 //            turn = -robot.specimenAngleSmooth(false);
         }else if(theGamepad1.getButton(TBDGamepad.Button.LEFT_BUMPER)){
             //robot.lift.lift_target = robot.lift.LIFT_MAX;
             strafe += robot.colorOffsetX();
-            forward += -robot.colorOffsetY();
+//            forward += -robot.colorOffsetY();
 //            strafe = -robot.specimenOffsetXSmooth(false);
 //            turn = -robot.specimenAngleSmooth(false);
             //telemetry.addData("AprilTag offset X: ", robot.specimenOffsetX());

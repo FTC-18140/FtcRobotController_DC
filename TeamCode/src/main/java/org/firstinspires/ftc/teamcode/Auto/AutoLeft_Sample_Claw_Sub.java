@@ -2,8 +2,11 @@ package org.firstinspires.ftc.teamcode.Auto;
 
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.RaceAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
+import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -13,14 +16,16 @@ import org.firstinspires.ftc.teamcode.Robot.IntakeClaw;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot_Claw_2024;
 
 @Autonomous
-public class AutoLeft_Specimen_WORLD extends LinearOpMode {
+public class AutoLeft_Sample_Claw_Sub extends LinearOpMode {
     public static Vector2d startPos = AutoPositions.Positions.START_LEFT.position;
-    public static Vector2d basketPos = new Vector2d(-54.5, -54.5);
+    public static Vector2d basketPos = new Vector2d(-54.5, -51);
 
-    public static Vector2d samplePos_1 = new Vector2d(-49, -40);
-    public static Vector2d samplePos_2 = new Vector2d(-59, -40);
+    public static Vector2d samplePos_1 = new Vector2d(-48, -40);
+    public static Vector2d samplePos_2 = new Vector2d(-58, -40);
     public static Vector2d samplePos_3 = new Vector2d(-55.5, -29);
     public static Vector2d parkPos = AutoPositions.Positions.ASCENT_ZONE.position;
+
+
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -28,6 +33,9 @@ public class AutoLeft_Specimen_WORLD extends LinearOpMode {
 
         robot.init(hardwareMap,telemetry, 0);
         robot.drive.pose = new Pose2d(startPos,Math.toRadians(90));
+        TrajectoryActionBuilder scan = robot.drive.actionBuilder(new Pose2d(new Vector2d(-5, -31),Math.toRadians(90)))
+                .strafeTo(new Vector2d(5, -31), new TranslationalVelConstraint(4.0));
+
         telemetry.update();
 
         waitForStart();
@@ -37,33 +45,69 @@ public class AutoLeft_Specimen_WORLD extends LinearOpMode {
                 robot.intake.updateAction(),
                 new SequentialAction(
                         new ParallelAction(
-                                robot.intake.presetAction(IntakeClaw.Positions.HIGH_CHAMBER_SCORING),
-                                robot.intake.armUpAction(IntakeClaw.Positions.HIGH_CHAMBER_SCORING.armPos),
+                                robot.drive.actionBuilder(new Pose2d(startPos, Math.toRadians(90)))
+                                        .setTangent(Math.toRadians(120))
+                                        .splineToSplineHeading(new Pose2d(basketPos, Math.toRadians(45)), Math.toRadians(210))
+                                        .build(),
+                                robot.intake.presetAction(IntakeClaw.Positions.HIGH_BASKET),
+                                robot.intake.armUpAction(IntakeClaw.Positions.HIGH_BASKET.armPos)
+                        ),
+                        new ParallelAction(
+                                robot.intake.clawAction(IntakeClaw.CLAW_OPEN),
+                                new SleepAction(0.5)
+                        ),
+                        robot.intake.wristMoveAction(IntakeClaw.WRIST_MAX),
+                        //Submersible
+                        new ParallelAction(
+                                robot.drive.actionBuilder(new Pose2d(basketPos, Math.toRadians(45)))
+                                        .setTangent(Math.toRadians(0))
+                                        .splineToSplineHeading(new Pose2d(-6, -41, Math.toRadians(90)), Math.toRadians(0))
+                                        .splineToConstantHeading(new Vector2d(-5, -31), Math.toRadians(90))
+                                        .build(),
                                 new SequentialAction(
-                                        new SleepAction(0.25),
-                                        robot.drive.actionBuilder(new Pose2d(startPos, Math.toRadians(90)))
-                                            .setTangent(Math.toRadians(90))
-                                            .splineToConstantHeading(new Vector2d(-7, -42), Math.toRadians(90))
-                                            .splineToConstantHeading(new Vector2d(-7, -31), Math.toRadians(90))
-                                            .build()
+                                        robot.intake.armDownAction(1),
+                                        robot.intake.presetAction(IntakeClaw.Positions.READY_TO_INTAKE),
+                                        new SleepAction(0.75),
+                                        robot.intake.clawAction(IntakeClaw.CLAW_OPEN),
+                                        robot.intake.armUpAction(IntakeClaw.ARM_MAX_HORIZONTAL)
                                 )
                         ),
-                        robot.intake.clawAction(IntakeClaw.CLAW_OPEN),
-                        //First Cycle
+                        robot.intake.wristMoveAction(IntakeClaw.WRIST_MAX),
+                        new RaceAction(
+                                robot.updatePixyAction(),
+                                robot.alignToColorAction(12),
+                                scan.build()
+                        ),
+                        robot.intake.clawAction(IntakeClaw.CLAW_CLOSE),
+                        new SleepAction(0.5),
+                        robot.intake.presetAction(IntakeClaw.Positions.READY_TO_INTAKE),
+                        robot.intake.armDownAction(1),
                         new ParallelAction(
-                                robot.drive.actionBuilder(new Pose2d(-7,-31, Math.toRadians(90)))
+                                robot.drive.actionBuilder(new Pose2d(new Vector2d(5, -31), Math.toRadians(90)))
                                         .setTangent(Math.toRadians(-90))
-                                        .splineToConstantHeading(new Vector2d(-10, -48), Math.toRadians(180))
-                                        .splineToConstantHeading(samplePos_1, Math.toRadians(180))
+                                        .splineToLinearHeading(new Pose2d(basketPos, Math.toRadians(45)), Math.toRadians(-135))
                                         .build(),
                                 new SequentialAction(
                                         new SleepAction(0.5),
-                                        robot.intake.presetAction(IntakeClaw.Positions.READY_TO_INTAKE),
-                                        robot.intake.clawAction(IntakeClaw.CLAW_OPEN),
-                                        robot.intake.wristMoveAction(IntakeClaw.WRIST_MAX),
-                                        robot.intake.armUpAction(17)
+                                        robot.intake.presetAction(IntakeClaw.Positions.HIGH_BASKET),
+                                        robot.intake.armUpAction(IntakeClaw.Positions.HIGH_BASKET.armPos)
                                 )
                         ),
+                        new ParallelAction(
+                                robot.intake.clawAction(IntakeClaw.CLAW_OPEN),
+                                new SleepAction(0.25)
+                        ),
+                        robot.intake.wristMoveAction(IntakeClaw.WRIST_MAX),
+                        //First Cycle
+                        new ParallelAction(
+                                robot.drive.actionBuilder(new Pose2d(basketPos, Math.toRadians(45)))
+                                        .strafeToSplineHeading(samplePos_1, Math.toRadians(90), new TranslationalVelConstraint(40.0))
+                                        .build(),
+                                robot.intake.elbowAction(IntakeClaw.Positions.READY_TO_INTAKE.elbowPos),
+                                robot.intake.armDownAction(17),
+                                robot.intake.wristMoveAction(IntakeClaw.WRIST_MAX)
+                        ),
+                        new SleepAction(0.9),
                         robot.intake.clawAction(IntakeClaw.CLAW_CLOSE),
                         new SleepAction(0.5),
                         new ParallelAction(
@@ -73,6 +117,7 @@ public class AutoLeft_Specimen_WORLD extends LinearOpMode {
                                 robot.intake.presetAction(IntakeClaw.Positions.HIGH_BASKET),
                                 robot.intake.armUpAction(IntakeClaw.Positions.HIGH_BASKET.armPos)
                         ),
+                        new SleepAction(0.5),
                         new ParallelAction(
                                 robot.intake.clawAction(IntakeClaw.CLAW_OPEN),
                                 new SleepAction(0.25)
@@ -87,7 +132,7 @@ public class AutoLeft_Specimen_WORLD extends LinearOpMode {
                                 robot.intake.armDownAction(17),
                                 robot.intake.wristMoveAction(IntakeClaw.WRIST_MAX)
                         ),
-                        new SleepAction(0.8),
+                        new SleepAction(0.9),
                         robot.intake.clawAction(IntakeClaw.CLAW_CLOSE),
                         new SleepAction(0.5),
                         new ParallelAction(
@@ -98,6 +143,7 @@ public class AutoLeft_Specimen_WORLD extends LinearOpMode {
                                 robot.intake.presetAction(IntakeClaw.Positions.HIGH_BASKET),
                                 robot.intake.armUpAction(IntakeClaw.Positions.HIGH_BASKET.armPos)
                         ),
+                        new SleepAction(0.5),
                         new ParallelAction(
                                 new SleepAction(0.5),
                                 robot.intake.clawAction(IntakeClaw.CLAW_OPEN)
@@ -125,6 +171,7 @@ public class AutoLeft_Specimen_WORLD extends LinearOpMode {
                                 robot.intake.presetAction(IntakeClaw.Positions.HIGH_BASKET),
                                 robot.intake.armUpAction(IntakeClaw.Positions.HIGH_BASKET.armPos)
                         ),
+                        new SleepAction(0.5),
                         new ParallelAction(
                                 new SleepAction(0.25),
                                 robot.intake.clawAction(IntakeClaw.CLAW_OPEN)
