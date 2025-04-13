@@ -38,7 +38,7 @@ public class IntakeClaw {
 
     public double aDouble = 0.5;
     double armTarget = 0;
-    public static double armFactor = 3.3;
+    public static double armFactor = 1.5;
     public static double startingOffset = 3.5;
 
     ColorSensor colorL = null;
@@ -47,12 +47,13 @@ public class IntakeClaw {
     float hsvValuesL[] = {0,0,0};
     float hsvValuesR[] = {0,0,0};
     private PIDController controller;
-    public static double p = 0.065, i = 0, d = 0.00005;
+    public static double p = 0.075, i = 0.1, d = 0.00015;
 
-    public static double factor_p_down = 0.5;
-    public static double factor_d_down = 1.15;
-    public static double f = 0.065;
-    public static double fMin = 0.001;
+    public static double factor_p_down = 1.0;
+    public static double factor_d_down = 1.0;
+    public static double factor_i_down = 1.5;
+    public static double f = 0.05;
+    public static double fMin = 0.0025;
     public static double fSin = 0.025;
 
     public final double WRIST_INIT = 0.2;
@@ -70,7 +71,7 @@ public class IntakeClaw {
     public static double ELBOW_MAX = 105;
     public static double ELBOW_LOW = 55;
     public static double ELBOW_HIGH_CHAMBER = 50;
-    public static double ELBOW_HIGH_CHAMBER_SCORING = 40;
+    public static double ELBOW_HIGH_CHAMBER_SCORING = 37;
 
     public int elbowDirection = 0;
     public final double ARM_MIN = 0;
@@ -102,7 +103,7 @@ public class IntakeClaw {
         READY_TO_INTAKE(0.45,1.0,3.5, CLAW_CLOSE, PIVOT_INIT),
         LOW_BASKET(0.35,1.0,ELBOW_MAX, CLAW_CLOSE, PIVOT_INIT),
         HIGH_CHAMBER(0.3,20, ELBOW_HIGH_CHAMBER, CLAW_CLOSE, PIVOT_INIT),
-        HIGH_CHAMBER_SCORING(0.45,22, ELBOW_HIGH_CHAMBER_SCORING, CLAW_CLOSE, PIVOT_INIT),
+        HIGH_CHAMBER_SCORING(0.42,20, ELBOW_HIGH_CHAMBER_SCORING, CLAW_CLOSE, PIVOT_INIT),
         HIGH_CHAMBER_SCORING_AUTO(0.14,27, ELBOW_HIGH_CHAMBER_SCORING, CLAW_CLOSE, PIVOT_INIT),
         INTAKE_SPECIMEN(0.6, 2, 13.5, CLAW_OPEN, PIVOT_INIT),
         //Max elbow, Max arm extend, base of intake parallel with floor ↓
@@ -556,11 +557,14 @@ public class IntakeClaw {
         ////////////////
 
         target = directSetTarget;
+        double adaptedI = i;
 
         if (target < ELBOW_MIN) {
             target = ELBOW_MIN;
         }
-        if(target < 30){
+        if(target < 10){
+            adaptedI = Math.abs(i * factor_i_down * Math.cos(Math.toRadians(clip((elbowPosition / COUNTS_PER_ELBOW_DEGREE)+startingOffset, 0, 180))));
+
             target += armFactor * Math.pow((armPos - armOffset)/37, 2);
             telemetry.addData("extension Offset: ", armFactor * Math.pow((armPos - armOffset)/37, 2));
         }
@@ -575,13 +579,16 @@ public class IntakeClaw {
             {
                 ff = fMin;
             }
-            controller.setPID(p, i, d);
+            controller.setPID(p, adaptedI, d);
         } else {
             double pDown = Math.abs(p * factor_p_down * Math.cos(Math.toRadians(clip((elbowPosition / COUNTS_PER_ELBOW_DEGREE)+startingOffset, 0, 45))));
-            double dDown = Math.abs(d * factor_d_down * Math.cos(Math.toRadians(clip((elbowPosition / COUNTS_PER_ELBOW_DEGREE)+startingOffset, 0, 45))));
-            controller.setPID(pDown, i, dDown);
+            double dDown = Math.abs(d * factor_d_down);
+
+
+            controller.setPID(pDown, adaptedI, dDown);
         }
 
+        //controller.setIntegrationBounds(0,0.1);
         double pid = controller.calculate((elbowPosition / COUNTS_PER_ELBOW_DEGREE) +startingOffset, target);
 
         double power = pid + ff;
