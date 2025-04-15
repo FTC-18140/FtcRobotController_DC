@@ -21,8 +21,8 @@ public class AutoLeft_Sample_Claw_Sub extends LinearOpMode {
     public static Vector2d basketPos = new Vector2d(-55, -51);
 
     public static Vector2d samplePos_1 = new Vector2d(-48, -40);
-    public static Vector2d samplePos_2 = new Vector2d(-58, -41);
-    public static Vector2d samplePos_3 = new Vector2d(-55.5, -30);
+    public static Vector2d samplePos_2 = new Vector2d(-58, -40);
+    public static Vector2d samplePos_3 = new Vector2d(-55.5, -29);
     public static Vector2d parkPos = AutoPositions.Positions.ASCENT_ZONE.position;
 
 
@@ -33,8 +33,8 @@ public class AutoLeft_Sample_Claw_Sub extends LinearOpMode {
 
         robot.init(hardwareMap,telemetry, 0);
         robot.drive.pose = new Pose2d(startPos,Math.toRadians(90));
-        TrajectoryActionBuilder scan = robot.drive.actionBuilder(new Pose2d(new Vector2d(-36, -14),Math.toRadians(0)))
-                .strafeTo(new Vector2d(-36, -10), new TranslationalVelConstraint(2.0));
+        TrajectoryActionBuilder scan = robot.drive.actionBuilder(new Pose2d(new Vector2d(-36, -13),Math.toRadians(0)))
+                .strafeTo(new Vector2d(-36, -8), new TranslationalVelConstraint(2.0));
 
         telemetry.update();
 
@@ -66,7 +66,7 @@ public class AutoLeft_Sample_Claw_Sub extends LinearOpMode {
                                 robot.intake.armDownAction(17),
                                 robot.intake.wristMoveAction(IntakeClaw.WRIST_MAX)
                         ),
-                        new SleepAction(0.9),
+                        new SleepAction(0.75),
                         robot.intake.clawAction(IntakeClaw.CLAW_CLOSE),
                         new SleepAction(0.5),
                         new ParallelAction(
@@ -76,7 +76,7 @@ public class AutoLeft_Sample_Claw_Sub extends LinearOpMode {
                                 robot.intake.presetAction(IntakeClaw.Positions.HIGH_BASKET),
                                 robot.intake.armUpAction(IntakeClaw.Positions.HIGH_BASKET.armPos)
                         ),
-                        new SleepAction(0.25),
+                        new SleepAction(0.75),
                         new ParallelAction(
                                 robot.intake.clawAction(IntakeClaw.CLAW_OPEN),
                                 new SleepAction(0.25)
@@ -122,7 +122,7 @@ public class AutoLeft_Sample_Claw_Sub extends LinearOpMode {
                         robot.intake.clawAction(IntakeClaw.CLAW_CLOSE),
                         new SleepAction(0.5),
                         new ParallelAction(
-                                robot.drive.actionBuilder(new Pose2d(samplePos_3, Math.toRadians(90)))
+                                robot.drive.actionBuilder(new Pose2d(samplePos_3, Math.toRadians(150)))
                                         .setTangent(Math.toRadians(0))
                                         .splineToSplineHeading(new Pose2d(samplePos_3.x+6, samplePos_3.y-6, Math.toRadians(90)), Math.toRadians(-90))
                                         .splineToSplineHeading(new Pose2d(basketPos, Math.toRadians(45)), Math.toRadians(-135))
@@ -141,7 +141,7 @@ public class AutoLeft_Sample_Claw_Sub extends LinearOpMode {
                                 robot.drive.actionBuilder(new Pose2d(basketPos, Math.toRadians(45)))
                                         .setTangent(Math.toRadians(90))
                                         .splineToSplineHeading(new Pose2d(-52, -16, Math.toRadians(0)), Math.toRadians(90))
-                                        .splineToConstantHeading(new Vector2d(-36, -14), Math.toRadians(0))
+                                        .splineToConstantHeading(new Vector2d(-36, -13), Math.toRadians(0))
                                         .build(),
                                 new SequentialAction(
                                         robot.intake.armDownAction(1),
@@ -166,7 +166,7 @@ public class AutoLeft_Sample_Claw_Sub extends LinearOpMode {
                         robot.intake.presetAction(IntakeClaw.Positions.READY_TO_INTAKE),
                         robot.intake.armDownAction(1),
                         new ParallelAction(
-                                robot.drive.actionBuilder(new Pose2d(new Vector2d(-36, -10), Math.toRadians(0)))
+                                robot.drive.actionBuilder(new Pose2d(new Vector2d(-36, -8), Math.toRadians(0)))
                                         .setTangent(Math.toRadians(180))
                                         .splineToLinearHeading(new Pose2d(basketPos, Math.toRadians(45)), Math.toRadians(-135))
                                         .build(),

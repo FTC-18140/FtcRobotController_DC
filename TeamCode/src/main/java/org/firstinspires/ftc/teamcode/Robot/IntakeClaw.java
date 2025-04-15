@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Robot;
 
 
 import static com.qualcomm.robotcore.util.Range.clip;
+import static com.qualcomm.robotcore.util.Range.scale;
 
 import android.graphics.Color;
 
@@ -47,17 +48,17 @@ public class IntakeClaw {
     float hsvValuesL[] = {0,0,0};
     float hsvValuesR[] = {0,0,0};
     private PIDController controller;
-    public static double p = 0.075, i = 0.1, d = 0.00015;
+    public static double p = 0.0385, i = 0.1, d = 0.00075;
 
-    public static double factor_p_down = 1.0;
-    public static double factor_d_down = 1.0;
-    public static double factor_i_down = 1.5;
+    public static double factor_p_down = 0.5;
+    public static double factor_d_down = 0.85;
+    public static double factor_i_down = 2.5;
     public static double f = 0.05;
-    public static double fMin = 0.0025;
+    public static double fMin = -1;
     public static double fSin = 0.025;
 
-    public final double WRIST_INIT = 0.2;
-    public static double WRIST_MIN = 0.2;
+    public final double WRIST_INIT = 0.0;
+    public static double WRIST_MIN = 0.0;
     public static double WRIST_MAX = 0.96;
     public final double PIVOT_MIN = 0.0;
     public final double PIVOT_MAX = 1.0;
@@ -558,14 +559,20 @@ public class IntakeClaw {
 
         target = directSetTarget;
         double adaptedI = i;
+        double adaptedP = p;
 
         if (target < ELBOW_MIN) {
             target = ELBOW_MIN;
         }
         if(target < 10){
-            adaptedI = Math.abs(i * factor_i_down * Math.cos(Math.toRadians(clip((elbowPosition / COUNTS_PER_ELBOW_DEGREE)+startingOffset, 0, 180))));
 
             target += armFactor * Math.pow((armPos - armOffset)/37, 2);
+
+            if(target > (elbowPosition/COUNTS_PER_ELBOW_DEGREE)+startingOffset){
+                adaptedI = Math.abs(i + (i*factor_i_down) * Math.cos(Math.toRadians(scale((elbowPosition / COUNTS_PER_ELBOW_DEGREE)+startingOffset, 0, 10, 0, 90))));
+                adaptedP = Math.abs(p + p * Math.cos(Math.toRadians(scale((elbowPosition / COUNTS_PER_ELBOW_DEGREE)+startingOffset, 0, 10, 0, 90))));
+
+            }
             telemetry.addData("extension Offset: ", armFactor * Math.pow((armPos - armOffset)/37, 2));
         }
         elbowPosition = elbow.getCurrentPosition();
@@ -579,7 +586,7 @@ public class IntakeClaw {
             {
                 ff = fMin;
             }
-            controller.setPID(p, adaptedI, d);
+            controller.setPID(adaptedP, adaptedI, d);
         } else {
             double pDown = Math.abs(p * factor_p_down * Math.cos(Math.toRadians(clip((elbowPosition / COUNTS_PER_ELBOW_DEGREE)+startingOffset, 0, 45))));
             double dDown = Math.abs(d * factor_d_down);

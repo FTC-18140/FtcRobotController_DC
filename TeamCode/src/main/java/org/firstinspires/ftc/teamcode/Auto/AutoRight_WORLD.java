@@ -179,7 +179,8 @@ public class AutoRight_WORLD extends LinearOpMode {
 
                                 )
 
-                        )
+                        ),
+                            robot.intake.wristMoveAction(IntakeClaw.WRIST_MIN)
 
                     )
                 )

@@ -131,7 +131,8 @@ public class AutoLeft_Sample_WORLD extends LinearOpMode {
                         ),
                         robot.intake.wristMoveAction(IntakeClaw.WRIST_MAX),
                         robot.intake.presetAction(IntakeClaw.Positions.READY_TO_INTAKE),
-                        robot.intake.armDownAction(1)
+                        robot.intake.armDownAction(1),
+                        robot.intake.wristMoveAction(IntakeClaw.WRIST_MIN)
                 )
         ));
     }
