@@ -52,7 +52,7 @@ public class IntakeClaw {
 
     public static double factor_p_down = 0.5;
     public static double factor_d_down = 0.85;
-    public static double factor_i_down = 2.5;
+    public static double factor_i_down = 2.0;
     public static double f = 0.05;
     public static double fMin = -1;
     public static double fSin = 0.025;
@@ -64,7 +64,7 @@ public class IntakeClaw {
     public final double PIVOT_MAX = 1.0;
     public static double PIVOT_INIT = 0.54;
 
-    public static double CLAW_CLOSE = 0.09;
+    public static double CLAW_CLOSE = 0.08;
     public static double CLAW_OPEN = 0.75;
     public final double ELBOW_MIN = 0;
     public final double ELBOW_MIN_SLOW = 30;
@@ -72,7 +72,7 @@ public class IntakeClaw {
     public static double ELBOW_MAX = 105;
     public static double ELBOW_LOW = 55;
     public static double ELBOW_HIGH_CHAMBER = 50;
-    public static double ELBOW_HIGH_CHAMBER_SCORING = 37;
+    public static double ELBOW_HIGH_CHAMBER_SCORING = 38;
 
     public int elbowDirection = 0;
     public final double ARM_MIN = 0;
@@ -101,15 +101,14 @@ public class IntakeClaw {
 
 
     public enum Positions{
-        READY_TO_INTAKE(0.45,1.0,3.5, CLAW_CLOSE, PIVOT_INIT),
-        LOW_BASKET(0.35,1.0,ELBOW_MAX, CLAW_CLOSE, PIVOT_INIT),
-        HIGH_CHAMBER(0.3,20, ELBOW_HIGH_CHAMBER, CLAW_CLOSE, PIVOT_INIT),
-        HIGH_CHAMBER_SCORING(0.42,20, ELBOW_HIGH_CHAMBER_SCORING, CLAW_CLOSE, PIVOT_INIT),
+        READY_TO_INTAKE(0.4,1.0,3.5, CLAW_CLOSE, PIVOT_INIT),
+        LOW_BASKET(0.32,1.0, ELBOW_MAX, CLAW_CLOSE, PIVOT_INIT),
+        HIGH_CHAMBER(0.28,20, ELBOW_HIGH_CHAMBER, CLAW_CLOSE, PIVOT_INIT),
+        HIGH_CHAMBER_SCORING(0.25,20, ELBOW_HIGH_CHAMBER_SCORING, CLAW_CLOSE, PIVOT_INIT),
         HIGH_CHAMBER_SCORING_AUTO(0.14,27, ELBOW_HIGH_CHAMBER_SCORING, CLAW_CLOSE, PIVOT_INIT),
-        INTAKE_SPECIMEN(0.6, 2, 13.5, CLAW_OPEN, PIVOT_INIT),
+        INTAKE_SPECIMEN(0.42, 2, 13.5, CLAW_OPEN, PIVOT_INIT),
         //Max elbow, Max arm extend, base of intake parallel with floor ↓
-        HIGH_BASKET(0.44
-                ,ARM_MAX,ELBOW_MAX, CLAW_CLOSE, PIVOT_INIT);
+        HIGH_BASKET(0.3, ARM_MAX, ELBOW_MAX, CLAW_CLOSE, PIVOT_INIT);
         public final double wristPos;
         public final double armPos;
         public final double elbowPos;

@@ -18,9 +18,9 @@ public class AutoRight_WORLD extends LinearOpMode {
     public static Vector2d startPos = AutoPositions.Positions.START_RIGHT.position;
     public static Vector2d basketPos = new Vector2d(56, -56);
 
-    public static Vector2d samplePos_1 = new Vector2d(48, -42);
-    public static Vector2d samplePos_2 = new Vector2d(60, -43);
-    public static Vector2d samplePos_3 = new Vector2d(55, -32);
+    public static Vector2d samplePos_1 = new Vector2d(48, -45);
+    public static Vector2d samplePos_2 = new Vector2d(59, -43);
+    public static Vector2d samplePos_3 = new Vector2d(54.5, -32.5);
     public static Vector2d deposit = new Vector2d(56, -52);
     public static Vector2d pickup = new Vector2d(47, -50.5);
     public static Vector2d parkPos = AutoPositions.Positions.ASCENT_ZONE.position;
@@ -69,10 +69,10 @@ public class AutoRight_WORLD extends LinearOpMode {
                                         new SleepAction(0.75),
                                         robot.intake.presetAction(IntakeClaw.Positions.READY_TO_INTAKE),
                                         robot.intake.clawAction(IntakeClaw.CLAW_OPEN),
-                                        robot.intake.wristMoveAction(IntakeClaw.WRIST_MAX),
                                         robot.intake.armUpAction(17)
                                 )
                         ),
+                            robot.intake.wristMoveAction(IntakeClaw.WRIST_MAX),
                         new SleepAction(0.25),
                         robot.intake.clawAction(IntakeClaw.CLAW_CLOSE),
                         new SleepAction(0.5),
@@ -83,7 +83,6 @@ public class AutoRight_WORLD extends LinearOpMode {
                                 robot.intake.presetAction(IntakeClaw.Positions.LOW_BASKET),
                                 robot.intake.armDownAction(1)
                         ),
-                        robot.intake.wristMoveAction(0.25),
                         new SleepAction(0.25),
                         new ParallelAction(
                                 robot.intake.clawAction(IntakeClaw.CLAW_OPEN),
@@ -96,9 +95,9 @@ public class AutoRight_WORLD extends LinearOpMode {
                                         .strafeToSplineHeading(samplePos_2, Math.toRadians(90))
                                         .build(),
                                 robot.intake.elbowAction(IntakeClaw.Positions.READY_TO_INTAKE.elbowPos),
-                                robot.intake.armUpAction(17),
-                                robot.intake.wristMoveAction(IntakeClaw.WRIST_MAX)
+                                robot.intake.armUpAction(17)
                         ),
+                            robot.intake.wristMoveAction(IntakeClaw.WRIST_MAX),
                         new SleepAction(0.99),
                         robot.intake.clawAction(IntakeClaw.CLAW_CLOSE),
                         new SleepAction(0.35),
@@ -109,7 +108,6 @@ public class AutoRight_WORLD extends LinearOpMode {
                                 robot.intake.presetAction(IntakeClaw.Positions.LOW_BASKET),
                                 robot.intake.armDownAction(1)
                         ),
-                            robot.intake.wristMoveAction(0.25),
                         new SleepAction(0.2),
                         new ParallelAction(
                                 new SleepAction(0.5),
@@ -125,9 +123,9 @@ public class AutoRight_WORLD extends LinearOpMode {
                                         .build(),
                                 robot.intake.armUpAction(10),
                                 robot.intake.elbowAction(IntakeClaw.Positions.READY_TO_INTAKE.elbowPos),
-                                robot.intake.wristMoveAction(IntakeClaw.WRIST_MAX),
                                 robot.intake.pivotAction(0.17)
                         ),
+                            robot.intake.wristMoveAction(IntakeClaw.WRIST_MAX),
                         new SleepAction(0.25),
                         robot.intake.clawAction(IntakeClaw.CLAW_CLOSE),
                         new SleepAction(0.35),
@@ -138,7 +136,6 @@ public class AutoRight_WORLD extends LinearOpMode {
                                 robot.intake.armDownAction(1),
                                 robot.intake.presetAction(IntakeClaw.Positions.LOW_BASKET)
                         ),
-                            robot.intake.wristMoveAction(0.25),
                         new SleepAction(0.2),
                         new ParallelAction(
                                 new SleepAction(0.5),
@@ -170,7 +167,7 @@ public class AutoRight_WORLD extends LinearOpMode {
                                 robot.drive.actionBuilder(new Pose2d(7,-31, Math.toRadians(90)))
                                         .setTangent(Math.toRadians(-90))
                                         .splineToConstantHeading(new Vector2d(14, -50), Math.toRadians(0))
-                                        .splineToConstantHeading(new Vector2d(46, -50), Math.toRadians(0))
+                                        .splineToConstantHeading(new Vector2d(46, -52), Math.toRadians(0))
                                         .build(),
                                 new SequentialAction(
                                         robot.intake.armDownAction(1),
