@@ -18,7 +18,7 @@ public class AutoRight_WORLD extends LinearOpMode {
     public static Vector2d startPos = AutoPositions.Positions.START_RIGHT.position;
     public static Vector2d basketPos = new Vector2d(56, -56);
 
-    public static Vector2d samplePos_1 = new Vector2d(48, -45);
+    public static Vector2d samplePos_1 = new Vector2d(48, -44);
     public static Vector2d samplePos_2 = new Vector2d(59, -43);
     public static Vector2d samplePos_3 = new Vector2d(54.5, -32.5);
     public static Vector2d deposit = new Vector2d(56, -52);

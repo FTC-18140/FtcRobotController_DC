@@ -149,6 +149,9 @@ public class Teleop_Pixy_NoTimer extends OpMode {
 
         if(theGamepad1.getButton(TBDGamepad.Button.B)){
             robot.lift.hang();
+        }else if(theGamepad1.getButton(TBDGamepad.Button.Y)){
+            robot.lift.moveToTop();
+            liftPower = 0;
         }else if(theGamepad1.getButton(TBDGamepad.Button.A)) {
             robot.lift.moveToMin();
 //            if (liftServoPos-0.01 > 0){
@@ -227,9 +230,9 @@ public class Teleop_Pixy_NoTimer extends OpMode {
                 wristPos = IntakeClaw.Positions.READY_TO_INTAKE.wristPos;
             }
             if (theGamepad2.getButton(TBDGamepad.Button.DPAD_LEFT)) {
-                robot.intake.pivotTo(1.0);
+                robot.intake.pivotTo(IntakeClaw.PIVOT_MAX);
             } else if (theGamepad2.getButton(TBDGamepad.Button.DPAD_RIGHT)) {
-                robot.intake.pivotTo(0.0);
+                robot.intake.pivotTo(IntakeClaw.PIVOT_MIN);
             }
         }
         // Arm controls

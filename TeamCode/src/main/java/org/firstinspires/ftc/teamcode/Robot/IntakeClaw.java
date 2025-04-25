@@ -59,13 +59,13 @@ public class IntakeClaw {
 
     public final double WRIST_INIT = 0.0;
     public static double WRIST_MIN = 0.0;
-    public static double WRIST_MAX = 0.96;
-    public final double PIVOT_MIN = 0.0;
-    public final double PIVOT_MAX = 1.0;
+    public static double WRIST_MAX = 0.95;
+    public static double PIVOT_MIN = 0.0;
+    public static double PIVOT_MAX = 0.9;
     public static double PIVOT_INIT = 0.54;
 
-    public static double CLAW_CLOSE = 0.08;
-    public static double CLAW_OPEN = 0.75;
+    public static double CLAW_CLOSE = 0.1;
+    public static double CLAW_OPEN = 0.7;
     public final double ELBOW_MIN = 0;
     public final double ELBOW_MIN_SLOW = 30;
 
@@ -102,13 +102,13 @@ public class IntakeClaw {
 
     public enum Positions{
         READY_TO_INTAKE(0.4,1.0,3.5, CLAW_CLOSE, PIVOT_INIT),
-        LOW_BASKET(0.32,1.0, ELBOW_MAX, CLAW_CLOSE, PIVOT_INIT),
+        LOW_BASKET(0.42,1.0, ELBOW_MAX, CLAW_CLOSE, PIVOT_INIT),
         HIGH_CHAMBER(0.28,20, ELBOW_HIGH_CHAMBER, CLAW_CLOSE, PIVOT_INIT),
-        HIGH_CHAMBER_SCORING(0.25,20, ELBOW_HIGH_CHAMBER_SCORING, CLAW_CLOSE, PIVOT_INIT),
+        HIGH_CHAMBER_SCORING(0.37,20, ELBOW_HIGH_CHAMBER_SCORING, CLAW_CLOSE, PIVOT_INIT),
         HIGH_CHAMBER_SCORING_AUTO(0.14,27, ELBOW_HIGH_CHAMBER_SCORING, CLAW_CLOSE, PIVOT_INIT),
-        INTAKE_SPECIMEN(0.42, 2, 13.5, CLAW_OPEN, PIVOT_INIT),
+        INTAKE_SPECIMEN(0.6, 2, 13.5, CLAW_OPEN, PIVOT_INIT),
         //Max elbow, Max arm extend, base of intake parallel with floor ↓
-        HIGH_BASKET(0.3, ARM_MAX, ELBOW_MAX, CLAW_CLOSE, PIVOT_INIT);
+        HIGH_BASKET(0.4, ARM_MAX, ELBOW_MAX, CLAW_CLOSE, PIVOT_INIT);
         public final double wristPos;
         public final double armPos;
         public final double elbowPos;

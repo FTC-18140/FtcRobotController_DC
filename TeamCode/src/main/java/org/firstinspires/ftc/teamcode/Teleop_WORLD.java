@@ -195,7 +195,7 @@ public class Teleop_WORLD extends OpMode {
             }
             else if(theGamepad2.getButton(TBDGamepad.Button.DPAD_UP)){
                 wristPos = robot.intake.wristPos;
-                wristPos -= 0.02*armSlow;
+                wristPos -= 0.04*armSlow;
             }
             else if (theGamepad2.getButton(TBDGamepad.Button.DPAD_DOWN)) {
                 robot.intake.preset(IntakeClaw.Positions.INTAKE_SPECIMEN);
@@ -228,9 +228,9 @@ public class Teleop_WORLD extends OpMode {
                 wristPos = IntakeClaw.Positions.READY_TO_INTAKE.wristPos;
             }
             if (theGamepad2.getButton(TBDGamepad.Button.DPAD_LEFT)) {
-                robot.intake.pivotTo(1.0);
+                robot.intake.pivotTo(IntakeClaw.PIVOT_MAX);
             } else if (theGamepad2.getButton(TBDGamepad.Button.DPAD_RIGHT)) {
-                robot.intake.pivotTo(0.0);
+                robot.intake.pivotTo(IntakeClaw.PIVOT_MIN);
             }
         }
         // Arm controls

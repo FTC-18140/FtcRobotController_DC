@@ -16,13 +16,13 @@ import org.firstinspires.ftc.teamcode.Robot.IntakeClaw;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot_Claw_2024;
 
 @Autonomous
-public class AutoLeft_Sample_Claw_Sub extends LinearOpMode {
+public class AutoLeft_Sample_5_0_WORLD extends LinearOpMode {
     public static Vector2d startPos = AutoPositions.Positions.START_LEFT.position;
     public static Vector2d basketPos = new Vector2d(-55, -52);
 
-    public static Vector2d samplePos_1 = new Vector2d(-48, -40);
-    public static Vector2d samplePos_2 = new Vector2d(-58, -41);
-    public static Vector2d samplePos_3 = new Vector2d(-55.5, -29);
+    public static Vector2d samplePos_1 = new Vector2d(-48, -40.25);
+    public static Vector2d samplePos_2 = new Vector2d(-58, -41.25);
+    public static Vector2d samplePos_3 = new Vector2d(-55.5, -29.25);
     public static Vector2d parkPos = AutoPositions.Positions.ASCENT_ZONE.position;
 
 
@@ -63,9 +63,10 @@ public class AutoLeft_Sample_Claw_Sub extends LinearOpMode {
                                         .strafeToSplineHeading(samplePos_1, Math.toRadians(90), new TranslationalVelConstraint(40.0))
                                         .build(),
                                 robot.intake.elbowAction(IntakeClaw.Positions.READY_TO_INTAKE.elbowPos),
-                                robot.intake.armDownAction(17),
-                                robot.intake.wristMoveAction(IntakeClaw.WRIST_MAX)
+                                robot.intake.wristMoveAction(IntakeClaw.Positions.READY_TO_INTAKE.wristPos),
+                                robot.intake.armDownAction(17)
                         ),
+                        robot.intake.wristMoveAction(IntakeClaw.WRIST_MAX),
                         new SleepAction(0.5),
                         robot.intake.clawAction(IntakeClaw.CLAW_CLOSE),
                         new SleepAction(0.25),
@@ -88,6 +89,7 @@ public class AutoLeft_Sample_Claw_Sub extends LinearOpMode {
                                         .strafeToSplineHeading(samplePos_2, Math.toRadians(90))
                                         .build(),
                                 robot.intake.elbowAction(IntakeClaw.Positions.READY_TO_INTAKE.elbowPos),
+                                robot.intake.wristMoveAction(IntakeClaw.Positions.READY_TO_INTAKE.wristPos),
                                 robot.intake.armDownAction(17)
                         ),
                         robot.intake.wristMoveAction(IntakeClaw.WRIST_MAX),
@@ -115,6 +117,7 @@ public class AutoLeft_Sample_Claw_Sub extends LinearOpMode {
                                         .build(),
                                 robot.intake.armDownAction(10),
                                 robot.intake.elbowAction(IntakeClaw.Positions.READY_TO_INTAKE.elbowPos),
+                                robot.intake.wristMoveAction(IntakeClaw.Positions.READY_TO_INTAKE.wristPos),
                                 robot.intake.pivotAction(0.83)
                         ),
                         robot.intake.wristMoveAction(IntakeClaw.WRIST_MAX),

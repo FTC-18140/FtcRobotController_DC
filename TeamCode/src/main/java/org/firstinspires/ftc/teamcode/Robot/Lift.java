@@ -26,7 +26,7 @@ public class Lift {
     public double podServoPos = 0;
 
     public final double LIFT_MAX = 790;
-    public final double LIFT_SERVO_MAX = 0.36;
+    public final double LIFT_SERVO_MAX = 0.33;
     public final double LIFT_SERVO_MAX_R = 0.33;
     public final double LIFT_SERVO_LIFT = 0.12;
     public final double LIFT_SERVO_LIFT_R = 0.12;
