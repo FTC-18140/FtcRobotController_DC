@@ -577,13 +577,25 @@ public class ThunderBot_Claw_2024
                 if(timer.seconds() > Timeout){
                     return false;
                 }else{
-                    if(averageWidth > 200){
+                    if(averageWidth > 110){
                         intake.pivotTo(1.0);
                     }else {
                         intake.pivotTo(IntakeClaw.PIVOT_INIT);
                     }
-                    if(averageX < 150 && detectedBlock.isValid()){
+                    if(averageX < 160 && averageX > 75 && detectedBlock.isValid()){
+                        joystickDrive(0, 0, 0, 0.5);
+                        drive.updatePoseEstimate();
                         return false;
+                    }else{
+                        if(detectedBlock.isValid()) {
+                            double displacementX = Range.scale(averageX, 75, 160, -0.75, 0.1);
+                            telemetry.addData("sample offset: ", displacementX);
+                            joystickDrive(0, displacementX, 0, 0.35);
+                            drive.updatePoseEstimate();
+                        }else{
+                            joystickDrive(0, 0, 0, 0.5);
+                            drive.updatePoseEstimate();
+                        }
                     }
                 }
                 return true;

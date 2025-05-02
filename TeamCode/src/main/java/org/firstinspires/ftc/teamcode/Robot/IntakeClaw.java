@@ -505,6 +505,7 @@ public class IntakeClaw {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 update();
+                telemetry.update();
                 return true;
             }
         };

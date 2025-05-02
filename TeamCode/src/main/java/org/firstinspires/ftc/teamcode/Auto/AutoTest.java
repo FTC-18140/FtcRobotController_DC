@@ -43,6 +43,7 @@ public class AutoTest extends LinearOpMode {
                 .strafeTo(startPos.position)
                 .build();
 
+        telemetry.update();
         waitForStart();
         robot.intake.start();
         Actions.runBlocking(
@@ -52,12 +53,15 @@ public class AutoTest extends LinearOpMode {
                             robot.intake.presetAction(IntakeClaw.Positions.READY_TO_INTAKE),
                             robot.intake.clawAction(IntakeClaw.CLAW_OPEN),
                             robot.intake.armUpAction(29),
+                            robot.intake.elbowAction(15),
                             new SleepAction(1),
                             robot.intake.wristMoveAction(IntakeClaw.WRIST_MAX),
                             new RaceAction(
                                     robot.alignToColorAction(50)
                             ),
                             new InstantAction(() -> robot.led.setToColor("yellow")),
+                            robot.intake.elbowAction(IntakeClaw.Positions.READY_TO_INTAKE.elbowPos),
+                            new SleepAction(0.5),
                             robot.intake.clawAction(IntakeClaw.CLAW_CLOSE),
                             new SleepAction(0.5),
                             robot.intake.presetAction(IntakeClaw.Positions.READY_TO_INTAKE)
@@ -66,7 +70,5 @@ public class AutoTest extends LinearOpMode {
                     robot.intake.updateAction()
                 )
         );
-        telemetry.update();
-
     }
 }
