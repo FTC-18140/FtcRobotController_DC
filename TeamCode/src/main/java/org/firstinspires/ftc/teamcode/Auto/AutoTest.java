@@ -35,7 +35,7 @@ public class AutoTest extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         ThunderBot_Claw_2024 robot = new ThunderBot_Claw_2024();
         robot.init(hardwareMap,telemetry, 0);
-        Pose2d startPos = new Pose2d(-15,-60,Math.toRadians(90));
+        Pose2d startPos = new Pose2d(-15,-10,Math.toRadians(0));
         robot.drive.pose = startPos;
         TrajectoryActionBuilder tra1 = robot.drive.actionBuilder(startPos)
                 .strafeTo(new Vector2d(startPos.position.x + 10, startPos.position.y), new TranslationalVelConstraint(4.0));

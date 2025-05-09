@@ -18,10 +18,9 @@ public class MeepMeepTesting {
                 .setDimensions(17,17)
                 .build();
 
-        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(-7, -31, Math.toRadians(90)))
-                        .setTangent(Math.toRadians(-90))
-                        .splineToConstantHeading(new Vector2d(-6, -48), Math.toRadians(0))
-                        .splineToConstantHeading(new Vector2d(-5, -38), Math.toRadians(90))
+        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(-39, -60, Math.toRadians(90)))
+                        .setTangent(Math.toRadians(120))
+                        .splineToLinearHeading(new Pose2d(-55, -52, Math.toRadians(45)), Math.toRadians(210))
 //                .setTangent(Math.toRadians(90))
 //                .splineToConstantHeading(new Vector2d(7, -42), Math.toRadians(90))
 //                .splineToConstantHeading(new Vector2d(7, -31), Math.toRadians(90))

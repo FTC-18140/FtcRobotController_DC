@@ -271,7 +271,7 @@ public class Teleop_WORLD extends OpMode {
 
         // Send calculated power to wheels
         if (!turning){
-            robot.joystickDrive(forward, strafe, turn * 0.8 * slow, slow);
+            robot.joystickDrive(forward, strafe, turn * slow, slow);
         }
 
 

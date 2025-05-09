@@ -588,12 +588,15 @@ public class ThunderBot_Claw_2024
                         return false;
                     }else{
                         if(detectedBlock.isValid()) {
-                            double displacementX = Range.scale(averageX, 75, 160, -0.75, 0.1);
+                            double displacementX = Range.clip(Range.scale(averageX, 0, 300, -1.0, 1.0), -1.0, 1.0);
                             telemetry.addData("sample offset: ", displacementX);
-                            joystickDrive(0, displacementX, 0, 0.35);
+                            if(drive.pose.position.y - displacementX > -14 && drive.pose.position.y < 8) {
+                                telemetry.addData("strafe power: ", 5/drive.voltageSensor.getVoltage());
+                                joystickDrive(0, displacementX, 0, Range.clip(5/drive.voltageSensor.getVoltage(), 0.1, 0.8));
+                            }
                             drive.updatePoseEstimate();
                         }else{
-                            joystickDrive(0, 0, 0, 0.5);
+                            joystickDrive(0, -0.6, 0, Range.clip(5/drive.voltageSensor.getVoltage(), 0.25, 0.75));
                             drive.updatePoseEstimate();
                         }
                     }
