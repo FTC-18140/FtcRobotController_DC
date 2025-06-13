@@ -57,8 +57,8 @@ public class IntakeClaw {
     public static double fMin = -1;
     public static double fSin = 0.025;
 
-    public final double WRIST_INIT = 0.0;
-    public static double WRIST_MIN = 0.0;
+    public final double WRIST_INIT = 0.1;
+    public static double WRIST_MIN = 0.1;
     public static double WRIST_MAX = 0.95;
     public static double PIVOT_MIN = 0.0;
     public static double PIVOT_MAX = 0.9;
