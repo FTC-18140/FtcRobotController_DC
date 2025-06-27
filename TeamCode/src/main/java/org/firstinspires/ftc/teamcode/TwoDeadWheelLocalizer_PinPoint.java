@@ -18,6 +18,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AngularVelocity;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.messages.TwoDeadWheelInputsMessage;
@@ -62,8 +63,8 @@ public final class TwoDeadWheelLocalizer_PinPoint implements Localizer {
 
     public Twist2dDual<Time> update() {
         pinPoint.update();
-        PositionVelocityPair parPosVel = par.getPositionAndVelocity();
-        PositionVelocityPair perpPosVel = perp.getPositionAndVelocity();
+        PositionVelocityPair parPosVel = new PositionVelocityPair(pinPoint.getEncoderX(), (int) (pinPoint.getVelX(DistanceUnit.INCH)), pinPoint.getEncoderX(), (int) (pinPoint.getVelX(DistanceUnit.INCH)));
+        PositionVelocityPair perpPosVel = new PositionVelocityPair(pinPoint.getEncoderY(), (int) (pinPoint.getVelY(DistanceUnit.INCH)), pinPoint.getEncoderY(), (int) (pinPoint.getVelY(DistanceUnit.INCH)));
 
         //YawPitchRollAngles angles = new YawPitchRollAngles(pinPoint.getYawScalar(), pinPoint.);
         //AngularVelocity angularVelocity = pinPoint.getHeadingVelocity();
