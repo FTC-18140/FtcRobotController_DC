@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.Summer.Robot;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.canvas.Canvas;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
@@ -21,7 +23,7 @@ public class ThunderBot2025_Summer
     {
         drive = new MecanumDrive_PinPoint(hwMap, new Pose2d(0,0,0));
 
-        telemetry = telem;
+        telemetry = new MultipleTelemetry(telem, FtcDashboard.getInstance().getTelemetry());
     }
 
     public void robotCentricDrive(double forward, double right, double clockwise, double speed)

@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.Summer;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -25,7 +27,9 @@ public class Teleop_Summer extends OpMode {
         theGamepad1 = new TBDGamepad(gamepad1);
         theGamepad2 = new TBDGamepad(gamepad2);
         // Tell the driver that initialization is complete.
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         telemetry.addData("Status", "Initialized");
+        telemetry.update();
     }
 
     @Override
@@ -39,6 +43,7 @@ public class Teleop_Summer extends OpMode {
         telemetry.addData("position X: ", robot.drive.pose.position.x);
         telemetry.addData("position Y: ", robot.drive.pose.position.y);
         telemetry.addData("heading: ", Math.toDegrees(robot.drive.pose.heading.toDouble()));
+        telemetry.update();
 
     }
 }
