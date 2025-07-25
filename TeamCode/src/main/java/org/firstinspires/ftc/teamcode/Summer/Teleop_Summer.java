@@ -7,6 +7,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Summer.Robot.ThunderBot2025_Summer;
 import org.firstinspires.ftc.teamcode.TBDGamepad;
 
@@ -15,6 +16,8 @@ import org.firstinspires.ftc.teamcode.TBDGamepad;
 public class Teleop_Summer extends OpMode {
 
     public TelemetryPacket p = new TelemetryPacket(true);
+
+    FtcDashboard dashboard = FtcDashboard.getInstance();
     private TBDGamepad theGamepad1;
     private TBDGamepad theGamepad2;
 
@@ -45,5 +48,6 @@ public class Teleop_Summer extends OpMode {
         telemetry.addData("heading: ", Math.toDegrees(robot.drive.pose.heading.toDouble()));
         telemetry.update();
 
+        dashboard.sendTelemetryPacket(p);
     }
 }

@@ -71,7 +71,7 @@ public class ThunderBot2025_Summer
 
         c.setStroke("#4CAF50FF");
         c.setStrokeWidth(1);
-        c.strokeLine(drive.pose.position.x, drive.pose.position.y, drive.pose.position.x + theVector.x, drive.pose.position.y + theVector.y);
+        c.strokeLine(drive.pose.position.x, drive.pose.position.y, drive.pose.position.x + theVector.x *10, drive.pose.position.y + theVector.y *10);
     }
 }
 
