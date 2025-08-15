@@ -50,8 +50,8 @@ public class ThunderBot2025_Summer
         PoseVelocity2d thePose;
         Vector2d theVector;
         theVector = new Vector2d(
-                north * Math.cos(-heading) - east * Math.sin(-heading),
-                north * Math.sin(-heading) + east * Math.cos(-heading)
+                north * Math.cos(-heading) - (-east) * Math.sin(-heading),
+                north * Math.sin(-heading) + (-east) * Math.cos(-heading)
         );
 
 

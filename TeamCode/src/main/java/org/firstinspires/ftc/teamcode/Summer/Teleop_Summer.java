@@ -41,7 +41,7 @@ public class Teleop_Summer extends OpMode {
         double strafe = theGamepad1.getLeftX();
         double turn = theGamepad1.getRightX();
 
-        robot.fieldCentricDrive(forward, strafe, turn, 1.0, p);
+        robot.fieldCentricDrive(forward, strafe, turn, 0.7, p);
 
         telemetry.addData("position X: ", robot.drive.pose.position.x);
         telemetry.addData("position Y: ", robot.drive.pose.position.y);

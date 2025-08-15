@@ -259,7 +259,6 @@ public final class MecanumDrive_PinPoint {
         // TODO: make sure your config has an IMU with this name (can be BNO or BHI)
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
         pinPoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
-        pinPoint.setOffsets(154, -66);
         pinPoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         pinPoint.resetPosAndIMU();
 
