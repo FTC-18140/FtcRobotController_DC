@@ -12,16 +12,17 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Drawing;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
+import org.firstinspires.ftc.teamcode.PinpointLocalizer;
 
 public class ThunderBot2025_Summer
 {
-    public MecanumDrive_PinPoint drive;
+    public MecanumDrive drive;
 
     private Telemetry telemetry = null;
 
     public void init(HardwareMap hwMap, Telemetry telem)
     {
-        drive = new MecanumDrive_PinPoint(hwMap, new Pose2d(0,0,0));
+        drive = new MecanumDrive(hwMap, new Pose2d(0,0,0));
 
         telemetry = new MultipleTelemetry(telem, FtcDashboard.getInstance().getTelemetry());
     }
@@ -40,13 +41,13 @@ public class ThunderBot2025_Summer
         drive.setDrivePowers(thePose);
 
 
-        telemetry.addData("Odometry X: ", drive.pose.position.x);
-        telemetry.addData("Odometry Y: ", drive.pose.position.y);
+        telemetry.addData("Odometry X: ", drive.localizer.getPose().position.x);
+        telemetry.addData("Odometry Y: ", drive.localizer.getPose().position.y);
     }
     public void fieldCentricDrive(double north, double east, double clockwise, double speed, TelemetryPacket p)
     {
         drive.updatePoseEstimate();
-        double heading = drive.pose.heading.toDouble();
+        double heading = drive.localizer.getPose().heading.toDouble();
         PoseVelocity2d thePose;
         Vector2d theVector;
         theVector = new Vector2d(
@@ -64,14 +65,14 @@ public class ThunderBot2025_Summer
         Canvas c = p.fieldOverlay();
 
         c.setStroke("#4CAF50");
-        Drawing.drawRobot(c, drive.pose);
+        Drawing.drawRobot(c, drive.localizer.getPose());
 
         c.setStroke("#3F51B5");
         Drawing.drawRobot(c, new Pose2d(theVector, -clockwise));
 
         c.setStroke("#4CAF50FF");
         c.setStrokeWidth(1);
-        c.strokeLine(drive.pose.position.x, drive.pose.position.y, drive.pose.position.x + theVector.x *10, drive.pose.position.y + theVector.y *10);
+        c.strokeLine(drive.localizer.getPose().position.x, drive.localizer.getPose().position.y, drive.localizer.getPose().position.x + theVector.x *10, drive.localizer.getPose().position.y + theVector.y *10);
     }
 }
 

@@ -43,9 +43,9 @@ public class Teleop_Summer extends OpMode {
 
         robot.fieldCentricDrive(forward, strafe, turn, 0.7, p);
 
-        telemetry.addData("position X: ", robot.drive.pose.position.x);
-        telemetry.addData("position Y: ", robot.drive.pose.position.y);
-        telemetry.addData("heading: ", Math.toDegrees(robot.drive.pose.heading.toDouble()));
+        telemetry.addData("position X: ", robot.drive.localizer.getPose().position.x);
+        telemetry.addData("position Y: ", robot.drive.localizer.getPose().position.y);
+        telemetry.addData("heading: ", Math.toDegrees(robot.drive.localizer.getPose().heading.toDouble()));
         telemetry.update();
 
         dashboard.sendTelemetryPacket(p);
