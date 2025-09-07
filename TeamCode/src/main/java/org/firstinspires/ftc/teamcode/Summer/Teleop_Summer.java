@@ -7,7 +7,6 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Summer.Robot.ThunderBot2025_Summer;
 import org.firstinspires.ftc.teamcode.TBDGamepad;
 
@@ -16,6 +15,7 @@ import org.firstinspires.ftc.teamcode.TBDGamepad;
 public class Teleop_Summer extends OpMode {
 
     public TelemetryPacket p = new TelemetryPacket(true);
+    public static boolean field_centric = true;
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
     private TBDGamepad theGamepad1;
@@ -41,7 +41,18 @@ public class Teleop_Summer extends OpMode {
         double strafe = theGamepad1.getLeftX();
         double turn = theGamepad1.getRightX();
 
-        robot.fieldCentricDrive(forward, strafe, turn, 0.7, p);
+        if(field_centric)
+        {
+            robot.fieldCentricDrive(forward, strafe, turn, 0.7, p);
+        } else {
+            robot.robotCentricDrive(forward, strafe, turn, 0.7);
+        }
+
+        if(theGamepad2.getButton(TBDGamepad.Button.X)){
+            robot.delivery.launch();
+        } else if (theGamepad2.getButton(TBDGamepad.Button.B)) {
+            robot.delivery.stop();
+        }
 
         telemetry.addData("position X: ", robot.drive.localizer.getPose().position.x);
         telemetry.addData("position Y: ", robot.drive.localizer.getPose().position.y);

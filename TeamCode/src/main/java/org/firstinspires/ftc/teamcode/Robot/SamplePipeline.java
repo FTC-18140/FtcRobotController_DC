@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
 import static android.graphics.Bitmap.createBitmap;
-import static org.opencv.imgproc.Imgproc.findContours;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -11,23 +10,23 @@ import android.graphics.Typeface;
 
 import com.acmerobotics.dashboard.config.Config;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.HashMap;
-
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
 import org.firstinspires.ftc.vision.VisionProcessor;
 import org.opencv.android.Utils;
-import org.opencv.core.*;
-import org.opencv.core.Core.*;
-import org.opencv.imgproc.*;
-import org.opencv.objdetect.*;
+import org.opencv.core.Core;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfInt;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
+import org.opencv.core.Size;
+import org.opencv.imgproc.Imgproc;
+import org.opencv.imgproc.Moments;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
 * SamplePipeline class.
@@ -433,7 +432,7 @@ public class SamplePipeline implements VisionProcessor
 			this.label = label;
 		}
 
-		public static SamplePipeline.BlurType get(String type) {
+		public static BlurType get(String type) {
 			if (BILATERAL.label.equals(type)) {
 				return BILATERAL;
 			}
