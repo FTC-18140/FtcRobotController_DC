@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.TBDGamepad;
 public class Teleop_Summer extends OpMode {
 
     public TelemetryPacket p = new TelemetryPacket(true);
-    public static boolean field_centric = true;
+    //public static boolean field_centric = true;
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
     private TBDGamepad theGamepad1;
@@ -41,7 +41,7 @@ public class Teleop_Summer extends OpMode {
         double strafe = theGamepad1.getLeftX();
         double turn = theGamepad1.getRightX();
 
-        if(field_centric)
+        if(robot.isFieldCentric())
         {
             robot.fieldCentricDrive(forward, strafe, turn, 0.7, p);
         } else {

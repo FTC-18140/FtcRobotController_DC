@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Summer.Robot;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Pose2d;
@@ -12,12 +13,14 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Robot.Delivery;
 
+@Config
 public class ThunderBot2025_Summer
 {
     public MecanumDrive drive;
     public Delivery delivery;
 
     private Telemetry telemetry = null;
+    public static boolean field_centric = true;
 
     public void init(HardwareMap hwMap, Telemetry telem)
     {
@@ -26,6 +29,9 @@ public class ThunderBot2025_Summer
         delivery.init(hwMap, telem);
 
         telemetry = new MultipleTelemetry(telem, FtcDashboard.getInstance().getTelemetry());
+    }
+    public boolean isFieldCentric(){
+        return field_centric;
     }
 
     public void robotCentricDrive(double forward, double right, double clockwise, double speed)
