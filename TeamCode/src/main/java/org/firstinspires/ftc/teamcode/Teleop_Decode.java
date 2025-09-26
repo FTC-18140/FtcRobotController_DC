@@ -41,17 +41,19 @@ public class Teleop_Decode extends OpMode {
         double strafe = theGamepad1.getLeftX();
         double turn = theGamepad1.getRightX();
 
-        if(robot.isFieldCentric())
-        {
-            robot.fieldCentricDrive(forward, strafe, turn, 0.7, p);
-        } else {
-            robot.robotCentricDrive(forward, strafe, turn, 0.7);
-        }
+//        if(robot.isFieldCentric())
+//        {
+//            robot.fieldCentricDrive(forward, strafe, turn, 0.7, p);
+//        } else {
+//            robot.robotCentricDrive(forward, strafe, turn, 0.7);
+//        }
+
+        robot.drive(forward, strafe, turn, 0.7, p);
 
         if(theGamepad2.getButton(TBDGamepad.Button.X)){
-            robot.delivery.launch();
+            robot.shooter.shoot();
         } else if (theGamepad2.getButton(TBDGamepad.Button.B)) {
-            robot.delivery.stop();
+            robot.shooter.stop();
         }
 
         telemetry.addData("position X: ", robot.drive.localizer.getPose().position.x);

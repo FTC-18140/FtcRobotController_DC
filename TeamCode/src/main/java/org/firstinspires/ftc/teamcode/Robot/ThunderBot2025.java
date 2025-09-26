@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.Robot.Drives.MecanumDrive;
 public class ThunderBot2025
 {
     public MecanumDrive drive;
-    public Delivery delivery;
+    public Shooter shooter;
 
     private Telemetry telemetry = null;
     public static boolean field_centric = true;
@@ -24,8 +24,8 @@ public class ThunderBot2025
     public void init(HardwareMap hwMap, Telemetry telem)
     {
         drive = new MecanumDrive(hwMap, new Pose2d(0,0,0));
-        delivery = new Delivery();
-        delivery.init(hwMap, telem);
+        shooter = new Shooter();
+        shooter.init(hwMap, telem);
 
         telemetry = new MultipleTelemetry(telem, FtcDashboard.getInstance().getTelemetry());
     }
@@ -33,7 +33,18 @@ public class ThunderBot2025
         return field_centric;
     }
 
-    public void robotCentricDrive(double forward, double right, double clockwise, double speed)
+    public void drive( double forward, double right, double clockwise, double speed, TelemetryPacket p)
+    {
+        if (field_centric)
+        {
+            fieldCentricDrive(forward, right, clockwise, speed, p);
+        }
+        else
+        {
+            robotCentricDrive(forward, right, clockwise, speed);
+        }
+    }
+    private void robotCentricDrive(double forward, double right, double clockwise, double speed)
     {
         PoseVelocity2d thePose;
         Vector2d theVector;
@@ -46,7 +57,7 @@ public class ThunderBot2025
         telemetry.addData("Odometry X: ", drive.localizer.getPose().position.x);
         telemetry.addData("Odometry Y: ", drive.localizer.getPose().position.y);
     }
-    public void fieldCentricDrive(double north, double east, double clockwise, double speed, TelemetryPacket p)
+    private void fieldCentricDrive(double north, double east, double clockwise, double speed, TelemetryPacket p)
     {
         drive.updatePoseEstimate();
         double heading = drive.localizer.getPose().heading.toDouble();
