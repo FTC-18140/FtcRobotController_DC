@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Summer.Robot;
+package org.firstinspires.ftc.teamcode.Robot;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -10,11 +10,10 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.MecanumDrive;
-import org.firstinspires.ftc.teamcode.Robot.Delivery;
+import org.firstinspires.ftc.teamcode.Robot.Drives.MecanumDrive;
 
 @Config
-public class ThunderBot2025_Summer
+public class ThunderBot2025
 {
     public MecanumDrive drive;
     public Delivery delivery;

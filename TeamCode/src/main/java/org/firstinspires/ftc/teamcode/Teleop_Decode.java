@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Summer;
+package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -7,12 +7,12 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.Summer.Robot.ThunderBot2025_Summer;
-import org.firstinspires.ftc.teamcode.TBDGamepad;
+import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
+import org.firstinspires.ftc.teamcode.Utilities.TBDGamepad;
 
 @TeleOp
 @Config
-public class Teleop_Summer extends OpMode {
+public class Teleop_Decode extends OpMode {
 
     public TelemetryPacket p = new TelemetryPacket(true);
     //public static boolean field_centric = true;
@@ -21,7 +21,7 @@ public class Teleop_Summer extends OpMode {
     private TBDGamepad theGamepad1;
     private TBDGamepad theGamepad2;
 
-    ThunderBot2025_Summer robot = new ThunderBot2025_Summer();
+    ThunderBot2025 robot = new ThunderBot2025();
 
     @Override
     public void init() {
