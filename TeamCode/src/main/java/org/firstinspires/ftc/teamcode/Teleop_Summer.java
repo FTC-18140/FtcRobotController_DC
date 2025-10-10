@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Summer;
+package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -7,8 +7,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.Summer.Robot.ThunderBot2025_Summer;
-import org.firstinspires.ftc.teamcode.TBDGamepad;
+import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
 @TeleOp
 @Config
@@ -21,7 +20,7 @@ public class Teleop_Summer extends OpMode {
     private TBDGamepad theGamepad1;
     private TBDGamepad theGamepad2;
 
-    ThunderBot2025_Summer robot = new ThunderBot2025_Summer();
+    ThunderBot2025 robot = new ThunderBot2025();
 
     @Override
     public void init() {
@@ -49,15 +48,29 @@ public class Teleop_Summer extends OpMode {
         }
 
         if(theGamepad2.getButton(TBDGamepad.Button.X)){
-            robot.delivery.launch();
+            robot.intake.intake();
+            robot.indexer.intake();
         } else if (theGamepad2.getButton(TBDGamepad.Button.B)) {
-            robot.delivery.stop();
+            robot.intake.stop();
+            robot.indexer.stop();
+        }
+
+        if(theGamepad2.getTrigger(TBDGamepad.Trigger.LEFT_TRIGGER) > 0.1){
+            robot.launcher.launch();
+        } else {
+            robot.launcher.stop();
+        }
+        if(theGamepad2.getTrigger(TBDGamepad.Trigger.RIGHT_TRIGGER) > 0.1){
+            robot.indexer.flip();
+        }else{
+            robot.indexer.unflip();
         }
 
         telemetry.addData("position X: ", robot.drive.localizer.getPose().position.x);
         telemetry.addData("position Y: ", robot.drive.localizer.getPose().position.y);
         telemetry.addData("heading: ", Math.toDegrees(robot.drive.localizer.getPose().heading.toDouble()));
-        telemetry.update();
+        telemetry.addData("flipper: ", robot.indexer.getFlipperPos());
+
 
         dashboard.sendTelemetryPacket(p);
     }

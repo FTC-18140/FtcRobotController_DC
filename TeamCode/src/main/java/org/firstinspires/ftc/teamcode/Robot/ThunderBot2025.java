@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Summer.Robot;
+package org.firstinspires.ftc.teamcode.Robot;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -11,22 +11,29 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
-import org.firstinspires.ftc.teamcode.Robot.Delivery;
 
 @Config
-public class ThunderBot2025_Summer
+public class ThunderBot2025
 {
     public MecanumDrive drive;
-    public Delivery delivery;
+    public Intake intake;
+    public Indexer indexer;
+    public Launcher launcher;
 
     private Telemetry telemetry = null;
-    public static boolean field_centric = true;
+    public static boolean field_centric = false;
 
     public void init(HardwareMap hwMap, Telemetry telem)
     {
         drive = new MecanumDrive(hwMap, new Pose2d(0,0,0));
-        delivery = new Delivery();
-        delivery.init(hwMap, telem);
+        intake = new Intake();
+        intake.init(hwMap, telem);
+
+        indexer = new Indexer();
+        indexer.init(hwMap, telem);
+
+        launcher = new Launcher();
+        launcher.init(hwMap, telem);
 
         telemetry = new MultipleTelemetry(telem, FtcDashboard.getInstance().getTelemetry());
     }

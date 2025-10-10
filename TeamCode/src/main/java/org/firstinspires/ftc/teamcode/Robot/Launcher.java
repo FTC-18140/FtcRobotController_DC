@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 @Config
-public class Delivery {
+public class Launcher {
     Telemetry telemetry;
     HardwareMap hardwareMap;
     DcMotor launcher = null;
