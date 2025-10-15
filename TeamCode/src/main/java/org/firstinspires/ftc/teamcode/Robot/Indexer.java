@@ -1,8 +1,10 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -10,7 +12,13 @@ public class Indexer {
     Telemetry telemetry;
     HardwareMap hardwareMap;
     CRServo indexer = null;
+    DcMotor indexMotor = null;
     Servo flipper = null;
+
+    final double CPR = 8192;
+    private double indexPos = 0;
+    private double targetAngle = 0;
+
     public void init(HardwareMap hwMap, Telemetry telem){
         hardwareMap = hwMap;
         telemetry = telem;
@@ -19,6 +27,15 @@ public class Indexer {
             indexer = hardwareMap.crservo.get("indexer");
         } catch (Exception e) {
             telemetry.addData("Continuous Servo \"indexer\" not found", 0);
+        }
+        try{
+            indexMotor = hardwareMap.dcMotor.get("indexer");
+            indexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            indexMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            indexPos = 3 * indexMotor.getCurrentPosition()/CPR;
+        } catch (Exception e) {
+            telemetry.addData("Motor \"indexer\" not found", 0);
         }
         try{
             flipper = hardwareMap.servo.get("flipper");
@@ -30,8 +47,25 @@ public class Indexer {
     public void intake(){
         indexer.setPower(0.5);
     }
+    public void update(){
+        indexPos = 3 * indexMotor.getCurrentPosition()/CPR;
+
+
+        telemetry.addData("target Angle: ", targetAngle);
+        telemetry.addData("indexer Angle: ", indexPos);
+        indexer.setPower(Range.clip(targetAngle -(indexPos % 3), -0.5, 0.5));
+    }
     public void spin(double power){
         indexer.setPower(power);
+
+        //indexPos = 3 * indexMotor.getCurrentPosition()/CPR;
+        //targetAngle = Math.round(indexPos % 3);
+
+        //telemetry.addData("target Angle: ", targetAngle);
+        //telemetry.addData("indexer Angle: ", indexPos);
+    }
+    public void cycle(double dir){
+        targetAngle += dir;
     }
     public void stop(){
         indexer.setPower(0);

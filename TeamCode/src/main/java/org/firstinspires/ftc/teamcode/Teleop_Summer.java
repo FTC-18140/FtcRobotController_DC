@@ -54,12 +54,14 @@ public class Teleop_Summer extends OpMode {
             robot.intake.intake();
         } else if (theGamepad2.getButton(TBDGamepad.Button.B)) {
             robot.intake.stop();
+        }else if (theGamepad2.getButton(TBDGamepad.Button.A)) {
+            robot.intake.spit();
         }
 
 
-        if(theGamepad2.getTrigger(TBDGamepad.Trigger.LEFT_TRIGGER) > 0.9){
+        if(theGamepad2.getTrigger(TBDGamepad.Trigger.LEFT_TRIGGER) >= 0.95){
             robot.launcher.launchMax();
-        } else if(theGamepad2.getTrigger(TBDGamepad.Trigger.LEFT_TRIGGER) > 0.1){
+        } else if(theGamepad2.getTrigger(TBDGamepad.Trigger.LEFT_TRIGGER) > 0.01){
             robot.launcher.launchMin();
         } else {
             robot.launcher.stop();
@@ -73,9 +75,13 @@ public class Teleop_Summer extends OpMode {
             robot.indexer.unflip();
 
             if(theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER)){
-                robot.indexer.spin(0.3);
-            } else if (theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER)) {
                 robot.indexer.spin(-0.3);
+            } else if (theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER)) {
+                robot.indexer.spin(0.3);
+            } else if(theGamepad2.getButton(TBDGamepad.Button.DPAD_LEFT)){
+                robot.indexer.cycle(-1);
+            } else if (theGamepad2.getButton(TBDGamepad.Button.DPAD_RIGHT)) {
+                robot.indexer.cycle(1);
             }else{
                 robot.indexer.stop();
             }

@@ -29,6 +29,9 @@ public class Intake {
     public void intake(){
         intakeMotor.setPower(INTAKE_SPEED);
     }
+    public void spit(){
+        intakeMotor.setPower(-INTAKE_SPEED);
+    }
     public void stop() {
         intakeMotor.setPower(0.0);
     }
