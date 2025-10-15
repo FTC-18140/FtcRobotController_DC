@@ -8,14 +8,11 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
-<<<<<<<< HEAD:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Teleop_Decode.java
 import org.firstinspires.ftc.teamcode.Utilities.TBDGamepad;
-========
->>>>>>>> River_Sandbox:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Teleop_Summer.java
 
 @TeleOp
 @Config
-public class Teleop_Decode extends OpMode {
+public class Teleop_Summer extends OpMode {
 
     public TelemetryPacket p = new TelemetryPacket(true);
     //public static boolean field_centric = true;
@@ -54,28 +51,34 @@ public class Teleop_Decode extends OpMode {
         robot.drive(forward, strafe, turn, 0.7, p);
 
         if(theGamepad2.getButton(TBDGamepad.Button.X)){
-<<<<<<<< HEAD:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Teleop_Decode.java
-            robot.shooter.shoot();
-        } else if (theGamepad2.getButton(TBDGamepad.Button.B)) {
-            robot.shooter.stop();
-========
             robot.intake.intake();
-            robot.indexer.intake();
         } else if (theGamepad2.getButton(TBDGamepad.Button.B)) {
             robot.intake.stop();
-            robot.indexer.stop();
         }
 
-        if(theGamepad2.getTrigger(TBDGamepad.Trigger.LEFT_TRIGGER) > 0.1){
-            robot.launcher.launch();
+
+        if(theGamepad2.getTrigger(TBDGamepad.Trigger.LEFT_TRIGGER) > 0.9){
+            robot.launcher.launchMax();
+        } else if(theGamepad2.getTrigger(TBDGamepad.Trigger.LEFT_TRIGGER) > 0.1){
+            robot.launcher.launchMin();
         } else {
             robot.launcher.stop();
         }
+
+        //Flipper / launch controls
         if(theGamepad2.getTrigger(TBDGamepad.Trigger.RIGHT_TRIGGER) > 0.1){
             robot.indexer.flip();
         }else{
+            //Prevents indexer from interfering with Flipper
             robot.indexer.unflip();
->>>>>>>> River_Sandbox:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Teleop_Summer.java
+
+            if(theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER)){
+                robot.indexer.spin(0.3);
+            } else if (theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER)) {
+                robot.indexer.spin(-0.3);
+            }else{
+                robot.indexer.stop();
+            }
         }
 
         telemetry.addData("position X: ", robot.drive.localizer.getPose().position.x);

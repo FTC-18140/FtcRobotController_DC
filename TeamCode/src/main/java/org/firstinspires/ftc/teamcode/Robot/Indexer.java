@@ -30,11 +30,14 @@ public class Indexer {
     public void intake(){
         indexer.setPower(0.5);
     }
+    public void spin(double power){
+        indexer.setPower(power);
+    }
     public void stop(){
         indexer.setPower(0);
     }
     public void flip(){
-        flipper.setPosition(0.5);
+        flipper.setPosition(0.65);
     }
     public void unflip(){
         flipper.setPosition(0.25);
