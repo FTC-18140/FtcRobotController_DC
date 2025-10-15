@@ -10,22 +10,43 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+<<<<<<< HEAD
 import org.firstinspires.ftc.teamcode.Robot.Drives.MecanumDrive;
+=======
+import org.firstinspires.ftc.teamcode.MecanumDrive;
+>>>>>>> River_Sandbox
 
 @Config
 public class ThunderBot2025
 {
     public MecanumDrive drive;
+<<<<<<< HEAD
     public Shooter shooter;
+=======
+    public Intake intake;
+    public Indexer indexer;
+    public Launcher launcher;
+>>>>>>> River_Sandbox
 
     private Telemetry telemetry = null;
-    public static boolean field_centric = true;
+    public static boolean field_centric = false;
 
     public void init(HardwareMap hwMap, Telemetry telem)
     {
         drive = new MecanumDrive(hwMap, new Pose2d(0,0,0));
+<<<<<<< HEAD
         shooter = new Shooter();
         shooter.init(hwMap, telem);
+=======
+        intake = new Intake();
+        intake.init(hwMap, telem);
+
+        indexer = new Indexer();
+        indexer.init(hwMap, telem);
+
+        launcher = new Launcher();
+        launcher.init(hwMap, telem);
+>>>>>>> River_Sandbox
 
         telemetry = new MultipleTelemetry(telem, FtcDashboard.getInstance().getTelemetry());
     }
