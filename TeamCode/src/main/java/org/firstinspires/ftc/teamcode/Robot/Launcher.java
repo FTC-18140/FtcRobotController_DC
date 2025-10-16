@@ -21,6 +21,10 @@ public class Launcher {
     public static double MAX_SHOOTER_SPEED = 0.73;
     public static double MIN_SHOOTER_SPEED = 0.6;
 
+    public static double MAX_SHOOTER_RPM = 25;
+
+    public double rpm = 0;
+    private double previousPos = 0;
     static double targetX = 50;
     static double targetY = 50;
     CRServo turret = null;
@@ -35,6 +39,8 @@ public class Launcher {
         try{
             launcher = hardwareMap.dcMotor.get("launcher");
             launcher.setDirection(DcMotorSimple.Direction.REVERSE);
+            launcher.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            launcher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         } catch (Exception e) {
             telemetry.addData("DcMotor \"launcher\" not found", 0);
         }
@@ -50,6 +56,10 @@ public class Launcher {
         targetDir = targetPos.minus(robotPose.position);
         return Math.sqrt(Math.pow(targetDir.x, 2) + Math.pow(targetDir.y, 2));
     }
+    public void update(){
+        rpm = launcher.getCurrentPosition() - previousPos;
+        previousPos = launcher.getCurrentPosition();
+    }
     public void lockOn(Pose2d robotPose){
         double turretAngle = Range.scale(0, 0, 1.0, 0, 2*Math.PI);
         trueAngle = robotPose.heading.toDouble()+turretAngle;
@@ -61,8 +71,12 @@ public class Launcher {
     }
 
     public void shoot(Pose2d robotPose){
-        double power = Range.scale(goalDistance(robotPose), 10, 120, MIN_SHOOTER_SPEED, MAX_SHOOTER_SPEED);
-        launcher.setPower(power);
+        double power = Range.clip(Range.scale(goalDistance(robotPose), 10, 120, MIN_SHOOTER_SPEED, MAX_SHOOTER_SPEED), MIN_SHOOTER_SPEED, MAX_SHOOTER_SPEED);
+
+        power = Range.scale(power, MIN_SHOOTER_SPEED, MAX_SHOOTER_SPEED, 10, MAX_SHOOTER_RPM);
+
+
+        launcher.setPower(Range.clip(power - rpm, 0, 1));
     }
 
     public void launchMax(){
