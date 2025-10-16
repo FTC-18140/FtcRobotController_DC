@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Utilities.MovingAverageFilter;
 
 @Config
 
@@ -22,8 +23,11 @@ public class Launcher {
     public static double MIN_SHOOTER_SPEED = 0.6;
 
     public static double MAX_SHOOTER_RPM = 25;
+    public static double MIN_SHOOTER_RPM = 15;
 
     public double rpm = 0;
+    public MovingAverageFilter RPMFilter = new MovingAverageFilter(3);
+    public double avgRpm = 0;
     private double previousPos = 0;
     static double targetX = 50;
     static double targetY = 50;
@@ -59,6 +63,8 @@ public class Launcher {
     public void update(){
         rpm = launcher.getCurrentPosition() - previousPos;
         previousPos = launcher.getCurrentPosition();
+
+        avgRpm = RPMFilter.addValue(rpm);
     }
     public void lockOn(Pose2d robotPose){
         double turretAngle = Range.scale(0, 0, 1.0, 0, 2*Math.PI);
@@ -71,12 +77,9 @@ public class Launcher {
     }
 
     public void shoot(Pose2d robotPose){
-        double power = Range.clip(Range.scale(goalDistance(robotPose), 10, 120, MIN_SHOOTER_SPEED, MAX_SHOOTER_SPEED), MIN_SHOOTER_SPEED, MAX_SHOOTER_SPEED);
+        double power = Range.clip(Range.scale(goalDistance(robotPose), 10, 120, MIN_SHOOTER_RPM, MAX_SHOOTER_RPM), MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
 
-        power = Range.scale(power, MIN_SHOOTER_SPEED, MAX_SHOOTER_SPEED, 10, MAX_SHOOTER_RPM);
-
-
-        launcher.setPower(Range.clip(power - rpm, 0, 1));
+        launcher.setPower(Range.clip(power - avgRpm, 0, 1));
     }
 
     public void launchMax(){
