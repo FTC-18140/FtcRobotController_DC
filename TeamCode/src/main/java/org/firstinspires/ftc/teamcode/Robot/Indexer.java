@@ -58,11 +58,11 @@ public class Indexer {
     public void spin(double power){
         indexer.setPower(power);
 
-        //indexPos = 3 * indexMotor.getCurrentPosition()/CPR;
-        //targetAngle = Math.round(indexPos % 3);
+        indexPos = 3 * indexMotor.getCurrentPosition()/CPR;
+        targetAngle = Math.round(indexPos % 3);
 
-        //telemetry.addData("target Angle: ", targetAngle);
-        //telemetry.addData("indexer Angle: ", indexPos);
+        telemetry.addData("target Angle: ", targetAngle);
+        telemetry.addData("indexer Angle: ", indexPos);
     }
     public void cycle(double dir){
         targetAngle += dir;
