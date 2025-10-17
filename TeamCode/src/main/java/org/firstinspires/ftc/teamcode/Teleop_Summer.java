@@ -42,7 +42,7 @@ public class Teleop_Summer extends OpMode {
         double strafe = theGamepad1.getLeftX();
         double turn = theGamepad1.getRightX();
 
-        robot.launcher.update();
+
 
 //        if(robot.isFieldCentric())
 //        {
@@ -93,7 +93,7 @@ public class Teleop_Summer extends OpMode {
         telemetry.addData("position X: ", robot.drive.localizer.getPose().position.x);
         telemetry.addData("position Y: ", robot.drive.localizer.getPose().position.y);
         telemetry.addData("heading: ", Math.toDegrees(robot.drive.localizer.getPose().heading.toDouble()));
-        telemetry.addData("speed: ", robot.launcher.rpm);
+        telemetry.addData("speed: ", robot.launcher.tps);
         telemetry.addData("flipper: ", robot.indexer.getFlipperPos());
         telemetry.addData("goal distance: ", robot.launcher.goalDistance(robot.drive.localizer.getPose()));
 

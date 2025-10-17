@@ -19,6 +19,7 @@ public class ThunderBot2025
     public Intake intake;
     public Indexer indexer;
     public Launcher launcher;
+    public LED led;
 
     private Telemetry telemetry = null;
     public static boolean field_centric = false;
@@ -86,5 +87,11 @@ public class ThunderBot2025
         drive.setDrivePowers(thePose);
 
         }
+        public void update(){
+            launcher.update();
+            led.update(launcher.getAvgtps(), );
+        }
+
+
 }
 
