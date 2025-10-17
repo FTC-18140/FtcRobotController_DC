@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.Utilities.TBDGamepad;
 public class Teleop_Summer extends OpMode {
 
     public TelemetryPacket p = new TelemetryPacket(true);
+    private boolean toggle = false;
     //public static boolean field_centric = true;
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
@@ -57,7 +58,7 @@ public class Teleop_Summer extends OpMode {
             robot.intake.intake();
         } else if (theGamepad2.getButton(TBDGamepad.Button.B)) {
             robot.intake.stop();
-        }else if (theGamepad2.getButton(TBDGamepad.Button.A)) {
+        } else if (theGamepad2.getButton(TBDGamepad.Button.A)) {
             robot.intake.spit();
         }
 
@@ -73,27 +74,36 @@ public class Teleop_Summer extends OpMode {
         //Flipper / launch controls
         if(theGamepad2.getTrigger(TBDGamepad.Trigger.RIGHT_TRIGGER) > 0.1){
             robot.indexer.flip();
-        }else{
+        } else {
             //Prevents indexer from interfering with Flipper
             robot.indexer.unflip();
 
             if(theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER)){
-                robot.indexer.spin(-0.3);
+                robot.indexer.spin(-0.2);
             } else if (theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER)) {
-                robot.indexer.spin(0.3);
+                robot.indexer.spin(0.2);
             } else if(theGamepad2.getButton(TBDGamepad.Button.DPAD_LEFT)){
-                robot.indexer.cycle(-1);
+                if(!toggle){
+                    robot.indexer.stop();
+                    robot.indexer.cycle(-1);
+                    toggle = true;
+                }
             } else if (theGamepad2.getButton(TBDGamepad.Button.DPAD_RIGHT)) {
-                robot.indexer.cycle(1);
-            }else{
-                robot.indexer.stop();
+                if(!toggle){
+                    robot.indexer.stop();
+                    robot.indexer.cycle(-1);
+                    toggle = true;
+                }
+            } else {
+                robot.indexer.update();
+                toggle = false;
             }
         }
 
         telemetry.addData("position X: ", robot.drive.localizer.getPose().position.x);
         telemetry.addData("position Y: ", robot.drive.localizer.getPose().position.y);
         telemetry.addData("heading: ", Math.toDegrees(robot.drive.localizer.getPose().heading.toDouble()));
-        telemetry.addData("speed: ", robot.launcher.rpm);
+        telemetry.addData("rpm: ", robot.launcher.avgRpm * robot.launcher.timeDifference);
         telemetry.addData("flipper: ", robot.indexer.getFlipperPos());
         telemetry.addData("goal distance: ", robot.launcher.goalDistance(robot.drive.localizer.getPose()));
 

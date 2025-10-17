@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Robot;
 
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
@@ -29,13 +30,14 @@ public class Indexer {
             telemetry.addData("Continuous Servo \"indexer\" not found", 0);
         }
         try{
-            indexMotor = hardwareMap.dcMotor.get("indexer");
+            indexMotor = hardwareMap.dcMotor.get("indexerpos");
+            indexMotor.setDirection(DcMotorSimple.Direction.REVERSE);
             indexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             indexMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
             indexPos = 3 * indexMotor.getCurrentPosition()/CPR;
         } catch (Exception e) {
-            telemetry.addData("Motor \"indexer\" not found", 0);
+            telemetry.addData("Motor \"indexerpos\" not found", 0);
         }
         try{
             flipper = hardwareMap.servo.get("flipper");
@@ -50,16 +52,15 @@ public class Indexer {
     public void update(){
         indexPos = 3 * indexMotor.getCurrentPosition()/CPR;
 
-
         telemetry.addData("target Angle: ", targetAngle);
         telemetry.addData("indexer Angle: ", indexPos);
-        indexer.setPower(Range.clip(targetAngle -(indexPos % 3), -0.5, 0.5));
+        indexer.setPower(Range.scale(targetAngle - (indexPos), -2, 2, -0.5, 0.5));
     }
     public void spin(double power){
         indexer.setPower(power);
 
         indexPos = 3 * indexMotor.getCurrentPosition()/CPR;
-        targetAngle = Math.round(indexPos % 3);
+        targetAngle = Math.round(indexPos);
 
         telemetry.addData("target Angle: ", targetAngle);
         telemetry.addData("indexer Angle: ", indexPos);

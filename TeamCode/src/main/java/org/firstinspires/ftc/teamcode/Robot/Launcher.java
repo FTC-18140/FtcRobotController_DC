@@ -7,10 +7,13 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Utilities.MovingAverageFilter;
+
+import java.util.concurrent.TimeUnit;
 
 @Config
 
@@ -22,13 +25,18 @@ public class Launcher {
     public static double MAX_SHOOTER_SPEED = 0.73;
     public static double MIN_SHOOTER_SPEED = 0.6;
 
-    public static double MAX_SHOOTER_RPM = 25;
+    public static double MAX_SHOOTER_RPM = 20
+            ;
     public static double MIN_SHOOTER_RPM = 15;
+
+    public ElapsedTime timer;
+    double previousTime = 0;
 
     public double rpm = 0;
     public MovingAverageFilter RPMFilter = new MovingAverageFilter(3);
     public double avgRpm = 0;
     private double previousPos = 0;
+    public double timeDifference = 0;
     static double targetX = 50;
     static double targetY = 50;
     CRServo turret = null;
@@ -40,6 +48,7 @@ public class Launcher {
         hardwareMap = hwMap;
         telemetry = telem;
 
+        timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         try{
             launcher = hardwareMap.dcMotor.get("launcher");
             launcher.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -64,7 +73,14 @@ public class Launcher {
         rpm = launcher.getCurrentPosition() - previousPos;
         previousPos = launcher.getCurrentPosition();
 
-        avgRpm = RPMFilter.addValue(rpm);
+        timeDifference = timer.milliseconds() - previousTime;
+        previousTime = timer.milliseconds();
+
+        avgRpm = RPMFilter.addValue(rpm / timeDifference);
+        previousTime = timer.milliseconds();
+
+        telemetry.addData("time: ", timer.milliseconds());
+        telemetry.addData("time difference: ", timeDifference);
     }
     public void lockOn(Pose2d robotPose){
         double turretAngle = Range.scale(0, 0, 1.0, 0, 2*Math.PI);
@@ -79,7 +95,10 @@ public class Launcher {
     public void shoot(Pose2d robotPose){
         double power = Range.clip(Range.scale(goalDistance(robotPose), 10, 120, MIN_SHOOTER_RPM, MAX_SHOOTER_RPM), MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
 
-        launcher.setPower(Range.clip(power - avgRpm, 0, 1));
+        launcher.setPower(Range.clip(Range.scale((power / timeDifference) - avgRpm, -MAX_SHOOTER_RPM, MAX_SHOOTER_RPM, 0, 1), 0, 1));
+        telemetry.addData("power: ", (power / timeDifference) - avgRpm);
+
+        telemetry.addData("target rpm: ", power);
     }
 
     public void launchMax(){
