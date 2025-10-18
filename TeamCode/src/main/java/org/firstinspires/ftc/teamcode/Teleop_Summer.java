@@ -44,6 +44,13 @@ public class Teleop_Summer extends OpMode {
         double forward = theGamepad1.getLeftY();
         double strafe = theGamepad1.getLeftX();
         double turn = theGamepad1.getRightX();
+        double speed = 0.7;
+
+        if(theGamepad1.getTriggerPressed(TBDGamepad.Trigger.RIGHT_TRIGGER)){
+            speed = 0.3;
+        } else if(theGamepad1.getTriggerPressed(TBDGamepad.Trigger.LEFT_TRIGGER)){
+            speed = 1.0;
+        }
 
         robot.launcher.update();
 
