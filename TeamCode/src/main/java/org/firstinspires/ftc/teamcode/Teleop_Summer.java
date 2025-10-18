@@ -52,7 +52,8 @@ public class Teleop_Summer extends OpMode {
             speed = 1.0;
         }
 
-        robot.launcher.update();
+
+        robot.update();
 
 //        if(robot.isFieldCentric())
 //        {
