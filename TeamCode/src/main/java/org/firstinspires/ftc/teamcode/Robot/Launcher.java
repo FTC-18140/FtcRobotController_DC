@@ -39,11 +39,13 @@ public class Launcher {
     public double rpm = 0;
     public MovingAverageFilter RPMFilter = new MovingAverageFilter(3);
     public double avgRpm = 0;
+    public double power = 0;
     private double previousPos = 0;
     public double timeDifference = 0;
     static double targetX = 50;
     static double targetY = 50;
     CRServo turret = null;
+
 
     Vector2d targetPos = new Vector2d(targetX, targetY);
     Vector2d targetDir = new Vector2d(0,1);
@@ -107,7 +109,7 @@ public class Launcher {
     }
 
     public void shoot(Pose2d robotPose){
-        double power = Range.clip(Range.scale(goalDistance(robotPose), 10, 120, MIN_SHOOTER_RPM, MAX_SHOOTER_RPM), MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
+        power = Range.clip(Range.scale(goalDistance(robotPose), 10, 120, MIN_SHOOTER_RPM, MAX_SHOOTER_RPM), MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
 
         launcher.setPower(Range.clip(Range.scale((power / timeDifference) - avgRpm, -MAX_SHOOTER_RPM, MAX_SHOOTER_RPM, -1, 1), -0.3, 1));
         telemetry.addData("power: ", (power / timeDifference) - avgRpm);

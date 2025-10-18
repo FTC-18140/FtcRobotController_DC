@@ -98,7 +98,7 @@ public class ThunderBot2025
         }
         public void update(){
             launcher.update();
-            led.update(launcher.avgRpm, launcher.goalDistance(drive.localizer.getPose()));
+            led.update(launcher.avgRpm, launcher.power);
         }
 
 
