@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
+import androidx.annotation.NonNull;
+
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -49,12 +53,23 @@ public class Indexer {
     public void intake(){
         indexer.setPower(0.5);
     }
-    public void update(){
+    public boolean update(){
         indexPos = 3 * indexMotor.getCurrentPosition()/CPR;
 
         telemetry.addData("target Angle: ", targetAngle);
         telemetry.addData("indexer Angle: ", indexPos);
         indexer.setPower(Range.scale(targetAngle - (indexPos), -2, 2, -0.5, 0.5));
+
+        return Math.abs(targetAngle - indexPos) < 0.1;
+    }
+
+    public Action updateAction(){
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                return !update();
+            }
+        };
     }
     public void spin(double power){
         indexer.setPower(power);
@@ -68,6 +83,16 @@ public class Indexer {
     public void cycle(double dir){
         targetAngle += dir;
     }
+
+    public Action cycleAction(double dir){
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                cycle(dir);
+                return false;
+            }
+        };
+    }
     public void stop(){
         indexer.setPower(0);
     }
@@ -79,5 +104,16 @@ public class Indexer {
     }
     public double getFlipperPos(){
         return flipper.getPosition();
+    }
+
+    public Action fliperAction(double pos){
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                flipper.setPosition(pos);
+
+                return false;
+            }
+        };
     }
 }

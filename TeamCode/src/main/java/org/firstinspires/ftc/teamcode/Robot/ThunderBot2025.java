@@ -11,6 +11,12 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Robot.Drives.MecanumDrive;
+import org.intellij.lang.annotations.Flow;
+import org.intellij.lang.annotations.JdkConstants;
+import org.intellij.lang.annotations.Subst;
+import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @Config
 public class ThunderBot2025
@@ -23,9 +29,12 @@ public class ThunderBot2025
     private Telemetry telemetry = null;
     public static boolean field_centric = false;
 
-    public void init(HardwareMap hwMap, Telemetry telem)
+    public void init(HardwareMap hwMap, Telemetry telem, @Nullable Pose2d pose)
     {
-        drive = new MecanumDrive(hwMap, new Pose2d(0,0,0));
+        if(pose == null){
+            pose = new Pose2d(0,0,0);
+        }
+        drive = new MecanumDrive(hwMap, pose);
 
         intake = new Intake();
         intake.init(hwMap, telem);

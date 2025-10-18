@@ -1,6 +1,11 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
+import androidx.annotation.NonNull;
+
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.Actions;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -25,9 +30,8 @@ public class Launcher {
     public static double MAX_SHOOTER_SPEED = 0.73;
     public static double MIN_SHOOTER_SPEED = 0.6;
 
-    public static double MAX_SHOOTER_RPM = 20
-            ;
-    public static double MIN_SHOOTER_RPM = 15;
+    public static double MAX_SHOOTER_RPM = 6;
+    public static double MIN_SHOOTER_RPM = 3;
 
     public ElapsedTime timer;
     double previousTime = 0;
@@ -82,6 +86,16 @@ public class Launcher {
         telemetry.addData("time: ", timer.milliseconds());
         telemetry.addData("time difference: ", timeDifference);
     }
+
+    public Action updateAction(){
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                update();
+                return true;
+            }
+        };
+    }
     public void lockOn(Pose2d robotPose){
         double turretAngle = Range.scale(0, 0, 1.0, 0, 2*Math.PI);
         trueAngle = robotPose.heading.toDouble()+turretAngle;
@@ -95,11 +109,48 @@ public class Launcher {
     public void shoot(Pose2d robotPose){
         double power = Range.clip(Range.scale(goalDistance(robotPose), 10, 120, MIN_SHOOTER_RPM, MAX_SHOOTER_RPM), MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
 
-        launcher.setPower(Range.clip(Range.scale((power / timeDifference) - avgRpm, -MAX_SHOOTER_RPM, MAX_SHOOTER_RPM, 0, 1), 0, 1));
+        launcher.setPower(Range.clip(Range.scale((power / timeDifference) - avgRpm, -MAX_SHOOTER_RPM, MAX_SHOOTER_RPM, -1, 1), -0.3, 1));
         telemetry.addData("power: ", (power / timeDifference) - avgRpm);
 
         telemetry.addData("target rpm: ", power);
     }
+
+    public Action chargeAction(Pose2d pose, double duration){
+        return new Action() {
+            ElapsedTime counter = new ElapsedTime();
+            boolean started = false;
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                if(!started){
+                    counter.reset();
+                    started = true;
+                }
+                shoot(pose);
+
+                telemetry.addData("time: ", counter.seconds());
+
+                if (counter.seconds() > duration){
+                    stop();
+                    return false;
+                }
+                return true;
+            }
+        };
+    }
+
+    public Action waitForCharge(Pose2d pose){
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                double power = Range.clip(Range.scale(goalDistance(pose), 10, 120, MIN_SHOOTER_RPM, MAX_SHOOTER_RPM), MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
+                if(Math.abs(power/timeDifference - avgRpm) < 0.2){
+                    return false;
+                }
+                return true;
+            }
+        };
+    }
+
 
     public void launchMax(){
         launcher.setPower(MAX_SHOOTER_SPEED);
