@@ -60,7 +60,7 @@ public class Indexer {
         telemetry.addData("indexer Angle: ", indexPos);
         indexer.setPower(Range.scale(targetAngle - (indexPos), -2, 2, -0.5, 0.5));
 
-        return Math.abs(targetAngle - indexPos) < 0.1;
+        return Math.abs(targetAngle - indexPos) < 0.2;
     }
 
     public Action updateAction(){

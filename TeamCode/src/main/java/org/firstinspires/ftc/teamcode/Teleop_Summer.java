@@ -62,7 +62,7 @@ public class Teleop_Summer extends OpMode {
 //            robot.robotCentricDrive(forward, strafe, turn, 0.7);
 //        }
 
-        robot.drive(forward, strafe, turn, 0.7, p);
+        robot.drive(forward, strafe, turn, speed, p);
 
         if(theGamepad2.getButton(TBDGamepad.Button.X)){
             robot.intake.intake();

@@ -31,9 +31,9 @@ public class LED {
         }
     }
     public void update(double tps, double target_tps) {
-        double difference_tps = target_tps - tps;
-        double acceptable_range_up = 5;
-        double acceptable_range_down=-5;
+        double difference_tps =  tps - target_tps ;
+        double acceptable_range_up = .2;
+        double acceptable_range_down = -.2;
         if (difference_tps < acceptable_range_down) {
             setToColor("red");
         } else if (difference_tps > acceptable_range_up) {

@@ -111,10 +111,11 @@ public class Launcher {
     public void shoot(Pose2d robotPose){
         power = Range.clip(Range.scale(goalDistance(robotPose), 10, 120, MIN_SHOOTER_RPM, MAX_SHOOTER_RPM), MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
 
-        launcher.setPower(Range.clip(Range.scale((power / timeDifference) - avgRpm, -MAX_SHOOTER_RPM, MAX_SHOOTER_RPM, -1, 1), -0.3, 1));
+        launcher.setPower(Range.clip(Range.scale((power / timeDifference) - avgRpm, -MAX_SHOOTER_RPM, MAX_SHOOTER_RPM, -0.1, 1), -0.3, 1));
         telemetry.addData("power: ", (power / timeDifference) - avgRpm);
 
         telemetry.addData("target rpm: ", power);
+        telemetry.addData("avgrpm: ", avgRpm);
     }
 
     public Action chargeAction(Pose2d pose, double duration){

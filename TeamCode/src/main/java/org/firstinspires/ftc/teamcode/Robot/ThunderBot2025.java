@@ -46,6 +46,9 @@ public class ThunderBot2025
         launcher = new Launcher();
         launcher.init(hwMap, telem);
 
+        led = new LED();
+        led.init(hwMap, telem);
+
 
         telemetry = new MultipleTelemetry(telem, FtcDashboard.getInstance().getTelemetry());
     }
@@ -98,7 +101,7 @@ public class ThunderBot2025
         }
         public void update(){
             launcher.update();
-            led.update(launcher.avgRpm, launcher.power);
+            led.update(launcher.avgRpm, launcher.power/10);
         }
 
 
