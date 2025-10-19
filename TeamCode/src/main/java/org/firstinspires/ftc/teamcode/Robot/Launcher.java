@@ -18,6 +18,7 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Utilities.MovingAverageFilter;
 
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @Config
@@ -28,10 +29,10 @@ public class Launcher {
     DcMotor launcher = null;
 
     public static double MAX_SHOOTER_SPEED = 0.73;
-    public static double MIN_SHOOTER_SPEED = 0.6;
+    public static double MIN_SHOOTER_SPEED = 1.0;
 
-    public static double MAX_SHOOTER_RPM = 6;
-    public static double MIN_SHOOTER_RPM = 3;
+    public static double MAX_SHOOTER_RPM = 1;
+    public static double MIN_SHOOTER_RPM = 0.8;
 
     public ElapsedTime timer;
     double previousTime = 0;
@@ -44,10 +45,14 @@ public class Launcher {
     public double timeDifference = 0;
     static double targetX = 50;
     static double targetY = 50;
+
+    public String color = "blue";
     CRServo turret = null;
 
 
     Vector2d targetPos = new Vector2d(targetX, targetY);
+
+    Vector2d targetPosRed = new Vector2d(targetX, -targetY);
     Vector2d targetDir = new Vector2d(0,1);
     public double trueAngle = 0;
     public void init(HardwareMap hwMap, Telemetry telem){
@@ -72,7 +77,13 @@ public class Launcher {
     }
 
     public double goalDistance(Pose2d robotPose){
-        targetDir = targetPos.minus(robotPose.position);
+        if(Objects.equals(color, "red")){
+
+            targetDir = targetPosRed.minus(robotPose.position);
+        }else{
+
+            targetDir = targetPos.minus(robotPose.position);
+        }
         return Math.sqrt(Math.pow(targetDir.x, 2) + Math.pow(targetDir.y, 2));
     }
     public void update(){
@@ -109,10 +120,10 @@ public class Launcher {
     }
 
     public void shoot(Pose2d robotPose){
-        power = Range.clip(Range.scale(goalDistance(robotPose), 10, 120, MIN_SHOOTER_RPM, MAX_SHOOTER_RPM), MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
+        power = Range.clip(Range.scale(goalDistance(robotPose), 12, 130, MIN_SHOOTER_RPM, MAX_SHOOTER_RPM), MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
 
-        launcher.setPower(Range.clip(Range.scale((power / timeDifference) - avgRpm, -MAX_SHOOTER_RPM, MAX_SHOOTER_RPM, -0.1, 1), -0.3, 1));
-        telemetry.addData("power: ", (power / timeDifference) - avgRpm);
+        launcher.setPower(Range.clip(Range.scale(power - avgRpm, -MIN_SHOOTER_SPEED, MIN_SHOOTER_SPEED, -0.3, 1), -0.3, 1));
+        telemetry.addData("power: ", power - avgRpm);
 
         telemetry.addData("target rpm: ", power);
         telemetry.addData("avgrpm: ", avgRpm);
@@ -145,8 +156,8 @@ public class Launcher {
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                double power = Range.clip(Range.scale(goalDistance(pose), 10, 120, MIN_SHOOTER_RPM, MAX_SHOOTER_RPM), MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
-                if(Math.abs(power/timeDifference - avgRpm) < 0.2){
+                double power = Range.clip(Range.scale(goalDistance(pose), 12, 130, MIN_SHOOTER_RPM, MAX_SHOOTER_RPM), MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
+                if(power - avgRpm < 0.275){
                     return false;
                 }
                 return true;

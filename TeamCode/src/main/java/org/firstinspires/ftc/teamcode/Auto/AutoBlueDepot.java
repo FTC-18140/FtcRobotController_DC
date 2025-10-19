@@ -19,6 +19,7 @@ public class AutoBlueDepot extends LinearOpMode{
         ThunderBot2025 robot = new ThunderBot2025();
 
         robot.init(hardwareMap, telemetry, start);
+        robot.launcher.color = "blue";
         waitForStart();
 
         Actions.runBlocking(

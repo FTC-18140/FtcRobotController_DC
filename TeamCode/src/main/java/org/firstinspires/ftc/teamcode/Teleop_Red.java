@@ -13,14 +13,14 @@ import org.firstinspires.ftc.teamcode.Utilities.TBDGamepad;
 
 @TeleOp
 @Config
-public class Teleop_Summer extends OpMode {
+public class Teleop_Red extends OpMode {
 
     public TelemetryPacket p = new TelemetryPacket(true);
     private boolean barrel_spin = false;
     private boolean revolving = false;
     //public static boolean field_centric = true;
 
-    String alliance = "blue";
+    String alliance = "red";
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
     private TBDGamepad theGamepad1;
@@ -31,7 +31,7 @@ public class Teleop_Summer extends OpMode {
     @Override
     public void init() {
         robot.init(hardwareMap, telemetry, new Pose2d(-12, 12, 0));
-        robot.launcher.color = "alliance";
+        robot.launcher.color = alliance;
         theGamepad1 = new TBDGamepad(gamepad1);
         theGamepad2 = new TBDGamepad(gamepad2);
         // Tell the driver that initialization is complete.

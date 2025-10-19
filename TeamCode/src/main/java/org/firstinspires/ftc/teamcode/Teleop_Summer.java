@@ -20,6 +20,8 @@ public class Teleop_Summer extends OpMode {
     private boolean revolving = false;
     //public static boolean field_centric = true;
 
+    String alliance = "blue";
+
     FtcDashboard dashboard = FtcDashboard.getInstance();
     private TBDGamepad theGamepad1;
     private TBDGamepad theGamepad2;
@@ -29,7 +31,7 @@ public class Teleop_Summer extends OpMode {
     @Override
     public void init() {
         robot.init(hardwareMap, telemetry, new Pose2d(-12, 12, 0));
-
+        robot.launcher.color = alliance;
         theGamepad1 = new TBDGamepad(gamepad1);
         theGamepad2 = new TBDGamepad(gamepad2);
         // Tell the driver that initialization is complete.

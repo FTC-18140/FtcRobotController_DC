@@ -17,11 +17,12 @@ public class AutoBlueFar extends LinearOpMode{
     @Override
     public void runOpMode() throws InterruptedException {
         Pose2d start = new Pose2d(AutoPositions.Positions.START_BLUE_FAR.position, Math.toRadians(-90));
-        Pose2d launchPos = new Pose2d(-53, 12, Math.toRadians(25));
+        Pose2d launchPos = new Pose2d(-53, 12, Math.toRadians(24));
 
         ThunderBot2025 robot = new ThunderBot2025();
 
         robot.init(hardwareMap, telemetry, start);
+        robot.launcher.color = "blue";
         waitForStart();
 
         Actions.runBlocking(
@@ -29,22 +30,30 @@ public class AutoBlueFar extends LinearOpMode{
                         new ParallelAction(
                             new SequentialAction(
                                     robot.drive.actionBuilder(start)
-                                            .strafeToSplineHeading(new Vector2d(launchPos.position.x, 12), Math.toRadians(25))
+                                            .strafeToSplineHeading(new Vector2d(launchPos.position.x, 12), Math.toRadians(24))
                                             .build(),
-                                    new SleepAction(2),
+                                    //new SleepAction(2),
 
                                     robot.launcher.waitForCharge(robot.drive.localizer.getPose()),
                                     robot.indexer.fliperAction(0.65),
-                                    new SleepAction(0.75),
+                                    new SleepAction(0.25),
                                     robot.indexer.fliperAction(0.25),
-                                    new SleepAction(1),
+                                    new SleepAction(0.1),
 
                                     robot.indexer.cycleAction(-1),
                                     robot.indexer.updateAction(),
 
                                     robot.launcher.waitForCharge(robot.drive.localizer.getPose()),
                                     robot.indexer.fliperAction(0.65),
-                                    new SleepAction(0.75),
+                                    new SleepAction(0.25),
+                                    robot.indexer.fliperAction(0.25),
+
+                                    robot.indexer.cycleAction(-1),
+                                    robot.indexer.updateAction(),
+
+                                    robot.launcher.waitForCharge(robot.drive.localizer.getPose()),
+                                    robot.indexer.fliperAction(0.65),
+                                    new SleepAction(0.25),
                                     robot.indexer.fliperAction(0.25),
 
                                     robot.drive.actionBuilder(launchPos)

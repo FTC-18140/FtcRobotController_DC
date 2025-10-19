@@ -10,22 +10,22 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
 @Autonomous
-public class AutoBlueDepot extends LinearOpMode{
+public class AutoRedDepot extends LinearOpMode{
 
     @Override
     public void runOpMode() throws InterruptedException {
-        Pose2d start = new Pose2d(AutoPositions.Positions.START_BLUE_DEPOT.position, Math.toRadians(135));
+        Pose2d start = new Pose2d(AutoPositions.Positions.START_RED_DEPOT.position, Math.toRadians(-135));
 
         ThunderBot2025 robot = new ThunderBot2025();
 
         robot.init(hardwareMap, telemetry, start);
-        robot.launcher.color = "blue";
+        robot.launcher.color = "red";
         waitForStart();
 
         Actions.runBlocking(
                 new SequentialAction(
                         robot.drive.actionBuilder(start)
-                                .strafeToSplineHeading(new Vector2d(-12, 12), Math.toRadians(0))
+                                .strafeToSplineHeading(new Vector2d(-12, -12), Math.toRadians(0))
                                 .build()
                 )
         );

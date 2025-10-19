@@ -67,7 +67,8 @@ public class Indexer {
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                return !update();
+                update();
+                return !(Math.abs(targetAngle - indexPos) < 0.1);
             }
         };
     }
@@ -95,6 +96,15 @@ public class Indexer {
     }
     public void stop(){
         indexer.setPower(0);
+    }
+    public Action stopAction(){
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                stop();
+                return false;
+            }
+        };
     }
     public void flip(){
         flipper.setPosition(0.65);

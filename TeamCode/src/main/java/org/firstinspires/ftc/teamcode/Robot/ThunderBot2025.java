@@ -101,7 +101,7 @@ public class ThunderBot2025
         }
         public void update(){
             launcher.update();
-            led.update(launcher.avgRpm, launcher.power/10);
+            led.update(launcher.avgRpm, launcher.power);
         }
 
 
