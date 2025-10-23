@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 
 public class Indexer {
     Telemetry telemetry;
@@ -24,10 +25,14 @@ public class Indexer {
     private double indexPos = 0;
     private double targetAngle = 0;
 
+    public static double p = 0.001, i = 0, d = 0;
+    PIDController angleController;
+
     public void init(HardwareMap hwMap, Telemetry telem){
         hardwareMap = hwMap;
         telemetry = telem;
 
+        angleController = new PIDController(p, i, d);
         try{
             indexer = hardwareMap.crservo.get("indexer");
         } catch (Exception e) {
@@ -58,7 +63,7 @@ public class Indexer {
 
         telemetry.addData("target Angle: ", targetAngle);
         telemetry.addData("indexer Angle: ", indexPos);
-        indexer.setPower(Range.scale(targetAngle - (indexPos), -2, 2, -0.5, 0.5));
+        indexer.setPower(angleController.calculate(indexPos, targetAngle));
 
         return Math.abs(targetAngle - indexPos) < 0.2;
     }

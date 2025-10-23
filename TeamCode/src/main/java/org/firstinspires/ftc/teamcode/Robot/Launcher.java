@@ -10,6 +10,7 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -17,6 +18,7 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Utilities.MovingAverageFilter;
+import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -26,19 +28,23 @@ import java.util.concurrent.TimeUnit;
 public class Launcher {
     Telemetry telemetry;
     HardwareMap hardwareMap;
-    DcMotor launcher = null;
+    DcMotorEx launcher = null;
+    DcMotorEx launcher2 = null;
+
+    public static double p = 0.001, i = 0, d = 0;
+    PIDController RPMController;
 
     public static double MAX_SHOOTER_SPEED = 0.73;
     public static double MIN_SHOOTER_SPEED = 1.0;
 
-    public static double MAX_SHOOTER_RPM = 1;
-    public static double MIN_SHOOTER_RPM = 0.8;
+    public static double MAX_SHOOTER_RPM = 2500;
+    public static double MIN_SHOOTER_RPM = 1800;
 
     public ElapsedTime timer;
     double previousTime = 0;
 
     public double rpm = 0;
-    public MovingAverageFilter RPMFilter = new MovingAverageFilter(3);
+    public MovingAverageFilter RPMFilter = new MovingAverageFilter(1);
     public double avgRpm = 0;
     public double power = 0;
     private double previousPos = 0;
@@ -59,14 +65,23 @@ public class Launcher {
         hardwareMap = hwMap;
         telemetry = telem;
 
+        RPMController = new PIDController(p, i, d);
+
         timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         try{
-            launcher = hardwareMap.dcMotor.get("launcher");
+            launcher = hardwareMap.get(DcMotorEx.class,"launcher");
             launcher.setDirection(DcMotorSimple.Direction.REVERSE);
             launcher.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             launcher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         } catch (Exception e) {
             telemetry.addData("DcMotor \"launcher\" not found", 0);
+        }
+        try{
+            launcher2 = hardwareMap.get(DcMotorEx.class,"launcher2");
+            launcher2.setDirection(DcMotorSimple.Direction.REVERSE);
+            launcher2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        } catch (Exception e) {
+            telemetry.addData("DcMotor \"launcher2\" not found", 0);
         }
         try{
             turret = hardwareMap.crservo.get("turret");
@@ -87,13 +102,14 @@ public class Launcher {
         return Math.sqrt(Math.pow(targetDir.x, 2) + Math.pow(targetDir.y, 2));
     }
     public void update(){
-        rpm = launcher.getCurrentPosition() - previousPos;
+        //rpm = launcher.getCurrentPosition() - previousPos;
+        rpm = launcher.getVelocity();
         previousPos = launcher.getCurrentPosition();
 
         timeDifference = timer.milliseconds() - previousTime;
         previousTime = timer.milliseconds();
 
-        avgRpm = RPMFilter.addValue(rpm / timeDifference);
+        avgRpm = RPMFilter.addValue(rpm);
         previousTime = timer.milliseconds();
 
         telemetry.addData("time: ", timer.milliseconds());
@@ -122,7 +138,10 @@ public class Launcher {
     public void shoot(Pose2d robotPose){
         power = Range.clip(Range.scale(goalDistance(robotPose), 12, 130, MIN_SHOOTER_RPM, MAX_SHOOTER_RPM), MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
 
-        launcher.setPower(Range.clip(Range.scale(power - avgRpm, -MIN_SHOOTER_SPEED, MIN_SHOOTER_SPEED, -0.3, 1), -0.3, 1));
+
+
+        launcher.setPower(Range.scale(RPMController.calculate(avgRpm, power), -1, 1, -0.1, 1));
+        launcher2.setPower(Range.scale(RPMController.calculate(avgRpm, power), -1, 1, -0.1, 1));
         telemetry.addData("power: ", power - avgRpm);
 
         telemetry.addData("target rpm: ", power);
@@ -177,5 +196,6 @@ public class Launcher {
 
         turret.setPower(0);
         launcher.setPower(0.0);
+        launcher2.setPower(0.0);
     }
 }

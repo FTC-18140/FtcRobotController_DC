@@ -57,13 +57,6 @@ public class Teleop_Summer extends OpMode {
 
         robot.update();
 
-//        if(robot.isFieldCentric())
-//        {
-//            robot.fieldCentricDrive(forward, strafe, turn, 0.7, p);
-//        } else {
-//            robot.robotCentricDrive(forward, strafe, turn, 0.7);
-//        }
-
         robot.drive(forward, strafe, turn, speed, p);
 
         if(theGamepad2.getButton(TBDGamepad.Button.X)){
@@ -84,6 +77,10 @@ public class Teleop_Summer extends OpMode {
         //Flipper / launch controls
         if(theGamepad2.getTrigger(TBDGamepad.Trigger.RIGHT_TRIGGER) > 0.1 && !revolving){
             robot.indexer.flip();
+            if(!barrel_spin){
+                robot.indexer.cycle(-1);
+                barrel_spin = true;
+            }
         } else {
             //Prevents indexer from interfering with Flipper
             robot.indexer.unflip();
@@ -103,7 +100,7 @@ public class Teleop_Summer extends OpMode {
             } else if (theGamepad2.getButton(TBDGamepad.Button.DPAD_RIGHT)) {
                 if(!barrel_spin){
                     robot.indexer.stop();
-                    robot.indexer.cycle(-1);
+                    robot.indexer.cycle(1);
                     barrel_spin = true;
                 }
             } else {
@@ -115,7 +112,7 @@ public class Teleop_Summer extends OpMode {
         telemetry.addData("position X: ", robot.drive.localizer.getPose().position.x);
         telemetry.addData("position Y: ", robot.drive.localizer.getPose().position.y);
         telemetry.addData("heading: ", Math.toDegrees(robot.drive.localizer.getPose().heading.toDouble()));
-        telemetry.addData("rpm: ", robot.launcher.avgRpm * robot.launcher.timeDifference);
+        telemetry.addData("rpm: ", robot.launcher.avgRpm);
         telemetry.addData("flipper: ", robot.indexer.getFlipperPos());
         telemetry.addData("goal distance: ", robot.launcher.goalDistance(robot.drive.localizer.getPose()));
 
