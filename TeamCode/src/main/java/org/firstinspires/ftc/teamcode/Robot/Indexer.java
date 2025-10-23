@@ -24,9 +24,12 @@ public class Indexer {
     private double indexPos = 0;
     private double targetAngle = 0;
 
+    private boolean revolving = false;
+
     public void init(HardwareMap hwMap, Telemetry telem){
         hardwareMap = hwMap;
         telemetry = telem;
+        revolving = false;
 
         try{
             indexer = hardwareMap.crservo.get("indexer");
@@ -52,6 +55,7 @@ public class Indexer {
 
     public void intake(){
         indexer.setPower(0.5);
+        revolving = true;
     }
     public boolean update(){
         indexPos = 3 * indexMotor.getCurrentPosition()/CPR;
@@ -80,6 +84,7 @@ public class Indexer {
 
         telemetry.addData("target Angle: ", targetAngle);
         telemetry.addData("indexer Angle: ", indexPos);
+        revolving = true;
     }
     public void cycle(double dir){
         targetAngle += dir;
@@ -96,6 +101,7 @@ public class Indexer {
     }
     public void stop(){
         indexer.setPower(0);
+        revolving = false;
     }
     public Action stopAction(){
         return new Action() {
@@ -107,10 +113,13 @@ public class Indexer {
         };
     }
     public void flip(){
-        flipper.setPosition(0.65);
+        if (!revolving) {
+            flipper.setPosition(0.65);}
     }
     public void unflip(){
-        flipper.setPosition(0.25);
+        if (!revolving) {
+            flipper.setPosition(0.25);
+        }
     }
     public double getFlipperPos(){
         return flipper.getPosition();

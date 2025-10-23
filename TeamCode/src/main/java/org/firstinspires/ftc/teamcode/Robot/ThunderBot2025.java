@@ -99,8 +99,18 @@ public class ThunderBot2025
         drive.setDrivePowers(thePose);
 
         }
+
+        public void shoot()
+        {
+           launcher.shoot(drive.localizer.getPose());
+        }
+
+
         public void update(){
+            drive.updatePoseEstimate();
             launcher.update();
+            indexer.update();
+            intake.update();
             led.update(launcher.avgRpm, launcher.power);
         }
 

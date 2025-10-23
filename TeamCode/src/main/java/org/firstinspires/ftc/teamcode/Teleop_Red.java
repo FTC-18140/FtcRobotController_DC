@@ -17,7 +17,7 @@ public class Teleop_Red extends OpMode {
 
     public TelemetryPacket p = new TelemetryPacket(true);
     private boolean barrel_spin = false;
-    private boolean revolving = false;
+//    private boolean revolving = false;
     //public static boolean field_centric = true;
 
     String alliance = "red";
@@ -42,7 +42,8 @@ public class Teleop_Red extends OpMode {
 
     @Override
     public void loop() {
-        robot.drive.updatePoseEstimate();
+//        robot.drive.updatePoseEstimate();
+        robot.update();
         double forward = theGamepad1.getLeftY();
         double strafe = theGamepad1.getLeftX();
         double turn = theGamepad1.getRightX();
@@ -55,17 +56,9 @@ public class Teleop_Red extends OpMode {
         }
 
 
-        robot.update();
-
-//        if(robot.isFieldCentric())
-//        {
-//            robot.fieldCentricDrive(forward, strafe, turn, 0.7, p);
-//        } else {
-//            robot.robotCentricDrive(forward, strafe, turn, 0.7);
-//        }
-
         robot.drive(forward, strafe, turn, speed, p);
 
+        // Inatake
         if(theGamepad2.getButton(TBDGamepad.Button.X)){
             robot.intake.intake();
         } else if (theGamepad2.getButton(TBDGamepad.Button.B)) {
@@ -75,14 +68,16 @@ public class Teleop_Red extends OpMode {
         }
 
 
-        if(theGamepad2.getTrigger(TBDGamepad.Trigger.LEFT_TRIGGER) >= 0.1){
-            robot.launcher.shoot(robot.drive.localizer.getPose());
+        if(theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.LEFT_TRIGGER)){
+            //robot.launcher.shoot(robot.drive.localizer.getPose());
+            robot.shoot();
         } else {
             robot.launcher.stop();
         }
 
         //Flipper / launch controls
-        if(theGamepad2.getTrigger(TBDGamepad.Trigger.RIGHT_TRIGGER) > 0.1 && !revolving){
+//        if(theGamepad2.getTrigger(TBDGamepad.Trigger.RIGHT_TRIGGER) > 0.1 && !revolving){
+        if(theGamepad2.getTriggerPressed(TBDGamepad.Trigger.RIGHT_TRIGGER)){
             robot.indexer.flip();
         } else {
             //Prevents indexer from interfering with Flipper
@@ -90,25 +85,25 @@ public class Teleop_Red extends OpMode {
 
             if(theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER)){
                 robot.indexer.spin(-0.2);
-                revolving = true;
+//                revolving = true;
             } else if (theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER)) {
                 robot.indexer.spin(0.2);
-                revolving = true;
-            } else if(theGamepad2.getButton(TBDGamepad.Button.DPAD_LEFT)){
-                if(!barrel_spin){
+//                revolving = true;
+            } else if(theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_LEFT)){
+//                if(!barrel_spin){
                     robot.indexer.stop();
                     robot.indexer.cycle(-1);
-                    barrel_spin = true;
-                }
-            } else if (theGamepad2.getButton(TBDGamepad.Button.DPAD_RIGHT)) {
-                if(!barrel_spin){
+//                    barrel_spin = true;
+//                }
+            } else if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_RIGHT)) {
+//                if(!barrel_spin){
                     robot.indexer.stop();
                     robot.indexer.cycle(-1);
-                    barrel_spin = true;
-                }
+//                    barrel_spin = true;
+//                }
             } else {
-                revolving = !robot.indexer.update();
-                barrel_spin = false;
+//                revolving = !robot.indexer.update();
+//                barrel_spin = false;
             }
         }
 

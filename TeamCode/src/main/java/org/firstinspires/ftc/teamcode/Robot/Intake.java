@@ -35,4 +35,6 @@ public class Intake {
     public void stop() {
         intakeMotor.setPower(0.0);
     }
+
+    public void update() { }
 }

@@ -119,7 +119,7 @@ public class Launcher {
 
     }
 
-    public void shoot(Pose2d robotPose){
+    void shoot(Pose2d robotPose){
         power = Range.clip(Range.scale(goalDistance(robotPose), 12, 130, MIN_SHOOTER_RPM, MAX_SHOOTER_RPM), MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
 
         launcher.setPower(Range.clip(Range.scale(power - avgRpm, -MIN_SHOOTER_SPEED, MIN_SHOOTER_SPEED, -0.3, 1), -0.3, 1));
