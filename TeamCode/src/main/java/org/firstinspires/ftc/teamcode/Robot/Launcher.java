@@ -139,9 +139,9 @@ public class Launcher {
         power = Range.clip(Range.scale(goalDistance(robotPose), 12, 130, MIN_SHOOTER_RPM, MAX_SHOOTER_RPM), MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
 
 
-
-        launcher.setPower(Range.scale(RPMController.calculate(avgRpm, power), -1, 1, -0.1, 1));
-        launcher2.setPower(Range.scale(RPMController.calculate(avgRpm, power), -1, 1, -0.1, 1));
+        double powerToMotors = Range.clip(RPMController.calculate(avgRpm, power),-0.1, 1);
+        launcher.setPower(powerToMotors);
+        launcher2.setPower(powerToMotors);
         telemetry.addData("power: ", power - avgRpm);
 
         telemetry.addData("target rpm: ", power);
@@ -170,12 +170,20 @@ public class Launcher {
             }
         };
     }
-
-    public Action waitForCharge(Pose2d pose){
+    public Action stopSpinnerAction(){
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                double power = Range.clip(Range.scale(goalDistance(pose), 12, 130, MIN_SHOOTER_RPM, MAX_SHOOTER_RPM), MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
+                stop();
+                return false;
+            }
+        };
+    }
+
+    public Action waitForCharge(){
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 if(power - avgRpm < 0.275){
                     return false;
                 }

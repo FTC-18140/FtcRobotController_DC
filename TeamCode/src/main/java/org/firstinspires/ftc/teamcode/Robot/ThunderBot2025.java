@@ -4,18 +4,17 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
+import com.acmerobotics.roadrunner.RaceAction;
+import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Robot.Drives.MecanumDrive;
-import org.intellij.lang.annotations.Flow;
-import org.intellij.lang.annotations.JdkConstants;
-import org.intellij.lang.annotations.Subst;
-import org.jetbrains.annotations.Nls;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Config
@@ -102,6 +101,16 @@ public class ThunderBot2025
         public void update(){
             launcher.update();
             led.update(launcher.avgRpm, launcher.power);
+        }
+
+        //Actions
+        public Action launch(){
+            return new SequentialAction(
+                    launcher.waitForCharge(),
+                    indexer.flipperUpAction(),
+                    new SleepAction(0.25),
+                    indexer.flipperDownAction()
+            );
         }
 
 

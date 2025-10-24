@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
@@ -20,12 +20,13 @@ public class Indexer {
     CRServo indexer = null;
     DcMotor indexMotor = null;
     Servo flipper = null;
+    TouchSensor limitSwitch = null;
 
     final double CPR = 8192;
     private double indexPos = 0;
     private double targetAngle = 0;
 
-    public static double p = 0.001, i = 0, d = 0;
+    public static double p = 0.1, i = 0, d = 0;
     PIDController angleController;
 
     public void init(HardwareMap hwMap, Telemetry telem){
@@ -53,12 +54,34 @@ public class Indexer {
         } catch (Exception e) {
             telemetry.addData("Servo \"flipper\" not found", 0);
         }
+        try{
+            limitSwitch = hardwareMap.touchSensor.get("magnet");
+        } catch (Exception e) {
+            telemetry.addData("Touch Sensor \"magnet\" not found", 0);
+        }
     }
 
     public void intake(){
         indexer.setPower(0.5);
     }
+
+    public boolean adjustToThird(){
+        //rotates the indexer until it is over the switch
+        indexer.setPower(0.2);
+        if(limitSwitch.getValue()>0.5){
+            //resets the encoder
+            indexer.setPower(0);
+            indexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            //sets target position to the closets corresponding third(0, 1, 2)
+            targetAngle = targetAngle % 3;
+            return true;
+        }
+        return false;
+    }
+
     public boolean update(){
+        //current ticks / ticks per rotation = rotations
+        //multiply by 3 to get get thirds
         indexPos = 3 * indexMotor.getCurrentPosition()/CPR;
 
         telemetry.addData("target Angle: ", targetAngle);
@@ -81,12 +104,14 @@ public class Indexer {
         indexer.setPower(power);
 
         indexPos = 3 * indexMotor.getCurrentPosition()/CPR;
+        //sets the target angle to the closest third
         targetAngle = Math.round(indexPos);
 
         telemetry.addData("target Angle: ", targetAngle);
         telemetry.addData("indexer Angle: ", indexPos);
     }
     public void cycle(double dir){
+        //shifts the target angle by a third
         targetAngle += dir;
     }
 
@@ -121,12 +146,20 @@ public class Indexer {
         return flipper.getPosition();
     }
 
-    public Action fliperAction(double pos){
+    public Action flipperUpAction(){
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                flipper.setPosition(pos);
-
+                flip();
+                return false;
+            }
+        };
+    }
+    public Action flipperDownAction(){
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                unflip();
                 return false;
             }
         };
