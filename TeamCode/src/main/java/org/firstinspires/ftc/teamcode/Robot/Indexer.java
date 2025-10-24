@@ -70,7 +70,6 @@ public class Indexer {
     public boolean adjustToThird(){
         //rotates the indexer until it is over the switch
 
-        telemetry.addData("Magnet: ", limitSwitch.getValue());
         if(limitSwitch.getValue() > 0){
             //resets the encoder
             indexer.setPower(0);
@@ -89,6 +88,8 @@ public class Indexer {
     public boolean update(){
         //current ticks / ticks per rotation = rotations
         //multiply by 3 to get get thirds
+
+        telemetry.addData("Magnet: ", limitSwitch.getValue());
         indexPos = 3 * indexMotor.getCurrentPosition()/CPR;
 
         angleController.setPID(p, i, d);

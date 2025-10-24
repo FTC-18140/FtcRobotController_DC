@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -53,7 +54,7 @@ public class Launcher {
     static double targetY = 50;
 
     public String color = "blue";
-    CRServo turret = null;
+    Servo turret = null;
 
 
     Vector2d targetPos = new Vector2d(targetX, targetY);
@@ -84,8 +85,7 @@ public class Launcher {
             telemetry.addData("DcMotor \"launcher2\" not found", 0);
         }
         try{
-            turret = hardwareMap.crservo.get("turret");
-            turret.setPower(0);
+            turret = hardwareMap.servo.get("turret");
         } catch (Exception e) {
             telemetry.addData("Servo \"turret\" not found", 0);
         }
@@ -202,7 +202,6 @@ public class Launcher {
     }
     public void stop(){
 
-        turret.setPower(0);
         launcher.setPower(0.0);
         launcher2.setPower(0.0);
     }

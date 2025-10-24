@@ -78,8 +78,8 @@ public class Teleop_Summer extends OpMode {
         if(theGamepad2.getTriggerPressed(TBDGamepad.Trigger.RIGHT_TRIGGER) && !revolving){
             robot.indexer.flip();
             if(!barrel_spin){
-                robot.indexer.cycle(-1);
-                barrel_spin = true;
+                    robot.indexer.cycle(-1);
+                    barrel_spin = true;
             }
         } else {
             //Prevents indexer from interfering with Flipper
@@ -95,9 +95,15 @@ public class Teleop_Summer extends OpMode {
                 robot.indexer.spin(0.2);
                 revolving = true;
             } else if(theGamepad2.getButton(TBDGamepad.Button.DPAD_LEFT)){
-                robot.indexer.cycle(-1);
+                if(!barrel_spin){
+                    robot.indexer.cycle(-1);
+                    barrel_spin = true;
+                }
             } else if (theGamepad2.getButton(TBDGamepad.Button.DPAD_RIGHT)) {
-                robot.indexer.cycle(1);
+                if(!barrel_spin){
+                    robot.indexer.cycle(1);
+                    barrel_spin = true;
+                }
             } else {
                 revolving = !robot.indexer.update();
                 barrel_spin = false;
