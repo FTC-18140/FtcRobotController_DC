@@ -54,10 +54,12 @@ public class Launcher {
     static double targetY = 50;
 
     public String color = "blue";
+
     Servo turret = null;
-
-    
-
+    public static double INITIAL_TURRET_POS = .5;
+    public static double TURRET_GEAR_RATIO = (double) 40/190;
+    public static double TURRET_DEGREES_PER_SERVO_TURN = (1/TURRET_GEAR_RATIO)/360;
+    public static double TURRET_DEGREES_PER_SERVO_COMMAND = .2*(TURRET_DEGREES_PER_SERVO_TURN);
 
     Vector2d targetPos = new Vector2d(targetX, targetY);
 
@@ -88,7 +90,7 @@ public class Launcher {
         }
         try{
             turret = hardwareMap.servo.get("turret");
-            turret.setPower(0);
+            turret.setPosition(INITIAL_TURRET_POS);
         } catch (Exception e) {
             telemetry.addData("Servo \"turret\" not found", 0);
         }
@@ -128,16 +130,16 @@ public class Launcher {
             }
         };
     }
-    public void lockOn(Pose2d robotPose){
-        double turretAngle = Range.scale(0, 0, 1.0, 0, 2*Math.PI);
-        trueAngle = robotPose.heading.toDouble()+turretAngle;
-        targetDir = targetPos.minus(robotPose.position);
+    public void lockOn(double limelightxdegrees){
+        //double turretAngle = Range.scale(0, 0, 1.0, 0, 2*Math.PI);
+        //trueAngle = robotPose.heading.toDouble()+turretAngle;
+        //targetDir = targetPos.minus(robotPose.position);
 
-        double difference = targetDir.angleCast().toDouble() - trueAngle;
-        difference = Range.clip(difference, -1, 1);
-        //Limelight.tx(1);
-        turret.setPower(difference);
+        //double difference = targetDir.angleCast().toDouble() - trueAngle;
+        double difference = -TURRET_DEGREES_PER_SERVO_COMMAND * limelightxdegrees;
+        difference = Range.clip(difference, 0, 1);
 
+        turret.setPosition(turret.getPosition() + difference);
 
     }
 
@@ -199,8 +201,6 @@ public class Launcher {
         launcher.setPower(MIN_SHOOTER_SPEED);
     }
     public void stop(){
-
-        turret.setPower(0);
         launcher.setPower(0.0);
         launcher2.setPower(0.0);
     }

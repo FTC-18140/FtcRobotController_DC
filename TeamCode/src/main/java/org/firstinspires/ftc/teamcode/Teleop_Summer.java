@@ -56,6 +56,7 @@ public class Teleop_Summer extends OpMode {
 
 
         robot.update();
+        robot.lockOn();
 
         robot.drive(forward, strafe, turn, speed, p);
 

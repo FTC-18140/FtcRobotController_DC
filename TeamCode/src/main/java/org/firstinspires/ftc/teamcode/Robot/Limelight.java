@@ -15,6 +15,11 @@ public class Limelight {
     Limelight3A limelight = null;
     HardwareMap hardwareMap;
     Telemetry telemetry;
+    int id = 0; // The ID number of the fiducial
+    double x = 0; // Where it is (left-right)
+    double y = 0; // Where it is (up-down)
+    double distance = 0;
+    int index = 1;
 
 
     private static final double MINIMUM_TARGET_AREA = 10.0; // Example value, adjust as needed
@@ -37,16 +42,22 @@ public class Limelight {
     public void update(){
         LLResult result = limelight.getLatestResult();
         List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+        limelight.pipelineSwitch(index);
         for (LLResultTypes.FiducialResult fiducial : fiducials) {
-            int id = fiducial.getFiducialId(); // The ID number of the fiducial
-            double x = fiducial.getTargetXDegrees(); // Where it is (left-right)
-            double y = fiducial.getTargetYDegrees(); // Where it is (up-down)
-            double distance = fiducial.getCameraPoseTargetSpace().getPosition().z;
+            id = fiducial.getFiducialId(); // The ID number of the fiducial
+            x = fiducial.getTargetXDegrees(); // Where it is (left-right)
+            y = fiducial.getTargetYDegrees(); // Where it is (up-down)
+            distance = fiducial.getCameraPoseTargetSpace().getPosition().z;
             telemetry.addData("Fiducial: ", id);
-            telemetry.addData("x: ",x);
-            telemetry.addData("y: ",y);
+            telemetry.addData("x: ", x);
+            telemetry.addData("y: ", y);
             telemetry.addData("dist: ", distance);
         }
+    }
+    public double xdegrees(){
+
+        telemetry.addData("xdegrees: ", x);
+        return x;
     }
     /*
     public static double tx(int pipeline){

@@ -108,6 +108,11 @@ public class ThunderBot2025
             launcher.update();
             led.update(launcher.avgRpm, launcher.power);
             limelight.update();
+            limelight.xdegrees();
+        }
+        public void lockOn(){
+            launcher.lockOn(limelight.xdegrees());
+
         }
 
 
