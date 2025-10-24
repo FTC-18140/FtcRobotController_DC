@@ -26,6 +26,7 @@ public class ThunderBot2025
     public Indexer indexer;
     public Launcher launcher;
     public LED led;
+    public Limelight limelight;
 
     private Telemetry telemetry = null;
     public static boolean field_centric = false;
@@ -48,6 +49,10 @@ public class ThunderBot2025
 
         led = new LED();
         led.init(hwMap, telem);
+
+        limelight = new Limelight();
+        limelight.init(hwMap, telem);
+
 
 
         telemetry = new MultipleTelemetry(telem, FtcDashboard.getInstance().getTelemetry());
@@ -102,6 +107,7 @@ public class ThunderBot2025
         public void update(){
             launcher.update();
             led.update(launcher.avgRpm, launcher.power);
+            limelight.update();
         }
 
 

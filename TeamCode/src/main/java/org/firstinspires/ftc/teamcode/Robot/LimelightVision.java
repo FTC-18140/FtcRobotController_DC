@@ -23,28 +23,14 @@ public class LimelightVision
     private static final double DEFAULT_TARGET_X = 0.0;
     private static final double MINIMUM_TARGET_AREA = 10.0; // Example value, adjust as needed
 
-    /**
-     * Initializes the Limelight camera and configures its pipeline.
-     *
-     * This method performs the following actions:
-     * 1. Retrieves the Limelight 3A camera from the hardware map.
-     * 2. Sets the Limelight's pipeline to pipeline number 1 (color pipeline).
-     * 3. Starts the Limelight's processing.
-     * 4. Stores the provided Telemetry object for later use.
-     *
-     * If any error occurs during the initialization process (e.g., Limelight not found),
-     * a RuntimeException is thrown, indicating a critical failure in setup.
-     *
-     * @param hwMap The hardware map provided by the FTC SDK, containing the robot's hardware devices.
-     * @param telemtry The telemetry object for sending data back to the Driver Station.
-     * @throws RuntimeException If an error occurs during Limelight initialization.
-     */
+
     public void init(HardwareMap hwMap, Telemetry telemtry)
     {
         try
         {
             limelight = hwMap.get(Limelight3A.class, "limelight");
-            limelight.pipelineSwitch(3); // color pipeline
+            limelight.setPollRateHz(100);
+            limelight.pipelineSwitch(4);
             limelight.start();
         }
         catch (Exception e)
