@@ -71,15 +71,15 @@ public class Launcher {
         try{
             launcher = hardwareMap.get(DcMotorEx.class,"launcher");
             launcher.setDirection(DcMotorSimple.Direction.REVERSE);
-            launcher.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            launcher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            launcher.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         } catch (Exception e) {
             telemetry.addData("DcMotor \"launcher\" not found", 0);
         }
         try{
             launcher2 = hardwareMap.get(DcMotorEx.class,"launcher2");
             launcher2.setDirection(DcMotorSimple.Direction.REVERSE);
-            launcher2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            launcher2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            launcher2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         } catch (Exception e) {
             telemetry.addData("DcMotor \"launcher2\" not found", 0);
         }
@@ -103,8 +103,8 @@ public class Launcher {
     }
     public void update(){
         //rpm = launcher.getCurrentPosition() - previousPos;
-        rpm = launcher.getVelocity();
-        previousPos = launcher.getCurrentPosition();
+        rpm = launcher2.getVelocity();
+        previousPos = launcher2.getCurrentPosition();
 
         timeDifference = timer.milliseconds() - previousTime;
         previousTime = timer.milliseconds();

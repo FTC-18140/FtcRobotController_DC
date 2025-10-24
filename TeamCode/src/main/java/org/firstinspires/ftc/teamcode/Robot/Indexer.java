@@ -28,7 +28,7 @@ public class Indexer {
     private double indexPos = 0;
     private double targetAngle = 0;
 
-    public static double p = 0.1, i = 0, d = 0;
+    public static double p = 0.3, i = 0.01, d = 0.001;
     PIDController angleController;
 
     public void init(HardwareMap hwMap, Telemetry telem){
@@ -69,15 +69,20 @@ public class Indexer {
 
     public boolean adjustToThird(){
         //rotates the indexer until it is over the switch
-        indexer.setPower(0.2);
-        if(limitSwitch.getValue()>0.5){
+
+        telemetry.addData("Magnet: ", limitSwitch.getValue());
+        if(limitSwitch.getValue() > 0){
             //resets the encoder
             indexer.setPower(0);
             indexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            indexMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             //sets target position to the closets corresponding third(0, 1, 2)
-            targetAngle = targetAngle % 3;
+            targetAngle = 0;
             return true;
+        }else{
+            indexer.setPower(0.05);
         }
+        telemetry.addData("indexer position: ", 3*indexMotor.getCurrentPosition()/CPR);
         return false;
     }
 
@@ -86,11 +91,14 @@ public class Indexer {
         //multiply by 3 to get get thirds
         indexPos = 3 * indexMotor.getCurrentPosition()/CPR;
 
+        angleController.setPID(p, i, d);
+
         telemetry.addData("target Angle: ", targetAngle);
         telemetry.addData("indexer Angle: ", indexPos);
+        telemetry.addData("Index power: ", angleController.calculate(indexPos, targetAngle));
         indexer.setPower(angleController.calculate(indexPos, targetAngle));
 
-        return Math.abs(targetAngle - indexPos) < 0.25;
+        return Math.abs(targetAngle - indexPos) < 0.1;
     }
 
     public Action updateAction(){
@@ -109,8 +117,8 @@ public class Indexer {
         //sets the target angle to the closest third
         targetAngle = Math.round(indexPos);
 
-        telemetry.addData("target Angle: ", targetAngle);
-        telemetry.addData("indexer Angle: ", indexPos);
+        telemetry.addData("> target Angle: ", targetAngle);
+        telemetry.addData("> indexer Angle: ", indexPos);
     }
     public void cycle(double dir){
         //shifts the target angle by a third
