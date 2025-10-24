@@ -136,8 +136,8 @@ public class Launcher {
         //targetDir = targetPos.minus(robotPose.position);
 
         //double difference = targetDir.angleCast().toDouble() - trueAngle;
-        double difference = -TURRET_DEGREES_PER_SERVO_COMMAND * limelightxdegrees;
-        difference = Range.clip(difference, 0, 1);
+        double difference = TURRET_DEGREES_PER_SERVO_COMMAND * limelightxdegrees;
+        difference = Range.clip(difference, -0.2, 0.2);
 
         turret.setPosition(turret.getPosition() + difference);
 
