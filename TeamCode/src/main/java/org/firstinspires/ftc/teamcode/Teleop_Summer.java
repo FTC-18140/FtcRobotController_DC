@@ -69,24 +69,27 @@ public class Teleop_Summer extends OpMode {
         }
 
 
-        if(theGamepad2.getTrigger(TBDGamepad.Trigger.LEFT_TRIGGER) >= 0.1){
+        if(theGamepad2.getTriggerPressed(TBDGamepad.Trigger.LEFT_TRIGGER)){
             robot.launcher.shoot(robot.drive.localizer.getPose());
         } else {
             robot.launcher.stop();
         }
 
         //Flipper / launch controls
-        if(theGamepad2.getTrigger(TBDGamepad.Trigger.RIGHT_TRIGGER) > 0.1 && !revolving){
+        if(theGamepad2.getTriggerPressed(TBDGamepad.Trigger.RIGHT_TRIGGER) && !revolving){
             robot.indexer.flip();
             if(!barrel_spin){
-                robot.indexer.cycle(-1);
-                barrel_spin = true;
+                    robot.indexer.cycle(-1);
+                    barrel_spin = true;
             }
         } else {
             //Prevents indexer from interfering with Flipper
             robot.indexer.unflip();
 
-            if(theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER)){
+            if(theGamepad2.getButton(TBDGamepad.Button.LEFT_STICK_BUTTON)){
+                robot.indexer.adjustToThird();
+                revolving = true;
+            }else if(theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER)){
                 robot.indexer.spin(-0.2);
                 revolving = true;
             } else if (theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER)) {
@@ -94,13 +97,11 @@ public class Teleop_Summer extends OpMode {
                 revolving = true;
             } else if(theGamepad2.getButton(TBDGamepad.Button.DPAD_LEFT)){
                 if(!barrel_spin){
-                    robot.indexer.stop();
                     robot.indexer.cycle(-1);
                     barrel_spin = true;
                 }
             } else if (theGamepad2.getButton(TBDGamepad.Button.DPAD_RIGHT)) {
                 if(!barrel_spin){
-                    robot.indexer.stop();
                     robot.indexer.cycle(1);
                     barrel_spin = true;
                 }

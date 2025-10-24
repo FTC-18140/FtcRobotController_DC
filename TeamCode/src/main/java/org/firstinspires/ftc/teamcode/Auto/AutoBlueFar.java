@@ -27,41 +27,30 @@ public class AutoBlueFar extends LinearOpMode{
 
         Actions.runBlocking(
                 new ParallelAction(
-                        new ParallelAction(
+
                             new SequentialAction(
                                     robot.drive.actionBuilder(start)
                                             .strafeToSplineHeading(new Vector2d(launchPos.position.x, 12), Math.toRadians(24))
                                             .build(),
                                     //new SleepAction(2),
 
-                                    robot.launcher.waitForCharge(robot.drive.localizer.getPose()),
-                                    robot.indexer.fliperAction(0.65),
-                                    new SleepAction(0.25),
-                                    robot.indexer.fliperAction(0.25),
-                                    new SleepAction(0.1),
+                                    robot.launch(),
 
                                     robot.indexer.cycleAction(-1),
                                     robot.indexer.updateAction(),
 
-                                    robot.launcher.waitForCharge(robot.drive.localizer.getPose()),
-                                    robot.indexer.fliperAction(0.65),
-                                    new SleepAction(0.25),
-                                    robot.indexer.fliperAction(0.25),
+                                    robot.launch(),
 
                                     robot.indexer.cycleAction(-1),
                                     robot.indexer.updateAction(),
 
-                                    robot.launcher.waitForCharge(robot.drive.localizer.getPose()),
-                                    robot.indexer.fliperAction(0.65),
-                                    new SleepAction(0.25),
-                                    robot.indexer.fliperAction(0.25),
+                                    robot.launch(),
 
                                     robot.drive.actionBuilder(launchPos)
                                         .strafeToSplineHeading(new Vector2d(-12, 12), Math.toRadians(0))
                                         .build()
                             ),
-                                robot.launcher.chargeAction(robot.drive.localizer.getPose(), 20)
-                        ),
+                        robot.launcher.chargeAction(robot.drive.localizer.getPose(), 20),
                         robot.launcher.updateAction()
                 )
         );

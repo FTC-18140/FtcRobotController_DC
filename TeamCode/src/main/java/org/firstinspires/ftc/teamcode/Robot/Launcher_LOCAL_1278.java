@@ -54,8 +54,12 @@ public class Launcher {
     static double targetY = 50;
 
     public String color = "blue";
-    Servo turret = null;
 
+    Servo turret = null;
+    public static double INITIAL_TURRET_POS = .5;
+    public static double TURRET_GEAR_RATIO = (double) 40/190;
+    public static double TURRET_DEGREES_PER_SERVO_TURN = (1/TURRET_GEAR_RATIO)/360;
+    public static double TURRET_DEGREES_PER_SERVO_COMMAND = .2*(TURRET_DEGREES_PER_SERVO_TURN);
 
     Vector2d targetPos = new Vector2d(targetX, targetY);
 
@@ -72,20 +76,21 @@ public class Launcher {
         try{
             launcher = hardwareMap.get(DcMotorEx.class,"launcher");
             launcher.setDirection(DcMotorSimple.Direction.REVERSE);
-            launcher.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            launcher.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            launcher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         } catch (Exception e) {
             telemetry.addData("DcMotor \"launcher\" not found", 0);
         }
         try{
             launcher2 = hardwareMap.get(DcMotorEx.class,"launcher2");
             launcher2.setDirection(DcMotorSimple.Direction.REVERSE);
-            launcher2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            launcher2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            launcher2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         } catch (Exception e) {
             telemetry.addData("DcMotor \"launcher2\" not found", 0);
         }
         try{
             turret = hardwareMap.servo.get("turret");
+            turret.setPosition(INITIAL_TURRET_POS);
         } catch (Exception e) {
             telemetry.addData("Servo \"turret\" not found", 0);
         }
@@ -103,8 +108,8 @@ public class Launcher {
     }
     public void update(){
         //rpm = launcher.getCurrentPosition() - previousPos;
-        rpm = launcher2.getVelocity();
-        previousPos = launcher2.getCurrentPosition();
+        rpm = launcher.getVelocity();
+        previousPos = launcher.getCurrentPosition();
 
         timeDifference = timer.milliseconds() - previousTime;
         previousTime = timer.milliseconds();
@@ -125,13 +130,16 @@ public class Launcher {
             }
         };
     }
-    public void lockOn(Pose2d robotPose){
-        double turretAngle = Range.scale(0, 0, 1.0, 0, 2*Math.PI);
-        trueAngle = robotPose.heading.toDouble()+turretAngle;
-        targetDir = targetPos.minus(robotPose.position);
+    public void lockOn(double limelightxdegrees){
+        //double turretAngle = Range.scale(0, 0, 1.0, 0, 2*Math.PI);
+        //trueAngle = robotPose.heading.toDouble()+turretAngle;
+        //targetDir = targetPos.minus(robotPose.position);
 
-        double difference = targetDir.angleCast().toDouble() - trueAngle;
-        difference = Range.clip(difference, -1, 1);
+        //double difference = targetDir.angleCast().toDouble() - trueAngle;
+        double difference = TURRET_DEGREES_PER_SERVO_COMMAND * limelightxdegrees;
+        difference = Range.clip(difference, -0.2, 0.2);
+
+        turret.setPosition(turret.getPosition() + difference);
 
     }
 
@@ -139,9 +147,9 @@ public class Launcher {
         power = Range.clip(Range.scale(goalDistance(robotPose), 12, 130, MIN_SHOOTER_RPM, MAX_SHOOTER_RPM), MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
 
 
-        double powerToMotors = Range.clip(RPMController.calculate(avgRpm, power),-0.1, 1);
-        launcher.setPower(powerToMotors);
-        launcher2.setPower(powerToMotors);
+
+        launcher.setPower(Range.scale(RPMController.calculate(avgRpm, power), -1, 1, -0.1, 1));
+        launcher2.setPower(Range.scale(RPMController.calculate(avgRpm, power), -1, 1, -0.1, 1));
         telemetry.addData("power: ", power - avgRpm);
 
         telemetry.addData("target rpm: ", power);
@@ -170,20 +178,12 @@ public class Launcher {
             }
         };
     }
-    public Action stopSpinnerAction(){
-        return new Action() {
-            @Override
-            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                stop();
-                return false;
-            }
-        };
-    }
 
-    public Action waitForCharge(){
+    public Action waitForCharge(Pose2d pose){
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                double power = Range.clip(Range.scale(goalDistance(pose), 12, 130, MIN_SHOOTER_RPM, MAX_SHOOTER_RPM), MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
                 if(power - avgRpm < 0.275){
                     return false;
                 }
@@ -201,7 +201,6 @@ public class Launcher {
         launcher.setPower(MIN_SHOOTER_SPEED);
     }
     public void stop(){
-
         launcher.setPower(0.0);
         launcher2.setPower(0.0);
     }
