@@ -95,10 +95,8 @@ public class Teleop_Summer extends OpMode {
                 robot.indexer.spin(0.2);
                 revolving = true;
             } else if(theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_LEFT)){
-                robot.indexer.stop();
                 robot.indexer.cycle(-1);
             } else if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_RIGHT)) {
-                robot.indexer.stop();
                 robot.indexer.cycle(1);
             } else {
                 revolving = !robot.indexer.update();

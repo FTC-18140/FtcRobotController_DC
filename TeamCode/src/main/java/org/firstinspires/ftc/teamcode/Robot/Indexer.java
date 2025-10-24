@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Robot;
 
 import androidx.annotation.NonNull;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -14,6 +15,7 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 
+@Config
 public class Indexer {
     Telemetry telemetry;
     HardwareMap hardwareMap;
@@ -88,7 +90,7 @@ public class Indexer {
         telemetry.addData("indexer Angle: ", indexPos);
         indexer.setPower(angleController.calculate(indexPos, targetAngle));
 
-        return Math.abs(targetAngle - indexPos) < 0.2;
+        return Math.abs(targetAngle - indexPos) < 0.25;
     }
 
     public Action updateAction(){
