@@ -26,9 +26,9 @@ public class AutoRedFar extends LinearOpMode{
         robot.launcher.color = "red";
         waitForStart();
 
+        robot.setColor("red");
         Actions.runBlocking(
                 new ParallelAction(
-                        new ParallelAction(
                             new SequentialAction(
                                     robot.drive.actionBuilder(start)
                                             .strafeToSplineHeading(new Vector2d(launchPos.position.x, -12), Math.toRadians(-24))
@@ -48,14 +48,14 @@ public class AutoRedFar extends LinearOpMode{
                                     robot.indexer.updateAction(),
 
                                     robot.launch(),
-
+                                    robot.indexer.stopAction(),
                                     robot.drive.actionBuilder(launchPos)
                                             .strafeToSplineHeading(new Vector2d(-12, -12), Math.toRadians(0))
                                             .build()
                             ),
-                                robot.launcher.chargeAction(robot.drive.localizer.getPose(), 25)
-                        ),
-                        robot.launcher.updateAction()
+                        robot.launcher.chargeAction(robot.drive.localizer.getPose(), 25),
+                        robot.updateAction(),
+                        robot.lockAction()
                 )
         );
     }

@@ -32,6 +32,7 @@ public class Teleop_Red extends OpMode {
     public void init() {
         robot.init(hardwareMap, telemetry, new Pose2d(-12, 12, 0));
         robot.launcher.color = alliance;
+        robot.setColor(alliance);
         theGamepad1 = new TBDGamepad(gamepad1);
         theGamepad2 = new TBDGamepad(gamepad2);
         // Tell the driver that initialization is complete.
@@ -56,6 +57,11 @@ public class Teleop_Red extends OpMode {
 
 
         robot.update();
+        if(Math.abs(theGamepad2.getRightX()) > 0.05){
+            robot.launcher.aim(theGamepad2.getRightX() * 0.2);
+        }else {
+            robot.lockOn();
+        }
 
 //        if(robot.isFieldCentric())
 //        {
@@ -82,13 +88,20 @@ public class Teleop_Red extends OpMode {
         }
 
         //Flipper / launch controls
-        if(theGamepad2.getTrigger(TBDGamepad.Trigger.RIGHT_TRIGGER) > 0.1 && !revolving){
+        if(theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.RIGHT_TRIGGER) && !revolving){
             robot.indexer.flip();
+            if(!barrel_spin){
+                robot.indexer.cycle(-1);
+                barrel_spin = true;
+            }
         } else {
             //Prevents indexer from interfering with Flipper
             robot.indexer.unflip();
 
-            if(theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER)){
+            if(theGamepad2.getButton(TBDGamepad.Button.LEFT_STICK_BUTTON)){
+                robot.indexer.adjustToThird();
+                revolving = true;
+            }else if(theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER)){
                 robot.indexer.spin(-0.2);
                 revolving = true;
             } else if (theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER)) {
@@ -96,14 +109,12 @@ public class Teleop_Red extends OpMode {
                 revolving = true;
             } else if(theGamepad2.getButton(TBDGamepad.Button.DPAD_LEFT)){
                 if(!barrel_spin){
-                    robot.indexer.stop();
                     robot.indexer.cycle(-1);
                     barrel_spin = true;
                 }
             } else if (theGamepad2.getButton(TBDGamepad.Button.DPAD_RIGHT)) {
                 if(!barrel_spin){
-                    robot.indexer.stop();
-                    robot.indexer.cycle(-1);
+                    robot.indexer.cycle(1);
                     barrel_spin = true;
                 }
             } else {

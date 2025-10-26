@@ -39,6 +39,10 @@ public class Limelight {
         }
         this.telemetry = telemetry;
     }
+    public void SetPipline(int pipeline){
+        index = pipeline;
+        limelight.pipelineSwitch(pipeline);
+    }
     public void update(){
         LLResult result = limelight.getLatestResult();
         List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();

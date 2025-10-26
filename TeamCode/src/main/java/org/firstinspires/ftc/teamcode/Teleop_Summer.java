@@ -43,6 +43,9 @@ public class Teleop_Summer extends OpMode {
     @Override
     public void loop() {
         robot.drive.updatePoseEstimate();
+
+        theGamepad2.update();
+        theGamepad1.update();
         double forward = theGamepad1.getLeftY();
         double strafe = theGamepad1.getLeftX();
         double turn = theGamepad1.getRightX();
@@ -56,7 +59,11 @@ public class Teleop_Summer extends OpMode {
 
 
         robot.update();
-        robot.lockOn();
+        if(Math.abs(theGamepad2.getRightX()) > 0.05){
+            robot.launcher.aim(theGamepad2.getRightX() * 0.2);
+        }else {
+            robot.lockOn();
+        }
 
         robot.drive(forward, strafe, turn, speed, p);
 
@@ -69,14 +76,14 @@ public class Teleop_Summer extends OpMode {
         }
 
 
-        if(theGamepad2.getTriggerPressed(TBDGamepad.Trigger.LEFT_TRIGGER)){
+        if(theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.LEFT_TRIGGER)){
             robot.launcher.shoot(robot.drive.localizer.getPose());
         } else {
             robot.launcher.stop();
         }
 
         //Flipper / launch controls
-        if(theGamepad2.getTriggerPressed(TBDGamepad.Trigger.RIGHT_TRIGGER) && !revolving){
+        if(theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.RIGHT_TRIGGER) && !revolving){
             robot.indexer.flip();
             if(!barrel_spin){
                     robot.indexer.cycle(-1);

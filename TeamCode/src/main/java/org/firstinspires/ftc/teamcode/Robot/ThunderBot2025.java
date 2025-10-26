@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
+import androidx.annotation.NonNull;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -17,6 +19,8 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Robot.Drives.MecanumDrive;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 @Config
 public class ThunderBot2025
 {
@@ -27,6 +31,7 @@ public class ThunderBot2025
     public LED led;
     public Limelight limelight;
 
+    public String color = "blue";
     private Telemetry telemetry = null;
     public static boolean field_centric = false;
 
@@ -45,6 +50,7 @@ public class ThunderBot2025
 
         launcher = new Launcher();
         launcher.init(hwMap, telem);
+        launcher.color = color;
 
         led = new LED();
         led.init(hwMap, telem);
@@ -54,7 +60,19 @@ public class ThunderBot2025
 
 
 
+
         telemetry = new MultipleTelemetry(telem, FtcDashboard.getInstance().getTelemetry());
+    }
+
+    public void setColor(String col){
+        color = col;
+        if (Objects.equals(color, "blue")) {
+            limelight.SetPipline(1);
+            launcher.turret_pos = 0.5;
+        }else {
+            limelight.SetPipline(2);
+            launcher.turret_pos = 0.5;
+        }
     }
     public boolean isFieldCentric(){
         return field_centric;
@@ -109,11 +127,28 @@ public class ThunderBot2025
             limelight.update();
             limelight.xdegrees();
         }
+        public Action updateAction(){
+            return new Action() {
+                @Override
+                public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                    update();
+                    return true;
+                }
+            };
+        }
         public void lockOn(){
             launcher.lockOn(limelight.xdegrees());
 
         }
-
+        public Action lockAction(){
+            return new Action() {
+                @Override
+                public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                    lockOn();
+                    return true;
+                }
+            };
+        }
         //Actions
         public Action launch(){
             return new SequentialAction(

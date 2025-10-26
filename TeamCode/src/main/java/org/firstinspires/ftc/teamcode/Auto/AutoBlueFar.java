@@ -25,6 +25,7 @@ public class AutoBlueFar extends LinearOpMode{
         robot.launcher.color = "blue";
         waitForStart();
 
+        robot.setColor("blue");
         Actions.runBlocking(
                 new ParallelAction(
 
@@ -45,13 +46,14 @@ public class AutoBlueFar extends LinearOpMode{
                                     robot.indexer.updateAction(),
 
                                     robot.launch(),
-
+                                    robot.indexer.stopAction(),
                                     robot.drive.actionBuilder(launchPos)
                                         .strafeToSplineHeading(new Vector2d(-12, 12), Math.toRadians(0))
                                         .build()
                             ),
                         robot.launcher.chargeAction(robot.drive.localizer.getPose(), 20),
-                        robot.launcher.updateAction()
+                        robot.updateAction(),
+                        robot.lockAction()
                 )
         );
     }

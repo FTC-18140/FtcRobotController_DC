@@ -28,7 +28,7 @@ public class Indexer {
     private double indexPos = 0;
     private double targetAngle = 0;
 
-    public static double p = 0.3, i = 0.01, d = 0.001;
+    public static double p = 0.5, i = 0.1, d = 0.99;
     PIDController angleController;
 
     public void init(HardwareMap hwMap, Telemetry telem){
