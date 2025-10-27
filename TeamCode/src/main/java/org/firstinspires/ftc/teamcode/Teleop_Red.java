@@ -16,8 +16,8 @@ import org.firstinspires.ftc.teamcode.Utilities.TBDGamepad;
 public class Teleop_Red extends OpMode {
 
     public TelemetryPacket p = new TelemetryPacket(true);
-    private boolean barrel_spin = false;
-    private boolean revolving = false;
+//    private boolean barrel_spin = false;
+//    private boolean revolving = false;
     //public static boolean field_centric = true;
 
     String alliance = "red";
@@ -43,7 +43,12 @@ public class Teleop_Red extends OpMode {
 
     @Override
     public void loop() {
+        // Update the robot information
         robot.drive.updatePoseEstimate();
+        robot.update();
+        theGamepad1.update();
+        theGamepad2.update();
+
         double forward = theGamepad1.getLeftY();
         double strafe = theGamepad1.getLeftX();
         double turn = theGamepad1.getRightX();
@@ -56,22 +61,17 @@ public class Teleop_Red extends OpMode {
         }
 
 
-        robot.update();
+
         if(Math.abs(theGamepad2.getRightX()) > 0.05){
             robot.launcher.aim(theGamepad2.getRightX() * 0.2);
         }else {
             robot.lockOn();
         }
 
-//        if(robot.isFieldCentric())
-//        {
-//            robot.fieldCentricDrive(forward, strafe, turn, 0.7, p);
-//        } else {
-//            robot.robotCentricDrive(forward, strafe, turn, 0.7);
-//        }
-
         robot.drive(forward, strafe, turn, speed, p);
 
+
+        // INTAKE
         if(theGamepad2.getButton(TBDGamepad.Button.X)){
             robot.intake.intake();
         } else if (theGamepad2.getButton(TBDGamepad.Button.B)) {
@@ -80,47 +80,31 @@ public class Teleop_Red extends OpMode {
             robot.intake.spit();
         }
 
-
-        if(theGamepad2.getTrigger(TBDGamepad.Trigger.LEFT_TRIGGER) >= 0.1){
+        // Flywheel Motor
+        if(theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.LEFT_TRIGGER)){
             robot.launcher.shoot(robot.drive.localizer.getPose());
         } else {
             robot.launcher.stop();
         }
 
         //Flipper / launch controls
-        if(theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.RIGHT_TRIGGER) && !revolving){
-            robot.indexer.flip();
-            if(!barrel_spin){
-                robot.indexer.cycle(-1);
-                barrel_spin = true;
-            }
-        } else {
-            //Prevents indexer from interfering with Flipper
-            robot.indexer.unflip();
-
-            if(theGamepad2.getButton(TBDGamepad.Button.LEFT_STICK_BUTTON)){
-                robot.indexer.adjustToThird();
-                revolving = true;
-            }else if(theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER)){
-                robot.indexer.spin(-0.2);
-                revolving = true;
-            } else if (theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER)) {
-                robot.indexer.spin(0.2);
-                revolving = true;
-            } else if(theGamepad2.getButton(TBDGamepad.Button.DPAD_LEFT)){
-                if(!barrel_spin){
-                    robot.indexer.cycle(-1);
-                    barrel_spin = true;
-                }
-            } else if (theGamepad2.getButton(TBDGamepad.Button.DPAD_RIGHT)) {
-                if(!barrel_spin){
-                    robot.indexer.cycle(1);
-                    barrel_spin = true;
-                }
-            } else {
-                revolving = !robot.indexer.update();
-                barrel_spin = false;
-            }
+        if(theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.RIGHT_TRIGGER)){
+            robot.indexer.launch();
+        }
+        else if(theGamepad2.getButtonPressed(TBDGamepad.Button.LEFT_STICK_BUTTON)){
+            robot.indexer.homeAndReset();
+        }
+        else if(theGamepad2.getButtonPressed(TBDGamepad.Button.LEFT_BUMPER)){
+            robot.indexer.prevThird(0.2);
+        }
+        else if (theGamepad2.getButtonPressed(TBDGamepad.Button.RIGHT_BUMPER)) {
+            robot.indexer.nextThird(0.2);
+        }
+        else if(theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_LEFT)){
+            robot.indexer.prevThird(0.2);
+        }
+        else if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_RIGHT)) {
+            robot.indexer.nextThird(0.2);
         }
 
         telemetry.addData("position X: ", robot.drive.localizer.getPose().position.x);

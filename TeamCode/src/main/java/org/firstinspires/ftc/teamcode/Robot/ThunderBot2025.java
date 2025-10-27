@@ -9,7 +9,6 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
-import com.acmerobotics.roadrunner.RaceAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
@@ -125,7 +124,7 @@ public class ThunderBot2025
             launcher.update();
             led.update(launcher.avgRpm, launcher.power);
             limelight.update();
-            limelight.xdegrees();
+            indexer.update();
         }
         public Action updateAction(){
             return new Action() {
@@ -137,7 +136,7 @@ public class ThunderBot2025
             };
         }
         public void lockOn(){
-            launcher.lockOn(limelight.xdegrees());
+            launcher.lockOn(limelight.targetXDegrees());
 
         }
         public Action lockAction(){
@@ -150,12 +149,10 @@ public class ThunderBot2025
             };
         }
         //Actions
-        public Action launch(){
+        public Action launchAction(){
             return new SequentialAction(
                     launcher.waitForCharge(),
-                    indexer.flipperUpAction(),
-                    new SleepAction(0.25),
-                    indexer.flipperDownAction()
+                    indexer.launchAction()
             );
         }
 

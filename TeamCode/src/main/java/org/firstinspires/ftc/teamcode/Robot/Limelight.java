@@ -58,7 +58,7 @@ public class Limelight {
             telemetry.addData("dist: ", distance);
         }
     }
-    public double xdegrees(){
+    public double targetXDegrees(){
 
         telemetry.addData("xdegrees: ", x);
         return x;

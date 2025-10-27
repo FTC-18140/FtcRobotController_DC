@@ -17,7 +17,7 @@ public class Teleop_Summer extends OpMode {
 
     public TelemetryPacket p = new TelemetryPacket(true);
     private boolean barrel_spin = false;
-    private boolean revolving = false;
+//    private boolean revolving = false;
     //public static boolean field_centric = true;
 
     String alliance = "blue";
@@ -83,10 +83,10 @@ public class Teleop_Summer extends OpMode {
         }
 
         //Flipper / launch controls
-        if(theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.RIGHT_TRIGGER) && !revolving){
+        if(theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.RIGHT_TRIGGER) ){
             robot.indexer.flip();
             if(!barrel_spin){
-                    robot.indexer.cycle(-1);
+                    robot.indexer.prevThird(0.2);
                     barrel_spin = true;
             }
         } else {
@@ -94,26 +94,26 @@ public class Teleop_Summer extends OpMode {
             robot.indexer.unflip();
 
             if(theGamepad2.getButton(TBDGamepad.Button.LEFT_STICK_BUTTON)){
-                robot.indexer.adjustToThird();
-                revolving = true;
+                robot.indexer.homeAndReset();
+//                revolving = true;
             }else if(theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER)){
-                robot.indexer.spin(-0.2);
-                revolving = true;
+                robot.indexer.nextThird(-0.2);
+//                revolving = true;
             } else if (theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER)) {
-                robot.indexer.spin(0.2);
-                revolving = true;
+                robot.indexer.nextThird(0.2);
+//                revolving = true;
             } else if(theGamepad2.getButton(TBDGamepad.Button.DPAD_LEFT)){
                 if(!barrel_spin){
-                    robot.indexer.cycle(-1);
+                    robot.indexer.prevThird(0.2);
                     barrel_spin = true;
                 }
             } else if (theGamepad2.getButton(TBDGamepad.Button.DPAD_RIGHT)) {
                 if(!barrel_spin){
-                    robot.indexer.cycle(1);
+                    robot.indexer.nextThird(0.2);
                     barrel_spin = true;
                 }
             } else {
-                revolving = !robot.indexer.update();
+//                revolving = !robot.indexer.update();
                 barrel_spin = false;
             }
         }

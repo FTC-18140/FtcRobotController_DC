@@ -35,19 +35,19 @@ public class AutoRedFar extends LinearOpMode{
                                             .build(),
                                     //new SleepAction(2),
 
-                                    robot.launch(),
+                                    robot.launchAction(),
                                     new SleepAction(0.1),
 
-                                    robot.indexer.cycleAction(-1),
+                                    robot.indexer.cycleAction(-1, 0.2),
                                     robot.indexer.updateAction(),
                                     robot.indexer.stopAction(),
 
-                                    robot.launch(),
+                                    robot.launchAction(),
 
-                                    robot.indexer.cycleAction(-1),
+                                    robot.indexer.cycleAction(-1, 0.2),
                                     robot.indexer.updateAction(),
 
-                                    robot.launch(),
+                                    robot.launchAction(),
                                     robot.indexer.stopAction(),
                                     robot.drive.actionBuilder(launchPos)
                                             .strafeToSplineHeading(new Vector2d(-12, -12), Math.toRadians(0))

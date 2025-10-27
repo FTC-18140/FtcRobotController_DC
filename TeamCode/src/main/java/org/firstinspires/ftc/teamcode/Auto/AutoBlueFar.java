@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.Auto;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
-import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -35,17 +34,17 @@ public class AutoBlueFar extends LinearOpMode{
                                             .build(),
                                     //new SleepAction(2),
 
-                                    robot.launch(),
+                                    robot.launchAction(),
 
-                                    robot.indexer.cycleAction(-1),
+                                    robot.indexer.cycleAction(-1, 0.2),
+//                                    robot.indexer.updateAction(),
+
+                                    robot.launchAction(),
+
+                                    robot.indexer.cycleAction(-1, 0.2),
                                     robot.indexer.updateAction(),
 
-                                    robot.launch(),
-
-                                    robot.indexer.cycleAction(-1),
-                                    robot.indexer.updateAction(),
-
-                                    robot.launch(),
+                                    robot.launchAction(),
                                     robot.indexer.stopAction(),
                                     robot.drive.actionBuilder(launchPos)
                                         .strafeToSplineHeading(new Vector2d(-12, 12), Math.toRadians(0))
