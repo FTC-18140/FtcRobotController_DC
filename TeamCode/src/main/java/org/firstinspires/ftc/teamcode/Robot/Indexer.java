@@ -24,6 +24,15 @@ public class Indexer {
     Servo flipper = null;
     TouchSensor limitSwitch = null;
 
+    private static double index_error = 0.12;
+    enum IndexerState {
+        ALIGNED,
+        UNALIGNED,
+        MANUAL,
+        STOPPED,
+        LOADING
+    }
+    private IndexerState state = IndexerState.ALIGNED;
     final double CPR = 8192;
     private double indexPos = 0;
     private double targetAngle = 0;
@@ -69,7 +78,7 @@ public class Indexer {
 
     public boolean adjustToThird(){
         //rotates the indexer until it is over the switch
-
+        setState(IndexerState.MANUAL);
         if(limitSwitch.getValue() > 0){
             //resets the encoder
             indexer.setPower(0);
@@ -77,6 +86,7 @@ public class Indexer {
             indexMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             //sets target position to the closets corresponding third(0, 1, 2)
             targetAngle = 0;
+            setState(IndexerState.ALIGNED);
             return true;
         }else{
             indexer.setPower(0.05);
@@ -85,7 +95,7 @@ public class Indexer {
         return false;
     }
 
-    public boolean update(){
+    public void update(){
         //current ticks / ticks per rotation = rotations
         //multiply by 3 to get get thirds
 
@@ -97,21 +107,35 @@ public class Indexer {
         telemetry.addData("target Angle: ", targetAngle);
         telemetry.addData("indexer Angle: ", indexPos);
         telemetry.addData("Index power: ", angleController.calculate(indexPos, targetAngle));
-        indexer.setPower(angleController.calculate(indexPos, targetAngle));
+        //indexer.setPower(angleController.calculate(indexPos, targetAngle));
 
-        return Math.abs(targetAngle - indexPos) < 0.1;
+
+        telemetry.addData("current State: ", state);
+        if(state != IndexerState.MANUAL && state != IndexerState.STOPPED){
+                indexer.setPower(angleController.calculate(indexPos, targetAngle));
+                if(Math.abs(targetAngle - indexPos) < index_error){
+                    setState(IndexerState.ALIGNED);
+                }
+        }
+
     }
+
+    public void setState(IndexerState newstate){
+        state = newstate;
+    }
+
 
     public Action updateAction(){
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 update();
-                return !(Math.abs(targetAngle - indexPos) < 0.1);
+                return state == IndexerState.ALIGNED;
             }
         };
     }
     public void spin(double power){
+        state = IndexerState.MANUAL;
         indexer.setPower(power);
 
         indexPos = 3 * indexMotor.getCurrentPosition()/CPR;
@@ -123,6 +147,7 @@ public class Indexer {
     }
     public void cycle(double dir){
         //shifts the target angle by a third
+        setState(IndexerState.UNALIGNED);
         targetAngle += dir;
     }
 
@@ -137,6 +162,7 @@ public class Indexer {
     }
     public void stop(){
         indexer.setPower(0);
+        setState(IndexerState.STOPPED);
     }
     public Action stopAction(){
         return new Action() {
@@ -148,10 +174,16 @@ public class Indexer {
         };
     }
     public void flip(){
-        flipper.setPosition(0.65);
+        if(state != IndexerState.UNALIGNED) {
+            setState(IndexerState.LOADING);
+            flipper.setPosition(0.65);
+        }
     }
     public void unflip(){
-        flipper.setPosition(0.25);
+        if(state == IndexerState.LOADING) {
+            flipper.setPosition(0.25);
+            setState(IndexerState.ALIGNED);
+        }
     }
     public double getFlipperPos(){
         return flipper.getPosition();

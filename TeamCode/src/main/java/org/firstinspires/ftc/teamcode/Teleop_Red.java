@@ -44,6 +44,10 @@ public class Teleop_Red extends OpMode {
     @Override
     public void loop() {
         robot.drive.updatePoseEstimate();
+
+        theGamepad1.update();
+        theGamepad2.update();
+
         double forward = theGamepad1.getLeftY();
         double strafe = theGamepad1.getLeftX();
         double turn = theGamepad1.getRightX();
@@ -63,13 +67,6 @@ public class Teleop_Red extends OpMode {
             robot.lockOn();
         }
 
-//        if(robot.isFieldCentric())
-//        {
-//            robot.fieldCentricDrive(forward, strafe, turn, 0.7, p);
-//        } else {
-//            robot.robotCentricDrive(forward, strafe, turn, 0.7);
-//        }
-
         robot.drive(forward, strafe, turn, speed, p);
 
         if(theGamepad2.getButton(TBDGamepad.Button.X)){
@@ -81,14 +78,14 @@ public class Teleop_Red extends OpMode {
         }
 
 
-        if(theGamepad2.getTrigger(TBDGamepad.Trigger.LEFT_TRIGGER) >= 0.1){
+        if(theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.LEFT_TRIGGER)){
             robot.launcher.shoot(robot.drive.localizer.getPose());
         } else {
             robot.launcher.stop();
         }
 
         //Flipper / launch controls
-        if(theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.RIGHT_TRIGGER) && !revolving){
+        if(theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.RIGHT_TRIGGER)){
             robot.indexer.flip();
             if(!barrel_spin){
                 robot.indexer.cycle(-1);
@@ -97,30 +94,20 @@ public class Teleop_Red extends OpMode {
         } else {
             //Prevents indexer from interfering with Flipper
             robot.indexer.unflip();
+            barrel_spin = true;
+        }
 
-            if(theGamepad2.getButton(TBDGamepad.Button.LEFT_STICK_BUTTON)){
-                robot.indexer.adjustToThird();
-                revolving = true;
-            }else if(theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER)){
-                robot.indexer.spin(-0.2);
-                revolving = true;
-            } else if (theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER)) {
-                robot.indexer.spin(0.2);
-                revolving = true;
-            } else if(theGamepad2.getButton(TBDGamepad.Button.DPAD_LEFT)){
-                if(!barrel_spin){
-                    robot.indexer.cycle(-1);
-                    barrel_spin = true;
-                }
-            } else if (theGamepad2.getButton(TBDGamepad.Button.DPAD_RIGHT)) {
-                if(!barrel_spin){
-                    robot.indexer.cycle(1);
-                    barrel_spin = true;
-                }
-            } else {
-                revolving = !robot.indexer.update();
-                barrel_spin = false;
-            }
+
+        if(theGamepad2.getButton(TBDGamepad.Button.LEFT_STICK_BUTTON)){
+            robot.indexer.adjustToThird();
+        }else if(theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER)){
+            robot.indexer.spin(-0.2);
+        } else if (theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER)) {
+            robot.indexer.spin(0.2);
+        } else if(theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_LEFT)){
+            robot.indexer.cycle(-1);
+        } else if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_RIGHT)) {
+            robot.indexer.cycle(1);
         }
 
         telemetry.addData("position X: ", robot.drive.localizer.getPose().position.x);

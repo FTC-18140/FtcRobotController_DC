@@ -44,8 +44,9 @@ public class Teleop_Summer extends OpMode {
     public void loop() {
         robot.drive.updatePoseEstimate();
 
-        theGamepad2.update();
         theGamepad1.update();
+        theGamepad2.update();
+
         double forward = theGamepad1.getLeftY();
         double strafe = theGamepad1.getLeftX();
         double turn = theGamepad1.getRightX();
@@ -83,45 +84,35 @@ public class Teleop_Summer extends OpMode {
         }
 
         //Flipper / launch controls
-        if(theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.RIGHT_TRIGGER) && !revolving){
+        if(theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.RIGHT_TRIGGER)){
             robot.indexer.flip();
             if(!barrel_spin){
-                    robot.indexer.cycle(-1);
-                    barrel_spin = true;
+                robot.indexer.cycle(-1);
+                barrel_spin = true;
             }
         } else {
             //Prevents indexer from interfering with Flipper
             robot.indexer.unflip();
+            barrel_spin = true;
+        }
 
-            if(theGamepad2.getButton(TBDGamepad.Button.LEFT_STICK_BUTTON)){
-                robot.indexer.adjustToThird();
-                revolving = true;
-            }else if(theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER)){
-                robot.indexer.spin(-0.2);
-                revolving = true;
-            } else if (theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER)) {
-                robot.indexer.spin(0.2);
-                revolving = true;
-            } else if(theGamepad2.getButton(TBDGamepad.Button.DPAD_LEFT)){
-                if(!barrel_spin){
-                    robot.indexer.cycle(-1);
-                    barrel_spin = true;
-                }
-            } else if (theGamepad2.getButton(TBDGamepad.Button.DPAD_RIGHT)) {
-                if(!barrel_spin){
-                    robot.indexer.cycle(1);
-                    barrel_spin = true;
-                }
-            } else {
-                revolving = !robot.indexer.update();
-                barrel_spin = false;
-            }
+
+        if(theGamepad2.getButton(TBDGamepad.Button.LEFT_STICK_BUTTON)){
+            robot.indexer.adjustToThird();
+        }else if(theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER)){
+            robot.indexer.spin(-0.2);
+        } else if (theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER)) {
+            robot.indexer.spin(0.2);
+        } else if(theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_LEFT)){
+            robot.indexer.cycle(-1);
+        } else if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_RIGHT)) {
+            robot.indexer.cycle(1);
         }
 
         telemetry.addData("position X: ", robot.drive.localizer.getPose().position.x);
         telemetry.addData("position Y: ", robot.drive.localizer.getPose().position.y);
         telemetry.addData("heading: ", Math.toDegrees(robot.drive.localizer.getPose().heading.toDouble()));
-        telemetry.addData("rpm: ", robot.launcher.avgRpm);
+        telemetry.addData("rpm: ", robot.launcher.avgRpm * robot.launcher.timeDifference);
         telemetry.addData("flipper: ", robot.indexer.getFlipperPos());
         telemetry.addData("goal distance: ", robot.launcher.goalDistance(robot.drive.localizer.getPose()));
 
