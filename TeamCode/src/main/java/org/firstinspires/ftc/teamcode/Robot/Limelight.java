@@ -39,7 +39,7 @@ public class Limelight {
         }
         this.telemetry = telemetry;
     }
-    public void SetPipline(int pipeline){
+    public void SetPipeline(int pipeline){
         index = pipeline;
         limelight.pipelineSwitch(pipeline);
     }
@@ -59,7 +59,6 @@ public class Limelight {
         }
     }
     public double xdegrees(){
-
         telemetry.addData("xdegrees: ", x);
         return x;
     }

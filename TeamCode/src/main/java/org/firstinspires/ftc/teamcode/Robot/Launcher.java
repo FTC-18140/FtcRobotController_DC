@@ -148,8 +148,6 @@ public class Launcher {
         difference = Range.clip(difference, -TURN_SPEED, TURN_SPEED);
 
         turret_pos += difference;
-
-
     }
 
     public void aim(double dir){

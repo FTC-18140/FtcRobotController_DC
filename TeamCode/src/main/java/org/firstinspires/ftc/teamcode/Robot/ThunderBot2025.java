@@ -9,7 +9,6 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
-import com.acmerobotics.roadrunner.RaceAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
@@ -67,10 +66,10 @@ public class ThunderBot2025
     public void setColor(String col){
         color = col;
         if (Objects.equals(color, "blue")) {
-            limelight.SetPipline(1);
+            limelight.SetPipeline(1);
             launcher.turret_pos = 0.5;
         }else {
-            limelight.SetPipline(2);
+            limelight.SetPipeline(2);
             launcher.turret_pos = 0.5;
         }
     }
