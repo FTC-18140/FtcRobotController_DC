@@ -8,6 +8,7 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.Robot.Indexer;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 import org.firstinspires.ftc.teamcode.Utilities.TBDGamepad;
 
@@ -108,6 +109,8 @@ public class Teleop_Red extends OpMode {
             robot.indexer.cycle(-1);
         } else if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_RIGHT)) {
             robot.indexer.cycle(1);
+        } else if (robot.indexer.getState() == Indexer.IndexerState.MANUAL){
+            robot.indexer.setState(Indexer.IndexerState.UNALIGNED);
         }
 
         telemetry.addData("position X: ", robot.drive.localizer.getPose().position.x);

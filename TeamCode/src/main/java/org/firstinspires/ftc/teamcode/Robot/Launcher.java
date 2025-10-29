@@ -32,7 +32,7 @@ public class Launcher {
     DcMotorEx launcher = null;
     DcMotorEx launcher2 = null;
 
-    public static double p = 0.0015, i = 0, d = 0.0001, f = 0.0125;
+    public static double p = 0.00145, i = 0, d = 0.0001, f = 0.0135;
     PIDController RPMController;
 
     public double turret_pos = 0;

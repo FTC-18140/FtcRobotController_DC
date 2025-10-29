@@ -25,7 +25,7 @@ public class Indexer {
     TouchSensor limitSwitch = null;
 
     private static double index_error = 0.12;
-    enum IndexerState {
+    public enum IndexerState {
         ALIGNED,
         UNALIGNED,
         MANUAL,
@@ -37,7 +37,7 @@ public class Indexer {
     private double indexPos = 0;
     private double targetAngle = 0;
 
-    public static double p = 0.5, i = 0.1, d = 0.99;
+    public static double p = 0.7, i = 0.001, d = 0.001;
     PIDController angleController;
 
     public void init(HardwareMap hwMap, Telemetry telem){
@@ -124,6 +124,7 @@ public class Indexer {
         state = newstate;
     }
 
+    public IndexerState getState(){return state;}
 
     public Action updateAction(){
         return new Action() {
@@ -180,7 +181,7 @@ public class Indexer {
         }
     }
     public void unflip(){
-        if(state == IndexerState.LOADING) {
+        if(getFlipperPos() >= 0.5) {
             flipper.setPosition(0.25);
             setState(IndexerState.ALIGNED);
         }
