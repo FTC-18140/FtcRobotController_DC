@@ -28,8 +28,8 @@ public class AutoTest extends LinearOpMode {
         Actions.runBlocking(
                 new ParallelAction(
                         new SequentialAction(
-                                robot.indexer.cycleAction(-1),
-                                robot.indexer.updateAction()
+                                robot.indexer.cycleAction(-1)
+//                                robot.indexer.updateAction()
                         ),
                         robot.updateAction(),
                         robot.lockAction()

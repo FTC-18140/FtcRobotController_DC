@@ -44,6 +44,7 @@ public class Teleop_Red extends OpMode {
 
     @Override
     public void loop() {
+        robot.update();
         robot.drive.updatePoseEstimate();
 
         theGamepad1.update();
@@ -60,8 +61,6 @@ public class Teleop_Red extends OpMode {
             speed = 1.0;
         }
 
-
-        robot.update();
         if(Math.abs(theGamepad2.getRightX()) > 0.05){
             robot.launcher.aim(theGamepad2.getRightX() * 0.2);
         }else {
@@ -88,14 +87,14 @@ public class Teleop_Red extends OpMode {
         //Flipper / launch controls
         if(theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.RIGHT_TRIGGER)){
             robot.indexer.flip();
-            if(!barrel_spin){
-                robot.indexer.cycle(-1);
-                barrel_spin = true;
-            }
-        } else {
-            //Prevents indexer from interfering with Flipper
-            robot.indexer.unflip();
-            barrel_spin = true;
+//            if(!barrel_spin){
+//                robot.indexer.cycle(-1);
+//                barrel_spin = true;
+//            }
+//        } else {
+//            //Prevents indexer from interfering with Flipper
+//            robot.indexer.unflip();
+//            barrel_spin = true;
         }
 
 
@@ -109,8 +108,8 @@ public class Teleop_Red extends OpMode {
             robot.indexer.cycle(-1);
         } else if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_RIGHT)) {
             robot.indexer.cycle(1);
-        } else if (robot.indexer.getState() == Indexer.IndexerState.MANUAL){
-            robot.indexer.setState(Indexer.IndexerState.UNALIGNED);
+//        } else if (robot.indexer.getState() == Indexer.IndexerState.MANUAL){
+//            robot.indexer.setState(Indexer.IndexerState.UNALIGNED);
         }
 
         telemetry.addData("position X: ", robot.drive.localizer.getPose().position.x);
