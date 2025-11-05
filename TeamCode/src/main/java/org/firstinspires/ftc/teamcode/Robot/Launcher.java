@@ -10,6 +10,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -36,7 +37,7 @@ public class Launcher {
     PIDController RPMController;
 
     public double turret_pos = 0;
-    public static double TURN_SPEED = 1;
+    public static double TURN_SPEED = 10;
     public static double MAX_SHOOTER_SPEED = 0.73;
     public static double MIN_SHOOTER_SPEED = 1.0;
 
@@ -57,7 +58,10 @@ public class Launcher {
 
     public String color = "blue";
 
-    Servo turret = null;
+    CRServo turret = null;
+    DcMotor turretEnc = null;
+    public static double pTurret = 0.00145, iTurret = 0, dTurret = 0.0001;
+    PIDController turretAimPID = new PIDController(pTurret, iTurret, dTurret);
     public static double INITIAL_TURRET_POS = .5;
     public static double TURRET_GEAR_RATIO = (double) 40/190;
     public static double TURRET_DEGREES_PER_SERVO_TURN = (1/TURRET_GEAR_RATIO)/360;
@@ -87,13 +91,12 @@ public class Launcher {
             launcher2 = hardwareMap.get(DcMotorEx.class,"launcher2");
             //launcher2.setDirection(DcMotorSimple.Direction.REVERSE);
             launcher2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            launcher2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            //launcher2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         } catch (Exception e) {
             telemetry.addData("DcMotor \"launcher2\" not found", 0);
         }
         try{
-            turret = hardwareMap.servo.get("turret");
-            turret.setPosition(INITIAL_TURRET_POS);
+            turret = hardwareMap.crservo.get("turret");
         } catch (Exception e) {
             telemetry.addData("Servo \"turret\" not found", 0);
         }
@@ -112,7 +115,7 @@ public class Launcher {
     public void update(){
         //rpm = launcher.getCurrentPosition() - previousPos;
         rpm = launcher.getVelocity();
-        previousPos = launcher2.getCurrentPosition();
+        previousPos = launcher.getCurrentPosition();
 
         timeDifference = timer.milliseconds() - previousTime;
         previousTime = timer.milliseconds();
@@ -123,7 +126,11 @@ public class Launcher {
 
 
         //turret_pos = Range.clip(turret_pos, 0, 1);
-        turret.setPosition(turret_pos);
+        turretAimPID.setPID(pTurret, iTurret, dTurret);
+        turret.setPower(turretAimPID.calculate(launcher2.getCurrentPosition(), turret_pos));
+
+        telemetry.addData("launcher vel: ", launcher.getVelocity());
+        telemetry.addData("launcher2 vel: ", launcher2.getVelocity());
 
         telemetry.addData("time: ", timer.milliseconds());
         telemetry.addData("time difference: ", timeDifference);

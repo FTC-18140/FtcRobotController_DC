@@ -78,7 +78,6 @@ public class Indexer {
 
     public boolean adjustToThird(){
         //rotates the indexer until it is over the switch
-        setState(IndexerState.MANUAL);
         if(limitSwitch.getValue() > 0){
             //resets the encoder
             indexer.setPower(0);
@@ -89,6 +88,7 @@ public class Indexer {
             setState(IndexerState.ALIGNED);
             return true;
         }else{
+            setState(IndexerState.MANUAL);
             indexer.setPower(0.05);
         }
         telemetry.addData("indexer position: ", 3*indexMotor.getCurrentPosition()/CPR);
@@ -109,14 +109,31 @@ public class Indexer {
         telemetry.addData("Index power: ", angleController.calculate(indexPos, targetAngle));
         //indexer.setPower(angleController.calculate(indexPos, targetAngle));
 
-
-        telemetry.addData("current State: ", state);
-        if(state != IndexerState.MANUAL && state != IndexerState.STOPPED){
+        switch (state){
+            case UNALIGNED:
                 indexer.setPower(angleController.calculate(indexPos, targetAngle));
                 if(Math.abs(targetAngle - indexPos) < index_error){
                     setState(IndexerState.ALIGNED);
                 }
+                break;
+            case ALIGNED:
+                indexer.setPower(angleController.calculate(indexPos, targetAngle));
+                if(Math.abs(targetAngle - indexPos) > index_error){
+                    setState(IndexerState.UNALIGNED);
+                }
+                break;
+            case MANUAL:
+                break;
+            case LOADING:
+                indexer.setPower(0);
+                break;
+            case STOPPED:
+                indexer.setPower(0);
+                break;
+
         }
+
+        telemetry.addData("current State: ", state);
 
     }
 
@@ -162,7 +179,6 @@ public class Indexer {
         };
     }
     public void stop(){
-        indexer.setPower(0);
         setState(IndexerState.STOPPED);
     }
     public Action stopAction(){
