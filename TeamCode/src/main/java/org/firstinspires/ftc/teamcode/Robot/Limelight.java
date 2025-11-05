@@ -39,10 +39,19 @@ public class Limelight {
         }
         this.telemetry = telemetry;
     }
+
+    /**
+     * Sets the limelight's pipeline to the input, sets the index variable to the input
+     * @param pipeline
+     */
     public void SetPipeline(int pipeline){
         index = pipeline;
         limelight.pipelineSwitch(pipeline);
     }
+
+    /**
+     * Updates the values associated with the apriltags the limelight sees
+     */
     public void update(){
         LLResult result = limelight.getLatestResult();
         List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
@@ -58,6 +67,11 @@ public class Limelight {
             telemetry.addData("dist: ", distance);
         }
     }
+
+    /**
+     * Returns the last updated value of the apriltags degrees in the x coordinate
+     * @return
+     */
     public double xdegrees(){
         telemetry.addData("xdegrees: ", x);
         return x;

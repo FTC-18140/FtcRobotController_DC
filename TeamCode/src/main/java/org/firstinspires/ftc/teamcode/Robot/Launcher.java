@@ -1,8 +1,5 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
-import static java.lang.Math.cos;
-import static java.lang.Math.sin;
-
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -13,9 +10,7 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -36,7 +31,7 @@ public class Launcher {
     public static double p = 0.00145, i = 0, d = 0.0001, f = 0.0135;
     PIDController RPMController;
 
-    public double turret_pos = 0;
+    public double turret_target_pos = 0;
     public static double TURN_SPEED = 10;
     public static double MAX_SHOOTER_SPEED = 0.73;
     public static double MIN_SHOOTER_SPEED = 1.0;
@@ -112,6 +107,10 @@ public class Launcher {
         }
         return Math.sqrt(Math.pow(targetDir.x, 2) + Math.pow(targetDir.y, 2));
     }
+
+    /**
+     * Updates several launcher variables, sets the power of the turret motor using Pid, adds some telemetry
+     */
     public void update(){
         //rpm = launcher.getCurrentPosition() - previousPos;
         rpm = launcher.getVelocity();
@@ -125,9 +124,9 @@ public class Launcher {
         previousTime = timer.milliseconds();
 
 
-        //turret_pos = Range.clip(turret_pos, 0, 1);
+        //turret_target_pos = Range.clip(turret_target_pos, 0, 1);
         turretAimPID.setPID(pTurret, iTurret, dTurret);
-        turret.setPower(turretAimPID.calculate(launcher2.getCurrentPosition(), turret_pos));
+        turret.setPower(turretAimPID.calculate(launcher2.getCurrentPosition(), turret_target_pos));
 
         telemetry.addData("launcher vel: ", launcher.getVelocity());
         telemetry.addData("launcher2 vel: ", launcher2.getVelocity());
@@ -145,6 +144,11 @@ public class Launcher {
             }
         };
     }
+
+    /**
+     * Takes how many degrees off the aprilTag is (via the limelight) and changes the turret target position based on that
+     * @param limelightxdegrees
+     */
     public void lockOn(double limelightxdegrees){
         //double turretAngle = Range.scale(0, 0, 1.0, 0, 2*Math.PI);
         //trueAngle = robotPose.heading.toDouble()+turretAngle;
@@ -154,12 +158,21 @@ public class Launcher {
         double difference = TURRET_DEGREES_PER_SERVO_COMMAND * limelightxdegrees;
         difference = Range.clip(difference, -TURN_SPEED, TURN_SPEED);
 
-        turret_pos += difference;
+        turret_target_pos += difference;
     }
 
+    /**
+     * Manually turns the turret using a direction gotten from driver input
+     * @param dir
+     */
     public void aim(double dir){
-        turret_pos += dir;
+        turret_target_pos += dir;
     }
+
+    /**
+     * Sets the power of the flywheel based on the robot's position
+     * @param robotPose
+     */
 
     public void shoot(Pose2d robotPose){
         power = Range.clip(Range.scale(goalDistance(robotPose), 12, 130, MIN_SHOOTER_RPM, MAX_SHOOTER_RPM), MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);

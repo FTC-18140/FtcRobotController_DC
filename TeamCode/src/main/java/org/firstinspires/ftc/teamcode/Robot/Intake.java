@@ -26,12 +26,23 @@ public class Intake {
         }
     }
 
+    /**
+     * sets the intake motor to the preset intake speed
+     */
     public void intake(){
         intakeMotor.setPower(INTAKE_SPEED);
     }
+
+    /**
+     * Sets the intake motor to the opposite of the preset intake speed
+     */
     public void spit(){
         intakeMotor.setPower(-INTAKE_SPEED);
     }
+
+    /**
+     * Stops the intake motor
+     */
     public void stop() {
         intakeMotor.setPower(0.0);
     }

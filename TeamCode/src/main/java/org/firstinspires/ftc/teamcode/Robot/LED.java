@@ -30,8 +30,14 @@ public class LED {
             telemetry.addData("led not found in configuration", 0);
         }
     }
-    public void update(double tps, double target_tps) {
-        double difference_tps =  tps - target_tps ;
+
+    /**
+     * Does some math to determine whether if the leds should signal if the measured_tps is close enough to the target_tps for launch
+     * @param measured_tps
+     * @param target_tps
+     */
+    public void update(double measured_tps, double target_tps) {
+        double difference_tps =  measured_tps - target_tps ;
         double acceptable_range_up = .1;
         double acceptable_range_down = -.1;
         if (difference_tps < acceptable_range_down) {
@@ -42,6 +48,11 @@ public class LED {
             setToColor("green");
         }
     }
+
+    /**
+     * sets the color of the leds based on an input string
+     * @param color
+     */
     public void setToColor(String color) {
         if(led != null) {
             switch(color){

@@ -67,10 +67,10 @@ public class ThunderBot2025
         color = col;
         if (Objects.equals(color, "blue")) {
             limelight.SetPipeline(1);
-            launcher.turret_pos = 0.5;
+            launcher.turret_target_pos = 0.5;
         }else {
             limelight.SetPipeline(2);
-            launcher.turret_pos = 0.5;
+            launcher.turret_target_pos = 0.5;
         }
     }
     public boolean isFieldCentric(){
@@ -120,6 +120,9 @@ public class ThunderBot2025
         drive.setDrivePowers(thePose);
 
         }
+        /**
+         * Calls all of the other update methods
+         */
         public void update(){
             indexer.update();
             launcher.update();
@@ -127,7 +130,9 @@ public class ThunderBot2025
             limelight.update();
             limelight.xdegrees();
         }
-        public Action updateAction(){
+
+
+    public Action updateAction(){
             return new Action() {
                 @Override
                 public boolean run(@NonNull TelemetryPacket telemetryPacket) {
@@ -136,7 +141,11 @@ public class ThunderBot2025
                 }
             };
         }
-        public void lockOn(){
+
+    /**
+     * Calls the launcher method lockOn with the degrees that the limelight sees
+     */
+    public void lockOn(){
             launcher.lockOn(limelight.xdegrees());
 
         }
