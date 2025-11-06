@@ -143,6 +143,18 @@ public class ThunderBot2025
         }
 
     /**
+     * turns the turret to point down the field (hopefully)
+     * reads the id
+     * @param pipeline the pipeline you want it to read
+     * @return returns the id
+     */
+    public int lookForId(int pipeline){
+            launcher.aim(1);
+            limelight.SetPipeline(pipeline);
+            return limelight.id();
+    }
+
+    /**
      * Calls the launcher method lockOn with the degrees that the limelight sees
      */
     public void lockOn(){

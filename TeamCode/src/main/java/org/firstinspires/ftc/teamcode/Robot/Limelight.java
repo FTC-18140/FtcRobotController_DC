@@ -76,6 +76,9 @@ public class Limelight {
         telemetry.addData("xdegrees: ", x);
         return x;
     }
+    public int id(){
+        return id;
+    }
     /*
     public static double tx(int pipeline){
         limelight.pipelineSwitch(pipeline);

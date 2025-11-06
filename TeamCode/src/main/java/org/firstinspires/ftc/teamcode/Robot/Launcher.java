@@ -163,7 +163,7 @@ public class Launcher {
 
     /**
      * Manually turns the turret using a direction gotten from driver input
-     * @param dir
+     * @param dir positive is clockwise
      */
     public void aim(double dir){
         turret_target_pos += dir;
