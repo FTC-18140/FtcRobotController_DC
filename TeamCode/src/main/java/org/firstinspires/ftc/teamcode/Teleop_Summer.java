@@ -78,7 +78,7 @@ public class Teleop_Summer extends OpMode {
 
 
         if(theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.LEFT_TRIGGER)){
-            robot.launcher.shoot(robot.drive.localizer.getPose());
+            robot.charge();
         } else {
             robot.launcher.stop();
         }

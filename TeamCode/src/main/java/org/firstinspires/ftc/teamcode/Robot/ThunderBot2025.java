@@ -13,6 +13,7 @@ import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Robot.Drives.MecanumDrive;
@@ -161,6 +162,31 @@ public class ThunderBot2025
             launcher.lockOn(limelight.xdegrees());
 
         }
+        public void charge(){
+            launcher.shoot(drive.localizer.getPose(), limelight.distance);
+        }
+    public Action chargeAction(Pose2d pose, double duration){
+        return new Action() {
+            ElapsedTime counter = new ElapsedTime();
+            boolean started = false;
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                if(!started){
+                    counter.reset();
+                    started = true;
+                }
+                charge();
+
+                telemetry.addData("time: ", counter.seconds());
+
+                if (counter.seconds() > duration){
+                    launcher.stop();
+                    return false;
+                }
+                return true;
+            }
+        };
+    }
         public Action lockAction(){
             return new Action() {
                 @Override
