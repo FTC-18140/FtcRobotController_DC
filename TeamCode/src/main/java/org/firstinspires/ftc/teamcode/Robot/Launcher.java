@@ -122,6 +122,7 @@ public class Launcher {
         previousPos = launcher.getCurrentPosition();
 
         turret_pos = Range.clip(turret_pos, MIN_TURRET_POS, MAX_TURRET_POS);
+        current_pos = launcher2.getCurrentPosition() * TURRET_DEGREES_PER_SERVO_COMMAND;
 
         timeDifference = timer.milliseconds() - previousTime;
         previousTime = timer.milliseconds();
@@ -132,7 +133,6 @@ public class Launcher {
 
         //turret_target_pos = Range.clip(turret_target_pos, 0, 1);
         turretAimPID.setPID(pTurret, iTurret, dTurret);
-        turret.setPower(turretAimPID.calculate(launcher2.getCurrentPosition(), turret_target_pos));
 
         telemetry.addData("launcher vel: ", launcher.getVelocity());
         telemetry.addData("launcher2 vel: ", launcher2.getVelocity());
@@ -167,6 +167,7 @@ public class Launcher {
         difference = Range.clip(difference, -TURN_SPEED, TURN_SPEED);
 
         turret_target_pos += difference;
+
         turret_pos = current_pos + difference;
 
         //turret_pos = Range.clip(turret_pos, 0, 1);
@@ -187,7 +188,7 @@ public class Launcher {
      * @param dir positive is clockwise
      */
     public void aim(double dir){
-        turret_target_pos += dir;
+        double current_pos = launcher2.getCurrentPosition() * TURRET_DEGREES_PER_SERVO_COMMAND;
         if(dir > 0) {
             if(current_pos > MIN_TURRET_POS){
                 turret.setPower(dir);
