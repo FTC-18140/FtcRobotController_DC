@@ -63,7 +63,7 @@ public class Teleop_Red extends OpMode {
 
         robot.update();
         if(Math.abs(theGamepad2.getRightX()) > 0.05){
-            robot.launcher.aim(theGamepad2.getRightX() * 0.2);
+            robot.launcher.aim(theGamepad2.getRightX() * 0.5);
         }else {
             robot.lockOn();
         }
@@ -80,7 +80,7 @@ public class Teleop_Red extends OpMode {
 
 
         if(theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.LEFT_TRIGGER)){
-            robot.launcher.shoot(robot.drive.localizer.getPose());
+            robot.charge();
         } else {
             robot.launcher.stop();
         }

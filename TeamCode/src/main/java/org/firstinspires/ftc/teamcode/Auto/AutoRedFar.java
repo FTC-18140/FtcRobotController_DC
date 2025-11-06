@@ -53,7 +53,7 @@ public class AutoRedFar extends LinearOpMode{
                                             .strafeToSplineHeading(new Vector2d(-12, -12), Math.toRadians(0))
                                             .build()
                             ),
-                        robot.launcher.chargeAction(robot.drive.localizer.getPose(), 25),
+                        robot.chargeAction(robot.drive.localizer.getPose(), 25),
                         robot.updateAction(),
                         robot.lockAction()
                 )

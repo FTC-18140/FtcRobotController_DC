@@ -33,16 +33,19 @@ public class Launcher {
     DcMotorEx launcher = null;
     DcMotorEx launcher2 = null;
 
-    public static double p = 0.00145, i = 0, d = 0.0001, f = 0.0135;
+    public static double p = 0.00145, i = 0.001, d = 0.000001, f = 0.0149;
     PIDController RPMController;
 
     public double turret_pos = 0;
-    public static double TURN_SPEED = 10;
+    public double current_pos = 0;
+    public static double TURN_SPEED = 0.9;
     public static double MAX_SHOOTER_SPEED = 0.73;
     public static double MIN_SHOOTER_SPEED = 1.0;
 
-    public static double MAX_SHOOTER_RPM = 1040;
+    public static double MAX_SHOOTER_RPM = 1050;
     public static double MIN_SHOOTER_RPM = 900;
+    public static double  MAX_TURRET_POS = 1.5;
+    public static double MIN_TURRET_POS = -1;
 
     public ElapsedTime timer;
     double previousTime = 0;
@@ -60,12 +63,13 @@ public class Launcher {
 
     CRServo turret = null;
     DcMotor turretEnc = null;
-    public static double pTurret = 0.00145, iTurret = 0, dTurret = 0.0001;
+    public static double pTurret = 0.9, iTurret = 0.05, dTurret = 0.0000001;
     PIDController turretAimPID = new PIDController(pTurret, iTurret, dTurret);
     public static double INITIAL_TURRET_POS = .5;
     public static double TURRET_GEAR_RATIO = (double) 40/190;
     public static double TURRET_DEGREES_PER_SERVO_TURN = (1/TURRET_GEAR_RATIO)/360;
-    public static double TURRET_DEGREES_PER_SERVO_COMMAND = .048*(TURRET_DEGREES_PER_SERVO_TURN);
+    public static double TURRET_DEGREES_PER_SERVO_COMMAND = .0048*(TURRET_DEGREES_PER_SERVO_TURN);
+
 
     Vector2d targetPos = new Vector2d(targetX, targetY);
 
@@ -91,12 +95,13 @@ public class Launcher {
             launcher2 = hardwareMap.get(DcMotorEx.class,"launcher2");
             //launcher2.setDirection(DcMotorSimple.Direction.REVERSE);
             launcher2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            //launcher2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            launcher2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         } catch (Exception e) {
             telemetry.addData("DcMotor \"launcher2\" not found", 0);
         }
         try{
             turret = hardwareMap.crservo.get("turret");
+            turret.setDirection(DcMotorSimple.Direction.REVERSE);
         } catch (Exception e) {
             telemetry.addData("Servo \"turret\" not found", 0);
         }
@@ -117,6 +122,8 @@ public class Launcher {
         rpm = launcher.getVelocity();
         previousPos = launcher.getCurrentPosition();
 
+        turret_pos = Range.clip(turret_pos, MIN_TURRET_POS, MAX_TURRET_POS);
+
         timeDifference = timer.milliseconds() - previousTime;
         previousTime = timer.milliseconds();
 
@@ -124,10 +131,6 @@ public class Launcher {
 
         previousTime = timer.milliseconds();
 
-
-        //turret_pos = Range.clip(turret_pos, 0, 1);
-        turretAimPID.setPID(pTurret, iTurret, dTurret);
-        turret.setPower(turretAimPID.calculate(launcher2.getCurrentPosition(), turret_pos));
 
         telemetry.addData("launcher vel: ", launcher.getVelocity());
         telemetry.addData("launcher2 vel: ", launcher2.getVelocity());
@@ -151,17 +154,44 @@ public class Launcher {
         //targetDir = targetPos.minus(robotPose.position);
 
         //double difference = targetDir.angleCast().toDouble() - trueAngle;
-        double difference = TURRET_DEGREES_PER_SERVO_COMMAND * limelightxdegrees;
+        current_pos = launcher2.getCurrentPosition() * TURRET_DEGREES_PER_SERVO_COMMAND;
+
+        double difference = limelightxdegrees * 150 *TURRET_DEGREES_PER_SERVO_COMMAND;
         difference = Range.clip(difference, -TURN_SPEED, TURN_SPEED);
 
-        turret_pos += difference;
+        turret_pos = current_pos + difference;
+
+        //turret_pos = Range.clip(turret_pos, 0, 1);
+        turretAimPID.setPID(pTurret, iTurret, dTurret);
+        turret_pos = Range.clip(turret_pos, MIN_TURRET_POS, MAX_TURRET_POS);
+
+        double turret_pow = -turretAimPID.calculate(current_pos, turret_pos);
+
+        turret.setPower(turret_pow);
+
+        telemetry.addData("turret position: ", current_pos);
+        telemetry.addData("turret target: ", turret_pos);
+        telemetry.addData("turret power: ", turret_pow);
     }
 
     public void aim(double dir){
-        turret_pos += dir;
+        double current_pos = launcher2.getCurrentPosition() * TURRET_DEGREES_PER_SERVO_COMMAND;
+        if(dir > 0) {
+            if(current_pos > MIN_TURRET_POS){
+                turret.setPower(dir);
+            } else {
+                turret.setPower(0);
+            }
+        }else if(dir < 0){
+            if(current_pos < MAX_TURRET_POS) {
+                turret.setPower(dir);
+            } else {
+                turret.setPower(0);
+            }
+        }
     }
 
-    public void shoot(Pose2d robotPose){
+    public void shoot(Pose2d robotPose, double distance){
         power = Range.clip(Range.scale(goalDistance(robotPose), 12, 130, MIN_SHOOTER_RPM, MAX_SHOOTER_RPM), MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
 
         double ff = f*Math.sin(Math.toRadians(avgRpm*(90.0/1100)));
@@ -174,29 +204,6 @@ public class Launcher {
 
         telemetry.addData("target rpm: ", power);
         telemetry.addData("avgrpm: ", avgRpm);
-    }
-
-    public Action chargeAction(Pose2d pose, double duration){
-        return new Action() {
-            ElapsedTime counter = new ElapsedTime();
-            boolean started = false;
-            @Override
-            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                if(!started){
-                    counter.reset();
-                    started = true;
-                }
-                shoot(pose);
-
-                telemetry.addData("time: ", counter.seconds());
-
-                if (counter.seconds() > duration){
-                    stop();
-                    return false;
-                }
-                return true;
-            }
-        };
     }
 
     public Action waitForCharge(){
