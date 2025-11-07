@@ -183,6 +183,7 @@ public class Launcher {
      * @param angle The position you want the turret to rotate to; 1 is 90 degrees clockwise.
      */
     public void turnToPosition(double angle){
+        updateturret_current_pos();
         turretAimPID.setPID(pTurret, iTurret, dTurret);
         angle = Range.clip(angle, MIN_TURRET_POS, MAX_TURRET_POS);
 

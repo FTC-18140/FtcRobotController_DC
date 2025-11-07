@@ -39,6 +39,7 @@ public class Teleop_Summer extends OpMode {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         telemetry.addData("Status", "Initialized");
         telemetry.update();
+        robot.lookForId(0);
     }
 
     @Override
@@ -62,7 +63,7 @@ public class Teleop_Summer extends OpMode {
 
         robot.update();
         if(Math.abs(theGamepad2.getRightX()) > 0.05){
-            robot.launcher.aim(theGamepad2.getRightX() * 0.2);
+            robot.launcher.turnToPosition(theGamepad1.getRightX());
         }else {
             robot.lockOn();
         }
