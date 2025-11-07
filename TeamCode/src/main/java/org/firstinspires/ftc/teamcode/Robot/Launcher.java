@@ -123,7 +123,7 @@ public class Launcher {
         previousPos = launcher.getCurrentPosition();
 
         turret_target_pos = Range.clip(turret_target_pos, MIN_TURRET_POS, MAX_TURRET_POS);
-        turret_current_pos = launcher2.getCurrentPosition() * TURRET_DEGREES_PER_SERVO_COMMAND;
+        updateturret_current_pos();
 
         timeDifference = timer.milliseconds() - previousTime;
         previousTime = timer.milliseconds();
@@ -162,7 +162,7 @@ public class Launcher {
         //targetDir = targetPos.minus(robotPose.position);
 
         //double difference = targetDir.angleCast().toDouble() - trueAngle;
-        turret_current_pos = launcher2.getCurrentPosition() * TURRET_DEGREES_PER_SERVO_COMMAND;
+        updateturret_current_pos();
 
         double difference = limelightxdegrees * 150 *TURRET_DEGREES_PER_SERVO_COMMAND;
         difference = Range.clip(difference, -TURN_SPEED, TURN_SPEED);
@@ -194,7 +194,7 @@ public class Launcher {
      * @param dir The power, positive is clockwise
      */
     public void aim(double dir){
-        turret_current_pos = launcher2.getCurrentPosition() * TURRET_DEGREES_PER_SERVO_COMMAND;
+        updateturret_current_pos();
         if(dir > 0) {
             if(turret_current_pos > MIN_TURRET_POS){
                 turret.setPower(dir);
@@ -210,12 +210,8 @@ public class Launcher {
         }
     }
 
-    /**
-     * Sets the power of the flywheel based on the robot's position
-     * @param robotPose
-     */
 
-    public void shoot(Pose2d robotPose){
+    public void updateturret_current_pos(){
         turret_current_pos = launcher2.getCurrentPosition() * TURRET_DEGREES_PER_SERVO_COMMAND;
     }
 
