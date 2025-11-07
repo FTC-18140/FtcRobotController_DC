@@ -35,6 +35,12 @@ public class ThunderBot2025
     private Telemetry telemetry = null;
     public static boolean field_centric = false;
 
+    /**
+     * initiolization for ThunderBot2025
+     * @param hwMap
+     * @param telem
+     * @param pose
+     */
     public void init(HardwareMap hwMap, Telemetry telem, @Nullable Pose2d pose)
     {
         if(pose == null){
@@ -64,8 +70,12 @@ public class ThunderBot2025
         telemetry = new MultipleTelemetry(telem, FtcDashboard.getInstance().getTelemetry());
     }
 
-    public void setColor(String col){
-        color = col;
+    /**
+     *
+     * @param alliance a string, supposed to hold the color of the alliance
+     */
+    public void setColor(String alliance){
+        color = alliance;
         if (Objects.equals(color, "blue")) {
             limelight.SetPipeline(1);
             launcher.turret_target_pos = 0.5;
@@ -74,10 +84,23 @@ public class ThunderBot2025
             launcher.turret_target_pos = 0.5;
         }
     }
+
+    /**
+     * tells you whether you are field centric or not
+     * @return the boolean value of whether we are driving in field centric coordinates
+     */
     public boolean isFieldCentric(){
         return field_centric;
     }
 
+    /**
+     * tells the robot to drive depending on the robot or field centric drive options
+     * @param forward
+     * @param right
+     * @param clockwise
+     * @param speed
+     * @param p
+     */
     public void drive( double forward, double right, double clockwise, double speed, TelemetryPacket p)
     {
         if (field_centric)
@@ -89,6 +112,14 @@ public class ThunderBot2025
             robotCentricDrive(forward, right, clockwise, speed);
         }
     }
+
+    /**
+     * tells the robot how to drive robot centrically
+     * @param forward
+     * @param right
+     * @param clockwise
+     * @param speed
+     */
     private void robotCentricDrive(double forward, double right, double clockwise, double speed)
     {
         PoseVelocity2d thePose;
@@ -102,6 +133,15 @@ public class ThunderBot2025
         telemetry.addData("Odometry X: ", drive.localizer.getPose().position.x);
         telemetry.addData("Odometry Y: ", drive.localizer.getPose().position.y);
     }
+
+    /**
+     * tells the robot to drive field centrically
+     * @param north
+     * @param east
+     * @param clockwise
+     * @param speed
+     * @param p
+     */
     private void fieldCentricDrive(double north, double east, double clockwise, double speed, TelemetryPacket p)
     {
         drive.updatePoseEstimate();
@@ -132,7 +172,10 @@ public class ThunderBot2025
             limelight.xdegrees();
         }
 
-
+    /**
+     *
+     * @return
+     */
     public Action updateAction(){
             return new Action() {
                 @Override
@@ -151,9 +194,9 @@ public class ThunderBot2025
      */
     public int lookForId(int pipeline, String alliance){
         if (Objects.equals(alliance, "blue")) {
-            launcher.turnToPosition(1);
-        } else {
             launcher.turnToPosition(-1);
+        } else {
+            launcher.turnToPosition(1);
         }
             limelight.SetPipeline(pipeline);
             return limelight.id();

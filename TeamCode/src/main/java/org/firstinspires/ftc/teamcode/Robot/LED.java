@@ -33,8 +33,8 @@ public class LED {
 
     /**
      * Does some math to determine whether if the leds should signal if the measured_tps is close enough to the target_tps for launch
-     * @param measured_tps
-     * @param target_tps
+     * @param measured_tps the tps the flywheel is measured to be moving
+     * @param target_tps the tps we want it to be moving at
      */
     public void update(double measured_tps, double target_tps) {
         double difference_tps =  measured_tps - target_tps ;
