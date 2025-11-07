@@ -208,10 +208,14 @@ public class ThunderBot2025
     public void lockOn(){
             launcher.lockOn(limelight.xdegrees());
 
-        }
-        public void charge(){
+    }
+
+    /**
+     * Tells the launcher to spin up the launch motors with the necessary variables
+     */
+    public void charge(){
             launcher.shoot(drive.localizer.getPose(), limelight.distance);
-        }
+    }
     public Action chargeAction(Pose2d pose, double duration){
         return new Action() {
             ElapsedTime counter = new ElapsedTime();

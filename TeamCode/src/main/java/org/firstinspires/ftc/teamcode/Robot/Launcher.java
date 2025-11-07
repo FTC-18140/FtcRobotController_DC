@@ -220,9 +220,9 @@ public class Launcher {
     }
 
     /**
-     *
-     * @param robotPose
-     * @param distance
+     * Sets the launcher motors power, adds some telemetry
+     * @param robotPose the pose of the robot at present
+     * @param distance the distance to the goal
      */
     public void shoot(Pose2d robotPose, double distance){
         power = Range.clip(Range.scale(goalDistance(robotPose), 12, 130, MIN_SHOOTER_RPM, MAX_SHOOTER_RPM), MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
