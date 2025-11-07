@@ -28,7 +28,6 @@ public class AutoBlueFar extends LinearOpMode{
         robot.setColor("blue");
         Actions.runBlocking(
                 new ParallelAction(
-
                             new SequentialAction(
                                     robot.drive.actionBuilder(start)
                                             .strafeToSplineHeading(new Vector2d(launchPos.position.x, 12), Math.toRadians(24))

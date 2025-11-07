@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
+import androidx.annotation.NonNull;
+
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -31,6 +35,25 @@ public class Intake {
      */
     public void intake(){
         intakeMotor.setPower(INTAKE_SPEED);
+    }
+
+    public Action intakeStartAction(){
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                intake();
+                return false;
+            }
+        };
+    }
+    public Action intakeStopAction(){
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                stop();
+                return false;
+            }
+        };
     }
 
     /**

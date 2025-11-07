@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -37,8 +38,8 @@ public class Launcher {
     public static double MAX_SHOOTER_SPEED = 0.73;
     public static double MIN_SHOOTER_SPEED = 1.0;
 
-    public static double MAX_SHOOTER_RPM = 1050;
-    public static double MIN_SHOOTER_RPM = 900;
+    public static double MAX_SHOOTER_RPM = 1025;
+    public static double MIN_SHOOTER_RPM = 800;
     public static double  MAX_TURRET_POS = 1.5;
     public static double MIN_TURRET_POS = -1;
 
@@ -163,10 +164,8 @@ public class Launcher {
         //double difference = targetDir.angleCast().toDouble() - trueAngle;
         current_pos = launcher2.getCurrentPosition() * TURRET_DEGREES_PER_SERVO_COMMAND;
 
-        double difference = limelightxdegrees * 150 *TURRET_DEGREES_PER_SERVO_COMMAND;
+        double difference = limelightxdegrees * 170 *TURRET_DEGREES_PER_SERVO_COMMAND;
         difference = Range.clip(difference, -TURN_SPEED, TURN_SPEED);
-
-        turret_target_pos += difference;
 
         turret_pos = current_pos + difference;
 
