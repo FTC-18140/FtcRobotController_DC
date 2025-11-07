@@ -72,6 +72,7 @@ public class Launcher {
     Vector2d targetPosRed = new Vector2d(targetX, -targetY);
     Vector2d targetDir = new Vector2d(0,1);
     public double trueAngle = 0;
+    
     public void init(HardwareMap hwMap, Telemetry telem){
         hardwareMap = hwMap;
         telemetry = telem;
@@ -173,8 +174,8 @@ public class Launcher {
     }
 
     /**
-     *
-     * @param angle
+     * Turns the turret to a particular position, adds some telem :)
+     * @param angle The position you want the turret to rotate to; 1 is 90 degrees clockwise.
      */
     public void turnToPosition(double angle){
         turretAimPID.setPID(pTurret, iTurret, dTurret);
@@ -210,7 +211,9 @@ public class Launcher {
         }
     }
 
-
+    /**
+     * Updates the turret_current_position variable
+     */
     public void updateturret_current_pos(){
         turret_current_pos = launcher2.getCurrentPosition() * TURRET_DEGREES_PER_SERVO_COMMAND;
     }
@@ -236,15 +239,15 @@ public class Launcher {
     }
 
     /**
-     *
-     * @return
+     * tells you whether the launcher is fast enough
+     * @return A boolean that tells you whether the difference between power and avgRpm is less than an acceptable difference
      */
     public Action waitForCharge(){
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 //double power = Range.clip(Range.scale(goalDistance(pose), 12, 130, MIN_SHOOTER_RPM, MAX_SHOOTER_RPM), MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
-                if(power - avgRpm < 0.275){
+                if((power - avgRpm) < 0.275){
                     return false;
                 }
                 return true;
