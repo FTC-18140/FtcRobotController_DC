@@ -79,7 +79,7 @@ public class ThunderBot2025
         if (Objects.equals(color, "blue")) {
             limelight.SetPipeline(1);
             launcher.turret_target_pos = 0.5;
-        }else {
+        }else{
             limelight.SetPipeline(2);
             launcher.turret_target_pos = 0.5;
         }
@@ -193,12 +193,14 @@ public class ThunderBot2025
      * @return returns the id
      */
     public int lookForId(int pipeline, String alliance){
-        if (Objects.equals(alliance, "blue")) {
+        limelight.SetPipeline(pipeline);
+        if (Objects.equals(color, "blue")) {
             launcher.turnToPosition(-1);
         } else {
             launcher.turnToPosition(1);
         }
-            limelight.SetPipeline(pipeline);
+        lockOn();
+
             return limelight.id();
     }
 

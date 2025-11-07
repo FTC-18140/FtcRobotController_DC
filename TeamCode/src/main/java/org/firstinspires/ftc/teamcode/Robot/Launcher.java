@@ -72,7 +72,7 @@ public class Launcher {
     Vector2d targetPosRed = new Vector2d(targetX, -targetY);
     Vector2d targetDir = new Vector2d(0,1);
     public double trueAngle = 0;
-    
+
     public void init(HardwareMap hwMap, Telemetry telem){
         hardwareMap = hwMap;
         telemetry = telem;
@@ -104,6 +104,11 @@ public class Launcher {
         }
     }
 
+    /**
+     * Returns the correct goal distance to the goal based on alliance
+     * @param robotPose the current position of the robot
+     * @return the distance to the goal
+     */
     public double goalDistance(Pose2d robotPose){
         if(Objects.equals(color, "red")){
 
