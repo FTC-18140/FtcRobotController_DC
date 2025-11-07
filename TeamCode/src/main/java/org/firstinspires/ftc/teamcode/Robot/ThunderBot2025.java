@@ -150,7 +150,7 @@ public class ThunderBot2025
      * @return returns the id
      */
     public int lookForId(int pipeline){
-            launcher.aim(1);
+            launcher.turnToPosition(1);
             limelight.SetPipeline(pipeline);
             return limelight.id();
     }

@@ -30,8 +30,9 @@ public class Launcher {
 
     public static double p = 0.00145, i = 0.001, d = 0.000001, f = 0.0149;
     PIDController RPMController;
+
     public double turret_target_pos = 0;
-    public double turret_pos = 0;
+
     public double current_pos = 0;
     public static double TURN_SPEED = 0.9;
     public static double MAX_SHOOTER_SPEED = 0.73;
@@ -121,7 +122,7 @@ public class Launcher {
         rpm = launcher.getVelocity();
         previousPos = launcher.getCurrentPosition();
 
-        turret_pos = Range.clip(turret_pos, MIN_TURRET_POS, MAX_TURRET_POS);
+        turret_target_pos = Range.clip(turret_target_pos, MIN_TURRET_POS, MAX_TURRET_POS);
         current_pos = launcher2.getCurrentPosition() * TURRET_DEGREES_PER_SERVO_COMMAND;
 
         timeDifference = timer.milliseconds() - previousTime;
@@ -166,20 +167,25 @@ public class Launcher {
         double difference = limelightxdegrees * 150 *TURRET_DEGREES_PER_SERVO_COMMAND;
         difference = Range.clip(difference, -TURN_SPEED, TURN_SPEED);
 
-        turret_target_pos += difference;
+        turret_target_pos = current_pos + difference;
+        turnToPosition(turret_target_pos);
+        //turret_target_pos = Range.clip(turret_target_pos, 0, 1);
+    }
 
-        turret_pos = current_pos + difference;
-
-        //turret_pos = Range.clip(turret_pos, 0, 1);
+    /**
+     *
+     * @param angle
+     */
+    public void turnToPosition(double angle){
         turretAimPID.setPID(pTurret, iTurret, dTurret);
-        turret_pos = Range.clip(turret_pos, MIN_TURRET_POS, MAX_TURRET_POS);
+        angle = Range.clip(angle, MIN_TURRET_POS, MAX_TURRET_POS);
 
-        double turret_pow = -turretAimPID.calculate(current_pos, turret_pos);
+        double turret_pow = -turretAimPID.calculate(current_pos, angle);
 
         turret.setPower(turret_pow);
 
         telemetry.addData("turret position: ", current_pos);
-        telemetry.addData("turret target: ", turret_pos);
+        telemetry.addData("turret target: ", angle);
         telemetry.addData("turret power: ", turret_pow);
     }
 
