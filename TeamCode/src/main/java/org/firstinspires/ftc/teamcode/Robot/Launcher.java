@@ -34,7 +34,7 @@ public class Launcher {
     public double turret_target_pos = 0;
     public double turret_pos = 0;
     public double current_pos = 0;
-    public static double TURN_SPEED = 0.9;
+    public static double TURN_SPEED = 180;
     public static double MAX_SHOOTER_SPEED = 0.73;
     public static double MIN_SHOOTER_SPEED = 1.0;
 
@@ -164,8 +164,7 @@ public class Launcher {
         //double difference = targetDir.angleCast().toDouble() - trueAngle;
         current_pos = launcher2.getCurrentPosition() * TURRET_DEGREES_PER_SERVO_COMMAND;
 
-        double difference = limelightxdegrees * 170 *TURRET_DEGREES_PER_SERVO_COMMAND;
-        difference = Range.clip(difference, -TURN_SPEED, TURN_SPEED);
+        double difference = limelightxdegrees * TURN_SPEED *TURRET_DEGREES_PER_SERVO_COMMAND;
 
         turret_pos = current_pos + difference;
 
