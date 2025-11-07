@@ -33,7 +33,7 @@ public class Launcher {
 
     public double turret_target_pos = 0;
 
-    public double current_pos = 0;
+    public double turret_current_pos = 0;
     public static double TURN_SPEED = 0.9;
     public static double MAX_SHOOTER_SPEED = 0.73;
     public static double MIN_SHOOTER_SPEED = 1.0;
@@ -123,7 +123,7 @@ public class Launcher {
         previousPos = launcher.getCurrentPosition();
 
         turret_target_pos = Range.clip(turret_target_pos, MIN_TURRET_POS, MAX_TURRET_POS);
-        current_pos = launcher2.getCurrentPosition() * TURRET_DEGREES_PER_SERVO_COMMAND;
+        turret_current_pos = launcher2.getCurrentPosition() * TURRET_DEGREES_PER_SERVO_COMMAND;
 
         timeDifference = timer.milliseconds() - previousTime;
         previousTime = timer.milliseconds();
@@ -162,12 +162,12 @@ public class Launcher {
         //targetDir = targetPos.minus(robotPose.position);
 
         //double difference = targetDir.angleCast().toDouble() - trueAngle;
-        current_pos = launcher2.getCurrentPosition() * TURRET_DEGREES_PER_SERVO_COMMAND;
+        turret_current_pos = launcher2.getCurrentPosition() * TURRET_DEGREES_PER_SERVO_COMMAND;
 
         double difference = limelightxdegrees * 150 *TURRET_DEGREES_PER_SERVO_COMMAND;
         difference = Range.clip(difference, -TURN_SPEED, TURN_SPEED);
 
-        turret_target_pos = current_pos + difference;
+        turret_target_pos = turret_current_pos + difference;
         turnToPosition(turret_target_pos);
         //turret_target_pos = Range.clip(turret_target_pos, 0, 1);
     }
@@ -180,29 +180,29 @@ public class Launcher {
         turretAimPID.setPID(pTurret, iTurret, dTurret);
         angle = Range.clip(angle, MIN_TURRET_POS, MAX_TURRET_POS);
 
-        double turret_pow = -turretAimPID.calculate(current_pos, angle);
+        double turret_pow = -turretAimPID.calculate(turret_current_pos, angle);
 
         turret.setPower(turret_pow);
 
-        telemetry.addData("turret position: ", current_pos);
+        telemetry.addData("turret position: ", turret_current_pos);
         telemetry.addData("turret target: ", angle);
         telemetry.addData("turret power: ", turret_pow);
     }
 
     /**
-     * Manually turns the turret using a direction gotten from driver input
-     * @param dir positive is clockwise
+     * Turns the turret using a power
+     * @param dir The power, positive is clockwise
      */
     public void aim(double dir){
-        double current_pos = launcher2.getCurrentPosition() * TURRET_DEGREES_PER_SERVO_COMMAND;
+        turret_current_pos = launcher2.getCurrentPosition() * TURRET_DEGREES_PER_SERVO_COMMAND;
         if(dir > 0) {
-            if(current_pos > MIN_TURRET_POS){
+            if(turret_current_pos > MIN_TURRET_POS){
                 turret.setPower(dir);
             } else {
                 turret.setPower(0);
             }
         }else if(dir < 0){
-            if(current_pos < MAX_TURRET_POS) {
+            if(turret_current_pos < MAX_TURRET_POS) {
                 turret.setPower(dir);
             } else {
                 turret.setPower(0);
@@ -216,9 +216,14 @@ public class Launcher {
      */
 
     public void shoot(Pose2d robotPose){
-        double current_pos = launcher2.getCurrentPosition() * TURRET_DEGREES_PER_SERVO_COMMAND;
+        turret_current_pos = launcher2.getCurrentPosition() * TURRET_DEGREES_PER_SERVO_COMMAND;
     }
 
+    /**
+     *
+     * @param robotPose
+     * @param distance
+     */
     public void shoot(Pose2d robotPose, double distance){
         power = Range.clip(Range.scale(goalDistance(robotPose), 12, 130, MIN_SHOOTER_RPM, MAX_SHOOTER_RPM), MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
 
@@ -234,6 +239,10 @@ public class Launcher {
         telemetry.addData("avgrpm: ", avgRpm);
     }
 
+    /**
+     *
+     * @return
+     */
     public Action waitForCharge(){
         return new Action() {
             @Override
@@ -247,14 +256,23 @@ public class Launcher {
         };
     }
 
-
+    /**
+     * Sets the launch power to maximum
+     */
     public void launchMax(){
         launcher.setPower(MAX_SHOOTER_SPEED);
     }
 
+    /**
+     * Sets the launch power to minimum
+     */
     public void launchMin(){
         launcher.setPower(MIN_SHOOTER_SPEED);
     }
+
+    /**
+     * Stops the launcher
+     */
     public void stop(){
         launcher.setPower(0.0);
         launcher2.setPower(0.0);

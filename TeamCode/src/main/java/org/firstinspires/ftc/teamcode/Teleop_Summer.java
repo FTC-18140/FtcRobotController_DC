@@ -32,6 +32,7 @@ public class Teleop_Summer extends OpMode {
     public void init() {
         robot.init(hardwareMap, telemetry, new Pose2d(-12, 12, 0));
         robot.launcher.color = alliance;
+
         theGamepad1 = new TBDGamepad(gamepad1);
         theGamepad2 = new TBDGamepad(gamepad2);
         // Tell the driver that initialization is complete.

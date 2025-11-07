@@ -149,8 +149,12 @@ public class ThunderBot2025
      * @param pipeline the pipeline you want it to read
      * @return returns the id
      */
-    public int lookForId(int pipeline){
+    public int lookForId(int pipeline, String alliance){
+        if (Objects.equals(alliance, "blue")) {
             launcher.turnToPosition(1);
+        } else {
+            launcher.turnToPosition(-1);
+        }
             limelight.SetPipeline(pipeline);
             return limelight.id();
     }
