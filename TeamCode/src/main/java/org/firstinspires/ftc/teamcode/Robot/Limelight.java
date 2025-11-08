@@ -73,9 +73,15 @@ public class Limelight {
      * @return
      */
     public double xdegrees(){
+        update();
         telemetry.addData("xdegrees: ", x);
         return x;
     }
+
+    /**
+     * Returns the id of the apriltag the limelight sees
+     * @return the id number
+     */
     public int id(){
         return id;
     }

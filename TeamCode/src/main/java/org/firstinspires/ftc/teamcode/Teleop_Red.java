@@ -119,8 +119,7 @@ public class Teleop_Red extends OpMode {
         telemetry.addData("rpm: ", robot.launcher.avgRpm * robot.launcher.timeDifference);
         telemetry.addData("flipper: ", robot.indexer.getFlipperPos());
         telemetry.addData("goal distance: ", robot.launcher.goalDistance(robot.drive.localizer.getPose()));
-
-
+        
         dashboard.sendTelemetryPacket(p);
     }
 }

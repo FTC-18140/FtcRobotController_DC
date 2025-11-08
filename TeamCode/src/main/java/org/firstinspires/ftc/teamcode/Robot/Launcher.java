@@ -14,7 +14,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.JavaUtil;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Utilities.MovingAverageFilter;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
@@ -42,6 +41,8 @@ public class Launcher {
 
     public static double MAX_SHOOTER_RPM = 1050;
     public static double MIN_SHOOTER_RPM = 900;
+    public static double SPIN_EFFICIENCY = 0.70;
+
     public static double  MAX_TURRET_POS = 1.5;
     public static double MIN_TURRET_POS = -1;
 
@@ -163,6 +164,7 @@ public class Launcher {
     /**
      * Takes how many degrees off the aprilTag is (via the limelight) and changes the turret target position based on that
      * @param limelightxdegrees
+     * @param
      */
     public void lockOn(double limelightxdegrees){
         //double turretAngle = Range.scale(0, 0, 1.0, 0, 2*Math.PI);
@@ -232,7 +234,7 @@ public class Launcher {
      * @param distance the distance to the goal
      */
     public void shoot(Pose2d robotPose, double distance){
-        power = calculatePower(goalDistance(robotPose), 89, Math.toRadians(60));
+        power = Range.clip(calculateWheelRPM(calculatevel_ball(goalDistance(robotPose)* 2.54 /100, .89, 60)), MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
 
         double ff = f*Math.sin(Math.toRadians(avgRpm*(90.0/1100)));
         double toLaunchPow = Range.clip(RPMController.calculate(avgRpm, power), -0.1, 1) + ff;
@@ -249,23 +251,33 @@ public class Launcher {
     /**
      * Calculates the rpm using some very complex untested math.
      * @param distance distance to the goal (in centimeters?)
-     * @param height height of the goal in centimeters
-     * @param hoodangle angle of the hood in cm
+     * @param height height of the goal in meters
+     * @param angleDegrees angle of the hood in degrees
      * @return the rpm that the wheel should be spinning at
      */
-    public double calculatePower(double distance, double height, double hoodangle){
-        double g = -9.1;
-        double coeff = .6;
-        double sinA = Math.sin(hoodangle);
-        double cosA = Math.cos(hoodangle);
-        double zterm = height - (sinA * distance/(cosA - g));
-        double sqrdxterm = .5 * g * Math.pow(distance, 2);
-        double numerator = Math.sqrt(sqrdxterm/zterm)+g;
-        double speed = numerator/cosA;
-        double pwr = (SHOOTER_RADIUS * (1-coeff))/speed;
-        pwr = Range.clip(pwr, MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
-            return pwr;
+    public double calculatevel_ball(double distance, double height, double angleDegrees){
+        double angleRad = Math.toRadians(angleDegrees);
+        double g = 9.81;
+        double numer = distance * distance * g;
+        double denom = 2 * Math.pow(Math.cos(angleRad), 2) * (distance * Math.tan(angleRad) - height);
+        double vel_ball = Math.sqrt(numer / denom);
+            return vel_ball;
     }
+    public double calculateWheelRPM(double velBall) {
+        // Wheel radius in meters (96 mm diameter Rhino wheel)
+        double wheelRadius = 0.096 / 2.0;
+
+        // Efficiency factor: fraction of wheel surface speed transferred to ball
+        // Adjust after testing; 0.85 is a good starting point
+
+
+        // Tangential speed relation: v_ball ≈ eff * v_wheel
+        // Solve for RPM
+        double rpm = (60.0 * velBall) / (2.0 * Math.PI * wheelRadius * SPIN_EFFICIENCY);
+
+        return rpm;
+    }
+
 
     /**
      * tells you whether the launcher is fast enough
