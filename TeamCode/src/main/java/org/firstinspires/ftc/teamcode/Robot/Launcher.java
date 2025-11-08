@@ -32,9 +32,12 @@ public class Launcher {
     PIDController RPMController;
 
     public double turret_target_pos = 0;
+    public double turret_pos = 0;
+    public double current_pos = 0;
+    public static double TURN_SPEED = 270;
 
     public double turret_current_pos = 0;
-    public static double TURN_SPEED = 0.9;
+
     public static double MAX_SHOOTER_SPEED = 0.73;
     public static double MIN_SHOOTER_SPEED = 1.0;
     public static double SHOOTER_RADIUS = 45.239;
@@ -174,8 +177,7 @@ public class Launcher {
         //double difference = targetDir.angleCast().toDouble() - trueAngle;
         updateturret_current_pos();
 
-        double difference = limelightxdegrees * 150 *TURRET_DEGREES_PER_SERVO_COMMAND;
-        difference = Range.clip(difference, -TURN_SPEED, TURN_SPEED);
+        double difference = limelightxdegrees * TURN_SPEED *TURRET_DEGREES_PER_SERVO_COMMAND;
 
         turret_target_pos = turret_current_pos + difference;
         turnToPosition(turret_target_pos);
