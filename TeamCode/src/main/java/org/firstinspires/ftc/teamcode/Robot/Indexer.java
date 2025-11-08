@@ -33,11 +33,13 @@ public class Indexer {
         LOADING
     }
     private IndexerState state = IndexerState.ALIGNED;
+    public static double LIMITER_OFFSET = 0.1;
+    double offset = 0;
     final double CPR = 8192;
     private double indexPos = 0;
     private double targetAngle = 0;
 
-    public static double p = 0.7, i = 0.001, d = 0.001;
+    public static double p = 0.6, i = 0.001, d = 0.001;
     PIDController angleController;
 
     public void init(HardwareMap hwMap, Telemetry telem){
@@ -85,6 +87,7 @@ public class Indexer {
             indexMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             //sets target position to the closets corresponding third(0, 1, 2)
             targetAngle = 0;
+            offset = LIMITER_OFFSET;
             setState(IndexerState.ALIGNED);
             return true;
         }else{
@@ -100,7 +103,7 @@ public class Indexer {
         //multiply by 3 to get get thirds
 
         telemetry.addData("Magnet: ", limitSwitch.getValue());
-        indexPos = 3 * indexMotor.getCurrentPosition()/CPR;
+        indexPos = 3 * indexMotor.getCurrentPosition()/CPR + offset;
 
         angleController.setPID(p, i, d);
 
@@ -156,7 +159,7 @@ public class Indexer {
         state = IndexerState.MANUAL;
         indexer.setPower(power);
 
-        indexPos = 3 * indexMotor.getCurrentPosition()/CPR;
+        indexPos = 3 * indexMotor.getCurrentPosition()/CPR + offset;
         //sets the target angle to the closest third
         targetAngle = Math.round(indexPos);
 
@@ -199,7 +202,7 @@ public class Indexer {
     public void unflip(){
         if(getFlipperPos() >= 0.5) {
             flipper.setPosition(0.25);
-            setState(IndexerState.ALIGNED);
+            cycle(-1);
         }
     }
     public double getFlipperPos(){
@@ -211,7 +214,7 @@ public class Indexer {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 flip();
-                return false;
+                return getFlipperPos() < 0.5;
             }
         };
     }

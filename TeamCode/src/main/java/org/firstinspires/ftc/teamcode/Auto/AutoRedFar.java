@@ -4,6 +4,7 @@ import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -18,6 +19,7 @@ public class AutoRedFar extends LinearOpMode{
     public void runOpMode() throws InterruptedException {
         Pose2d start = new Pose2d(AutoPositions.Positions.START_RED_FAR.position, Math.toRadians(90));
         Pose2d launchPos = new Pose2d(-52, -12, Math.toRadians(-24));
+        Pose2d intakePos = new Pose2d(-36, -48, Math.toRadians(-90));
 
 
         ThunderBot2025 robot = new ThunderBot2025();
@@ -36,11 +38,37 @@ public class AutoRedFar extends LinearOpMode{
                                     //new SleepAction(2),
 
                                     robot.launch(),
-                                    new SleepAction(0.1),
 
                                     robot.indexer.cycleAction(-1),
                                     robot.indexer.updateAction(),
-                                    robot.indexer.stopAction(),
+
+                                    robot.launch(),
+
+                                    robot.indexer.cycleAction(-1),
+                                    robot.indexer.updateAction(),
+
+                                    robot.launch(),
+
+                                    robot.intake.intakeStartAction(),
+                                    new ParallelAction(
+                                            robot.drive.actionBuilder(launchPos)
+                                                    .splineToSplineHeading(intakePos, Math.toRadians(-90))
+                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x, -52), Math.toRadians(-90), new TranslationalVelConstraint(12))
+                                                    .build(),
+                                            new SequentialAction(
+                                                    new SleepAction(2),
+                                                    robot.indexer.cycleAction(-1),
+                                                    new SleepAction(2),
+                                                    robot.indexer.cycleAction(-1),
+                                                    new SleepAction(2),
+                                                    robot.indexer.cycleAction(-1)
+                                            )
+                                    ),
+
+                                    robot.intake.intakeStopAction(),
+                                    robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, -52), Math.toRadians(-90)))
+                                            .strafeToSplineHeading(launchPos.position, Math.toRadians(0))
+                                            .build(),
 
                                     robot.launch(),
 
@@ -48,7 +76,12 @@ public class AutoRedFar extends LinearOpMode{
                                     robot.indexer.updateAction(),
 
                                     robot.launch(),
-                                    robot.indexer.stopAction(),
+
+                                    robot.indexer.cycleAction(-1),
+                                    robot.indexer.updateAction(),
+
+                                    robot.launch(),
+
                                     robot.drive.actionBuilder(launchPos)
                                             .strafeToSplineHeading(new Vector2d(-12, -12), Math.toRadians(0))
                                             .build()
