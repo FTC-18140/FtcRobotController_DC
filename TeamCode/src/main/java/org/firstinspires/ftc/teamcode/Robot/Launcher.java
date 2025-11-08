@@ -244,6 +244,14 @@ public class Launcher {
         telemetry.addData("target rpm: ", power);
         telemetry.addData("avgrpm: ", avgRpm);
     }
+
+    /**
+     * Calculates the rpm using some very complex untested math.
+     * @param distance distance to the goal (in centimeters?)
+     * @param height height of the goal in centimeters
+     * @param hoodangle angle of the hood in cm
+     * @return the rpm that the wheel should be spinning at
+     */
     public double calculatePower(double distance, double height, double hoodangle){
         double g = -9.1;
         double coeff = .6;
