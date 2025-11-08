@@ -34,13 +34,11 @@ public class Launcher {
     public double turret_target_pos = 0;
     public double turret_pos = 0;
     public double current_pos = 0;
-    public static double TURN_SPEED = 180;
-    public static double MAX_SHOOTER_SPEED = 0.73;
-    public static double MIN_SHOOTER_SPEED = 1.0;
+    public static double TURN_SPEED = 270;
 
     public static double MAX_SHOOTER_RPM = 1025;
     public static double MIN_SHOOTER_RPM = 800;
-    public static double  MAX_TURRET_POS = 1.5;
+    public static double  MAX_TURRET_POS = 2;
     public static double MIN_TURRET_POS = -1;
 
     public ElapsedTime timer;
@@ -237,15 +235,6 @@ public class Launcher {
                 return true;
             }
         };
-    }
-
-
-    public void launchMax(){
-        launcher.setPower(MAX_SHOOTER_SPEED);
-    }
-
-    public void launchMin(){
-        launcher.setPower(MIN_SHOOTER_SPEED);
     }
     public void stop(){
         launcher.setPower(0.0);

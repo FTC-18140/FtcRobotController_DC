@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.Utilities.TBDGamepad;
 @TeleOp
 public class LauncherTest extends OpMode {
     private TBDGamepad theGamepad1;
-    ThunderBot2025 robot = null;
+    ThunderBot2025 robot = new ThunderBot2025();
 
     @Override
     public void init() {

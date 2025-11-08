@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Auto;
 
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.RaceAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
@@ -32,25 +33,31 @@ public class AutoBlueFar extends LinearOpMode{
                                     robot.drive.actionBuilder(start)
                                             .strafeToSplineHeading(new Vector2d(launchPos.position.x, 12), Math.toRadians(24))
                                             .build(),
+                                    robot.intake.intakeStartAction(),
                                     //new SleepAction(2),
 
-                                    robot.launch(),
+                                    new RaceAction(
+                                            new SequentialAction(
+                                                robot.launch(),
 
-                                    robot.indexer.cycleAction(-1),
-                                    robot.indexer.updateAction(),
+                                                robot.indexer.cycleAction(-1),
+                                                robot.indexer.updateAction(),
 
-                                    robot.launch(),
+                                                robot.launch(),
 
-                                    robot.indexer.cycleAction(-1),
-                                    robot.indexer.updateAction(),
+                                                robot.indexer.cycleAction(-1),
+                                                robot.indexer.updateAction(),
 
-                                    robot.launch(),
-                                    robot.indexer.stopAction(),
+                                                robot.launch()
+                                            ),
+                                            new SleepAction(20)
+                                    ),
+                                    robot.intake.intakeStopAction(),
                                     robot.drive.actionBuilder(launchPos)
                                         .strafeToSplineHeading(new Vector2d(-12, 12), Math.toRadians(0))
                                         .build()
                             ),
-                        robot.chargeAction(robot.drive.localizer.getPose(), 20),
+                        robot.chargeAction(robot.drive.localizer.getPose(), 25),
                         robot.updateAction(),
                         robot.lockAction()
                 )

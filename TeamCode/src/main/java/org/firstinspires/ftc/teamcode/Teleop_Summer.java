@@ -8,6 +8,7 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.Robot.Indexer;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 import org.firstinspires.ftc.teamcode.Utilities.TBDGamepad;
 
@@ -52,16 +53,16 @@ public class Teleop_Summer extends OpMode {
         double turn = theGamepad1.getRightX();
         double speed = 0.7;
 
-        if(theGamepad1.getTriggerPressed(TBDGamepad.Trigger.RIGHT_TRIGGER)){
+        if(theGamepad1.getTriggerBoolean(TBDGamepad.Trigger.RIGHT_TRIGGER)){
             speed = 0.3;
-        } else if(theGamepad1.getTriggerPressed(TBDGamepad.Trigger.LEFT_TRIGGER)){
+        } else if(theGamepad1.getTriggerBoolean(TBDGamepad.Trigger.LEFT_TRIGGER)){
             speed = 1.0;
         }
 
 
         robot.update();
         if(Math.abs(theGamepad2.getRightX()) > 0.05){
-            robot.launcher.aim(theGamepad2.getRightX() * 0.2);
+            robot.launcher.aim(theGamepad2.getRightX() * -0.6);
         }else {
             robot.lockOn();
         }
@@ -86,14 +87,8 @@ public class Teleop_Summer extends OpMode {
         //Flipper / launch controls
         if(theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.RIGHT_TRIGGER)){
             robot.indexer.flip();
-            if(!barrel_spin){
-                robot.indexer.cycle(-1);
-                barrel_spin = true;
-            }
         } else {
-            //Prevents indexer from interfering with Flipper
             robot.indexer.unflip();
-            barrel_spin = true;
         }
 
 
@@ -107,13 +102,14 @@ public class Teleop_Summer extends OpMode {
             robot.indexer.cycle(-1);
         } else if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_RIGHT)) {
             robot.indexer.cycle(1);
+        } else if (robot.indexer.getState() == Indexer.IndexerState.MANUAL){
+            robot.indexer.setState(Indexer.IndexerState.UNALIGNED);
         }
 
         telemetry.addData("position X: ", robot.drive.localizer.getPose().position.x);
         telemetry.addData("position Y: ", robot.drive.localizer.getPose().position.y);
         telemetry.addData("heading: ", Math.toDegrees(robot.drive.localizer.getPose().heading.toDouble()));
         telemetry.addData("rpm: ", robot.launcher.avgRpm * robot.launcher.timeDifference);
-        telemetry.addData("flipper: ", robot.indexer.getFlipperPos());
         telemetry.addData("goal distance: ", robot.launcher.goalDistance(robot.drive.localizer.getPose()));
 
 

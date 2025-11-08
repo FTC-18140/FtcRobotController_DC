@@ -39,7 +39,7 @@ public class Indexer {
     private double indexPos = 0;
     private double targetAngle = 0;
 
-    public static double p = 0.7, i = 0.001, d = 0.001;
+    public static double p = 0.6, i = 0.001, d = 0.001;
     PIDController angleController;
 
     public void init(HardwareMap hwMap, Telemetry telem){
@@ -202,7 +202,7 @@ public class Indexer {
     public void unflip(){
         if(getFlipperPos() >= 0.5) {
             flipper.setPosition(0.25);
-            setState(IndexerState.ALIGNED);
+            cycle(-1);
         }
     }
     public double getFlipperPos(){
