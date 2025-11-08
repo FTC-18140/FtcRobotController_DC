@@ -261,7 +261,7 @@ public class Launcher {
         double numer = distance * distance * g;
         double denom = 2 * Math.pow(Math.cos(angleRad), 2) * (distance * Math.tan(angleRad) - height);
         double vel_ball = Math.sqrt(numer / denom);
-            return vel_ball;
+        return vel_ball;
     }
     public double calculateWheelRPM(double velBall) {
         // Wheel radius in meters (96 mm diameter Rhino wheel)
