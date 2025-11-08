@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.JavaUtil;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Utilities.MovingAverageFilter;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
@@ -37,6 +38,7 @@ public class Launcher {
     public static double TURN_SPEED = 0.9;
     public static double MAX_SHOOTER_SPEED = 0.73;
     public static double MIN_SHOOTER_SPEED = 1.0;
+    public static double SHOOTER_RADIUS = 45.239;
 
     public static double MAX_SHOOTER_RPM = 1050;
     public static double MIN_SHOOTER_RPM = 900;
@@ -229,7 +231,7 @@ public class Launcher {
      * @param distance the distance to the goal
      */
     public void shoot(Pose2d robotPose, double distance){
-        power = Range.clip(Range.scale(goalDistance(robotPose), 12, 130, MIN_SHOOTER_RPM, MAX_SHOOTER_RPM), MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
+        power = calculatePower(goalDistance(robotPose), 89, Math.toRadians(60));
 
         double ff = f*Math.sin(Math.toRadians(avgRpm*(90.0/1100)));
         double toLaunchPow = Range.clip(RPMController.calculate(avgRpm, power), -0.1, 1) + ff;
@@ -241,6 +243,19 @@ public class Launcher {
 
         telemetry.addData("target rpm: ", power);
         telemetry.addData("avgrpm: ", avgRpm);
+    }
+    public double calculatePower(double distance, double height, double hoodangle){
+        double g = -9.1;
+        double coeff = .6;
+        double sinA = Math.sin(hoodangle);
+        double cosA = Math.cos(hoodangle);
+        double zterm = height - (sinA * distance/(cosA - g));
+        double sqrdxterm = .5 * g * Math.pow(distance, 2);
+        double numerator = Math.sqrt(sqrdxterm/zterm)+g;
+        double speed = numerator/cosA;
+        double pwr = (SHOOTER_RADIUS * (1-coeff))/speed;
+        pwr = Range.clip(pwr, MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
+            return pwr;
     }
 
     /**
