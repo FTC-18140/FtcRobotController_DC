@@ -186,6 +186,7 @@ public class Launcher {
      */
     public void turnToPosition(double angle){
         turretAimPID.setPID(pTurret, iTurret, dTurret);
+
         angle = Range.clip(angle, MIN_TURRET_POS, MAX_TURRET_POS);
 
         double turret_pow = -turretAimPID.calculate(turret_current_pos, angle);

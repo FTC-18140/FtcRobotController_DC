@@ -199,9 +199,7 @@ public class ThunderBot2025
         } else {
             launcher.turnToPosition(1);
         }
-        lockOn();
-
-            return limelight.id();
+        return limelight.id();
     }
 
     /**
@@ -209,7 +207,6 @@ public class ThunderBot2025
      */
     public void lockOn(){
             launcher.lockOn(limelight.xdegrees());
-
     }
 
     /**
