@@ -44,9 +44,9 @@ public class Launcher {
 
     public static double MAX_SHOOTER_RPM = 1050;
     public static double MIN_SHOOTER_RPM = 900;
-    public static double SPIN_EFFICIENCY = 0.70;
+    public static double SPIN_EFFICIENCY = 1.25;
 
-    public static double  MAX_TURRET_POS = 1.5;
+    public static double  MAX_TURRET_POS = 2;
     public static double MIN_TURRET_POS = -1;
 
     public ElapsedTime timer;
@@ -221,6 +221,7 @@ public class Launcher {
                 turret.setPower(0);
             }
         }
+        turret_target_pos = turret_current_pos;
     }
 
     /**

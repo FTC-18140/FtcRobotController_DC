@@ -19,7 +19,7 @@ public class AutoRedFar extends LinearOpMode{
     public void runOpMode() throws InterruptedException {
         Pose2d start = new Pose2d(AutoPositions.Positions.START_RED_FAR.position, Math.toRadians(90));
         Pose2d launchPos = new Pose2d(-52, -12, Math.toRadians(-24));
-        Pose2d intakePos = new Pose2d(-36, -48, Math.toRadians(-90));
+        Pose2d intakePos = new Pose2d(-32, -48, Math.toRadians(-90));
 
 
         ThunderBot2025 robot = new ThunderBot2025();
@@ -58,9 +58,9 @@ public class AutoRedFar extends LinearOpMode{
                                             new SequentialAction(
                                                     new SleepAction(2),
                                                     robot.indexer.cycleAction(-1),
-                                                    new SleepAction(2),
+                                                    new SleepAction(1.5),
                                                     robot.indexer.cycleAction(-1),
-                                                    new SleepAction(2),
+                                                    new SleepAction(1.5),
                                                     robot.indexer.cycleAction(-1)
                                             )
                                     ),

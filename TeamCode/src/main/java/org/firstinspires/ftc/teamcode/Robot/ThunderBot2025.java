@@ -250,6 +250,7 @@ public class ThunderBot2025
         public Action launch(){
             return new SequentialAction(
                     launcher.waitForCharge(),
+                    new SleepAction(0.3),
                     indexer.flipperUpAction(),
                     new SleepAction(0.25),
                     indexer.flipperDownAction()

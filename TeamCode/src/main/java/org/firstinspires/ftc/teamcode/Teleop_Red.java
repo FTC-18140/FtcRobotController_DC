@@ -63,8 +63,10 @@ public class Teleop_Red extends OpMode {
 
         robot.update();
         if(Math.abs(theGamepad2.getRightX()) > 0.05){
-            robot.launcher.aim(theGamepad2.getRightX() * -0.6);
-        }else {
+            robot.launcher.aim(-theGamepad2.getRightX() + theGamepad1.getRightX() * speed);
+        } else if(Math.abs(theGamepad1.getRightX()) > 0.05){
+            robot.launcher.aim(theGamepad1.getRightX() * speed * 0.7);
+        } else {
             robot.lockOn();
         }
 
