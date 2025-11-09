@@ -32,15 +32,13 @@ public class Launcher {
     PIDController RPMController;
 
     public double turret_target_pos = 0;
-    public double turret_pos = 0;
-    public double current_pos = 0;
-    public static double TURN_SPEED = 270;
 
     public double turret_current_pos = 0;
+    public static double TURN_SPEED = 270;
 
     public static double MAX_SHOOTER_SPEED = 0.73;
     public static double MIN_SHOOTER_SPEED = 1.0;
-    public static double SHOOTER_RADIUS = 45.239;
+    public static double SHOOTER_RADIUS = .096 / 2.0;
 
     public static double MAX_SHOOTER_RPM = 1050;
     public static double MIN_SHOOTER_RPM = 900;
@@ -177,11 +175,28 @@ public class Launcher {
         //double difference = targetDir.angleCast().toDouble() - trueAngle;
         updateturret_current_pos();
 
-        double difference = limelightxdegrees * TURN_SPEED *TURRET_DEGREES_PER_SERVO_COMMAND;
+        double difference = limelightxdegrees * TURN_SPEED * TURRET_DEGREES_PER_SERVO_COMMAND;
 
         turret_target_pos = turret_current_pos + difference;
         turnToPosition(turret_target_pos);
         //turret_target_pos = Range.clip(turret_target_pos, 0, 1);
+        //turret_current_pos = launcher2.getCurrentPosition() * TURRET_DEGREES_PER_SERVO_COMMAND;
+
+        //double difference = limelightxdegrees * TURN_SPEED * TURRET_DEGREES_PER_SERVO_COMMAND;
+
+        //turret_target_pos = turret_current_pos + difference;
+
+        //turret_pos = Range.clip(turret_pos, 0, 1);
+        //turretAimPID.setPID(pTurret, iTurret, dTurret);
+        //turret_target_pos = Range.clip(turret_target_pos, MIN_TURRET_POS, MAX_TURRET_POS);
+
+        //double turret_pow = -turretAimPID.calculate(turret_current_pos, turret_target_pos);
+
+        //turret.setPower(turret_pow);
+
+        //telemetry.addData("turret position: ", turret_current_pos);
+        //telemetry.addData("turret target: ", turret_target_pos);
+        //telemetry.addData("turret power: ", turret_pow);
     }
 
     /**
@@ -268,7 +283,7 @@ public class Launcher {
     }
     public double calculateWheelRPM(double velBall) {
         // Wheel radius in meters (96 mm diameter Rhino wheel)
-        double wheelRadius = 0.096 / 2.0;
+        double wheelRadius = SHOOTER_RADIUS;
 
         // Efficiency factor: fraction of wheel surface speed transferred to ball
         // Adjust after testing; 0.85 is a good starting point
@@ -277,7 +292,6 @@ public class Launcher {
         // Tangential speed relation: v_ball ≈ eff * v_wheel
         // Solve for RPM
         double rpm = (60.0 * velBall) / (2.0 * Math.PI * wheelRadius * SPIN_EFFICIENCY);
-
         return rpm;
     }
 
