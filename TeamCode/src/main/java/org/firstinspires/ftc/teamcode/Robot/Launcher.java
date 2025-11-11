@@ -28,7 +28,7 @@ public class Launcher {
     DcMotorEx launcher = null;
     DcMotorEx launcher2 = null;
 
-    public static double p = 0.00145, i = 0.001, d = 0.000001, f = 0.0149;
+    public static double p = 0.00145, i = 0.001, d = 0.000001, f = .5;
     PIDController RPMController;
 
     public double turret_target_pos = 0;
@@ -52,6 +52,7 @@ public class Launcher {
 
     public double rpm = 0;
     public MovingAverageFilter RPMFilter = new MovingAverageFilter(2);
+    public double ff = f * (MAX_SHOOTER_RPM - MIN_SHOOTER_RPM) + MIN_SHOOTER_RPM;
     public double avgRpm = 0;
     public double power = 0;
     private double previousPos = 0;
@@ -254,7 +255,6 @@ public class Launcher {
     public void shoot(Pose2d robotPose, double distance){
         power = Range.clip(calculateWheelRPM(calculatevel_ball(goalDistance(robotPose)* 2.54 /100, .89, 60)), MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
 
-        double ff = f*Math.sin(Math.toRadians(avgRpm*(90.0/1100)));
         double toLaunchPow = Range.clip(RPMController.calculate(avgRpm, power), -0.1, 1) + ff;
         telemetry.addData("feedforward: ", ff);
 

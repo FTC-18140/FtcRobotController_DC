@@ -83,6 +83,7 @@ public class Limelight {
      * @return the id number
      */
     public int id(){
+        telemetry.addData("id: ",id);
         return id;
     }
     /*
