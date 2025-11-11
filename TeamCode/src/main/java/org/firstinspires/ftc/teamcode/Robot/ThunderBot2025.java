@@ -206,7 +206,7 @@ public class ThunderBot2025
      * Calls the launcher method lockOn with the degrees that the limelight sees
      */
     public void lockOn(){
-            launcher.lockOn(limelight.xdegrees());
+            launcher.lockOn(limelight.is_detecting_valid(), limelight.xdegrees(), drive.localizer.getPose());
     }
 
     /**

@@ -15,6 +15,7 @@ public class Limelight {
     Limelight3A limelight = null;
     HardwareMap hardwareMap;
     Telemetry telemetry;
+    LLResult result = null;
     int id = 0; // The ID number of the fiducial
     double x = 0; // Where it is (left-right)
     double y = 0; // Where it is (up-down)
@@ -53,7 +54,7 @@ public class Limelight {
      * Updates the values associated with the apriltags the limelight sees
      */
     public void update(){
-        LLResult result = limelight.getLatestResult();
+        result = limelight.getLatestResult();
         List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
         limelight.pipelineSwitch(index);
         for (LLResultTypes.FiducialResult fiducial : fiducials) {
@@ -85,6 +86,13 @@ public class Limelight {
     public int id(){
         telemetry.addData("id: ",id);
         return id;
+    }
+    public boolean is_detecting_valid(){
+        if(result != null && result.isValid()){
+            return true;
+        } else {
+            return false;
+        }
     }
     /*
     public static double tx(int pipeline){
