@@ -46,6 +46,8 @@ public class Launcher {
 
     public static double  MAX_TURRET_POS = 2;
     public static double MIN_TURRET_POS = -1;
+    public static double MAX_TURRET_POS_RAD = Math.toRadians(MAX_TURRET_POS * 90);
+    public static double MIN_TURRET_POS_RAD = Math.toRadians(MIN_TURRET_POS * 90);
 
     public ElapsedTime timer;
     double previousTime = 0;
@@ -169,11 +171,10 @@ public class Launcher {
      * @param robotPose
      */
     public void lockOn(boolean isvalid,double limelightxdegrees, Pose2d robotPose){
-        double turretAngle = Range.scale(0, 0, 1.0, 0, 2*Math.PI);
-        trueAngle = robotPose.heading.toDouble()+turretAngle;
+        double turretAngle = Math.toRadians(turret_current_pos * 90);
+        trueAngle = robotPose.heading.toDouble() + turretAngle;
         targetDir = targetPos.minus(robotPose.position);
         double difference = 0;
-
         if(isvalid){
             difference = limelightxdegrees * TURN_SPEED * TURRET_DEGREES_PER_SERVO_COMMAND;
         } else{
