@@ -20,6 +20,7 @@ public class Limelight {
     double y = 0; // Where it is (up-down)
     double distance = 0;
     int index = 1;
+    LLResult result;
 
 
     private static final double MINIMUM_TARGET_AREA = 10.0; // Example value, adjust as needed
@@ -53,7 +54,7 @@ public class Limelight {
      * Updates the values associated with the apriltags the limelight sees
      */
     public void update(){
-        LLResult result = limelight.getLatestResult();
+        result = limelight.getLatestResult();
         List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
         limelight.pipelineSwitch(index);
         for (LLResultTypes.FiducialResult fiducial : fiducials) {
@@ -76,6 +77,13 @@ public class Limelight {
         update();
         telemetry.addData("xdegrees: ", x);
         return x;
+    }
+    public boolean is_detecting_valid(){
+        if(result != null && result.isValid()){
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**

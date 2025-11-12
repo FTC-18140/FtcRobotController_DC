@@ -165,21 +165,22 @@ public class Launcher {
     /**
      * Takes how many degrees off the aprilTag is (via the limelight) and changes the turret target position based on that
      * @param limelightxdegrees
-     * @param
+     * @param robotPose
      */
-    public void lockOn(double limelightxdegrees){
-        //double turretAngle = Range.scale(0, 0, 1.0, 0, 2*Math.PI);
-        //trueAngle = robotPose.heading.toDouble()+turretAngle;
-        //targetDir = targetPos.minus(robotPose.position);
-
-        //double difference = targetDir.angleCast().toDouble() - trueAngle;
+    public void lockOn(boolean isvalid,double limelightxdegrees, Pose2d robotPose){
+        double turretAngle = Math.toRadians(turret_current_pos * 90);
+        trueAngle = robotPose.heading.toDouble() + turretAngle;
+        targetDir = targetPos.minus(robotPose.position);
+        double difference = 0;
+        if(isvalid){
+            difference = limelightxdegrees * TURN_SPEED * TURRET_DEGREES_PER_SERVO_COMMAND;
+        } else{
+            difference = targetDir.angleCast().toDouble() - trueAngle;
+        }
         updateturret_current_pos();
-
-        double difference = limelightxdegrees * TURN_SPEED * TURRET_DEGREES_PER_SERVO_COMMAND;
-
         turret_target_pos = turret_current_pos + difference;
+
         turnToPosition(turret_target_pos);
-        //turret_target_pos = Range.clip(turret_target_pos, 0, 1);
         //turret_current_pos = launcher2.getCurrentPosition() * TURRET_DEGREES_PER_SERVO_COMMAND;
 
         //double difference = limelightxdegrees * TURN_SPEED * TURRET_DEGREES_PER_SERVO_COMMAND;
