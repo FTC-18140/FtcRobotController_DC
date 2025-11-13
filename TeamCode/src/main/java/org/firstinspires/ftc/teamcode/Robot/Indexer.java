@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -13,6 +14,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 
 @Config
@@ -23,6 +25,7 @@ public class Indexer {
     DcMotor indexMotor = null;
     Servo flipper = null;
     TouchSensor limitSwitch = null;
+    ColorRangeSensor colorSensor = null;
 
     private static double index_error = 0.12;
     public enum IndexerState {
@@ -39,7 +42,7 @@ public class Indexer {
     private double indexPos = 0;
     private double targetAngle = 0;
 
-    public static double p = 0.156, i = 0.01, d = 0.01;
+    public static double p = 0.17, i = 0.0, d = 0.0;
     PIDController angleController;
 
     public void init(HardwareMap hwMap, Telemetry telem){
@@ -72,6 +75,11 @@ public class Indexer {
         } catch (Exception e) {
             telemetry.addData("Touch Sensor \"magnet\" not found", 0);
         }
+        try{
+            colorSensor = hardwareMap.get(ColorRangeSensor.class, "color");
+        } catch (Exception e) {
+            telemetry.addData("Color Range Sensor \"color\" not found", 0);
+        }
     }
 
     public void intake(){
@@ -103,6 +111,8 @@ public class Indexer {
         //multiply by 3 to get get thirds
 
         telemetry.addData("Magnet: ", limitSwitch.getValue());
+        telemetry.addData("Color Sensor Color: ", colorSensor.argb());
+        telemetry.addData("Color Sensor Distance: ", colorSensor.getDistance(DistanceUnit.MM));
         indexPos = 3 * indexMotor.getCurrentPosition()/CPR + offset;
 
         angleController.setPID(p, i, d);

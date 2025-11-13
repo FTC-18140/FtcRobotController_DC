@@ -31,34 +31,28 @@ public class AutoBlueFar extends LinearOpMode{
         robot.setColor("blue");
         Actions.runBlocking(
                 new ParallelAction(
-                            new SequentialAction(
+                        new SequentialAction(
+                            new RaceAction(
+                                new SequentialAction(
                                     new ParallelAction(
                                             robot.drive.actionBuilder(start)
                                                     .strafeToSplineHeading(new Vector2d(launchPos.position.x, 12), Math.toRadians(25))
-                                                    .build(),
-                                            robot.launcher.turretAimAction(0)
+                                                    .build()
                                     ),
                                     robot.intake.intakeStartAction(),
                                     //new SleepAction(2),
 
-                                    new RaceAction(
-                                            new SequentialAction(
-                                                    robot.intake.intakeStopAction(),
+
+                                    new SequentialAction(
                                                 robot.launch(),
-                                                    robot.intake.intakeStartAction(),
 
                                                 robot.indexer.cycleAction(-1),
                                                 robot.indexer.updateAction(),
-                                                    robot.intake.intakeStopAction(),
                                                 robot.launch(),
-                                                    robot.intake.intakeStartAction(),
 
                                                 robot.indexer.cycleAction(-1),
                                                 robot.indexer.updateAction(),
-                                                    robot.intake.intakeStopAction(),
                                                 robot.launch()
-                                            ),
-                                            new SleepAction(10)
                                     ),
                                     robot.launcher.stopAction(),
                                     robot.intake.intakeStartAction(),
@@ -72,8 +66,6 @@ public class AutoBlueFar extends LinearOpMode{
                                                     new SleepAction(3),
                                                     robot.indexer.cycleAction(-1),
                                                     new SleepAction(1),
-                                                    robot.indexer.cycleAction(-1),
-                                                    new SleepAction(1),
                                                     robot.indexer.cycleAction(-1)
                                             )
                                     ),
@@ -84,31 +76,35 @@ public class AutoBlueFar extends LinearOpMode{
                                             robot.launcher.turretAimAction(0)
                                     ),
                                     robot.launcher.stopAction(),
+                                        new SequentialAction(
+                                                robot.launch(),
 
-                                    new RaceAction(
-                                            new SequentialAction(
-                                                    robot.launch(),
+                                                robot.indexer.cycleAction(-1),
+                                                robot.indexer.updateAction(),
 
-                                                    robot.indexer.cycleAction(-1),
-                                                    robot.indexer.updateAction(),
+                                                robot.launch(),
 
-                                                    robot.launch(),
+                                                robot.indexer.cycleAction(-1),
+                                                robot.indexer.updateAction(),
 
-                                                    robot.indexer.cycleAction(-1),
-                                                    robot.indexer.updateAction(),
+                                                robot.launch(),
 
-                                                    robot.launch()
-                                            ),
-                                            new SleepAction(10)
-                                    ),
+                                                robot.indexer.cycleAction(-1),
+                                                robot.indexer.updateAction(),
 
-                                    robot.intake.intakeStopAction(),
-                                    robot.drive.actionBuilder(launchPos)
+                                                robot.launch()
+                                        )
+                                ),
+                                    new SleepAction(27)
+                            ),
+                                robot.intake.intakeStopAction(),
+                                robot.drive.actionBuilder(launchPos)
                                         .strafeToSplineHeading(new Vector2d(-12, 12), Math.toRadians(0))
                                         .build(),
-                                    robot.launcher.turretAimAction(0),
-                                    robot.launcher.stopAction()
-                            ),
+                                robot.launcher.turretAimAction(0),
+                                robot.launcher.stopAction()
+
+                        ),
                         robot.chargeAction(robot.drive.localizer.getPose(), 30),
                         robot.updateAction()
                 )

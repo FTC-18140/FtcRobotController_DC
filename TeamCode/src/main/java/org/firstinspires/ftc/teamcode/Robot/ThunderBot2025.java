@@ -244,11 +244,12 @@ public class ThunderBot2025
                 public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                     launcher.aim(lockOn());
                     lockOn();
-                    if (Math.abs(launcher.turret_current_pos - launcher.turret_target_pos) < 0.02) {
+                    if (Math.abs(launcher.turret_current_pos - launcher.turret_target_pos) < 0.035) {
                         launcher.aim(0);
                         return false;
+                    }else {
+                        return true;
                     }
-                    return true;
                 }
             };
         }

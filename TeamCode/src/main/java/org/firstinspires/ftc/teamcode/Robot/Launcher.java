@@ -28,11 +28,11 @@ public class Launcher {
     DcMotorEx launcher = null;
     DcMotorEx launcher2 = null;
 
-    public static double p = 0.004, i = 0.0, d = 0.0, f = 0.035;
+    public static double p = 0.0038, i = 0.0, d = 0.0, f = 0.565;
     PIDController RPMController;
 
     public double turret_target_pos = 0;
-    public static double TURN_SPEED = 270;
+    public static double TURN_SPEED = 210;
 
     public double turret_current_pos = 0;
 
@@ -40,7 +40,7 @@ public class Launcher {
     public static double MIN_SHOOTER_SPEED = 1.0;
     public static double SHOOTER_RADIUS = .096 / 2.0;
 
-    public static double MAX_SHOOTER_RPM = 1000;
+    public static double MAX_SHOOTER_RPM = 1010;
     public static double MIN_SHOOTER_RPM = 850;
     public static double SPIN_EFFICIENCY = 1.2;
 
@@ -52,7 +52,7 @@ public class Launcher {
 
     public double rpm = 0;
     public MovingAverageFilter RPMFilter = new MovingAverageFilter(2);
-    public double ff = f * (MAX_SHOOTER_RPM - MIN_SHOOTER_RPM) + MIN_SHOOTER_RPM;
+    public double ff = f;
     public double avgRpm = 0;
     public double power = 0;
     private double previousPos = 0;
@@ -64,7 +64,7 @@ public class Launcher {
 
     CRServo turret = null;
     DcMotor turretEnc = null;
-    public static double pTurret = 0.9, iTurret = 0.3, dTurret = 0.0000001;
+    public static double pTurret = 0.87, iTurret = 0.8, dTurret = 0.01;
     PIDController turretAimPID = new PIDController(pTurret, iTurret, dTurret);
     public static double INITIAL_TURRET_POS = .5;
     public static double TURRET_GEAR_RATIO = (double) 40/190;
@@ -89,7 +89,7 @@ public class Launcher {
             launcher = hardwareMap.get(DcMotorEx.class,"launcher");
             //launcher.setDirection(DcMotorSimple.Direction.REVERSE);
             launcher.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            launcher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            launcher.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         } catch (Exception e) {
             telemetry.addData("DcMotor \"launcher\" not found", 0);
         }
@@ -145,6 +145,7 @@ public class Launcher {
 
         //turret_target_pos = Range.clip(turret_target_pos, 0, 1);
         turretAimPID.setPID(pTurret, iTurret, dTurret);
+        RPMController.setPID(p, i, d);
 
         telemetry.addData("launcher vel: ", launcher.getVelocity());
         telemetry.addData("launcher2 vel: ", launcher2.getVelocity());
@@ -176,7 +177,7 @@ public class Launcher {
         //double difference = targetDir.angleCast().toDouble() - trueAngle;
         updateturret_current_pos();
 
-        double difference = limelightxdegrees * TURN_SPEED *TURRET_DEGREES_PER_SERVO_COMMAND;
+        double difference = limelightxdegrees * TURN_SPEED * TURRET_DEGREES_PER_SERVO_COMMAND;
 
         turret_target_pos = turret_current_pos + difference;
         return powerToPosition(turret_target_pos);
@@ -189,7 +190,7 @@ public class Launcher {
      */
     public boolean turnToPosition(double angle){
         aim(powerToPosition(angle));
-        if (Math.abs(turret_current_pos - turret_target_pos) < 0.001){
+        if (Math.abs(turret_current_pos - angle) < 0.003){
             aim(0);
             return true;
         }
@@ -267,16 +268,17 @@ public class Launcher {
     public void shoot(Pose2d robotPose, double distance){
         power = Range.clip(calculateWheelRPM(calculatevel_ball(goalDistance(robotPose)* 2.54 /100, .89, 60)), MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
 
-        double ff = f;
+        ff = f;
         double toLaunchPow = Range.clip(RPMController.calculate(avgRpm, power), -0.1, 1) + ff;
         telemetry.addData("feedforward: ", ff);
+        telemetry.addData("pid: ", RPMController.calculate(avgRpm, power));
 
         launcher.setPower(toLaunchPow);
         launcher2.setPower(toLaunchPow);
         telemetry.addData("power: ", toLaunchPow);
 
-        telemetry.addData("target rpm: ", power);
-        telemetry.addData("avgrpm: ", avgRpm);
+//        telemetry.addData("target rpm: ", power);
+//        telemetry.addData("avgrpm: ", avgRpm);
     }
 
     /**
@@ -331,7 +333,7 @@ public class Launcher {
      * Sets the launch power to maximum
      */
     public void launchMax(){
-        launcher.setPower(MAX_SHOOTER_SPEED);
+        launcher.setPower(f);
     }
 
     /**
