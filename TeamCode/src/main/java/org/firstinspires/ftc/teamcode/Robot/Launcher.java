@@ -38,7 +38,7 @@ public class Launcher {
 
     public static double MAX_SHOOTER_SPEED = 0.73;
     public static double MIN_SHOOTER_SPEED = 1.0;
-    public static double SHOOTER_RADIUS = 45.239;
+    public static double SHOOTER_RADIUS = .096 / 2.0;
 
     public static double MAX_SHOOTER_RPM = 1000;
     public static double MIN_SHOOTER_RPM = 850;
@@ -52,6 +52,7 @@ public class Launcher {
 
     public double rpm = 0;
     public MovingAverageFilter RPMFilter = new MovingAverageFilter(2);
+    public double ff = f * (MAX_SHOOTER_RPM - MIN_SHOOTER_RPM) + MIN_SHOOTER_RPM;
     public double avgRpm = 0;
     public double power = 0;
     private double previousPos = 0;
@@ -295,7 +296,7 @@ public class Launcher {
     }
     public double calculateWheelRPM(double velBall) {
         // Wheel radius in meters (96 mm diameter Rhino wheel)
-        double wheelRadius = 0.096 / 2.0;
+        double wheelRadius = SHOOTER_RADIUS;
 
         // Efficiency factor: fraction of wheel surface speed transferred to ball
         // Adjust after testing; 0.85 is a good starting point
