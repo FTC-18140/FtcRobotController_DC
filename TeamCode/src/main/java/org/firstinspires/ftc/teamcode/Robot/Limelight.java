@@ -86,6 +86,17 @@ public class Limelight {
         telemetry.addData("id: ",id);
         return id;
     }
+    /**
+     * changes the pipeline
+     * reads whatever id is in front of the limelight
+     *
+     * @param pipeline the pipeline you want it to read
+     * @return returns the id
+     */
+    public int limelightId(int pipeline){
+        SetPipeline(pipeline);
+        return id;
+    }
     /*
     public static double tx(int pipeline){
         limelight.pipelineSwitch(pipeline);

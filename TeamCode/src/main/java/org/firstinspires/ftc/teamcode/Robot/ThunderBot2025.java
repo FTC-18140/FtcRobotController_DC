@@ -187,21 +187,8 @@ public class ThunderBot2025
             };
         }
 
-    /**
-     * turns the turret to point down the field (hopefully)
-     * reads the id
-     * @param pipeline the pipeline you want it to read
-     * @return returns the id
-     */
-    public int lookForId(int pipeline, String alliance){
-        limelight.SetPipeline(pipeline);
-        if (Objects.equals(color, "blue")) {
-            launcher.powerToPosition(-1);
-        } else {
-            launcher.powerToPosition(1);
-        }
-        return limelight.id();
-    }
+
+
 
     /**
      * Calls the launcher method lockOn with the degrees that the limelight sees
