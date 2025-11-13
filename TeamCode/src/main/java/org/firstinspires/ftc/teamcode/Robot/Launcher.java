@@ -28,12 +28,10 @@ public class Launcher {
     DcMotorEx launcher = null;
     DcMotorEx launcher2 = null;
 
-    public static double p = 0.00145, i = 0.001, d = 0.000001, f = 0.0149;
+    public static double p = 0.004, i = 0.0, d = 0.0, f = 0.035;
     PIDController RPMController;
 
     public double turret_target_pos = 0;
-    public double turret_pos = 0;
-    public double current_pos = 0;
     public static double TURN_SPEED = 270;
 
     public double turret_current_pos = 0;
@@ -42,9 +40,9 @@ public class Launcher {
     public static double MIN_SHOOTER_SPEED = 1.0;
     public static double SHOOTER_RADIUS = 45.239;
 
-    public static double MAX_SHOOTER_RPM = 1050;
-    public static double MIN_SHOOTER_RPM = 900;
-    public static double SPIN_EFFICIENCY = 1.25;
+    public static double MAX_SHOOTER_RPM = 1000;
+    public static double MIN_SHOOTER_RPM = 850;
+    public static double SPIN_EFFICIENCY = 1.2;
 
     public static double  MAX_TURRET_POS = 2;
     public static double MIN_TURRET_POS = -1;
@@ -58,14 +56,14 @@ public class Launcher {
     public double power = 0;
     private double previousPos = 0;
     public double timeDifference = 0;
-    static double targetX = 50;
-    static double targetY = 50;
+    static double targetX = 60;
+    static double targetY = 60;
 
     public String color = "blue";
 
     CRServo turret = null;
     DcMotor turretEnc = null;
-    public static double pTurret = 0.9, iTurret = 0.05, dTurret = 0.0000001;
+    public static double pTurret = 0.9, iTurret = 0.3, dTurret = 0.0000001;
     PIDController turretAimPID = new PIDController(pTurret, iTurret, dTurret);
     public static double INITIAL_TURRET_POS = .5;
     public static double TURRET_GEAR_RATIO = (double) 40/190;
@@ -169,7 +167,7 @@ public class Launcher {
      * @param limelightxdegrees
      * @param
      */
-    public void lockOn(double limelightxdegrees){
+    public double lockOn(double limelightxdegrees){
         //double turretAngle = Range.scale(0, 0, 1.0, 0, 2*Math.PI);
         //trueAngle = robotPose.heading.toDouble()+turretAngle;
         //targetDir = targetPos.minus(robotPose.position);
@@ -180,7 +178,7 @@ public class Launcher {
         double difference = limelightxdegrees * TURN_SPEED *TURRET_DEGREES_PER_SERVO_COMMAND;
 
         turret_target_pos = turret_current_pos + difference;
-        turnToPosition(turret_target_pos);
+        return powerToPosition(turret_target_pos);
         //turret_target_pos = Range.clip(turret_target_pos, 0, 1);
     }
 
@@ -188,18 +186,45 @@ public class Launcher {
      * Turns the turret to a particular position, adds some telem :)
      * @param angle The position you want the turret to rotate to; 1 is 90 degrees clockwise.
      */
-    public void turnToPosition(double angle){
+    public boolean turnToPosition(double angle){
+        aim(powerToPosition(angle));
+        if (Math.abs(turret_current_pos - turret_target_pos) < 0.001){
+            aim(0);
+            return true;
+        }
+        return false;
+    }
+
+    public Action turretAimAction(double angle){
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                return !turnToPosition(angle);
+            }
+        };
+    }
+    public double powerToPosition(double angle){
         turretAimPID.setPID(pTurret, iTurret, dTurret);
 
         angle = Range.clip(angle, MIN_TURRET_POS, MAX_TURRET_POS);
 
         double turret_pow = -turretAimPID.calculate(turret_current_pos, angle);
 
-        turret.setPower(turret_pow);
-
         telemetry.addData("turret position: ", turret_current_pos);
         telemetry.addData("turret target: ", angle);
         telemetry.addData("turret power: ", turret_pow);
+
+        return turret_pow;
+    }
+
+    public Action stopAction(){
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                aim(0);
+                return false;
+            }
+        };
     }
 
     /**
@@ -220,6 +245,8 @@ public class Launcher {
             } else {
                 turret.setPower(0);
             }
+        } else {
+            turret.setPower(dir);
         }
         turret_target_pos = turret_current_pos;
     }
@@ -239,7 +266,7 @@ public class Launcher {
     public void shoot(Pose2d robotPose, double distance){
         power = Range.clip(calculateWheelRPM(calculatevel_ball(goalDistance(robotPose)* 2.54 /100, .89, 60)), MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
 
-        double ff = f*Math.sin(Math.toRadians(avgRpm*(90.0/1100)));
+        double ff = f;
         double toLaunchPow = Range.clip(RPMController.calculate(avgRpm, power), -0.1, 1) + ff;
         telemetry.addData("feedforward: ", ff);
 

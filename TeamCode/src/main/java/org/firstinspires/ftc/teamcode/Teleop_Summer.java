@@ -33,6 +33,7 @@ public class Teleop_Summer extends OpMode {
     public void init() {
         robot.init(hardwareMap, telemetry, new Pose2d(-12, 12, 0));
         robot.launcher.color = alliance;
+        robot.setColor(alliance);
 
         theGamepad1 = new TBDGamepad(gamepad1);
         theGamepad2 = new TBDGamepad(gamepad2);
@@ -64,11 +65,11 @@ public class Teleop_Summer extends OpMode {
         robot.update();
 
         if(Math.abs(theGamepad2.getRightX()) > 0.05){
-            robot.launcher.aim(-theGamepad2.getRightX() + theGamepad1.getRightX() * speed);
+            robot.launcher.aim(-1.2 *theGamepad2.getRightX() + theGamepad1.getRightX() * speed);
         } else if(Math.abs(theGamepad1.getRightX()) > 0.05){
-            robot.launcher.aim(theGamepad1.getRightX() * speed * 0.7);
+            robot.launcher.aim(theGamepad1.getRightX() * speed * 0.7 + robot.lockOn());
         } else {
-            robot.lockOn();
+            robot.launcher.aim(robot.lockOn());
         }
 
         robot.drive(forward, strafe, turn * 0.7, speed, p);
@@ -111,6 +112,7 @@ public class Teleop_Summer extends OpMode {
             robot.indexer.setState(Indexer.IndexerState.UNALIGNED);
         }
 
+        robot.drive.localizer.update();
         telemetry.addData("position X: ", robot.drive.localizer.getPose().position.x);
         telemetry.addData("position Y: ", robot.drive.localizer.getPose().position.y);
         telemetry.addData("heading: ", Math.toDegrees(robot.drive.localizer.getPose().heading.toDouble()));

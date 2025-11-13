@@ -7,6 +7,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.SequentialAction;
@@ -33,7 +34,7 @@ public class ThunderBot2025
 
     public String color = "blue";
     private Telemetry telemetry = null;
-    public static boolean field_centric = false;
+    public static boolean field_centric = true;
 
     /**
      * initiolization for ThunderBot2025
@@ -78,10 +79,10 @@ public class ThunderBot2025
         color = alliance;
         if (Objects.equals(color, "blue")) {
             limelight.SetPipeline(1);
-            launcher.turret_target_pos = 0.5;
+            launcher.turret_target_pos = 0;
         }else{
             limelight.SetPipeline(2);
-            launcher.turret_target_pos = 0.5;
+            launcher.turret_target_pos = 0;
         }
     }
 
@@ -145,7 +146,7 @@ public class ThunderBot2025
     private void fieldCentricDrive(double north, double east, double clockwise, double speed, TelemetryPacket p)
     {
         drive.updatePoseEstimate();
-        double heading = drive.localizer.getPose().heading.toDouble();
+        double heading = drive.localizer.getPose().heading.toDouble() - Math.toRadians(90);
         PoseVelocity2d thePose;
         Vector2d theVector;
         theVector = new Vector2d(
@@ -195,9 +196,9 @@ public class ThunderBot2025
     public int lookForId(int pipeline, String alliance){
         limelight.SetPipeline(pipeline);
         if (Objects.equals(color, "blue")) {
-            launcher.turnToPosition(-1);
+            launcher.powerToPosition(-1);
         } else {
-            launcher.turnToPosition(1);
+            launcher.powerToPosition(1);
         }
         return limelight.id();
     }
@@ -205,8 +206,8 @@ public class ThunderBot2025
     /**
      * Calls the launcher method lockOn with the degrees that the limelight sees
      */
-    public void lockOn(){
-            launcher.lockOn(limelight.xdegrees());
+    public double lockOn(){
+        return launcher.lockOn(limelight.xdegrees());
     }
 
     /**
@@ -241,7 +242,12 @@ public class ThunderBot2025
             return new Action() {
                 @Override
                 public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                    launcher.aim(lockOn());
                     lockOn();
+                    if (Math.abs(launcher.turret_current_pos - launcher.turret_target_pos) < 0.02) {
+                        launcher.aim(0);
+                        return false;
+                    }
                     return true;
                 }
             };
@@ -249,10 +255,13 @@ public class ThunderBot2025
         //Actions
         public Action launch(){
             return new SequentialAction(
-                    launcher.waitForCharge(),
-                    new SleepAction(0.3),
+                    new ParallelAction(
+                            launcher.waitForCharge(),
+                            lockAction()
+                    ),
+                    launcher.stopAction(),
                     indexer.flipperUpAction(),
-                    new SleepAction(0.25),
+                    new SleepAction(0.15),
                     indexer.flipperDownAction()
             );
         }
