@@ -28,7 +28,7 @@ public class Launcher {
     DcMotorEx launcher = null;
     DcMotorEx launcher2 = null;
 
-    public static double p = 0.0038, i = 0.0, d = 0.0, f = 0.565;
+    public static double p = 0.0039, i = 0.0, d = 0.0, fMax = 0.563, fMin = 0.27;
     PIDController RPMController;
 
     public double turret_target_pos = 0;
@@ -41,7 +41,7 @@ public class Launcher {
     public static double SHOOTER_RADIUS = .096 / 2.0;
 
     public static double MAX_SHOOTER_RPM = 1010;
-    public static double MIN_SHOOTER_RPM = 850;
+    public static double MIN_SHOOTER_RPM = 750;
     public static double SPIN_EFFICIENCY = 1.2;
 
     public static double  MAX_TURRET_POS = 2;
@@ -52,7 +52,7 @@ public class Launcher {
 
     public double rpm = 0;
     public MovingAverageFilter RPMFilter = new MovingAverageFilter(2);
-    public double ff = f;
+    public double ff = fMax;
     public double avgRpm = 0;
     public double power = 0;
     private double previousPos = 0;
@@ -61,6 +61,8 @@ public class Launcher {
     static double targetY = 60;
 
     public String color = "blue";
+
+    double previous_limelight_x = 0;
 
     CRServo turret = null;
     DcMotor turretEnc = null;
@@ -176,11 +178,26 @@ public class Launcher {
 
         //double difference = targetDir.angleCast().toDouble() - trueAngle;
         updateturret_current_pos();
+        if(limelightxdegrees != previous_limelight_x){
+            double difference = limelightxdegrees * TURN_SPEED * TURRET_DEGREES_PER_SERVO_COMMAND;
 
-        double difference = limelightxdegrees * TURN_SPEED * TURRET_DEGREES_PER_SERVO_COMMAND;
+            turret_target_pos = turret_current_pos + difference;
+            telemetry.addData("AprilTag detected", 1);
 
-        turret_target_pos = turret_current_pos + difference;
-        return powerToPosition(turret_target_pos);
+            previous_limelight_x = limelightxdegrees;
+
+            return powerToPosition(turret_target_pos);
+        } else {
+            telemetry.addData("AprilTag not detected", 0);
+            turretAimPID.reset();
+
+            previous_limelight_x = limelightxdegrees;
+
+            return 0;
+
+        }
+
+
         //turret_target_pos = Range.clip(turret_target_pos, 0, 1);
     }
 
@@ -268,7 +285,7 @@ public class Launcher {
     public void shoot(Pose2d robotPose, double distance){
         power = Range.clip(calculateWheelRPM(calculatevel_ball(goalDistance(robotPose)* 2.54 /100, .89, 60)), MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
 
-        ff = f;
+        ff = Range.clip(Range.scale(goalDistance(robotPose), 48, 130, fMin, fMax), fMin, fMax);
         double toLaunchPow = Range.clip(RPMController.calculate(avgRpm, power), -0.1, 1) + ff;
         telemetry.addData("feedforward: ", ff);
         telemetry.addData("pid: ", RPMController.calculate(avgRpm, power));
@@ -333,7 +350,7 @@ public class Launcher {
      * Sets the launch power to maximum
      */
     public void launchMax(){
-        launcher.setPower(f);
+        launcher.setPower(fMax);
     }
 
     /**

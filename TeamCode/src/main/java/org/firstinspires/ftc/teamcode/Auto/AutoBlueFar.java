@@ -95,7 +95,7 @@ public class AutoBlueFar extends LinearOpMode{
                                                 robot.launch()
                                         )
                                 ),
-                                    new SleepAction(27)
+                                    new SleepAction(28)
                             ),
                                 robot.intake.intakeStopAction(),
                                 robot.drive.actionBuilder(launchPos)
