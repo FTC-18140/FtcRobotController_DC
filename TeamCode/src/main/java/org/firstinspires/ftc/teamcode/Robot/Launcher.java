@@ -54,7 +54,7 @@ public class Launcher {
     public MovingAverageFilter RPMFilter = new MovingAverageFilter(2);
     public double ff = fMax;
     public double avgRpm = 0;
-    public double power = 0;
+    public double targetRpm = 0;
     private double previousPos = 0;
     public double timeDifference = 0;
     static double targetX = 60;
@@ -283,12 +283,12 @@ public class Launcher {
      * @param distance the distance to the goal
      */
     public void shoot(Pose2d robotPose, double distance){
-        power = Range.clip(calculateWheelRPM(calculatevel_ball(goalDistance(robotPose)* 2.54 /100, .89, 60)), MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
+        targetRpm = Range.clip(calculateWheelRPM(calculatevel_ball(goalDistance(robotPose)* 2.54 /100, .89, 60)), MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
 
         ff = Range.clip(Range.scale(goalDistance(robotPose), 48, 130, fMin, fMax), fMin, fMax);
-        double toLaunchPow = Range.clip(RPMController.calculate(avgRpm, power), -0.1, 1) + ff;
+        double toLaunchPow = Range.clip(RPMController.calculate(avgRpm, targetRpm), -0.1, 1) + ff;
         telemetry.addData("feedforward: ", ff);
-        telemetry.addData("pid: ", RPMController.calculate(avgRpm, power));
+        telemetry.addData("pid: ", RPMController.calculate(avgRpm, targetRpm));
 
         launcher.setPower(toLaunchPow);
         launcher2.setPower(toLaunchPow);
@@ -338,7 +338,7 @@ public class Launcher {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 //double power = Range.clip(Range.scale(goalDistance(pose), 12, 130, MIN_SHOOTER_RPM, MAX_SHOOTER_RPM), MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
-                if((power - avgRpm) < 0.275){
+                if((targetRpm - avgRpm) < 0.275){
                     return false;
                 }
                 return true;

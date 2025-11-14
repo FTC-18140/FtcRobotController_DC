@@ -168,7 +168,7 @@ public class ThunderBot2025
         public void update(){
             indexer.update();
             launcher.update();
-            led.update(launcher.avgRpm, launcher.power);
+            led.update(launcher.avgRpm, launcher.targetRpm);
             limelight.update();
             limelight.xdegrees();
         }
