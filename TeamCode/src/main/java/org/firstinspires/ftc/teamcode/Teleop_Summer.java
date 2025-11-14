@@ -118,7 +118,7 @@ public class Teleop_Summer extends OpMode {
         telemetry.addData("heading: ", Math.toDegrees(robot.drive.localizer.getPose().heading.toDouble()));
         telemetry.addData("rpm: ", robot.launcher.avgRpm);
         telemetry.addData("goal distance: ", robot.launcher.goalDistance(robot.drive.localizer.getPose()));
-        telemetry.addData("target rpm: ", robot.launcher.power);
+        telemetry.addData("target rpm: ", robot.launcher.targetRpm);
 
 
 
