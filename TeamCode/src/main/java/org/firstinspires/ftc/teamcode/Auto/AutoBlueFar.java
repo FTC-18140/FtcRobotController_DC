@@ -18,9 +18,9 @@ public class AutoBlueFar extends LinearOpMode{
 
     @Override
     public void runOpMode() throws InterruptedException {
-        Pose2d start = new Pose2d(AutoPositions.Positions.START_BLUE_FAR.position, Math.toRadians(-90));
-        Pose2d launchPos = new Pose2d(-52, 12, Math.toRadians(25));
-        Pose2d intakePos = new Pose2d(-32, 32, Math.toRadians(90));
+        Pose2d start = new Pose2d(AutoPositions.Positions.START_BLUE_FAR.position, Math.toRadians(0));
+        Pose2d launchPos = new Pose2d(-52, 12, Math.toRadians(23));
+        Pose2d intakePos = new Pose2d(-34.5, 32, Math.toRadians(90));
 
         ThunderBot2025 robot = new ThunderBot2025();
 
@@ -36,7 +36,7 @@ public class AutoBlueFar extends LinearOpMode{
                                 new SequentialAction(
                                     new ParallelAction(
                                             robot.drive.actionBuilder(start)
-                                                    .strafeToSplineHeading(new Vector2d(launchPos.position.x, 12), Math.toRadians(25))
+                                                    .strafeToSplineHeading(new Vector2d(launchPos.position.x, 12), Math.toRadians(23))
                                                     .build()
                                     ),
                                     robot.intake.intakeStartAction(),
@@ -44,15 +44,19 @@ public class AutoBlueFar extends LinearOpMode{
 
 
                                     new SequentialAction(
+                                            robot.intake.intakeStopAction(),
                                                 robot.launch(),
+                                            robot.intake.intakeStartAction(),
 
-                                                robot.indexer.cycleAction(-1),
                                                 robot.indexer.updateAction(),
-                                                robot.launch(),
+                                            robot.intake.intakeStopAction(),
+                                            robot.launch(),
+                                            robot.intake.intakeStartAction(),
 
-                                                robot.indexer.cycleAction(-1),
                                                 robot.indexer.updateAction(),
-                                                robot.launch()
+                                            robot.intake.intakeStopAction(),
+                                            robot.launch(),
+                                            robot.intake.intakeStartAction()
                                     ),
                                     robot.launcher.stopAction(),
                                     robot.intake.intakeStartAction(),
@@ -71,31 +75,36 @@ public class AutoBlueFar extends LinearOpMode{
                                     ),
                                     new ParallelAction(
                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, 52), Math.toRadians(90)))
-                                                .strafeToSplineHeading(launchPos.position, Math.toRadians(25))
+                                                .strafeToSplineHeading(launchPos.position, Math.toRadians(23))
                                                 .build(),
                                             robot.launcher.turretAimAction(0)
                                     ),
                                     robot.launcher.stopAction(),
                                         new SequentialAction(
+                                                robot.intake.intakeStopAction(),
                                                 robot.launch(),
+                                                robot.intake.intakeStartAction(),
 
-                                                robot.indexer.cycleAction(-1),
                                                 robot.indexer.updateAction(),
 
+                                                robot.intake.intakeStopAction(),
                                                 robot.launch(),
+                                                robot.intake.intakeStartAction(),
 
-                                                robot.indexer.cycleAction(-1),
                                                 robot.indexer.updateAction(),
 
+                                                robot.intake.intakeStopAction(),
                                                 robot.launch(),
+                                                robot.intake.intakeStartAction(),
 
-                                                robot.indexer.cycleAction(-1),
                                                 robot.indexer.updateAction(),
 
-                                                robot.launch()
+                                                robot.intake.intakeStopAction(),
+                                                robot.launch(),
+                                                robot.intake.intakeStartAction()
                                         )
                                 ),
-                                    new SleepAction(28)
+                                    new SleepAction(27)
                             ),
                                 robot.intake.intakeStopAction(),
                                 robot.drive.actionBuilder(launchPos)

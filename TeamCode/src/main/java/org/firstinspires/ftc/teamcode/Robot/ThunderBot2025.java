@@ -79,9 +79,11 @@ public class ThunderBot2025
         color = alliance;
         if (Objects.equals(color, "blue")) {
             limelight.SetPipeline(1);
+            launcher.color = "blue";
             launcher.turret_target_pos = 0;
         }else{
             limelight.SetPipeline(2);
+            launcher.color = "red";
             launcher.turret_target_pos = 0;
         }
     }
@@ -194,7 +196,8 @@ public class ThunderBot2025
      * Calls the launcher method lockOn with the degrees that the limelight sees
      */
     public double lockOn(){
-        return launcher.lockOn(limelight.xdegrees());
+        drive.updatePoseEstimate();
+        return launcher.lockOn(limelight.xdegrees(), drive.localizer.getPose());
     }
 
     /**
@@ -229,9 +232,9 @@ public class ThunderBot2025
             return new Action() {
                 @Override
                 public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                    update();
                     launcher.aim(lockOn());
-                    lockOn();
-                    if (Math.abs(launcher.turret_current_pos - launcher.turret_target_pos) < 0.035) {
+                    if (Math.abs(launcher.turret_current_pos - launcher.turret_target_pos) < 0.04) {
                         launcher.aim(0);
                         return false;
                     }else {
@@ -250,7 +253,8 @@ public class ThunderBot2025
                     launcher.stopAction(),
                     indexer.flipperUpAction(),
                     new SleepAction(0.15),
-                    indexer.flipperDownAction()
+                    indexer.flipperDownAction(),
+                    new SleepAction(0.15)
             );
         }
 

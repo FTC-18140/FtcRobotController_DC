@@ -42,7 +42,7 @@ public class Indexer {
     private double indexPos = 0;
     private double targetAngle = 0;
 
-    public static double p = 0.17, i = 0.001, d = 0.0;
+    public static double p = 0.147, i = 0.003, d = 120;
     PIDController angleController;
 
     public void init(HardwareMap hwMap, Telemetry telem){
@@ -180,6 +180,7 @@ public class Indexer {
         //shifts the target angle by a third
         setState(IndexerState.UNALIGNED);
         targetAngle += dir;
+        angleController.reset();
     }
 
     public Action cycleAction(double dir){

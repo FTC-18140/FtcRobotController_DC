@@ -61,10 +61,10 @@ public class Limelight {
             x = fiducial.getTargetXDegrees(); // Where it is (left-right)
             y = fiducial.getTargetYDegrees(); // Where it is (up-down)
             distance = fiducial.getCameraPoseTargetSpace().getPosition().z;
-            telemetry.addData("Fiducial: ", id);
-            telemetry.addData("x: ", x);
-            telemetry.addData("y: ", y);
-            telemetry.addData("dist: ", distance);
+//            telemetry.addData("Fiducial: ", id);
+//            telemetry.addData("x: ", x);
+//            telemetry.addData("y: ", y);
+//            telemetry.addData("dist: ", distance);
         }
     }
 

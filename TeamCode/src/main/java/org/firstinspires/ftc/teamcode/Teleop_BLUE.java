@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Utilities.TBDGamepad;
 
 @TeleOp
 @Config
-public class Teleop_Summer extends OpMode {
+public class Teleop_BLUE extends OpMode {
 
     public TelemetryPacket p = new TelemetryPacket(true);
     private boolean barrel_spin = false;
@@ -59,6 +59,10 @@ public class Teleop_Summer extends OpMode {
             speed = 0.3;
         } else if(theGamepad1.getTriggerBoolean(TBDGamepad.Trigger.LEFT_TRIGGER)){
             speed = 1.0;
+        }
+
+        if(theGamepad1.getButton(TBDGamepad.Button.Y)){
+            robot.drive.localizer.setPose(new Pose2d(robot.drive.localizer.getPose().position, 0));
         }
 
 
