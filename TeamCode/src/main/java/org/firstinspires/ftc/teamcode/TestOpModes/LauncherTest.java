@@ -25,15 +25,15 @@ public class LauncherTest extends OpMode {
         theGamepad1.update();
         robot.update();
         if(theGamepad1.getButton(TBDGamepad.Button.X)){
-            robot.launcher.launchMax();
+//            robot.launcher.launchMax();
         } else if (theGamepad1.getButton(TBDGamepad.Button.B)) {
             robot.launcher.stop();
         }
 
         if(theGamepad1.getButtonPressed(TBDGamepad.Button.RIGHT_BUMPER)){
-            robot.lockOn();
+//            robot.lockOn();
         }
 
-        telemetry.addData("rpm: ", robot.launcher.avgRpm);
+//        telemetry.addData("rpm: ", robot.launcher.avgRpm);
     }
 }

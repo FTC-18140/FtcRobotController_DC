@@ -45,17 +45,17 @@ public class AutoBlueFar extends LinearOpMode{
 
                                     new SequentialAction(
                                             robot.intake.intakeStopAction(),
-                                                robot.launch(),
+                                                robot.launchAction(),
                                             robot.intake.intakeStartAction(),
 
                                                 robot.indexer.updateAction(),
                                             robot.intake.intakeStopAction(),
-                                            robot.launch(),
+                                            robot.launchAction(),
                                             robot.intake.intakeStartAction(),
 
                                                 robot.indexer.updateAction(),
                                             robot.intake.intakeStopAction(),
-                                            robot.launch(),
+                                            robot.launchAction(),
                                             robot.intake.intakeStartAction()
                                     ),
                                     robot.launcher.stopAction(),
@@ -82,25 +82,25 @@ public class AutoBlueFar extends LinearOpMode{
                                     robot.launcher.stopAction(),
                                         new SequentialAction(
                                                 robot.intake.intakeStopAction(),
-                                                robot.launch(),
+                                                robot.launchAction(),
                                                 robot.intake.intakeStartAction(),
 
                                                 robot.indexer.updateAction(),
 
                                                 robot.intake.intakeStopAction(),
-                                                robot.launch(),
+                                                robot.launchAction(),
                                                 robot.intake.intakeStartAction(),
 
                                                 robot.indexer.updateAction(),
 
                                                 robot.intake.intakeStopAction(),
-                                                robot.launch(),
+                                                robot.launchAction(),
                                                 robot.intake.intakeStartAction(),
 
                                                 robot.indexer.updateAction(),
 
                                                 robot.intake.intakeStopAction(),
-                                                robot.launch(),
+                                                robot.launchAction(),
                                                 robot.intake.intakeStartAction()
                                         )
                                 ),

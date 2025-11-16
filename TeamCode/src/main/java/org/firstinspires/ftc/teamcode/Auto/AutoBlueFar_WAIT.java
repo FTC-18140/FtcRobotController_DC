@@ -2,10 +2,8 @@ package org.firstinspires.ftc.teamcode.Auto;
 
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.RaceAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
-import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -44,17 +42,17 @@ public class AutoBlueFar_WAIT extends LinearOpMode{
 
                                 new SequentialAction(
                                         robot.intake.intakeStopAction(),
-                                        robot.launch(),
+                                        robot.launchAction(),
                                         robot.intake.intakeStartAction(),
 
                                         robot.indexer.updateAction(),
                                         robot.intake.intakeStopAction(),
-                                        robot.launch(),
+                                        robot.launchAction(),
                                         robot.intake.intakeStartAction(),
 
                                         robot.indexer.updateAction(),
                                         robot.intake.intakeStopAction(),
-                                        robot.launch(),
+                                        robot.launchAction(),
                                         robot.intake.intakeStartAction()
                                 ),
                                 robot.launcher.stopAction(),
