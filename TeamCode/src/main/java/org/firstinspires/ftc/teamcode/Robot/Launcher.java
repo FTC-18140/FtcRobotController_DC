@@ -44,7 +44,7 @@ public class Launcher {
     public static double MIN_SHOOTER_RPM = 850;
     public static double SPIN_EFFICIENCY = 1.35;
 
-    public static double  MAX_TURRET_POS = 2;
+    public static double  MAX_TURRET_POS = 3;
     public static double MIN_TURRET_POS = -1;
 
     public ElapsedTime timer;

@@ -17,6 +17,9 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 
+import java.util.LinkedList;
+import java.util.List;
+
 @Config
 public class Indexer {
     Telemetry telemetry;
@@ -38,12 +41,29 @@ public class Indexer {
     private IndexerState state = IndexerState.ALIGNED;
     public static double LIMITER_OFFSET = 0.1;
     double offset = 0;
+    //Counts per revolution
     final double CPR = 8192;
     private double indexPos = 0;
     private double targetAngle = 0;
 
+
     public static double p = 0.147, i = 0.003, d = 120;
     PIDController angleController;
+
+    public static double purple_RLowerBound = 250;
+    public static double purple_GLowerBound = 100;
+    public static double purple_BLowerBound = 300;
+
+    public static double green_RLowerBound = 150;
+    public static double green_GLowerBound = 150;
+    public static double green_BLowerBound = 150;
+
+    public enum BallColor {
+        GREEN,
+        PURPLE,
+        NONE
+    }
+    List<BallColor> inIndex = new LinkedList<>(List.of(BallColor.NONE,BallColor.NONE,BallColor.NONE));
 
     public void init(HardwareMap hwMap, Telemetry telem){
         hardwareMap = hwMap;
@@ -106,20 +126,24 @@ public class Indexer {
         return false;
     }
 
+
     public void update(){
         //current ticks / ticks per rotation = rotations
         //multiply by 3 to get get thirds
 
-        telemetry.addData("Magnet: ", limitSwitch.getValue());
-        telemetry.addData("Color Sensor Color: ", colorSensor.argb());
-        telemetry.addData("Color Sensor Distance: ", colorSensor.getDistance(DistanceUnit.MM));
+        telemetry.addData("Magnet", limitSwitch.getValue());
+        telemetry.addData("Color Sensor A", colorSensor.alpha());
+        telemetry.addData("Color Sensor R", colorSensor.red());
+        telemetry.addData("Color Sensor G", colorSensor.green());
+        telemetry.addData("Color Sensor B", colorSensor.blue());
+        telemetry.addData("Color Sensor Distance", colorSensor.getDistance(DistanceUnit.MM));
         indexPos = 3 * indexMotor.getCurrentPosition()/CPR + offset;
 
         angleController.setPID(p, i, d);
 
-        telemetry.addData("target Angle: ", targetAngle);
-        telemetry.addData("indexer Angle: ", indexPos);
-        telemetry.addData("Index power: ", angleController.calculate(indexPos, targetAngle));
+        telemetry.addData("target Angle", targetAngle);
+        telemetry.addData("indexer Angle", indexPos);
+        telemetry.addData("Index power", angleController.calculate(indexPos, targetAngle));
         //indexer.setPower(angleController.calculate(indexPos, targetAngle));
 
         switch (state){
@@ -147,6 +171,24 @@ public class Indexer {
         }
 
         telemetry.addData("current State: ", state);
+        telemetry.addData("artifactColor", artifactColor());
+    }
+
+    public BallColor artifactColor(){
+        int a = colorSensor.alpha(), r = colorSensor.red(), g = colorSensor.green(), b = colorSensor.blue();
+        double distance = colorSensor.getDistance(DistanceUnit.MM);
+        if (r > green_RLowerBound && g > green_GLowerBound && b> green_BLowerBound) {
+            return BallColor.GREEN;
+        } else if (r > purple_RLowerBound && g > purple_GLowerBound && b> purple_BLowerBound) {
+            return BallColor.PURPLE;
+        } else {
+            return BallColor.NONE;
+        }
+    }
+    public void rotate_inIndex(int turns){
+        int rotMod = turns % 3;
+        BallColor holder;
+
 
     }
 
