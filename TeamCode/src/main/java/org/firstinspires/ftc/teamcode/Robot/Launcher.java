@@ -40,9 +40,16 @@ public class Launcher {
     public static double MIN_SHOOTER_SPEED = 1.0;
     public static double SHOOTER_RADIUS = .096 / 2.0;
 
+<<<<<<< HEAD
     public static double MAX_SHOOTER_RPM = 1100;
     public static double MIN_SHOOTER_RPM = 850;
     public static double SPIN_EFFICIENCY = 1.35;
+=======
+    //public static double MAX_SHOOTER_RPM = 1010;
+    //public static double MIN_SHOOTER_RPM = 850;
+    //lower is faster, keep under 1
+    public static double SPIN_EFFICIENCY = 1;
+>>>>>>> Launcher
 
     public static double  MAX_TURRET_POS = 3;
     public static double MIN_TURRET_POS = -1;
@@ -296,7 +303,12 @@ public class Launcher {
      * @param distance the distance to the goal
      */
     public void shoot(Pose2d robotPose, double distance){
+<<<<<<< HEAD
         targetRpm = Range.clip(calculateWheelRPM(calculatevel_ball(goalDistance(robotPose)* 2.54 /100, .89, 60)), MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
+=======
+        //power = Range.clip(calculateWheelRPM(calculatevel_ball(goalDistance(robotPose) * 2.54 /100, .89, 40)), MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
+        power = calculateWheelRPM(calculatevel_ball(goalDistance(robotPose) * 2.54 /100, .89, 48));
+>>>>>>> Launcher
 
         ff = Range.clip(Range.scale(goalDistance(robotPose), 60, 130, fMin, fMax), fMin, fMax);
         double toLaunchPow = Range.clip(RPMController.calculate(avgRpm, targetRpm), -0.1, 1) + ff;
@@ -322,23 +334,17 @@ public class Launcher {
         double angleRad = Math.toRadians(angleDegrees);
         double g = 9.81;
         double numer = distance * distance * g;
-        double denom = 2 * Math.pow(Math.cos(angleRad), 2) * (distance * Math.tan(angleRad) - height);
+        double denom = distance * Math.sin(2 * angleRad) - 2 * height * Math.pow(Math.cos(angleRad), 2);
         double vel_ball = Math.sqrt(numer / denom);
-        return vel_ball;
+            return vel_ball;
     }
     public double calculateWheelRPM(double velBall) {
         // Wheel radius in meters (96 mm diameter Rhino wheel)
         double wheelRadius = SHOOTER_RADIUS;
 
-        // Efficiency factor: fraction of wheel surface speed transferred to ball
-        // Adjust after testing; 0.85 is a good starting point
+        double rpm = (velBall * 60) / (2.0 * Math.PI * wheelRadius * Range.clip(SPIN_EFFICIENCY,0,1));
 
-
-        // Tangential speed relation: v_ball ≈ eff * v_wheel
-        // Solve for RPM
-        double rpm = (60.0 * velBall) / (2.0 * Math.PI * wheelRadius * SPIN_EFFICIENCY);
-
-        return rpm;
+            return rpm;
     }
 
 
