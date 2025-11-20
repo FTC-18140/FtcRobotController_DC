@@ -79,11 +79,11 @@ public class Teleop_Red extends OpMode {
         robot.drive(-forward, -strafe, turn * 0.7, speed, p);
 
 
-        if(theGamepad2.getButton(TBDGamepad.Button.X)){
+        if(theGamepad2.getButton(TBDGamepad.Button.X) || theGamepad1.getButton(TBDGamepad.Button.X)){
             robot.intake.intake();
-        } else if (theGamepad2.getButton(TBDGamepad.Button.B)) {
+        } else if (theGamepad2.getButton(TBDGamepad.Button.B) || theGamepad1.getButton(TBDGamepad.Button.B)) {
             robot.intake.stop();
-        } else if (theGamepad2.getButton(TBDGamepad.Button.A)) {
+        } else if (theGamepad2.getButton(TBDGamepad.Button.A) || theGamepad1.getButton(TBDGamepad.Button.A)) {
             robot.intake.spit();
         }
 
