@@ -302,8 +302,10 @@ public class Launcher {
 
         //targetRpm = Range.clip(calculateWheelRPM(calculatevel_ball(goalDistance(robotPose)* 2.54 /100, .89, 60)), MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
 
-        targetRpm = calculateWheelRPM(calculatevel_ball(goalDistance(robotPose) * 2.54 /100, .89, 48));
-        
+        //targetRpm = calculateWheelRPM(calculatevel_ball(goalDistance(robotPose) * 2.54 /100, .89, 48));
+        targetRpm = calculateWheelRPM(calculatevel_ball(distance * 2.54 /100, .89, 48));
+
+
         ff = Range.clip(Range.scale(goalDistance(robotPose), 60, 130, fMin, fMax), fMin, fMax);
         double toLaunchPow = Range.clip(RPMController.calculate(avgRpm, targetRpm), -0.1, 1) + ff;
         telemetry.addData("feedforward: ", ff);

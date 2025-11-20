@@ -37,7 +37,7 @@ public class ThunderBot2025
     public static boolean field_centric = true;
 
     /**
-     * initiolization for ThunderBot2025
+     * initialization for ThunderBot2025
      * @param hwMap
      * @param telem
      * @param pose

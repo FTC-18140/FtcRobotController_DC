@@ -20,6 +20,7 @@ import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 import java.util.LinkedList;
 import java.util.List;
 
+
 @Config
 public class Indexer {
     Telemetry telemetry;
@@ -44,6 +45,8 @@ public class Indexer {
     //Counts per revolution
     final double CPR = 8192;
     private double indexPos = 0;
+    private double lastIndexPos = 0;
+    private int delta =0;
     private double targetAngle = 0;
 
 
@@ -82,6 +85,7 @@ public class Indexer {
             indexMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
             indexPos = 3 * indexMotor.getCurrentPosition()/CPR;
+            lastIndexPos = indexPos;
         } catch (Exception e) {
             telemetry.addData("Motor \"indexerpos\" not found", 0);
         }
@@ -137,13 +141,18 @@ public class Indexer {
         telemetry.addData("Color Sensor G", colorSensor.green());
         telemetry.addData("Color Sensor B", colorSensor.blue());
         telemetry.addData("Color Sensor Distance", colorSensor.getDistance(DistanceUnit.MM));
-        indexPos = 3 * indexMotor.getCurrentPosition()/CPR + offset;
 
+        indexPos = 3 * indexMotor.getCurrentPosition()/CPR + offset;
+        delta = (int) Math.round(indexPos) - (int) Math.round(lastIndexPos);
+        //rotate_inIndex(delta);
+
+        lastIndexPos = indexPos;
         angleController.setPID(p, i, d);
 
         telemetry.addData("target Angle", targetAngle);
         telemetry.addData("indexer Angle", indexPos);
         telemetry.addData("Index power", angleController.calculate(indexPos, targetAngle));
+        telemetry.addData("indexdelta", delta);
         //indexer.setPower(angleController.calculate(indexPos, targetAngle));
 
         switch (state){
@@ -188,8 +197,14 @@ public class Indexer {
     public void rotate_inIndex(int turns){
         int rotMod = turns % 3;
         BallColor holder;
-
-
+        if(rotMod < 0){
+            rotMod += 3;
+        }
+        for (int i = 0; i < rotMod; i++ ){
+            holder = inIndex.getLast();
+            inIndex.removeLast();
+            inIndex.addFirst(holder);
+        }
     }
 
     public void setState(IndexerState newstate){
