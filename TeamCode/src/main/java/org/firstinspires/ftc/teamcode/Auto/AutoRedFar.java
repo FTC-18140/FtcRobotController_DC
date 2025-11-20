@@ -25,7 +25,7 @@ public class AutoRedFar extends LinearOpMode{
         ThunderBot2025 robot = new ThunderBot2025();
 
         robot.init(hardwareMap, telemetry, start);
-        robot.launcher.color = "red";
+//        robot.launcher.color = "red";
         waitForStart();
 
         robot.setColor("red");
@@ -48,17 +48,14 @@ public class AutoRedFar extends LinearOpMode{
                                                         robot.launchAction(),
                                                         robot.intake.intakeStartAction(),
 
-                                                        robot.indexer.updateAction(),
                                                         robot.intake.intakeStopAction(),
                                                         robot.launchAction(),
                                                         robot.intake.intakeStartAction(),
 
-                                                        robot.indexer.updateAction(),
                                                         robot.intake.intakeStopAction(),
                                                         robot.launchAction(),
                                                         robot.intake.intakeStartAction()
                                                 ),
-                                                robot.launcher.stopAction(),
                                                 robot.intake.intakeStartAction(),
 
                                                 new ParallelAction(
@@ -77,27 +74,20 @@ public class AutoRedFar extends LinearOpMode{
                                                         robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, -52), Math.toRadians(-90)))
                                                                 .strafeToSplineHeading(launchPos.position, Math.toRadians(-23))
                                                                 .build(),
-                                                        robot.launcher.turretAimAction(0)
+                                                        robot.launcher.pointToAction(0)
                                                 ),
-                                                robot.launcher.stopAction(),
                                                 new SequentialAction(
                                                         robot.intake.intakeStopAction(),
                                                         robot.launchAction(),
                                                         robot.intake.intakeStartAction(),
 
-                                                        robot.indexer.updateAction(),
-
                                                         robot.intake.intakeStopAction(),
                                                         robot.launchAction(),
                                                         robot.intake.intakeStartAction(),
 
-                                                        robot.indexer.updateAction(),
-
                                                         robot.intake.intakeStopAction(),
                                                         robot.launchAction(),
                                                         robot.intake.intakeStartAction(),
-
-                                                        robot.indexer.updateAction(),
 
                                                         robot.intake.intakeStopAction(),
                                                         robot.launchAction(),
@@ -110,11 +100,10 @@ public class AutoRedFar extends LinearOpMode{
                                 robot.drive.actionBuilder(launchPos)
                                         .strafeToSplineHeading(new Vector2d(-12, -12), Math.toRadians(0))
                                         .build(),
-                                robot.launcher.turretAimAction(0),
+                                robot.launcher.pointToAction(0),
                                 robot.launcher.stopAction()
-
                         ),
-                        robot.chargeAction(robot.drive.localizer.getPose(), 30),
+                        robot.launcher.stopAction(),
                         robot.updateAction()
                 )
         );

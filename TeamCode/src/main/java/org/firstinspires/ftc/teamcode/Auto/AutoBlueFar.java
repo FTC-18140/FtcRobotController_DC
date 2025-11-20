@@ -25,98 +25,90 @@ public class AutoBlueFar extends LinearOpMode{
         ThunderBot2025 robot = new ThunderBot2025();
 
         robot.init(hardwareMap, telemetry, start);
-        robot.launcher.color = "blue";
+//        robot.launcher.color = "blue";
         waitForStart();
 
         robot.setColor("blue");
         Actions.runBlocking(
-                new ParallelAction(
+            new ParallelAction(
+                new SequentialAction(
+                    new RaceAction(
                         new SequentialAction(
-                            new RaceAction(
-                                new SequentialAction(
-                                    new ParallelAction(
-                                            robot.drive.actionBuilder(start)
-                                                    .strafeToSplineHeading(new Vector2d(launchPos.position.x, 12), Math.toRadians(23))
-                                                    .build()
-                                    ),
-                                    robot.intake.intakeStartAction(),
-                                    //new SleepAction(2),
-
-
-                                    new SequentialAction(
-                                            robot.intake.intakeStopAction(),
-                                                robot.launchAction(),
-                                            robot.intake.intakeStartAction(),
-
-                                                robot.indexer.updateAction(),
-                                            robot.intake.intakeStopAction(),
-                                            robot.launchAction(),
-                                            robot.intake.intakeStartAction(),
-
-                                                robot.indexer.updateAction(),
-                                            robot.intake.intakeStopAction(),
-                                            robot.launchAction(),
-                                            robot.intake.intakeStartAction()
-                                    ),
-                                    robot.launcher.stopAction(),
-                                    robot.intake.intakeStartAction(),
-
-                                    new ParallelAction(
-                                            robot.drive.actionBuilder(launchPos)
-                                                    .splineToSplineHeading(intakePos, Math.toRadians(90))
-                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x, 56), Math.toRadians(90), new TranslationalVelConstraint(6))
-                                                    .build(),
-                                            new SequentialAction(
-                                                    new SleepAction(3),
-                                                    robot.indexer.cycleAction(-1),
-                                                    new SleepAction(1),
-                                                    robot.indexer.cycleAction(-1)
-                                            )
-                                    ),
-                                    new ParallelAction(
-                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, 52), Math.toRadians(90)))
-                                                .strafeToSplineHeading(launchPos.position, Math.toRadians(23))
-                                                .build(),
-                                            robot.launcher.turretAimAction(0)
-                                    ),
-                                    robot.launcher.stopAction(),
-                                        new SequentialAction(
-                                                robot.intake.intakeStopAction(),
-                                                robot.launchAction(),
-                                                robot.intake.intakeStartAction(),
-
-                                                robot.indexer.updateAction(),
-
-                                                robot.intake.intakeStopAction(),
-                                                robot.launchAction(),
-                                                robot.intake.intakeStartAction(),
-
-                                                robot.indexer.updateAction(),
-
-                                                robot.intake.intakeStopAction(),
-                                                robot.launchAction(),
-                                                robot.intake.intakeStartAction(),
-
-                                                robot.indexer.updateAction(),
-
-                                                robot.intake.intakeStopAction(),
-                                                robot.launchAction(),
-                                                robot.intake.intakeStartAction()
-                                        )
-                                ),
-                                    new SleepAction(27)
+                            new ParallelAction(
+                                    robot.drive.actionBuilder(start)
+                                            .strafeToSplineHeading(new Vector2d(launchPos.position.x, 12), Math.toRadians(23))
+                                            .build()
                             ),
-                                robot.intake.intakeStopAction(),
-                                robot.drive.actionBuilder(launchPos)
-                                        .strafeToSplineHeading(new Vector2d(-12, 12), Math.toRadians(0))
-                                        .build(),
-                                robot.launcher.turretAimAction(0),
-                                robot.launcher.stopAction()
+                            robot.intake.intakeStartAction(),
+                            //new SleepAction(2),
 
+                            // Launch Preloads
+                            new SequentialAction(
+                                robot.intake.intakeStopAction(),
+                                robot.launchAction(),
+                                robot.intake.intakeStartAction(),
+
+                                robot.intake.intakeStopAction(),
+                                robot.launchAction(),
+                                robot.intake.intakeStartAction(),
+
+                                robot.intake.intakeStopAction(),
+                                robot.launchAction(),
+                                robot.intake.intakeStartAction()
+                            ),
+                            robot.intake.intakeStartAction(),
+                            // Grab next 3 artifacts
+                            new ParallelAction(
+                                robot.drive.actionBuilder(launchPos)
+                                        .splineToSplineHeading(intakePos, Math.toRadians(90))
+                                        .splineToConstantHeading(new Vector2d(intakePos.position.x, 56), Math.toRadians(90), new TranslationalVelConstraint(6))
+                                        .build(),
+                                new SequentialAction(
+                                    new SleepAction(3),
+                                    robot.indexer.cycleAction(-1),
+                                    new SleepAction(1),
+                                    robot.indexer.cycleAction(-1)
+                                )
+                            ),
+                            // Drive to launch spot
+                            new ParallelAction(
+                                    robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, 52), Math.toRadians(90)))
+                                        .strafeToSplineHeading(launchPos.position, Math.toRadians(23))
+                                        .build(),
+                                    robot.launcher.pointToAction(0)
+                            ),
+                            // Launch 2nd set of Artifacts
+                            new SequentialAction(
+                                    robot.intake.intakeStopAction(),
+                                    robot.launchAction(),
+                                    robot.intake.intakeStartAction(),
+
+                                    robot.intake.intakeStopAction(),
+                                    robot.launchAction(),
+                                    robot.intake.intakeStartAction(),
+
+                                    robot.intake.intakeStopAction(),
+                                    robot.launchAction(),
+                                    robot.intake.intakeStartAction(),
+
+                                    robot.intake.intakeStopAction(),
+                                    robot.launchAction(),
+                                    robot.intake.intakeStartAction()
+                            )
                         ),
-                        robot.chargeAction(robot.drive.localizer.getPose(), 30),
-                        robot.updateAction()
-                )
+                        new SleepAction(27)
+                    ),
+                    // Park
+                    robot.intake.intakeStopAction(),
+                    robot.drive.actionBuilder(launchPos)
+                            .strafeToSplineHeading(new Vector2d(-12, 12), Math.toRadians(0))
+                            .build(),
+                    robot.launcher.pointToAction(0),
+                    robot.launcher.stopAction()
+                ),
+                robot.launcher.prepShotAction(),
+                robot.updateAction()
+            )
         );
     }
 }

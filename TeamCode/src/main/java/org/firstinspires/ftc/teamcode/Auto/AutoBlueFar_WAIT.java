@@ -23,7 +23,7 @@ public class AutoBlueFar_WAIT extends LinearOpMode{
         ThunderBot2025 robot = new ThunderBot2025();
 
         robot.init(hardwareMap, telemetry, start);
-        robot.launcher.color = "blue";
+//        robot.launcher.color = "blue";
         waitForStart();
 
         robot.setColor("blue");
@@ -31,40 +31,37 @@ public class AutoBlueFar_WAIT extends LinearOpMode{
                 new ParallelAction(
                         new SequentialAction(
                             new SleepAction(22),
-                                new ParallelAction(
-                                        robot.drive.actionBuilder(start)
-                                                .strafeToSplineHeading(new Vector2d(launchPos.position.x, 12), Math.toRadians(23))
-                                                .build()
-                                ),
-                                robot.intake.intakeStartAction(),
-                                //new SleepAction(2),
+                            new ParallelAction(
+                                    robot.drive.actionBuilder(start)
+                                            .strafeToSplineHeading(new Vector2d(launchPos.position.x, 12), Math.toRadians(23))
+                                            .build()
+                            ),
+                            robot.intake.intakeStartAction(),
 
-
-                                new SequentialAction(
-                                        robot.intake.intakeStopAction(),
-                                        robot.launchAction(),
-                                        robot.intake.intakeStartAction(),
-
-                                        robot.indexer.updateAction(),
-                                        robot.intake.intakeStopAction(),
-                                        robot.launchAction(),
-                                        robot.intake.intakeStartAction(),
-
-                                        robot.indexer.updateAction(),
-                                        robot.intake.intakeStopAction(),
-                                        robot.launchAction(),
-                                        robot.intake.intakeStartAction()
-                                ),
-                                robot.launcher.stopAction(),
+                            new SequentialAction(
                                 robot.intake.intakeStopAction(),
-                                robot.drive.actionBuilder(launchPos)
-                                        .strafeToSplineHeading(new Vector2d(-12, 12), Math.toRadians(0))
-                                        .build(),
-                                robot.launcher.turretAimAction(0),
-                                robot.launcher.stopAction()
+                                robot.launchAction(),
+                                robot.intake.intakeStartAction(),
+
+                                robot.indexer.updateAction(),
+                                robot.intake.intakeStopAction(),
+                                robot.launchAction(),
+                                robot.intake.intakeStartAction(),
+
+                                robot.indexer.updateAction(),
+                                robot.intake.intakeStopAction(),
+                                robot.launchAction(),
+                                robot.intake.intakeStartAction()
+                            ),
+                            robot.intake.intakeStopAction(),
+                            robot.drive.actionBuilder(launchPos)
+                                    .strafeToSplineHeading(new Vector2d(-12, 12), Math.toRadians(0))
+                                    .build(),
+                            robot.launcher.pointToAction(0),
+                            robot.launcher.stopAction()
 
                         ),
-                        robot.chargeAction(robot.drive.localizer.getPose(), 30),
+                        robot.launcher.prepShotAction(),
                         robot.updateAction()
                 )
         );

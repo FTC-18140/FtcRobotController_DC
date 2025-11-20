@@ -202,6 +202,7 @@ public class ThunderBot2025
     public double lockOn(){
 //        drive.updatePoseEstimate();
 //        return launcher.lockOn(limelight.getX(), drive.localizer.getPose());
+        return 0;
     }
 
     /**
@@ -236,14 +237,8 @@ public class ThunderBot2025
             return new Action() {
                 @Override
                 public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                    update();
                     launcher.aim();
-                    if (launcher.isAtTarget()){
-                        return false;
-                    }else {
-                        launcher.aim();
-                        return true;
-                    }
+                    return !launcher.isAtTarget();
                 }
             };
         }
@@ -254,7 +249,6 @@ public class ThunderBot2025
                             launcher.waitForChargeAction(),
                             aimAction()
                     ),
-//                    launcher.stopAction(),
                     indexer.flipperUpAction(),
                     new SleepAction(0.15),
                     indexer.flipperDownAction(),

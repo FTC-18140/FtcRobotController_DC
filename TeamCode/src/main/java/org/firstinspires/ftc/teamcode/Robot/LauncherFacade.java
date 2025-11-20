@@ -51,7 +51,6 @@ public class LauncherFacade {
         turret.update();
         flywheel.update(distanceToGoal);
         limelight.update();
-        // You could add limelight.update() here if it needs periodic updates
     }
 
     /**
@@ -108,6 +107,16 @@ public class LauncherFacade {
         flywheel.setTargetRpm(targetRpm);
     }
 
+    public Action prepShotAction() {
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                prepShot();
+                return false;
+            }
+        };
+    }
+
     /**
      * Returns a Road Runner Action that waits until the flywheel is at its target speed.
      * This action completes once the RPM is within the accepted tolerance.
@@ -125,6 +134,35 @@ public class LauncherFacade {
         };
     }
 
+    public Action aimAction(){
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                aim();
+                return !isAtTarget();
+            }
+        };
+    }
+
+    public Action pointToAction( double angle ){
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                turret.seekToAngle(angle);
+                return !isAtTarget();
+            }
+        };
+    }
+
+    public Action stopAction(  ){
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                flywheel.stop();
+                return false;
+            }
+        };
+    }
     public void setTurretManualPower(double power) {
         turret.setManualPower(power);
     }
