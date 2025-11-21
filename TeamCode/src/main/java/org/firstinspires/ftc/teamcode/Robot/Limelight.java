@@ -23,6 +23,7 @@ public class Limelight {
 
 
     private static final double MINIMUM_TARGET_AREA = 10.0; // Example value, adjust as needed
+    private boolean validResults;
 
     public void init(HardwareMap hwMap, Telemetry telemetry) {
         hardwareMap = hwMap;
@@ -44,7 +45,7 @@ public class Limelight {
      * Sets the limelight's pipeline to the input, sets the index variable to the input
      * @param pipeline
      */
-    public void SetPipeline(int pipeline){
+    public void setPipeline(int pipeline){
         index = pipeline;
         limelight.pipelineSwitch(pipeline);
     }
@@ -52,29 +53,28 @@ public class Limelight {
     /**
      * Updates the values associated with the apriltags the limelight sees
      */
-    public void update(){
+    public void update() {
+        validResults = false;
         LLResult result = limelight.getLatestResult();
-        List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
-        limelight.pipelineSwitch(index);
-        for (LLResultTypes.FiducialResult fiducial : fiducials) {
-            id = fiducial.getFiducialId(); // The ID number of the fiducial
-            x = fiducial.getTargetXDegrees(); // Where it is (left-right)
-            y = fiducial.getTargetYDegrees(); // Where it is (up-down)
-            distance = fiducial.getCameraPoseTargetSpace().getPosition().z;
-//            telemetry.addData("Fiducial: ", id);
-//            telemetry.addData("x: ", x);
-//            telemetry.addData("y: ", y);
-//            telemetry.addData("dist: ", distance);
+        if ( result != null && result.isValid()) {
+            List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+            limelight.pipelineSwitch(index);
+            for (LLResultTypes.FiducialResult fiducial : fiducials) {
+                id = fiducial.getFiducialId(); // The ID number of the fiducial
+                x = fiducial.getTargetXDegrees(); // Where it is (left-right)
+                y = fiducial.getTargetYDegrees(); // Where it is (up-down)
+                distance = fiducial.getCameraPoseTargetSpace().getPosition().z;
+                validResults = true;
+            }
         }
+
     }
 
     /**
      * Returns the last updated value of the apriltags degrees in the x coordinate
      * @return
      */
-    public double xdegrees(){
-        update();
-        telemetry.addData("xdegrees: ", x);
+    public double getX(){
         return x;
     }
 
@@ -94,8 +94,12 @@ public class Limelight {
      * @return returns the id
      */
     public int limelightId(int pipeline){
-        SetPipeline(pipeline);
+        setPipeline(pipeline);
         return id;
+    }
+
+    public boolean hasTarget() {
+        return validResults;
     }
     /*
     public static double tx(int pipeline){

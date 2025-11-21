@@ -28,9 +28,9 @@ public class ThunderBot2025
     public MecanumDrive drive;
     public Intake intake;
     public Indexer indexer;
-    public Launcher launcher;
+    public LauncherFacade launcher;
     public LED led;
-    public Limelight limelight;
+//    public Limelight limelight;
 
     public String color = "blue";
     private Telemetry telemetry = null;
@@ -55,15 +55,16 @@ public class ThunderBot2025
         indexer = new Indexer();
         indexer.init(hwMap, telem);
 
-        launcher = new Launcher();
+        launcher = new LauncherFacade();
         launcher.init(hwMap, telem);
-        launcher.color = color;
+//        launcher.color = color;
+        launcher.setAlliance(color);
 
         led = new LED();
         led.init(hwMap, telem);
-
-        limelight = new Limelight();
-        limelight.init(hwMap, telem);
+//
+//        limelight = new Limelight();
+//        limelight.init(hwMap, telem);
 
 
 
@@ -78,13 +79,15 @@ public class ThunderBot2025
     public void setColor(String alliance){
         color = alliance;
         if (Objects.equals(color, "blue")) {
-            limelight.SetPipeline(1);
-            launcher.color = "blue";
-            launcher.turret_target_pos = 0;
+//            limelight.setPipeline(1);
+//            launcher.color = "blue";
+            launcher.setAlliance("blue");
+//            launcher.turret_target_pos = 0;
         }else{
-            limelight.SetPipeline(2);
-            launcher.color = "red";
-            launcher.turret_target_pos = 0;
+//            limelight.setPipeline(2);
+//            launcher.color = "red";
+            launcher.setAlliance("red");
+//            launcher.turret_target_pos = 0;
         }
     }
 
@@ -168,11 +171,12 @@ public class ThunderBot2025
          * Calls all of the other update methods
          */
         public void update(){
+            drive.updatePoseEstimate();
+            drive.localizer.update();
             indexer.update();
-            launcher.update();
-            led.update(launcher.avgRpm, launcher.targetRpm);
-            limelight.update();
-            limelight.xdegrees();
+            launcher.update( drive.localizer.getPose() );
+//            led.update(launcher.avgRpm, launcher.targetRpm);
+//            limelight.update();
         }
 
     /**
@@ -196,31 +200,32 @@ public class ThunderBot2025
      * Calls the launcher method lockOn with the degrees that the limelight sees
      */
     public double lockOn(){
-        drive.updatePoseEstimate();
-        return launcher.lockOn(limelight.xdegrees(), drive.localizer.getPose());
+//        drive.updatePoseEstimate();
+//        return launcher.lockOn(limelight.getX(), drive.localizer.getPose());
+        return 0;
     }
 
     /**
      * Tells the launcher to spin up the launch motors with the necessary variables
      */
     public void charge(){
-            launcher.shoot(drive.localizer.getPose(), limelight.distance);
+//            launcher.shoot(drive.localizer.getPose(), limelight.distance);
+
     }
     public Action chargeAction(Pose2d pose, double duration){
         return new Action() {
-            ElapsedTime counter = new ElapsedTime();
+            ElapsedTime chargeTimer = new ElapsedTime();
             boolean started = false;
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 if(!started){
-                    counter.reset();
+                    chargeTimer.reset();
                     started = true;
                 }
-                charge();
+                launcher.prepShot();
+                telemetry.addData("time: ", chargeTimer.seconds());
 
-                telemetry.addData("time: ", counter.seconds());
-
-                if (counter.seconds() > duration){
+                if (chargeTimer.seconds() > duration){
                     launcher.stop();
                     return false;
                 }
@@ -228,29 +233,22 @@ public class ThunderBot2025
             }
         };
     }
-        public Action lockAction(){
+        public Action aimAction(){
             return new Action() {
                 @Override
                 public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                    update();
-                    launcher.aim(lockOn());
-                    if (Math.abs(launcher.turret_current_pos - launcher.turret_target_pos) < 0.04) {
-                        launcher.aim(0);
-                        return false;
-                    }else {
-                        return true;
-                    }
+                    launcher.aim();
+                    return !launcher.isAtTarget();
                 }
             };
         }
         //Actions
-        public Action launch(){
+        public Action launchAction(){
             return new SequentialAction(
                     new ParallelAction(
-                            launcher.waitForCharge(),
-                            lockAction()
+                            launcher.waitForChargeAction(),
+                            aimAction()
                     ),
-                    launcher.stopAction(),
                     indexer.flipperUpAction(),
                     new SleepAction(0.15),
                     indexer.flipperDownAction(),

@@ -1,0 +1,132 @@
+package org.firstinspires.ftc.teamcode.Robot;
+
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.Range;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Utilities.MovingAverageFilter;
+import org.firstinspires.ftc.teamcode.Utilities.PIDController;
+
+public class Flywheel {
+    // Define the states as an enum
+    private enum State {
+        IDLE,
+        SPINNING_UP
+    }
+
+    private State currentState = State.IDLE; // Initial state
+
+    // Hardware and Utilities
+    private DcMotorEx launcher, launcher2;
+    private PIDController rpmController;
+    private MovingAverageFilter rpmFilter = new MovingAverageFilter(2);
+    private Telemetry telemetry;
+
+    // Tunable constants from your original file
+    public static double P = 0.004, I = 0.0, D = 0.0;
+    public static double F_MAX = 0.6, F_MIN = 0.35;
+    public static double MAX_SHOOTER_RPM = 1100;
+    public static double MIN_SHOOTER_RPM = 850;
+    public static double SHOOTER_RADIUS = 0.096 / 2.0;
+    public static double SPIN_EFFICIENCY = 1.35;
+
+    private double targetRpm = 0;
+    private double currentRpm = 0;
+
+    public void init(HardwareMap hwMap, Telemetry telem) {
+        this.telemetry = telem;
+        rpmController = new PIDController(P, I, D);
+
+        launcher = hwMap.get(DcMotorEx.class, "launcher");
+        launcher.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        launcher2 = hwMap.get(DcMotorEx.class, "launcher2");
+        launcher2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
+    // --- High-Level Commands to Change State ---
+
+    /** Commands the flywheel to spin up to a target RPM. */
+    public void setTargetRpm(double rpm) {
+        this.targetRpm = Range.clip(rpm, MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
+        this.currentState = State.SPINNING_UP;
+    }
+
+
+    /**
+     * Checks if the flywheel is spinning at the target speed within a given tolerance.
+     * @return true if the flywheel is at the target RPM, false otherwise.
+     */
+    public boolean isAtTargetRpm() {
+        // We are only "at target" if we are actively trying to spin up.
+        if (currentState != State.SPINNING_UP) {
+            return false;
+        }
+
+        // Check if the current RPM is within a reasonable tolerance (e.g., 50 RPM) of the target.
+        // This tolerance can be tuned.
+        final double RPM_TOLERANCE = 50.0;
+        return Math.abs(currentRpm - targetRpm) < RPM_TOLERANCE;
+    }
+
+
+    /** Commands the flywheel to stop. */
+    public void stop() {
+        this.currentState = State.IDLE;
+    }
+
+    // --- Main Update Method ---
+
+    /**
+     * Call this once per loop. It executes the logic for the current state.
+     */
+    public void update(double distanceToGoal) {
+        rpmController.setPID(P, I, D);
+        this.currentRpm = rpmFilter.addValue(-launcher.getVelocity());
+
+        switch (currentState) {
+            case IDLE:
+                setPower(0);
+                break;
+
+            case SPINNING_UP:
+                // --- Step 1: Calculate the Feedforward value ---
+                double scaledPower = Range.scale(distanceToGoal, 60, 130, F_MIN, F_MAX);
+                double feedforward = Range.clip(scaledPower, F_MIN, F_MAX);
+
+                // --- Step 2: Calculate the PID correction ---
+                double pidOutput = rpmController.calculate(currentRpm, targetRpm);
+                double clippedPidOutput = Range.clip(pidOutput, -0.1, 1);
+
+                // --- Step 3: Combine and Set the Final Power ---
+                double finalPower = feedforward + clippedPidOutput;
+                setPower(finalPower);
+
+                // --- Telemetry for Debugging ---
+                telemetry.addData("Target RPM", targetRpm);
+                telemetry.addData("Current RPM", currentRpm);
+                telemetry.addData("Feedforward", feedforward);
+                telemetry.addData("PID Output", clippedPidOutput);
+                telemetry.addData("Final Power", finalPower);
+                break;
+        }
+    }
+
+    private void setPower(double power) {
+        launcher.setPower(power);
+        launcher2.setPower(power);
+    }
+
+    // --- Calculation Methods ---
+    public double calculateBallVelocity(double distance, double height, double angleDegrees) {
+        double angleRad = Math.toRadians(angleDegrees);
+        double g = 9.81;
+        double numer = distance * distance * g;
+        double denom = 2 * Math.pow(Math.cos(angleRad), 2) * (distance * Math.tan(angleRad) - height);
+        return Math.sqrt(numer / denom);
+    }
+
+    public double calculateWheelRPM(double ballVelocity) {
+        return (60.0 * ballVelocity) / (2.0 * Math.PI * SHOOTER_RADIUS * SPIN_EFFICIENCY);
+    }
+}
