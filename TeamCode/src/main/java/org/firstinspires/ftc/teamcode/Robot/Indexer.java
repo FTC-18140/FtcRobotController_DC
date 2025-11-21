@@ -182,6 +182,12 @@ public class Indexer {
         angleController.reset();
     }
 
+    public void cycleTo(int pos){
+        setState(IndexerState.UNALIGNED);
+        targetAngle = pos;
+        angleController.reset();
+    }
+
     public Action cycleAction(double dir){
         return new Action() {
             @Override

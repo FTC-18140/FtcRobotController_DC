@@ -12,6 +12,7 @@ import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -196,6 +197,28 @@ public class ThunderBot2025
 //        drive.updatePoseEstimate();
 //        return launcher;
         return 0;
+    }
+
+    /**
+     * launchSeqAction
+    * launches 3 artifacts in a given order, i.e, [1,0,2] (fires artifact in slot 1, then slot 0, then slot 2)
+    * */
+    public Action launchSeqAction(int[] order){
+        return new Action() {
+            int sequenceStep = 0;
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                if(sequenceStep < order.length) {
+                    //cycles to the next artifact
+                    indexer.cycleTo(order[sequenceStep]);
+                    launchAction();
+                    sequenceStep++;
+                } else {
+                    return false;
+                }
+                return true;
+            }
+        };
     }
 
     /**

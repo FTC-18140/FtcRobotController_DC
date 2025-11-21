@@ -72,21 +72,13 @@ public class AutoBlueFar extends LinearOpMode{
                             ),
                             // Launch 2nd set of Artifacts
                             new SequentialAction(
-                                    robot.intake.intakeStopAction(),
                                     robot.launchAction(),
-                                    robot.intake.intakeStartAction(),
 
-                                    robot.intake.intakeStopAction(),
                                     robot.launchAction(),
-                                    robot.intake.intakeStartAction(),
 
-                                    robot.intake.intakeStopAction(),
                                     robot.launchAction(),
-                                    robot.intake.intakeStartAction(),
 
-                                    robot.intake.intakeStopAction(),
-                                    robot.launchAction(),
-                                    robot.intake.intakeStartAction()
+                                    robot.launchAction()
                             )
                         ),
                         new SleepAction(27)
@@ -100,6 +92,7 @@ public class AutoBlueFar extends LinearOpMode{
                     robot.launcher.stopAction()
                 ),
                 robot.launcher.prepShotAction(),
+                robot.aimAction(),
                 robot.updateAction()
             )
         );
