@@ -17,6 +17,11 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+
 @Config
 public class Indexer {
     Telemetry telemetry;
@@ -35,6 +40,15 @@ public class Indexer {
         STOPPED,
         LOADING
     }
+    public enum BallColor {
+        GREEN,
+        PURPLE,
+        NONE
+    }
+    int delta;
+    double lastIndexPos;
+    List<BallColor> initialElements = Arrays.asList(BallColor.NONE,BallColor.NONE,BallColor.NONE);
+    LinkedList<BallColor> inIndex = new LinkedList<>(initialElements);
     private IndexerState state = IndexerState.ALIGNED;
     public static double LIMITER_OFFSET = 0.1;
     double offset = 0;
@@ -115,11 +129,17 @@ public class Indexer {
         telemetry.addData("Color Sensor Distance: ", colorSensor.getDistance(DistanceUnit.MM));
         indexPos = 3 * indexMotor.getCurrentPosition()/CPR + offset;
 
+        delta = (int) Math.round(indexPos) - (int) Math.round(lastIndexPos);
+        cycleInIndex(delta);
+
+        lastIndexPos = indexPos;
+
         angleController.setPID(p, i, d);
 
         telemetry.addData("target Angle: ", targetAngle);
         telemetry.addData("indexer Angle: ", indexPos);
         telemetry.addData("Index power: ", angleController.calculate(indexPos, targetAngle));
+        telemetry.addData("inIndex", inIndex);
         //indexer.setPower(angleController.calculate(indexPos, targetAngle));
 
         switch (state){
@@ -178,8 +198,23 @@ public class Indexer {
     public void cycle(double dir){
         //shifts the target angle by a third
         setState(IndexerState.UNALIGNED);
-        targetAngle += dir;
+         targetAngle += dir;
         angleController.reset();
+    }
+    public void cycleInIndex(int turns){
+        int shift = -turns % 3;
+        BallColor holder;
+        //rotates the list by turn amounts
+        if (shift < 0){
+            shift = shift + 3;
+        }
+        for (int i = 0; i < shift; i++ ){
+
+                holder = inIndex.removeLast();
+                inIndex.addFirst(holder);
+
+
+        }
     }
 
     public void cycleTo(int pos){

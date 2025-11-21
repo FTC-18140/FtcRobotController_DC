@@ -42,7 +42,12 @@ public class Turret {
         turret = hwMap.crservo.get("turret");
         turret.setDirection(DcMotor.Direction.REVERSE);
         // The encoder is on the "launcher2" motor in your original file
-        turretEnc = hwMap.get(DcMotor.class, "launcher2");
+        try {
+            turretEnc = hwMap.get(DcMotor.class, "launcher2");
+        } catch (Exception e) {
+            telemetry.addData("Motor \"launcher2\" not found", 0);
+        }
+
     }
 
     // --- High-Level Commands to Change State ---
