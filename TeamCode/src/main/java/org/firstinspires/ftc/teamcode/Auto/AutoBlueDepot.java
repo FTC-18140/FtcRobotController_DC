@@ -19,15 +19,15 @@ public class AutoBlueDepot extends LinearOpMode{
     @Override
     public void runOpMode() throws InterruptedException {
         Pose2d start = new Pose2d(AutoPositions.Positions.START_BLUE_DEPOT.position, Math.toRadians(-135));
-        Pose2d launchPos = new Pose2d(-24, 24, Math.toRadians(23));
-        Pose2d intakePos = new Pose2d(-12, 32, Math.toRadians(90));
+        Pose2d launchPos = new Pose2d(AutoPositions.Positions.CLOSE_LAUNCH_ZONE_BLUE.position, Math.toRadians(23));
+        Pose2d intakePos = new Pose2d(AutoPositions.Positions.ARTIFACT_GATE_BLUE.position, Math.toRadians(90));
 
         ThunderBot2025 robot = new ThunderBot2025();
 
         robot.init(hardwareMap, telemetry, start);
         waitForStart();
 
-        robot.setColor(ThunderBot2025.Alliance_Color.BLUE);
+        robot.setColor(ThunderBot2025.Alliance_Color.RED);
         Actions.runBlocking(
                 new ParallelAction(
                         new SequentialAction(
@@ -35,7 +35,7 @@ public class AutoBlueDepot extends LinearOpMode{
                                         new SequentialAction(
                                                 new ParallelAction(
                                                         robot.drive.actionBuilder(start)
-                                                                .strafeToSplineHeading(new Vector2d(launchPos.position.x, 12), Math.toRadians(23))
+                                                                .strafeToSplineHeading(launchPos.position, Math.toRadians(23))
                                                                 .build()
                                                 ),
                                                 robot.intake.intakeStartAction(),
@@ -55,13 +55,13 @@ public class AutoBlueDepot extends LinearOpMode{
                                                         //robot.launch(),
                                                         robot.intake.intakeStartAction()
                                                 ),
-                                                robot.launcher.stopAction(),
+                                                //robot.launcher.stopAction(),
                                                 robot.intake.intakeStartAction(),
 
                                                 new ParallelAction(
                                                         robot.drive.actionBuilder(launchPos)
                                                                 .splineToSplineHeading(intakePos, Math.toRadians(90))
-                                                                .splineToConstantHeading(new Vector2d(intakePos.position.x, 56), Math.toRadians(90), new TranslationalVelConstraint(6))
+                                                                .splineToConstantHeading(new Vector2d(intakePos.position.x, -50), Math.toRadians(90), new TranslationalVelConstraint(6))
                                                                 .build(),
                                                         new SequentialAction(
                                                                 new SleepAction(3),
@@ -71,7 +71,7 @@ public class AutoBlueDepot extends LinearOpMode{
                                                         )
                                                 ),
                                                 new ParallelAction(
-                                                        robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, 56), Math.toRadians(90)))
+                                                        robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, 50), Math.toRadians(90)))
                                                                 .strafeToSplineHeading(launchPos.position, Math.toRadians(23))
                                                                 .build(),
                                                         robot.launcher.pointToAction(0)
@@ -86,9 +86,11 @@ public class AutoBlueDepot extends LinearOpMode{
                                                         //robot.launch(),
                                                         robot.intake.intakeStartAction(),
 
+
                                                         robot.intake.intakeStopAction(),
                                                         //robot.launch(),
                                                         robot.intake.intakeStartAction(),
+
 
                                                         robot.intake.intakeStopAction(),
                                                         //robot.launch(),
@@ -99,7 +101,7 @@ public class AutoBlueDepot extends LinearOpMode{
                                 ),
                                 robot.intake.intakeStopAction(),
                                 robot.drive.actionBuilder(launchPos)
-                                        .strafeToSplineHeading(new Vector2d(-12, 12), Math.toRadians(0))
+                                        .strafeToSplineHeading(new Vector2d(12, 12), Math.toRadians(0))
                                         .build(),
                                 robot.launcher.pointToAction(0),
                                 robot.launcher.stopAction()

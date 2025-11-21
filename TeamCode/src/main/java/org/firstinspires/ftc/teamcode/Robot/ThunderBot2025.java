@@ -36,6 +36,10 @@ public class ThunderBot2025
     public Alliance_Color color = Alliance_Color.BLUE;
     private Telemetry telemetry = null;
     public static boolean field_centric = true;
+    public static Pose2d starting_position;
+
+    Pose2d TELEOP_START_RED = new Pose2d(-12, -12, 0);
+    Pose2d TELEOP_START_BLUE = new Pose2d(-12, 12, 0);
 
 
 
@@ -48,7 +52,11 @@ public class ThunderBot2025
     public void init(HardwareMap hwMap, Telemetry telem, @Nullable Pose2d pose)
     {
         if(pose == null){
-            pose = new Pose2d(0,0,0);
+            if(starting_position == null) {
+                pose = new Pose2d(0,0,0);
+            } else {
+                pose = starting_position;
+            }
         }
         drive = new MecanumDrive(hwMap, pose);
 
@@ -83,6 +91,20 @@ public class ThunderBot2025
         color = alliance;
         launcher.setAlliance(color);
 
+        if(starting_position == null){
+            if(alliance == Alliance_Color.RED){
+                starting_position = TELEOP_START_RED;
+                drive.localizer.setPose(TELEOP_START_RED);
+            } else {
+                starting_position = TELEOP_START_BLUE;
+                drive.localizer.setPose(TELEOP_START_BLUE);
+            }
+        }
+
+    }
+
+    public void setStartPosForTeleop(Pose2d pos){
+        starting_position = pos;
     }
 
     /**

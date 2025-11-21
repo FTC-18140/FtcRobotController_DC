@@ -19,8 +19,8 @@ public class AutoRedDepot extends LinearOpMode{
     @Override
     public void runOpMode() throws InterruptedException {
         Pose2d start = new Pose2d(AutoPositions.Positions.START_RED_DEPOT.position, Math.toRadians(135));
-        Pose2d launchPos = new Pose2d(24, -24, Math.toRadians(-23));
-        Pose2d intakePos = new Pose2d(12, -32, Math.toRadians(-90));
+        Pose2d launchPos = new Pose2d(AutoPositions.Positions.CLOSE_LAUNCH_ZONE_RED.position, Math.toRadians(-23));
+        Pose2d intakePos = new Pose2d(AutoPositions.Positions.ARTIFACT_GATE_RED.position, Math.toRadians(-90));
 
         ThunderBot2025 robot = new ThunderBot2025();
 
@@ -61,7 +61,7 @@ public class AutoRedDepot extends LinearOpMode{
                                                 new ParallelAction(
                                                         robot.drive.actionBuilder(launchPos)
                                                                 .splineToSplineHeading(intakePos, Math.toRadians(90))
-                                                                .splineToConstantHeading(new Vector2d(intakePos.position.x, -56), Math.toRadians(-90), new TranslationalVelConstraint(6))
+                                                                .splineToConstantHeading(new Vector2d(intakePos.position.x, -50), Math.toRadians(-90), new TranslationalVelConstraint(6))
                                                                 .build(),
                                                         new SequentialAction(
                                                                 new SleepAction(3),

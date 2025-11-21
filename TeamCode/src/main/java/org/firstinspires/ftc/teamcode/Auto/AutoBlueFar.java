@@ -19,8 +19,8 @@ public class AutoBlueFar extends LinearOpMode{
     @Override
     public void runOpMode() throws InterruptedException {
         Pose2d start = new Pose2d(AutoPositions.Positions.START_BLUE_FAR.position, Math.toRadians(0));
-        Pose2d launchPos = new Pose2d(-52, 12, Math.toRadians(23));
-        Pose2d intakePos = new Pose2d(-34.5, 32, Math.toRadians(90));
+        Pose2d launchPos = new Pose2d(AutoPositions.Positions.FAR_LAUNCH_ZONE_BLUE.position, Math.toRadians(23));
+        Pose2d intakePos = new Pose2d(AutoPositions.Positions.ARTIFACT_BASE_BLUE.position, Math.toRadians(90));
 
         ThunderBot2025 robot = new ThunderBot2025();
 
@@ -96,5 +96,7 @@ public class AutoBlueFar extends LinearOpMode{
                 robot.updateAction()
             )
         );
+
+
     }
 }
