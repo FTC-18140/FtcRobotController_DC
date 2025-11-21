@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
+import android.util.Range;
+
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -17,6 +19,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -66,7 +69,7 @@ public class Indexer {
         PURPLE,
         NONE
     }
-    List<BallColor> inIndex = new LinkedList<>(List.of(BallColor.NONE,BallColor.NONE,BallColor.NONE));
+    List<BallColor> inIndex = new LinkedList<>((BallColor.NONE,BallColor.NONE,BallColor.NONE));
 
     public void init(HardwareMap hwMap, Telemetry telem){
         hardwareMap = hwMap;
@@ -144,7 +147,7 @@ public class Indexer {
 
         indexPos = 3 * indexMotor.getCurrentPosition()/CPR + offset;
         delta = (int) Math.round(indexPos) - (int) Math.round(lastIndexPos);
-        //rotate_inIndex(delta);
+
 
         lastIndexPos = indexPos;
         angleController.setPID(p, i, d);
@@ -201,9 +204,9 @@ public class Indexer {
             rotMod += 3;
         }
         for (int i = 0; i < rotMod; i++ ){
-            holder = inIndex.getLast();
-            inIndex.removeLast();
-            inIndex.addFirst(holder);
+            holder = inIndex.removeLast();
+
+            //inIndex.addFirst(holder);
         }
     }
 
@@ -233,14 +236,15 @@ public class Indexer {
         telemetry.addData("> target Angle: ", targetAngle);
         telemetry.addData("> indexer Angle: ", indexPos);
     }
-    public void cycle(double dir){
+    public void cycle(int dir){
         //shifts the target angle by a third
         setState(IndexerState.UNALIGNED);
         targetAngle += dir;
+        rotate_inIndex(dir);
         angleController.reset();
     }
 
-    public Action cycleAction(double dir){
+    public Action cycleAction(int dir){
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
