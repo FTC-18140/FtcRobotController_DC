@@ -32,7 +32,7 @@ public class AutoBlueFar_WAIT extends LinearOpMode{
         Actions.runBlocking(
                 new ParallelAction(
                         new SequentialAction(
-                            new SleepAction(22),
+                                new SleepAction(22),
                                 new ParallelAction(
                                         robot.drive.actionBuilder(start)
                                                 .strafeToSplineHeading(new Vector2d(launchPos.position.x, 12), Math.toRadians(23))
