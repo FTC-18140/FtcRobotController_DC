@@ -28,7 +28,7 @@ public class AutoRedFar extends LinearOpMode{
 //        robot.launcher.color = "red";
         waitForStart();
 
-        robot.setColor("red");
+        robot.setColor(ThunderBot2025.Alliance_Color.RED);
         Actions.runBlocking(
                 new ParallelAction(
                         new SequentialAction(

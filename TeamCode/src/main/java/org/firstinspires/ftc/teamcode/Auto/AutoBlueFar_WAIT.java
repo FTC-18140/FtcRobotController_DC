@@ -2,10 +2,8 @@ package org.firstinspires.ftc.teamcode.Auto;
 
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.RaceAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
-import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -25,10 +23,9 @@ public class AutoBlueFar_WAIT extends LinearOpMode{
         ThunderBot2025 robot = new ThunderBot2025();
 
         robot.init(hardwareMap, telemetry, start);
-        robot.launcher.color = "blue";
         waitForStart();
 
-        robot.setColor("blue");
+        robot.setColor(ThunderBot2025.Alliance_Color.BLUE);
         Actions.runBlocking(
                 new ParallelAction(
                         new SequentialAction(
@@ -44,17 +41,15 @@ public class AutoBlueFar_WAIT extends LinearOpMode{
 
                                 new SequentialAction(
                                         robot.intake.intakeStopAction(),
-                                        robot.launch(),
+                                        robot.launchAction(),
                                         robot.intake.intakeStartAction(),
 
-                                        robot.indexer.updateAction(),
                                         robot.intake.intakeStopAction(),
-                                        robot.launch(),
+                                        robot.launchAction(),
                                         robot.intake.intakeStartAction(),
 
-                                        robot.indexer.updateAction(),
                                         robot.intake.intakeStopAction(),
-                                        robot.launch(),
+                                        robot.launchAction(),
                                         robot.intake.intakeStartAction()
                                 ),
                                 robot.launcher.stopAction(),
@@ -62,11 +57,11 @@ public class AutoBlueFar_WAIT extends LinearOpMode{
                                 robot.drive.actionBuilder(launchPos)
                                         .strafeToSplineHeading(new Vector2d(-12, 12), Math.toRadians(0))
                                         .build(),
-                                robot.launcher.turretAimAction(0),
+                                robot.launcher.pointToAction(0),
                                 robot.launcher.stopAction()
 
                         ),
-                        robot.chargeAction(robot.drive.localizer.getPose(), 30),
+                        robot.launcher.prepShotAction(),
                         robot.updateAction()
                 )
         );

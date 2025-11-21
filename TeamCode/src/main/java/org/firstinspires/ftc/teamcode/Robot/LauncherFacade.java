@@ -26,7 +26,7 @@ public class LauncherFacade {
     private Vector2d targetPos;
     private final Vector2d targetPosBlue = new Vector2d(60, 60);
     private final Vector2d targetPosRed = new Vector2d(60, -60); // Adjusted for typical field symmetry
-    private String allianceColor = "blue";
+    private ThunderBot2025.Alliance_Color allianceColor = ThunderBot2025.Alliance_Color.BLUE;
 
     // Constructor initializes all subsystems
     public void init(HardwareMap hwMap, Telemetry telem) {
@@ -122,6 +122,9 @@ public class LauncherFacade {
      * This action completes once the RPM is within the accepted tolerance.
      * @return An Action that can be used in a sequence.
      */
+    public boolean isAtTargetRpm(){
+        return flywheel.isAtTargetRpm();
+    }
     public Action waitForChargeAction() {
         return new Action() {
             @Override
@@ -173,8 +176,8 @@ public class LauncherFacade {
         flywheel.stop();
     }
 
-    public void setAlliance(String color) {
-        this.allianceColor = color.toLowerCase();
+    public void setAlliance(ThunderBot2025.Alliance_Color color) {
+        this.allianceColor = color;
         this.targetPos = Objects.equals(this.allianceColor, "red") ? targetPosRed : targetPosBlue;
         limelight.setPipeline(Objects.equals(this.allianceColor, "red") ? 2 : 1);
     }

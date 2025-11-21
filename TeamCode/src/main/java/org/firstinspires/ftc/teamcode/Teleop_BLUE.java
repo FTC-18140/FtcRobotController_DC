@@ -21,7 +21,7 @@ public class Teleop_BLUE extends OpMode {
     private boolean revolving = false;
     //public static boolean field_centric = true;
 
-    String alliance = "blue";
+    ThunderBot2025.Alliance_Color alliance = ThunderBot2025.Alliance_Color.BLUE;
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
     private TBDGamepad theGamepad1;
@@ -32,7 +32,6 @@ public class Teleop_BLUE extends OpMode {
     @Override
     public void init() {
         robot.init(hardwareMap, telemetry, new Pose2d(-12, 12, 0));
-        robot.launcher.color = alliance;
         robot.setColor(alliance);
 
         theGamepad1 = new TBDGamepad(gamepad1);
@@ -69,11 +68,11 @@ public class Teleop_BLUE extends OpMode {
         robot.update();
 
         if(Math.abs(theGamepad2.getRightX()) > 0.05){
-            robot.launcher.aim(-1.2 *theGamepad2.getRightX() + theGamepad1.getRightX() * speed);
+            robot.launcher.augmentedAim(-1.2 *theGamepad2.getRightX() + theGamepad1.getRightX() * speed);
         } else if(Math.abs(theGamepad1.getRightX()) > 0.05){
-            robot.launcher.aim(theGamepad1.getRightX() * speed * 0.7 + robot.lockOn());
+            robot.launcher.augmentedAim(theGamepad1.getRightX() * speed * 0.7);
         } else {
-            robot.launcher.aim(robot.lockOn());
+            robot.launcher.aim();
         }
 
         robot.drive(forward, strafe, turn * 0.7, speed, p);
@@ -120,9 +119,9 @@ public class Teleop_BLUE extends OpMode {
         telemetry.addData("position X: ", robot.drive.localizer.getPose().position.x);
         telemetry.addData("position Y: ", robot.drive.localizer.getPose().position.y);
         telemetry.addData("heading: ", Math.toDegrees(robot.drive.localizer.getPose().heading.toDouble()));
-        telemetry.addData("rpm: ", robot.launcher.avgRpm);
-        telemetry.addData("goal distance: ", robot.launcher.goalDistance(robot.drive.localizer.getPose()));
-        telemetry.addData("target rpm: ", robot.launcher.targetRpm);
+//        telemetry.addData("rpm: ", robot.launcher.avgRpm);
+//        telemetry.addData("goal distance: ", robot.launcher.goalDistance(robot.drive.localizer.getPose()));
+//        telemetry.addData("target rpm: ", robot.launcher.targetRpm);
 
 
 

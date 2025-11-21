@@ -7,7 +7,6 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.SequentialAction;
@@ -20,8 +19,6 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Robot.Drives.MecanumDrive;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
-
 @Config
 public class ThunderBot2025
 {
@@ -31,10 +28,15 @@ public class ThunderBot2025
     public LauncherFacade launcher;
     public LED led;
 //    public Limelight limelight;
-
-    public String color = "blue";
+    public enum Alliance_Color{
+        RED,
+        BLUE
+    }
+    public Alliance_Color color = Alliance_Color.BLUE;
     private Telemetry telemetry = null;
     public static boolean field_centric = true;
+
+
 
     /**
      * initiolization for ThunderBot2025
@@ -76,19 +78,10 @@ public class ThunderBot2025
      *
      * @param alliance a string, supposed to hold the color of the alliance
      */
-    public void setColor(String alliance){
+    public void setColor(Alliance_Color alliance){
         color = alliance;
-        if (Objects.equals(color, "blue")) {
-//            limelight.setPipeline(1);
-//            launcher.color = "blue";
-            launcher.setAlliance("blue");
-//            launcher.turret_target_pos = 0;
-        }else{
-//            limelight.setPipeline(2);
-//            launcher.color = "red";
-            launcher.setAlliance("red");
-//            launcher.turret_target_pos = 0;
-        }
+        launcher.setAlliance(color);
+
     }
 
     /**
@@ -201,7 +194,7 @@ public class ThunderBot2025
      */
     public double lockOn(){
 //        drive.updatePoseEstimate();
-//        return launcher.lockOn(limelight.getX(), drive.localizer.getPose());
+//        return launcher;
         return 0;
     }
 
@@ -238,20 +231,28 @@ public class ThunderBot2025
                 @Override
                 public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                     launcher.aim();
-                    return !launcher.isAtTarget();
+                    return true;
                 }
             };
         }
+
+    public Action launchReadyAction(){
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                //continuously checks if the turret and flywheel are ready
+                return !(launcher.isAtTarget() && launcher.isAtTargetRpm());
+            }
+        };
+    }
         //Actions
         public Action launchAction(){
             return new SequentialAction(
-                    new ParallelAction(
-                            launcher.waitForChargeAction(),
-                            aimAction()
-                    ),
+                    //verifies that the turret and flywheel are ready before firing and cycling
+                    launchReadyAction(),
                     indexer.flipperUpAction(),
                     new SleepAction(0.15),
-                    indexer.flipperDownAction(),
+                    indexer.flipperDownAndCycleAction(),
                     new SleepAction(0.15)
             );
         }

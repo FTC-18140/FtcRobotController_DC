@@ -21,7 +21,7 @@ public class Teleop_Red extends OpMode {
     private boolean revolving = false;
     //public static boolean field_centric = true;
 
-    String alliance = "red";
+    ThunderBot2025.Alliance_Color alliance = ThunderBot2025.Alliance_Color.RED;
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
     private TBDGamepad theGamepad1;

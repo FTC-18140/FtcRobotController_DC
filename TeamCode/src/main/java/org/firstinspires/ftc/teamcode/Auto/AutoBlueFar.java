@@ -28,7 +28,7 @@ public class AutoBlueFar extends LinearOpMode{
 //        robot.launcher.color = "blue";
         waitForStart();
 
-        robot.setColor("blue");
+        robot.setColor(ThunderBot2025.Alliance_Color.BLUE);
         Actions.runBlocking(
             new ParallelAction(
                 new SequentialAction(
@@ -39,22 +39,15 @@ public class AutoBlueFar extends LinearOpMode{
                                             .strafeToSplineHeading(new Vector2d(launchPos.position.x, 12), Math.toRadians(23))
                                             .build()
                             ),
-                            robot.intake.intakeStartAction(),
                             //new SleepAction(2),
 
                             // Launch Preloads
                             new SequentialAction(
-                                robot.intake.intakeStopAction(),
                                 robot.launchAction(),
-                                robot.intake.intakeStartAction(),
 
-                                robot.intake.intakeStopAction(),
                                 robot.launchAction(),
-                                robot.intake.intakeStartAction(),
 
-                                robot.intake.intakeStopAction(),
-                                robot.launchAction(),
-                                robot.intake.intakeStartAction()
+                                robot.launchAction()
                             ),
                             robot.intake.intakeStartAction(),
                             // Grab next 3 artifacts

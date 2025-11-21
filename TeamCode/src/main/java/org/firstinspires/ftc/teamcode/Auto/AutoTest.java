@@ -18,16 +18,14 @@ public class AutoTest extends LinearOpMode {
         ThunderBot2025 robot = new ThunderBot2025();
 
         robot.init(hardwareMap, telemetry, start);
-        robot.launcher.color = "red";
         waitForStart();
 
-        robot.setColor("red");
+        robot.setColor(ThunderBot2025.Alliance_Color.RED);
 
         Actions.runBlocking(
                 new ParallelAction(
                         new SequentialAction(
-                                robot.indexer.cycleAction(-1),
-                                robot.indexer.updateAction()
+                                robot.indexer.cycleAction(-1)
                         ),
                         robot.updateAction(),
                         robot.aimAction()

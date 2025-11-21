@@ -156,15 +156,14 @@ public class Indexer {
 
     public IndexerState getState(){return state;}
 
-    public Action updateAction(){
-        return new Action() {
-            @Override
-            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                update();
-                return state == IndexerState.ALIGNED;
-            }
-        };
-    }
+//    public Action checkAlignmentAction(){
+//        return new Action() {
+//            @Override
+//            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+//                return state == IndexerState.ALIGNED;
+//            }
+//        };
+//    }
     public void spin(double power){
         state = IndexerState.MANUAL;
         indexer.setPower(power);
@@ -229,7 +228,7 @@ public class Indexer {
             }
         };
     }
-    public Action flipperDownAction(){
+    public Action flipperDownAndCycleAction(){
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
