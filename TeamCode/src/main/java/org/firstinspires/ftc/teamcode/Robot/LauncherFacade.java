@@ -81,19 +81,21 @@ public class LauncherFacade {
 
     // This method is now private, as it's an internal helper.
     private double getAutoAimAngle() {
+        double difference = 0;
         if (limelight.hasTarget()) {
             telemetry.addData("Aiming Mode", "LIMELIGHT");
             double limelightXDegrees = limelight.getX();
-            double difference = limelightXDegrees * Turret.TURN_SPEED * Turret.TURRET_DEGREES_PER_SERVO_COMMAND;
-            return turret.getCurrentPosition() + difference;
-        } else {
+            difference = limelightXDegrees * Turret.TURN_SPEED * Turret.TURRET_DEGREES_PER_SERVO_COMMAND;
+        } else if (robotPose != null) {
             telemetry.addData("Aiming Mode", "ODOMETRY (Fallback)");
-            if (robotPose == null) return turret.getCurrentPosition();
             Vector2d targetDirection = targetPos.minus(robotPose.position);
             double robotRelativeAngle = robotPose.heading.toDouble() - turret.getCurrentPosition() * (Math.PI / 2);
-            double angleDifference = targetDirection.angleCast().toDouble() - robotRelativeAngle;
-            return turret.getCurrentPosition() - angleDifference;
+            difference = -targetDirection.angleCast().toDouble() - robotRelativeAngle;
         }
+        else {
+            telemetry.addData("Aiming Mode", "NO TARGET");
+        }
+        return turret.getCurrentPosition() + difference;
     }
 
     /** Prepares the flywheel for a shot based on the robot's current pose. */
