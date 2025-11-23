@@ -107,8 +107,6 @@ public class Teleop_BLUE extends OpMode {
             robot.indexer.cycle(-1);
         } else if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_RIGHT)) {
             robot.indexer.cycle(1);
-        } else if (robot.indexer.getState() == Indexer.IndexerState.MANUAL){
-            robot.indexer.setState(Indexer.IndexerState.UNALIGNED);
         }
 
         robot.drive.localizer.update();

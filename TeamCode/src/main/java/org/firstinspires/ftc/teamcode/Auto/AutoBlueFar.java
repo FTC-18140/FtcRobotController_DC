@@ -25,7 +25,6 @@ public class AutoBlueFar extends LinearOpMode{
         ThunderBot2025 robot = new ThunderBot2025();
 
         robot.init(hardwareMap, telemetry, start);
-//        robot.launcher.color = "blue";
         waitForStart();
 
         robot.setColor(ThunderBot2025.Alliance_Color.BLUE);
@@ -39,28 +38,24 @@ public class AutoBlueFar extends LinearOpMode{
                                             .strafeToSplineHeading(new Vector2d(launchPos.position.x, 12), Math.toRadians(23))
                                             .build()
                             ),
-                            //new SleepAction(2),
-
                             // Launch Preloads
                             new SequentialAction(
                                 robot.launchAction(),
-
                                 robot.launchAction(),
-
                                 robot.launchAction()
                             ),
                             robot.intake.intakeStartAction(),
-                            // Grab next 3 artifacts
+                            // Grab next 3 artifacts using intelligent, sensor-based actions
                             new ParallelAction(
                                 robot.drive.actionBuilder(launchPos)
                                         .splineToSplineHeading(intakePos, Math.toRadians(90))
                                         .splineToConstantHeading(new Vector2d(intakePos.position.x, 56), Math.toRadians(90), new TranslationalVelConstraint(6))
                                         .build(),
                                 new SequentialAction(
-                                    new SleepAction(3),
-                                    robot.indexer.cycleAction(-1),
-                                    new SleepAction(1),
-                                    robot.indexer.cycleAction(-1)
+                                    robot.seekToSlotAction(0), // Move to the first intake slot
+                                    robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
+                                    robot.waitForBallAndCycleAction()  // Wait for the next ball, then cycle
+                                    // The third ball will be loaded but we won't cycle away from it
                                 )
                             ),
                             // Drive to launch spot
@@ -73,11 +68,8 @@ public class AutoBlueFar extends LinearOpMode{
                             // Launch 2nd set of Artifacts
                             new SequentialAction(
                                     robot.launchAction(),
-
                                     robot.launchAction(),
-
                                     robot.launchAction(),
-
                                     robot.launchAction()
                             )
                         ),

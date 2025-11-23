@@ -60,14 +60,14 @@ public class AutoRedFar extends LinearOpMode{
 
                                                 new ParallelAction(
                                                         robot.drive.actionBuilder(launchPos)
-                                                                .splineToSplineHeading(intakePos, Math.toRadians(-90))
-                                                                .splineToConstantHeading(new Vector2d(intakePos.position.x, -56), Math.toRadians(-90), new TranslationalVelConstraint(6))
+                                                                .splineToSplineHeading(intakePos, Math.toRadians(90))
+                                                                .splineToConstantHeading(new Vector2d(intakePos.position.x, 56), Math.toRadians(90), new TranslationalVelConstraint(6))
                                                                 .build(),
                                                         new SequentialAction(
-                                                                new SleepAction(3),
-                                                                robot.indexer.cycleAction(-1),
-                                                                new SleepAction(1),
-                                                                robot.indexer.cycleAction(-1)
+                                                                robot.seekToSlotAction(0), // Move to the first intake slot
+                                                                robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
+                                                                robot.waitForBallAndCycleAction()  // Wait for the next ball, then cycle
+                                                                // The third ball will be loaded but we won't cycle away from it
                                                         )
                                                 ),
                                                 new ParallelAction(

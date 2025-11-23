@@ -87,7 +87,7 @@ public class Teleop_Red extends OpMode {
 
 
         if(theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.LEFT_TRIGGER)){
-            robot.launcher.prepShot();
+            robot.charge();
         } else {
             robot.launcher.stop();
         }
@@ -110,8 +110,6 @@ public class Teleop_Red extends OpMode {
             robot.indexer.cycle(-1);
         } else if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_RIGHT)) {
             robot.indexer.cycle(1);
-        } else if (robot.indexer.getState() == Indexer.IndexerState.MANUAL){
-            robot.indexer.setState(Indexer.IndexerState.UNALIGNED);
         }
 
         robot.drive.localizer.update();
