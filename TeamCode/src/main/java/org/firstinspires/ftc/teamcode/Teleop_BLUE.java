@@ -113,11 +113,6 @@ public class Teleop_BLUE extends OpMode {
         telemetry.addData("position X: ", robot.drive.localizer.getPose().position.x);
         telemetry.addData("position Y: ", robot.drive.localizer.getPose().position.y);
         telemetry.addData("heading: ", Math.toDegrees(robot.drive.localizer.getPose().heading.toDouble()));
-//        telemetry.addData("rpm: ", robot.launcher.avgRpm);
-//        telemetry.addData("goal distance: ", robot.launcher.goalDistance(robot.drive.localizer.getPose()));
-//        telemetry.addData("target rpm: ", robot.launcher.targetRpm);
-
-
 
         dashboard.sendTelemetryPacket(p);
     }

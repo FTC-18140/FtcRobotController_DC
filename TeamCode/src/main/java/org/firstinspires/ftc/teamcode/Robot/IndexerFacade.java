@@ -26,7 +26,7 @@ public class IndexerFacade {
     public enum State { IDLE, HOMING, SELECTING_BALL, AWAITING_FLIP, FLIPPING, RETRACTING_FLIPPER }
     private State currentState = State.IDLE;
 
-    /** The facade's internal model of what is in each slot. */
+    /** The facade\'s internal model of what is in each slot. */
     public enum BallState { GREEN, PURPLE, VACANT }
     private BallState[] ballSlots = new BallState[3];
     private int currentTargetSlot = -1;
@@ -83,13 +83,15 @@ public class IndexerFacade {
     }
     
     public void selectNextEmptySlot() {
+        // Refactored to have a single exit point
         if (currentState == State.IDLE || currentState == State.AWAITING_FLIP) {
             int startSlot = (currentTargetSlot + 1) % 3;
-            for (int i = 0; i < 3; i++) {
+            boolean slotFound = false;
+            for (int i = 0; i < 3 && !slotFound; i++) {
                 int slotToCheck = (startSlot + i) % 3;
                 if (ballSlots[slotToCheck] == BallState.VACANT) {
                     selectSlot(slotToCheck);
-                    return;
+                    slotFound = true;
                 }
             }
         }
@@ -111,13 +113,17 @@ public class IndexerFacade {
         }
     }
 
-    // --- Compatibility Shims for TeleOp ---
+    // --- Compatibility Shims for TeleOp (Corrected) ---
     public void unflip() { /* The new state machine handles this automatically */ }
-    public void adjustToThird() { selectSlot(2); }
+    public void adjustToThird() { turnstile.home(); } // Corrected: This is now a manual homing trigger.
     public void spin(double power) { turnstile.spin(power); }
     public void cycle(int direction) {
-        if (direction > 0) selectNextGreenBall();
-        else selectNextPurpleBall();
+        // Corrected: This now cycles to the next adjacent slot.
+        if (currentState == State.IDLE || currentState == State.AWAITING_FLIP) {
+            int startSlot = (currentTargetSlot != -1) ? currentTargetSlot : 0;
+            int nextSlot = (startSlot + direction + 3) % 3; // Handles positive/negative direction and wrap-around
+            selectSlot(nextSlot);
+        }
     }
     public State getState() { return currentState; }
     public void setState(State state) { this.currentState = state; }
