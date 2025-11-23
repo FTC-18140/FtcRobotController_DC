@@ -25,9 +25,20 @@ public class AutoBlueFar extends LinearOpMode{
         ThunderBot2025 robot = new ThunderBot2025();
 
         robot.init(hardwareMap, telemetry, start);
+
+
+        // This is the equivalent of init_loop()
+        while (opModeInInit()) {
+            // Code here runs repeatedly during init phase.  Need to be looking at ObeliskID
+            robot.launcher.updateVision();
+            telemetry.addData("Status", "Waiting for start");
+            telemetry.update();
+        }
+
         waitForStart();
 
         robot.setColor(ThunderBot2025.Alliance_Color.BLUE);
+
         Actions.runBlocking(
             new ParallelAction(
                 new SequentialAction(
@@ -36,7 +47,9 @@ public class AutoBlueFar extends LinearOpMode{
                             new ParallelAction(
                                     robot.drive.actionBuilder(start)
                                             .strafeToSplineHeading(new Vector2d(launchPos.position.x, 12), Math.toRadians(23))
-                                            .build()
+                                            .build(),
+                                    // Plan the first shot sequence while driving.
+                                    robot.planSequenceAction()
                             ),
                             // Launch Preloads
                             new SequentialAction(
@@ -63,11 +76,12 @@ public class AutoBlueFar extends LinearOpMode{
                                     robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, 52), Math.toRadians(90)))
                                         .strafeToSplineHeading(launchPos.position, Math.toRadians(23))
                                         .build(),
-                                    robot.launcher.pointToAction(0)
+                                    robot.launcher.pointToAction(0),
+                                    // Re-plan the shot sequence with the newly loaded balls
+                                    robot.planSequenceAction()
                             ),
                             // Launch 2nd set of Artifacts
                             new SequentialAction(
-                                    robot.launchAction(),
                                     robot.launchAction(),
                                     robot.launchAction(),
                                     robot.launchAction()

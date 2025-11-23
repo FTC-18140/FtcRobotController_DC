@@ -29,6 +29,9 @@ public class ThunderBot2025
     public LauncherFacade launcher;
     public LED led;
 
+    // --- AprilTag and Sequence Management ---
+    private int latchedObeliskId = -1; // -1 indicates no ID has been officially latched yet.
+
     public enum Alliance_Color{
         RED,
         BLUE
@@ -81,7 +84,28 @@ public class ThunderBot2025
                 drive.localizer.setPose(TELEOP_START_BLUE);
             }
         }
+    }
 
+    /**
+     * This method is now responsible for both latching the Obelisk ID and planning the sequence.
+     * The first time it is called with a valid AprilTag in view, it "latches" that ID.
+     * Every subsequent call will use the latched ID, ignoring any new tags the robot might see.
+     */
+    public void registerObeliskID(){
+        // Step 1: Latch the official ID if we haven't already.
+        if (latchedObeliskId == -1) {
+            int currentId = launcher.getDetectedAprilTagId();
+            if (currentId != -1) {
+                latchedObeliskId = currentId;
+                telemetry.addData("Obelisk ID Latched: ", latchedObeliskId);
+            }
+        }
+
+        // Step 2: Plan the sequence using the latched ID.
+        // This will only proceed if an ID has been successfully latched.
+        if (latchedObeliskId != -1) {
+            indexer.planShotSequence(latchedObeliskId);
+        }
     }
 
     public void setStartPosForTeleop(Pose2d pos){
@@ -252,5 +276,20 @@ public class ThunderBot2025
                 },
                 new SleepAction(0.15)
         );
+    }
+
+    /**
+     * Returns a Road Runner Action that plans the shot sequence based on the last detected Obelisk ID.
+     * This is useful for re-planning the sequence after intaking new artifacts.
+     * @return An Action that can be used in a sequence.
+     */
+    public Action planSequenceAction() {
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                registerObeliskID();
+                return false; // This is a one-shot action.
+            }
+        };
     }
 }

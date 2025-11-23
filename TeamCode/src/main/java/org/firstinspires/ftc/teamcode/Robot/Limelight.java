@@ -15,7 +15,7 @@ public class Limelight {
     Limelight3A limelight = null;
     HardwareMap hardwareMap;
     Telemetry telemetry;
-    int id = 0; // The ID number of the fiducial
+    int id = -1; // The ID number of the fiducial. Set to -1 to indicate no target.
     double x = 0; // Where it is (left-right)
     double y = 0; // Where it is (up-down)
     double distance = 0;
@@ -55,11 +55,14 @@ public class Limelight {
      */
     public void update() {
         validResults = false;
+        id = -1; // Reset ID to -1 at the start of every loop.
+
         LLResult result = limelight.getLatestResult();
         if ( result != null && result.isValid()) {
             List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
-            limelight.pipelineSwitch(index);
-            for (LLResultTypes.FiducialResult fiducial : fiducials) {
+            if (!fiducials.isEmpty()) {
+                // If we see any fiducials, take the first one in the list.
+                LLResultTypes.FiducialResult fiducial = fiducials.get(0);
                 id = fiducial.getFiducialId(); // The ID number of the fiducial
                 x = fiducial.getTargetXDegrees(); // Where it is (left-right)
                 y = fiducial.getTargetYDegrees(); // Where it is (up-down)
@@ -67,7 +70,6 @@ public class Limelight {
                 validResults = true;
             }
         }
-
     }
 
     /**

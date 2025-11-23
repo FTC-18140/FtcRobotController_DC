@@ -54,6 +54,21 @@ public class LauncherFacade {
     }
 
     /**
+     * A safe method to call during the init loop to only update the vision system.
+     */
+    public void updateVision() {
+        limelight.update();
+    }
+
+    /**
+     * Returns the ID of the currently visible AprilTag.
+     * @return The detected AprilTag ID, or a default value if none is found.
+     */
+    public int getDetectedAprilTagId() {
+        return limelight.id();
+    }
+
+    /**
      * Aims automatically using the best available sensor data.
      */
     public void aim() {
@@ -91,8 +106,7 @@ public class LauncherFacade {
             Vector2d targetDirection = targetPos.minus(robotPose.position);
             double robotRelativeAngle = robotPose.heading.toDouble() - turret.getCurrentPosition() * (Math.PI / 2);
             difference = -targetDirection.angleCast().toDouble() - robotRelativeAngle;
-        }
-        else {
+        } else {
             telemetry.addData("Aiming Mode", "NO TARGET");
         }
         return turret.getCurrentPosition() + difference;
