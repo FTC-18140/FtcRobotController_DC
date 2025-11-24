@@ -75,15 +75,15 @@ public class ThunderBot2025
         color = alliance;
         launcher.setAlliance(color);
 
-        if(starting_position == null){
-            if(alliance == Alliance_Color.RED){
-                starting_position = TELEOP_START_RED;
-                drive.localizer.setPose(TELEOP_START_RED);
-            } else {
-                starting_position = TELEOP_START_BLUE;
-                drive.localizer.setPose(TELEOP_START_BLUE);
-            }
-        }
+//        if(starting_position == null){
+//            if(alliance == Alliance_Color.RED){
+//                starting_position = TELEOP_START_RED;
+//                drive.localizer.setPose(TELEOP_START_RED);
+//            } else {
+//                starting_position = TELEOP_START_BLUE;
+//                drive.localizer.setPose(TELEOP_START_BLUE);
+//            }
+//        }
     }
 
     /**
