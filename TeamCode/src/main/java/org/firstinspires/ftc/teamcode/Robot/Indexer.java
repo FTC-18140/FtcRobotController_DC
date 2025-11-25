@@ -17,7 +17,6 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,7 +29,9 @@ public class Indexer {
     DcMotor indexMotor = null;
     Servo flipper = null;
     TouchSensor limitSwitch = null;
-    ColorRangeSensor colorSensor = null;
+    ColorRangeSensor colorSensor0 = null;
+    ColorRangeSensor colorSensor1 = null;
+    ColorRangeSensor colorSensor2 = null;
 
     private static double index_error = 0.12;
     public enum IndexerState {
@@ -43,8 +44,12 @@ public class Indexer {
     public enum BallColor {
         GREEN,
         PURPLE,
-        NONE
+        NONE,
+        INDET
     }
+    static int[][] GREEN_THRESHOLDS = {{0,255},{0,255},{0,255},{0,255}}; // to be set
+    static int[][] PURPLE_THRESHOLDS = {{0,255},{0,255},{0,255},{0,255}}; // to be set
+
     int delta;
     double lastIndexPos;
     List<BallColor> initialElements = Arrays.asList(BallColor.NONE,BallColor.NONE,BallColor.NONE);
@@ -90,10 +95,79 @@ public class Indexer {
             telemetry.addData("Touch Sensor \"magnet\" not found", 0);
         }
         try{
-            colorSensor = hardwareMap.get(ColorRangeSensor.class, "color");
+            colorSensor0 = hardwareMap.get(ColorRangeSensor.class, "color0");
         } catch (Exception e) {
-            telemetry.addData("Color Range Sensor \"color\" not found", 0);
+            telemetry.addData("Color Range Sensor \"colorSensor0\" not found", 0);
         }
+        try{
+            colorSensor1 = hardwareMap.get(ColorRangeSensor.class, "color1");
+        } catch (Exception e) {
+            telemetry.addData("Color Range Sensor \"colorSensor1\" not found", 0);
+        }
+        try{
+            colorSensor2 = hardwareMap.get(ColorRangeSensor.class, "color2");
+        } catch (Exception e) {
+            telemetry.addData("Color Range Sensor \"colorSensor2\" not found", 0);
+        }
+    }
+
+    public void update(){
+        //current ticks / ticks per rotation = rotations
+        //multiply by 3 to get get thirds
+        telemetry.addLine("Indexer")
+                .addData("target Angle: ", targetAngle)
+                .addData("indexer Angle: ", indexPos)
+                .addData("Index power: ", angleController.calculate(indexPos, targetAngle))
+                .addData("Queue", inIndex);
+
+        telemetry.addLine("Sensors")
+                .addData("Magnet", limitSwitch.getValue())
+                .addData("Color0 ARGB", colorSensor0.argb())
+                .addData("Color0 Dist", colorSensor0.getDistance(DistanceUnit.MM))
+                .addData("Color1 ARGB", colorSensor1.argb())
+                .addData("Color1 Dist", colorSensor1.getDistance(DistanceUnit.MM))
+                .addData("Color2 ARGB", colorSensor2.argb())
+                .addData("Color2 Dist", colorSensor2.getDistance(DistanceUnit.MM));
+
+        indexPos = 3 * indexMotor.getCurrentPosition()/CPR + offset;
+
+        delta = (int) Math.round(indexPos) - (int) Math.round(lastIndexPos);
+        cycleInIndex(delta);
+
+        lastIndexPos = indexPos;
+
+        angleController.setPID(p, i, d);
+
+
+        //indexer.setPower(angleController.calculate(indexPos, targetAngle));
+
+        switch (state){
+            case UNALIGNED:
+                indexer.setPower(angleController.calculate(indexPos, targetAngle));
+                if(Math.abs(targetAngle - indexPos) < index_error){
+                    setState(IndexerState.ALIGNED);
+                }
+                break;
+            case ALIGNED:
+                update_inIndex();
+                indexer.setPower(angleController.calculate(indexPos, targetAngle));
+                if(Math.abs(targetAngle - indexPos) > index_error){
+                    setState(IndexerState.UNALIGNED);
+                }
+                break;
+            case MANUAL:
+                break;
+            case LOADING:
+                indexer.setPower(0);
+                break;
+            case STOPPED:
+                indexer.setPower(0);
+                break;
+
+        }
+
+        telemetry.addData("current State: ", state);
+
     }
 
     public void intake(){
@@ -119,57 +193,33 @@ public class Indexer {
         telemetry.addData("indexer position: ", 3*indexMotor.getCurrentPosition()/CPR);
         return false;
     }
-
-    public void update(){
-        //current ticks / ticks per rotation = rotations
-        //multiply by 3 to get get thirds
-
-        telemetry.addData("Magnet: ", limitSwitch.getValue());
-        telemetry.addData("Color Sensor Color: ", colorSensor.argb());
-        telemetry.addData("Color Sensor Distance: ", colorSensor.getDistance(DistanceUnit.MM));
-        indexPos = 3 * indexMotor.getCurrentPosition()/CPR + offset;
-
-        delta = (int) Math.round(indexPos) - (int) Math.round(lastIndexPos);
-        cycleInIndex(delta);
-
-        lastIndexPos = indexPos;
-
-        angleController.setPID(p, i, d);
-
-        telemetry.addData("target Angle: ", targetAngle);
-        telemetry.addData("indexer Angle: ", indexPos);
-        telemetry.addData("Index power: ", angleController.calculate(indexPos, targetAngle));
-        telemetry.addData("inIndex", inIndex);
-        //indexer.setPower(angleController.calculate(indexPos, targetAngle));
-
-        switch (state){
-            case UNALIGNED:
-                indexer.setPower(angleController.calculate(indexPos, targetAngle));
-                if(Math.abs(targetAngle - indexPos) < index_error){
-                    setState(IndexerState.ALIGNED);
-                }
-                break;
-            case ALIGNED:
-                indexer.setPower(angleController.calculate(indexPos, targetAngle));
-                if(Math.abs(targetAngle - indexPos) > index_error){
-                    setState(IndexerState.UNALIGNED);
-                }
-                break;
-            case MANUAL:
-                break;
-            case LOADING:
-                indexer.setPower(0);
-                break;
-            case STOPPED:
-                indexer.setPower(0);
-                break;
-
+    private boolean isWithinThresh(int[] values, int[][] thresholds){
+        for(int i = 0; i < values.length; i++){
+            if (values[i] < thresholds[i][0] || values[i] > thresholds[i][1]) {
+                return false;
+            }
         }
-
-        telemetry.addData("current State: ", state);
-
+        return true;
     }
+    public BallColor readBallColor(@NonNull ColorRangeSensor sensor){
+        int[] aRGB = {sensor.alpha(), sensor.red(), sensor.green(),sensor.blue()};
+        boolean gIsBall = isWithinThresh(aRGB, GREEN_THRESHOLDS);
+        boolean pIsBall = isWithinThresh(aRGB, PURPLE_THRESHOLDS);
 
+        if (pIsBall && gIsBall){
+            return BallColor.INDET;
+        } else if (pIsBall) {
+            return BallColor.PURPLE;
+        } else if (gIsBall) {
+            return BallColor.GREEN;
+        }
+        return BallColor.NONE;
+    }
+    public void update_inIndex(){
+        inIndex.set(0, readBallColor(colorSensor0));
+        inIndex.set(1, readBallColor(colorSensor1));
+        inIndex.set(2, readBallColor(colorSensor2));
+    }
     public void setState(IndexerState newstate){
         state = newstate;
     }
