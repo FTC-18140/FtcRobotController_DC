@@ -79,7 +79,7 @@ public class Indexer {
             indexMotor = hardwareMap.dcMotor.get("indexerpos");
             indexMotor.setDirection(DcMotorSimple.Direction.REVERSE);
             indexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            indexMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            indexMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
             indexPos = 3 * indexMotor.getCurrentPosition()/CPR;
         } catch (Exception e) {
@@ -122,13 +122,13 @@ public class Indexer {
         telemetry.addData("Queue", inIndex);
 
         telemetry.addData("Magnet", limitSwitch.getValue());
-        telemetry.addData("Color0 ARGB", argbOut(colorSensor0));
-        telemetry.addData("Color0 Dist", colorSensor0.getDistance(DistanceUnit.MM));
-        telemetry.addData("Color1 ARGB", argbOut(colorSensor1));
-
-        telemetry.addData("Color1 Dist", colorSensor1.getDistance(DistanceUnit.MM));
-        telemetry.addData("Color2 ARGB", argbOut(colorSensor2));
-        telemetry.addData("Color2 Dist", colorSensor2.getDistance(DistanceUnit.MM));
+//        telemetry.addData("Color0 ARGB", argbOut(colorSensor0));
+//        telemetry.addData("Color0 Dist", colorSensor0.getDistance(DistanceUnit.MM));
+//        telemetry.addData("Color1 ARGB", argbOut(colorSensor1));
+//
+//        telemetry.addData("Color1 Dist", colorSensor1.getDistance(DistanceUnit.MM));
+//        telemetry.addData("Color2 ARGB", argbOut(colorSensor2));
+//        telemetry.addData("Color2 Dist", colorSensor2.getDistance(DistanceUnit.MM));
 
         indexPos = 3 * indexMotor.getCurrentPosition()/CPR + offset;
 
@@ -146,6 +146,7 @@ public class Indexer {
             case UNALIGNED:
                 indexer.setPower(angleController.calculate(indexPos, targetAngle));
                 if(Math.abs(targetAngle - indexPos) < index_error){
+                    update_inIndex();
                     setState(IndexerState.ALIGNED);
                 }
                 break;
@@ -181,7 +182,7 @@ public class Indexer {
             //resets the encoder
             indexer.setPower(0);
             indexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            indexMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            indexMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             //sets target position to the closets corresponding third(0, 1, 2)
             targetAngle = 0;
             offset = LIMITER_OFFSET;
