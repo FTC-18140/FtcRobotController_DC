@@ -92,7 +92,7 @@ public class LauncherFacade {
             Vector2d targetDirection = targetPos.minus(robotPose.position);
             double robotRelativeAngle = robotPose.heading.toDouble() - turret.getCurrentPosition() * (Math.PI/2);
             double angleDifference = targetDirection.angleCast().toDouble() - robotRelativeAngle;
-            return turret.getCurrentPosition() + Math.toDegrees(angleDifference)/90;
+            return turret.getCurrentPosition() - angleDifference / (Math.PI/2);
         }
     }
 
@@ -185,8 +185,8 @@ public class LauncherFacade {
 
     public void setAlliance(ThunderBot2025.Alliance_Color color) {
         this.allianceColor = color;
-        this.targetPos = Objects.equals(this.allianceColor, "red") ? targetPosRed : targetPosBlue;
-        limelight.setPipeline(Objects.equals(this.allianceColor, "red") ? 2 : 1);
+        this.targetPos = Objects.equals(this.allianceColor, ThunderBot2025.Alliance_Color.RED) ? targetPosRed : targetPosBlue;
+        limelight.setPipeline(Objects.equals(this.allianceColor, ThunderBot2025.Alliance_Color.RED) ? 2 : 1);
     }
 
     // --- Private Helper Methods ---

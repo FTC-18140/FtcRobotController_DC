@@ -66,15 +66,15 @@ public class Teleop_Red extends OpMode {
 
 
 
-        if(Math.abs(theGamepad2.getRightX()) > 0.05){
+        if(Math.abs(theGamepad2.getRightX()) > 0.01){
             robot.launcher.augmentedAim(1.2 *theGamepad2.getRightX() + -theGamepad1.getRightX() * speed);
-        } else if(Math.abs(theGamepad1.getRightX()) > 0.05){
+        } else if(Math.abs(theGamepad1.getRightX()) > 0.01){
             robot.launcher.augmentedAim(-theGamepad1.getRightX() * speed * 0.7);
         } else {
             robot.launcher.aim();
         }
 
-        robot.drive(-forward, -strafe, turn * 0.7, speed, p);
+        robot.drive(-forward, -strafe, turn * 0.6, speed, p);
 
 
         if(theGamepad2.getButton(TBDGamepad.Button.X) || theGamepad1.getButton(TBDGamepad.Button.X)){
@@ -114,7 +114,6 @@ public class Teleop_Red extends OpMode {
             robot.indexer.setState(Indexer.IndexerState.UNALIGNED);
         }
 
-        robot.drive.localizer.update();
         telemetry.addData("position X: ", robot.drive.localizer.getPose().position.x);
         telemetry.addData("position Y: ", robot.drive.localizer.getPose().position.y);
         telemetry.addData("heading: ", Math.toDegrees(robot.drive.localizer.getPose().heading.toDouble()));
@@ -124,7 +123,6 @@ public class Teleop_Red extends OpMode {
 //        telemetry.addData("rpm: ", robot.launcher.avgRpm);
 //        telemetry.addData("goal distance: ", robot.launcher.goalDistance(robot.drive.localizer.getPose()));
 //        telemetry.addData("target rpm: ", robot.launcher.targetRpm);
-        
-        dashboard.sendTelemetryPacket(p);
+
     }
 }
