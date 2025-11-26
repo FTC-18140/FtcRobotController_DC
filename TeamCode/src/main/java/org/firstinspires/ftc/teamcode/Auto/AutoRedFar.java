@@ -25,87 +25,86 @@ public class AutoRedFar extends LinearOpMode{
         ThunderBot2025 robot = new ThunderBot2025();
 
         robot.init(hardwareMap, telemetry, start);
-//        robot.launcher.color = "red";
+
+        // This is the equivalent of init_loop()
+        while (opModeInInit()) {
+            // Code here runs repeatedly during init phase.  Need to be looking at ObeliskID
+            robot.launcher.updateVision();
+            telemetry.addData("Status", "Waiting for start");
+            telemetry.update();
+        }
+
         waitForStart();
 
         robot.setColor(ThunderBot2025.Alliance_Color.RED);
-        Actions.runBlocking(
+
+        try {
+            Actions.runBlocking(
                 new ParallelAction(
-                        new SequentialAction(
-                                new RaceAction(
-                                        new SequentialAction(
-                                                new ParallelAction(
-                                                        robot.drive.actionBuilder(start)
-                                                                .strafeToSplineHeading(new Vector2d(launchPos.position.x, -12), Math.toRadians(-23))
-                                                                .build()
-                                                ),
-                                                robot.intake.intakeStartAction(),
-                                                //new SleepAction(2),
-
-
-                                                new SequentialAction(
-                                                        robot.intake.intakeStopAction(),
-                                                        robot.launchAction(),
-                                                        robot.intake.intakeStartAction(),
-
-                                                        robot.intake.intakeStopAction(),
-                                                        robot.launchAction(),
-                                                        robot.intake.intakeStartAction(),
-
-                                                        robot.intake.intakeStopAction(),
-                                                        robot.launchAction(),
-                                                        robot.intake.intakeStartAction()
-                                                ),
-                                                robot.intake.intakeStartAction(),
-
-                                                new ParallelAction(
-                                                        robot.drive.actionBuilder(launchPos)
-                                                                .splineToSplineHeading(intakePos, Math.toRadians(-90))
-                                                                .splineToConstantHeading(new Vector2d(intakePos.position.x, -56), Math.toRadians(-90), new TranslationalVelConstraint(6))
-                                                                .build(),
-                                                        new SequentialAction(
-                                                                new SleepAction(3),
-                                                                robot.indexer.cycleAction(-1),
-                                                                new SleepAction(1),
-                                                                robot.indexer.cycleAction(-1)
-                                                        )
-                                                ),
-                                                new ParallelAction(
-                                                        robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, -52), Math.toRadians(-90)))
-                                                                .strafeToSplineHeading(launchPos.position, Math.toRadians(-23))
-                                                                .build(),
-                                                        robot.launcher.pointToAction(0)
-                                                ),
-                                                new SequentialAction(
-                                                        robot.intake.intakeStopAction(),
-                                                        robot.launchAction(),
-                                                        robot.intake.intakeStartAction(),
-
-                                                        robot.intake.intakeStopAction(),
-                                                        robot.launchAction(),
-                                                        robot.intake.intakeStartAction(),
-
-                                                        robot.intake.intakeStopAction(),
-                                                        robot.launchAction(),
-                                                        robot.intake.intakeStartAction(),
-
-                                                        robot.intake.intakeStopAction(),
-                                                        robot.launchAction(),
-                                                        robot.intake.intakeStartAction()
-                                                )
-                                        ),
-                                        new SleepAction(27)
+                    new SequentialAction(
+                        new RaceAction(
+                            new SequentialAction(
+                                new ParallelAction(
+                                        robot.drive.actionBuilder(start)
+                                                .strafeToSplineHeading(new Vector2d(launchPos.position.x, -12), Math.toRadians(-23))
+                                                .build(),
+                                        // Plan the first shot sequence while driving.
+                                        robot.planSequenceAction()
                                 ),
-                                robot.intake.intakeStopAction(),
-                                robot.drive.actionBuilder(launchPos)
-                                        .strafeToSplineHeading(new Vector2d(-12, -12), Math.toRadians(0))
-                                        .build(),
-                                robot.launcher.pointToAction(0),
-                                robot.launcher.stopAction()
+                                // Launch Preloads
+                                new SequentialAction(
+                                    robot.launchAction(),
+                                    robot.launchAction(),
+                                    robot.launchAction()
+                                ),
+                                robot.intake.intakeStartAction(),
+                                // Grab next 3 artifacts using intelligent, sensor-based actions
+                                new ParallelAction(
+                                    robot.drive.actionBuilder(launchPos)
+                                            .splineToSplineHeading(intakePos, Math.toRadians(-90))
+                                            .splineToConstantHeading(new Vector2d(intakePos.position.x, -56), Math.toRadians(-90), new TranslationalVelConstraint(6))
+                                            .build(),
+                                    new SequentialAction(
+                                        robot.seekToSlotAction(0), // Move to the first intake slot
+                                        robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
+                                        robot.waitForBallAndCycleAction()  // Wait for the next ball, then cycle
+                                        // The third ball will be loaded but we won't cycle away from it
+                                    )
+                                ),
+                                // Drive to launch spot
+                                new ParallelAction(
+                                        robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, -52), Math.toRadians(-90)))
+                                            .strafeToSplineHeading(launchPos.position, Math.toRadians(-23))
+                                            .build(),
+                                        robot.launcher.pointToAction(0),
+                                        // Re-plan the shot sequence with the newly loaded balls
+                                        robot.planSequenceAction()
+                                ),
+                                // Launch 2nd set of Artifacts
+                                new SequentialAction(
+                                        robot.launchAction(),
+                                        robot.launchAction(),
+                                        robot.launchAction()
+                                )
+                            ),
+                            new SleepAction(27)
                         ),
-                        robot.launcher.stopAction(),
-                        robot.updateAction()
+                        // Park
+                        robot.intake.intakeStopAction(),
+                        robot.drive.actionBuilder(launchPos)
+                                .strafeToSplineHeading(new Vector2d(-12, -12), Math.toRadians(0))
+                                .build(),
+                        robot.launcher.pointToAction(0),
+                        robot.launcher.stopAction()
+                    ),
+                    robot.launcher.prepShotAction(),
+                    robot.aimAction(),
+                    robot.updateAction()
                 )
-        );
+            );
+        } finally {
+            // This block will always run, even if the opmode is stopped prematurely.
+            ThunderBot2025.starting_position = robot.drive.localizer.getPose();
+        }
     }
 }

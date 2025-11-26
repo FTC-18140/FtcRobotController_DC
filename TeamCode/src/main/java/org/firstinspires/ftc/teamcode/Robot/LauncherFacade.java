@@ -54,6 +54,21 @@ public class LauncherFacade {
     }
 
     /**
+     * A safe method to call during the init loop to only update the vision system.
+     */
+    public void updateVision() {
+        limelight.update();
+    }
+
+    /**
+     * Returns the ID of the currently visible AprilTag.
+     * @return The detected AprilTag ID, or a default value if none is found.
+     */
+    public int getDetectedAprilTagId() {
+        return limelight.id();
+    }
+
+    /**
      * Aims automatically using the best available sensor data.
      */
     public void aim() {
@@ -81,26 +96,20 @@ public class LauncherFacade {
 
     // This method is now private, as it's an internal helper.
     private double getAutoAimAngle() {
+        double difference = 0;
         if (limelight.hasTarget()) {
             telemetry.addData("Aiming Mode", "LIMELIGHT");
             double limelightXDegrees = limelight.getX();
-            double difference = limelightXDegrees * Turret.TURN_SPEED * Turret.TURRET_DEGREES_PER_SERVO_COMMAND;
-            return turret.getCurrentPosition() - difference;
-        } else {
+            difference = limelightXDegrees * Turret.TURN_SPEED * Turret.TURRET_DEGREES_PER_SERVO_COMMAND;
+        } else if (robotPose != null) {
             telemetry.addData("Aiming Mode", "ODOMETRY (Fallback)");
-            if (robotPose == null) return turret.getCurrentPosition();
             Vector2d targetDirection = targetPos.minus(robotPose.position);
-            double robotRelativeAngle = robotPose.heading.toDouble() - turret.getCurrentPosition() * (Math.PI/2);
-            double angleDifference = targetDirection.angleCast().toDouble() - robotRelativeAngle;
-            return turret.getCurrentPosition() - angleDifference / (Math.PI/2);
+            double robotRelativeAngle = robotPose.heading.toDouble() - turret.getCurrentPosition() * (Math.PI / 2);
+            difference = -targetDirection.angleCast().toDouble() - robotRelativeAngle;
+        } else {
+            telemetry.addData("Aiming Mode", "NO TARGET");
         }
-    }
-
-    public double getTurretPos(){
-        return turret.getCurrentPosition();
-    }
-    public double getTurretTarget(){
-        return turret.getTargetPos();
+        return turret.getCurrentPosition() + difference;
     }
 
     /** Prepares the flywheel for a shot based on the robot's current pose. */
@@ -179,14 +188,14 @@ public class LauncherFacade {
 
     /** Stops all launcher activity and puts subsystems into a safe state. */
     public void stop() {
-        //turret.holdPosition();
+        turret.holdPosition();
         flywheel.stop();
     }
 
     public void setAlliance(ThunderBot2025.Alliance_Color color) {
         this.allianceColor = color;
-        this.targetPos = Objects.equals(this.allianceColor, ThunderBot2025.Alliance_Color.RED) ? targetPosRed : targetPosBlue;
-        limelight.setPipeline(Objects.equals(this.allianceColor, ThunderBot2025.Alliance_Color.RED) ? 2 : 1);
+        this.targetPos = Objects.equals(this.allianceColor, "red") ? targetPosRed : targetPosBlue;
+        limelight.setPipeline(Objects.equals(this.allianceColor, "red") ? 2 : 1);
     }
 
     // --- Private Helper Methods ---

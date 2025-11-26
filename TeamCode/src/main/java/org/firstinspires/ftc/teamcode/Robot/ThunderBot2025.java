@@ -25,10 +25,13 @@ public class ThunderBot2025
 {
     public MecanumDrive drive;
     public Intake intake;
-    public Indexer indexer;
+    public IndexerFacade indexer;
     public LauncherFacade launcher;
     public LED led;
-//    public Limelight limelight;
+
+    // --- AprilTag and Sequence Management ---
+    private int latchedObeliskId = -1; // -1 indicates no ID has been officially latched yet.
+
     public enum Alliance_Color{
         RED,
         BLUE
@@ -41,14 +44,6 @@ public class ThunderBot2025
     Pose2d TELEOP_START_RED = new Pose2d(-12, -12, 0);
     Pose2d TELEOP_START_BLUE = new Pose2d(-12, 12, 0);
 
-
-
-    /**
-     * initiolization for ThunderBot2025
-     * @param hwMap
-     * @param telem
-     * @param pose
-     */
     public void init(HardwareMap hwMap, Telemetry telem, @Nullable Pose2d pose)
     {
         if(pose == null){
@@ -63,66 +58,64 @@ public class ThunderBot2025
         intake = new Intake();
         intake.init(hwMap, telem);
 
-        indexer = new Indexer();
+        indexer = new IndexerFacade();
         indexer.init(hwMap, telem);
 
         launcher = new LauncherFacade();
         launcher.init(hwMap, telem);
-//        launcher.color = color;
         launcher.setAlliance(color);
 
         led = new LED();
         led.init(hwMap, telem);
-//
-//        limelight = new Limelight();
-//        limelight.init(hwMap, telem);
-
-
-
 
         telemetry = new MultipleTelemetry(telem, FtcDashboard.getInstance().getTelemetry());
     }
 
-    /**
-     *
-     * @param alliance a string, supposed to hold the color of the alliance
-     */
     public void setColor(Alliance_Color alliance){
         color = alliance;
         launcher.setAlliance(color);
 
-        if(starting_position == null){
-            if(alliance == Alliance_Color.RED){
-                starting_position = TELEOP_START_RED;
-                drive.localizer.setPose(TELEOP_START_RED);
-            } else {
-                starting_position = TELEOP_START_BLUE;
-                drive.localizer.setPose(TELEOP_START_BLUE);
+//        if(starting_position == null){
+//            if(alliance == Alliance_Color.RED){
+//                starting_position = TELEOP_START_RED;
+//                drive.localizer.setPose(TELEOP_START_RED);
+//            } else {
+//                starting_position = TELEOP_START_BLUE;
+//                drive.localizer.setPose(TELEOP_START_BLUE);
+//            }
+//        }
+    }
+
+    /**
+     * This method is now responsible for both latching the Obelisk ID and planning the sequence.
+     * The first time it is called with a valid AprilTag in view, it "latches" that ID.
+     * Every subsequent call will use the latched ID, ignoring any new tags the robot might see.
+     */
+    public void registerObeliskID(){
+        // Step 1: Latch the official ID if we haven't already.
+        if (latchedObeliskId == -1) {
+            int currentId = launcher.getDetectedAprilTagId();
+            if (currentId != -1) {
+                latchedObeliskId = currentId;
+                telemetry.addData("Obelisk ID Latched: ", latchedObeliskId);
             }
         }
 
+        // Step 2: Plan the sequence using the latched ID.
+        // This will only proceed if an ID has been successfully latched.
+        if (latchedObeliskId != -1) {
+            indexer.planShotSequence(latchedObeliskId);
+        }
     }
 
     public void setStartPosForTeleop(Pose2d pos){
         starting_position = pos;
     }
 
-    /**
-     * tells you whether you are field centric or not
-     * @return the boolean value of whether we are driving in field centric coordinates
-     */
     public boolean isFieldCentric(){
         return field_centric;
     }
 
-    /**
-     * tells the robot to drive depending on the robot or field centric drive options
-     * @param forward
-     * @param right
-     * @param clockwise
-     * @param speed
-     * @param p
-     */
     public void drive( double forward, double right, double clockwise, double speed, TelemetryPacket p)
     {
         if (field_centric)
@@ -135,70 +128,39 @@ public class ThunderBot2025
         }
     }
 
-    /**
-     * tells the robot how to drive robot centrically
-     * @param forward
-     * @param right
-     * @param clockwise
-     * @param speed
-     */
     private void robotCentricDrive(double forward, double right, double clockwise, double speed)
     {
-        PoseVelocity2d thePose;
-        Vector2d theVector;
-        theVector = new Vector2d(forward, -right);
-        theVector = theVector.times(speed);
-        thePose = new PoseVelocity2d(theVector, -clockwise);
-
+        PoseVelocity2d thePose = new PoseVelocity2d(new Vector2d(forward, -right).times(speed), -clockwise);
         drive.setDrivePowers(thePose);
-
         telemetry.addData("Odometry X: ", drive.localizer.getPose().position.x);
         telemetry.addData("Odometry Y: ", drive.localizer.getPose().position.y);
     }
 
-    /**
-     * tells the robot to drive field centrically
-     * @param north
-     * @param east
-     * @param clockwise
-     * @param speed
-     * @param p
-     */
     private void fieldCentricDrive(double north, double east, double clockwise, double speed, TelemetryPacket p)
     {
         drive.updatePoseEstimate();
         double heading = drive.localizer.getPose().heading.toDouble() - Math.toRadians(90);
-        PoseVelocity2d thePose;
-        Vector2d theVector;
-        theVector = new Vector2d(
+        Vector2d theVector = new Vector2d(
                 north * Math.cos(-heading) - (-east) * Math.sin(-heading),
                 north * Math.sin(-heading) + (-east) * Math.cos(-heading)
         );
 
-
         theVector = theVector.times(speed);
-        thePose = new PoseVelocity2d(theVector, -clockwise);
-
-        //PoseVelocity2d finalVel = new PoseVelocity2d(new Vector2d(thePose.linearVel.x+0.5*(thePose.linearVel.x-currentVel.linearVel.x),thePose.linearVel.y+0.5*(thePose.linearVel.y-currentVel.linearVel.y)), thePose.angVel+0.5*(thePose.angVel-currentVel.angVel));
+        PoseVelocity2d thePose = new PoseVelocity2d(theVector, -clockwise);
         drive.setDrivePowers(thePose);
+    }
 
-        }
-        /**
-         * Calls all of the other update methods
-         */
-        public void update(){
-            drive.updatePoseEstimate();
-            drive.localizer.update();
-            indexer.update();
-            launcher.update( drive.localizer.getPose() );
-//            led.update(launcher.avgRpm, launcher.targetRpm);
-//            limelight.update();
-        }
+    public void update(){
+        drive.updatePoseEstimate();
+        drive.localizer.update();
+        indexer.update();
+        launcher.update( drive.localizer.getPose() );
+    }
 
-    /**
-     *
-     * @return
-     */
+    public void charge() {
+        launcher.prepShot();
+    }
+
     public Action updateAction(){
             return new Action() {
                 @Override
@@ -209,47 +171,10 @@ public class ThunderBot2025
             };
         }
 
-
-
-
-    /**
-     * Calls the launcher method lockOn with the degrees that the limelight sees
-     */
     public double lockOn(){
-//        drive.updatePoseEstimate();
-//        return launcher;
         return 0;
     }
 
-    /**
-     * launchSeqAction
-    * launches 3 artifacts in a given order, i.e, [1,0,2] (fires artifact in slot 1, then slot 0, then slot 2)
-    * */
-    public Action launchSeqAction(int[] order){
-        return new Action() {
-            int sequenceStep = 0;
-            @Override
-            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                if(sequenceStep < order.length) {
-                    //cycles to the next artifact
-                    indexer.cycleTo(order[sequenceStep]);
-                    launchAction();
-                    sequenceStep++;
-                } else {
-                    return false;
-                }
-                return true;
-            }
-        };
-    }
-
-    /**
-     * Tells the launcher to spin up the launch motors with the necessary variables
-     */
-    public void charge(){
-//            launcher.shoot(drive.localizer.getPose(), limelight.distance);
-
-    }
     public Action chargeAction(Pose2d pose, double duration){
         return new Action() {
             ElapsedTime chargeTimer = new ElapsedTime();
@@ -271,37 +196,100 @@ public class ThunderBot2025
             }
         };
     }
-        public Action aimAction(){
-            return new Action() {
-                @Override
-                public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                    launcher.aim();
-                    return true;
-                }
-            };
-        }
+
+    public Action aimAction(){
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                launcher.aim();
+                return true;
+            }
+        };
+    }
 
     public Action launchReadyAction(){
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                //continuously checks if the turret and flywheel are ready
                 return !(launcher.isAtTarget() && launcher.isAtTargetRpm());
             }
         };
     }
-        //Actions
-        public Action launchAction(){
-            return new SequentialAction(
-                    //verifies that the turret and flywheel are ready before firing and cycling
-                    launchReadyAction(),
-                    indexer.flipperUpAction(),
-                    new SleepAction(0.15),
-                    indexer.flipperDownAndCycleAction(),
-                    new SleepAction(0.15)
-            );
-        }
+    
+    // --- Start of New Intelligent Actions ---
+    
+    public Action seekToSlotAction(int slot) {
+        return new Action() {
+            private boolean hasStarted = false;
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                if (!hasStarted) {
+                    indexer.selectSlot(slot);
+                    hasStarted = true;
+                }
+                return !indexer.isDone();
+            }
+        };
+    }
+    
+    public Action waitForBallAndCycleAction() {
+        return new Action() {
+            private boolean hasStarted = false;
+            private int slotToWatch;
 
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                if (!hasStarted) {
+                    slotToWatch = indexer.getCurrentTargetSlot();
+                    hasStarted = true;
+                }
 
+                // Condition to exit: if the slot we were watching is no longer vacant.
+                if (indexer.getBallState(slotToWatch) != IndexerFacade.BallState.VACANT) {
+                    indexer.selectNextEmptySlot();
+                    return false; // End this action, the cycle command has been sent.
+                }
+                return true; // Continue waiting for a ball.
+            }
+        };
+    }
+
+    // --- Deprecated and Re-implemented Actions ---
+
+    public Action cycleAction(int ignored) {
+        return seekToSlotAction(0); // Default to something safe, but shouldn't be used
+    }
+
+    public Action launchAction(){
+        return new SequentialAction(
+                launchReadyAction(),
+                new Action() { 
+                    private boolean hasStarted = false;
+                    @Override
+                    public boolean run(@NonNull TelemetryPacket packet) {
+                        if (!hasStarted) {
+                           indexer.flip();
+                           hasStarted = true;
+                        }
+                        return !indexer.isDone();
+                    }
+                },
+                new SleepAction(0.15)
+        );
+    }
+
+    /**
+     * Returns a Road Runner Action that plans the shot sequence based on the last detected Obelisk ID.
+     * This is useful for re-planning the sequence after intaking new artifacts.
+     * @return An Action that can be used in a sequence.
+     */
+    public Action planSequenceAction() {
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                registerObeliskID();
+                return false; // This is a one-shot action.
+            }
+        };
+    }
 }
-
