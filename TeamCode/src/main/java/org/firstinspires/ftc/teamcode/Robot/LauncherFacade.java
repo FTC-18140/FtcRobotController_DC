@@ -85,7 +85,7 @@ public class LauncherFacade {
             telemetry.addData("Aiming Mode", "LIMELIGHT");
             double limelightXDegrees = limelight.getX();
             double difference = limelightXDegrees * Turret.TURN_SPEED * Turret.TURRET_DEGREES_PER_SERVO_COMMAND;
-            return turret.getCurrentPosition() + difference;
+            return turret.getCurrentPosition() - difference;
         } else {
             telemetry.addData("Aiming Mode", "ODOMETRY (Fallback)");
             if (robotPose == null) return turret.getCurrentPosition();

@@ -150,7 +150,7 @@ public class Indexer {
                 }
                 break;
             case ALIGNED:
-                update_inIndex();
+                //update_inIndex();
                 indexer.setPower(angleController.calculate(indexPos, targetAngle));
                 if(Math.abs(targetAngle - indexPos) > index_error){
                     setState(IndexerState.UNALIGNED);
