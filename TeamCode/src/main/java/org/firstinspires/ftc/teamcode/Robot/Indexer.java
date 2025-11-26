@@ -29,6 +29,7 @@ public class Indexer {
     DcMotor indexMotor = null;
     Servo flipper = null;
     TouchSensor limitSwitch = null;
+    //0, 1, and 2 numbered counterclockwise starting with the one closest to the intake
     ColorRangeSensor colorSensor0 = null;
     ColorRangeSensor colorSensor1 = null;
     ColorRangeSensor colorSensor2 = null;
@@ -61,7 +62,7 @@ public class Indexer {
     private double indexPos = 0;
     private double targetAngle = 0;
 
-    public static double p = 0.147, i = 0.003, d = 120;
+    public static double p = 0.147, i = 0.003, d = 0.0001;
     PIDController angleController;
 
     public void init(HardwareMap hwMap, Telemetry telem){
@@ -114,20 +115,20 @@ public class Indexer {
     public void update(){
         //current ticks / ticks per rotation = rotations
         //multiply by 3 to get get thirds
-        telemetry.addLine("Indexer")
-                .addData("target Angle: ", targetAngle)
-                .addData("indexer Angle: ", indexPos)
-                .addData("Index power: ", angleController.calculate(indexPos, targetAngle))
-                .addData("Queue", inIndex);
 
-        telemetry.addLine("Sensors")
-                .addData("Magnet", limitSwitch.getValue())
-                .addData("Color0 ARGB", colorSensor0.argb())
-                .addData("Color0 Dist", colorSensor0.getDistance(DistanceUnit.MM))
-                .addData("Color1 ARGB", colorSensor1.argb())
-                .addData("Color1 Dist", colorSensor1.getDistance(DistanceUnit.MM))
-                .addData("Color2 ARGB", colorSensor2.argb())
-                .addData("Color2 Dist", colorSensor2.getDistance(DistanceUnit.MM));
+        telemetry.addData("target Angle: ", targetAngle);
+        telemetry.addData("indexer Angle: ", indexPos);
+        telemetry.addData("Index power: ", angleController.calculate(indexPos, targetAngle));
+        telemetry.addData("Queue", inIndex);
+
+        telemetry.addData("Magnet", limitSwitch.getValue());
+        telemetry.addData("Color0 ARGB", argbOut(colorSensor0));
+        telemetry.addData("Color0 Dist", colorSensor0.getDistance(DistanceUnit.MM));
+        telemetry.addData("Color1 ARGB", argbOut(colorSensor1));
+
+        telemetry.addData("Color1 Dist", colorSensor1.getDistance(DistanceUnit.MM));
+        telemetry.addData("Color2 ARGB", argbOut(colorSensor2));
+        telemetry.addData("Color2 Dist", colorSensor2.getDistance(DistanceUnit.MM));
 
         indexPos = 3 * indexMotor.getCurrentPosition()/CPR + offset;
 
@@ -214,6 +215,9 @@ public class Indexer {
             return BallColor.GREEN;
         }
         return BallColor.NONE;
+    }
+    public int[] argbOut(ColorRangeSensor sensor){
+        return new int[]{sensor.alpha(), sensor.red(), sensor.green(),sensor.blue()};
     }
     public void update_inIndex(){
         inIndex.set(0, readBallColor(colorSensor0));

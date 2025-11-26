@@ -38,9 +38,14 @@ public class Turret {
     public void init(HardwareMap hwMap, Telemetry telem) {
         this.telemetry = telem;
         turretAimPID = new PIDController(P_TURRET, I_TURRET, D_TURRET);
+        try{
+            turret = hwMap.crservo.get("turret");
+            turret.setDirection(DcMotor.Direction.REVERSE);
+        } catch (Exception e) {
+            telemetry.addData("Motor\"turret\" not found", 0);
+        }
 
-        turret = hwMap.crservo.get("turret");
-        turret.setDirection(DcMotor.Direction.REVERSE);
+
         // The encoder is on the "launcher2" motor in your original file
         try {
             turretEnc = hwMap.get(DcMotor.class, "launcher2");
@@ -48,6 +53,10 @@ public class Turret {
             telemetry.addData("Motor \"launcher2\" not found", 0);
         }
 
+    }
+
+    public double getTargetPos(){
+        return targetAngle;
     }
 
     // --- High-Level Commands to Change State ---
@@ -119,6 +128,6 @@ public class Turret {
     }
 
     public boolean isAtTarget() {
-        return Math.abs(this.currentPosition - targetAngle) < 0.03;
+        return Math.abs(this.currentPosition - targetAngle) < 0.02;
     }
 }

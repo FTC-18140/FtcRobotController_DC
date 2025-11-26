@@ -67,9 +67,9 @@ public class Teleop_Red extends OpMode {
 
 
         if(Math.abs(theGamepad2.getRightX()) > 0.05){
-            robot.launcher.augmentedAim(-1.2 *theGamepad2.getRightX() + theGamepad1.getRightX() * speed);
+            robot.launcher.augmentedAim(1.2 *theGamepad2.getRightX() + -theGamepad1.getRightX() * speed);
         } else if(Math.abs(theGamepad1.getRightX()) > 0.05){
-            robot.launcher.augmentedAim(theGamepad1.getRightX() * speed * 0.7);
+            robot.launcher.augmentedAim(-theGamepad1.getRightX() * speed * 0.7);
         } else {
             robot.launcher.aim();
         }
@@ -118,6 +118,9 @@ public class Teleop_Red extends OpMode {
         telemetry.addData("position X: ", robot.drive.localizer.getPose().position.x);
         telemetry.addData("position Y: ", robot.drive.localizer.getPose().position.y);
         telemetry.addData("heading: ", Math.toDegrees(robot.drive.localizer.getPose().heading.toDouble()));
+        telemetry.addData("turret position: ", robot.launcher.getTurretPos());
+        telemetry.addData("turret target : ", robot.launcher.getTurretTarget());
+//
 //        telemetry.addData("rpm: ", robot.launcher.avgRpm);
 //        telemetry.addData("goal distance: ", robot.launcher.goalDistance(robot.drive.localizer.getPose()));
 //        telemetry.addData("target rpm: ", robot.launcher.targetRpm);

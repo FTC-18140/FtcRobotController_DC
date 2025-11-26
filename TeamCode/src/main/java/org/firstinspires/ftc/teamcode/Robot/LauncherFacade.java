@@ -90,10 +90,17 @@ public class LauncherFacade {
             telemetry.addData("Aiming Mode", "ODOMETRY (Fallback)");
             if (robotPose == null) return turret.getCurrentPosition();
             Vector2d targetDirection = targetPos.minus(robotPose.position);
-            double robotRelativeAngle = robotPose.heading.toDouble() - turret.getCurrentPosition() * (Math.PI / 2);
+            double robotRelativeAngle = robotPose.heading.toDouble() - turret.getCurrentPosition() * (Math.PI/2);
             double angleDifference = targetDirection.angleCast().toDouble() - robotRelativeAngle;
-            return turret.getCurrentPosition() - angleDifference;
+            return turret.getCurrentPosition() + Math.toDegrees(angleDifference)/90;
         }
+    }
+
+    public double getTurretPos(){
+        return turret.getCurrentPosition();
+    }
+    public double getTurretTarget(){
+        return turret.getTargetPos();
     }
 
     /** Prepares the flywheel for a shot based on the robot's current pose. */
@@ -172,7 +179,7 @@ public class LauncherFacade {
 
     /** Stops all launcher activity and puts subsystems into a safe state. */
     public void stop() {
-        turret.holdPosition();
+        //turret.holdPosition();
         flywheel.stop();
     }
 
