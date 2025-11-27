@@ -13,6 +13,9 @@ import org.firstinspires.ftc.teamcode.Utilities.DataLogger;
 import org.firstinspires.ftc.teamcode.Utilities.TBDGamepad;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 @TeleOp(name = "Teleop Red with Datalogger")
 @Config
@@ -52,9 +55,12 @@ public class Teleop_Red_DataLogger extends OpMode {
 
     private void startLogging() {
         try {
-            logger.openFile("TeleopData");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
+            String timestamp = sdf.format(new Date());
+            String fileName = "TeleopData_" + timestamp;
+            logger.openFile(fileName);
             isLogging = true;
-            telemetry.addData("Logging", "Started");
+            telemetry.addData("Logging", "Started: " + fileName);
 
             // Add header
             logger.addField("Limelight.x");
