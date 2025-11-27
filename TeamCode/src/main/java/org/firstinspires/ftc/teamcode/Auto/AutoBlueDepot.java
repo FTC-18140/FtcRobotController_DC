@@ -65,9 +65,7 @@ public class AutoBlueDepot extends LinearOpMode{
                                                                 .build(),
                                                         new SequentialAction(
                                                                 new SleepAction(3),
-                                                                robot.indexer.cycleAction(-1),
-                                                                new SleepAction(1),
-                                                                robot.indexer.cycleAction(-1)
+                                                                new SleepAction(1)
                                                         )
                                                 ),
                                                 new ParallelAction(

@@ -25,8 +25,8 @@ public class Turret {
 
     // Tunable constants from your original file
     public static double P_TURRET = 0.8, I_TURRET = 0.25, D_TURRET = 0.0;
-    public static double MAX_TURRET_POS = 2.0;
-    public static double MIN_TURRET_POS = -1.0;
+    public static double MAX_TURRET_POS = 1;
+    public static double MIN_TURRET_POS = -2;
     public static double TURN_SPEED = 208.3; // From original lockOn
     public static double TURRET_DEGREES_PER_SERVO_COMMAND = 0.0048 * ((1.0 / ((double) 40 / 190)) / 360.0);
 

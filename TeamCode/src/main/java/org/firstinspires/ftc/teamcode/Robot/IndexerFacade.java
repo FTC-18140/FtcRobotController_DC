@@ -32,7 +32,7 @@ public class IndexerFacade {
     /** The facade's internal model of what is in each slot. */
     public enum BallState { GREEN, PURPLE, VACANT }
     private BallState[] ballSlots = new BallState[3];
-    private int currentTargetSlot = -1;
+    private int currentTargetSlot = 0;
 
     // --- Auto-Sequence Management ---
     private List<BallState> shotSequence = null;
@@ -53,7 +53,7 @@ public class IndexerFacade {
             ballSlots[i] = BallState.VACANT;
         }
 
-        currentState = State.HOMING;
+        currentState = State.IDLE;
         turnstile.home();
     }
 
@@ -113,7 +113,7 @@ public class IndexerFacade {
      * @param slot The index of the target slot (0, 1, or 2).
      */
     public void selectSlot(int slot) {
-        if ((currentState == State.IDLE || currentState == State.AWAITING_FLIP) && slot >= 0 && slot < 3) {
+        if ((currentState == State.IDLE || currentState == State.AWAITING_FLIP || currentState == State.SELECTING_BALL) && slot >= 0 && slot < 3) {
             currentTargetSlot = slot;
             turnstile.seekToAngle(SLOT_ANGLES[currentTargetSlot]);
             currentState = State.SELECTING_BALL;
@@ -210,11 +210,10 @@ public class IndexerFacade {
     public void spin(double power) { turnstile.spin(power); }
     public void cycle(int direction) {
         // Corrected: This now cycles to the next adjacent slot.
-        if (currentState == State.IDLE || currentState == State.AWAITING_FLIP) {
-            int startSlot = (currentTargetSlot != -1) ? currentTargetSlot : 0;
-            int nextSlot = (startSlot + direction + 3) % 3; // Handles positive/negative direction and wrap-around
-            selectSlot(nextSlot);
-        }
+        int startSlot = (currentTargetSlot != -1) ? currentTargetSlot : 0;
+        int nextSlot = (startSlot + direction + 3) % 3; // Handles positive/negative direction and wrap-around
+        selectSlot(nextSlot);
+
     }
     public State getState() { return currentState; }
     public void setState(State state) { this.currentState = state; }

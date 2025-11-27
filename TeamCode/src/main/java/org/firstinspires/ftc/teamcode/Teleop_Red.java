@@ -136,7 +136,7 @@ public class Teleop_Red extends OpMode {
                 robot.indexer.spin(0.2);
             } else {
                 // If not manually spinning, send a spin(0) to allow the turnstile to auto-align.
-                robot.indexer.spin(0);
+                robot.indexer.cycle(0);
 
                 // Then, check for discrete, one-shot commands.
                 if(theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_LEFT)){

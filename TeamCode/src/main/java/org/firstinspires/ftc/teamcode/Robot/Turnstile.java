@@ -20,14 +20,14 @@ public class Turnstile {
     private Telemetry telemetry;
 
     // --- Tunable Constants via FTC Dashboard ---
-    public static double P = 0.8, I = 0.25, D = 0.0;
-    public static double HOMING_POWER = -0.3;
+    public static double P = 0.0016, I = 0.01, D = 0.0001;
+    public static double HOMING_POWER = -0.05;
     public static double ANGLE_TOLERANCE = 2.0; // In degrees
 
     // --- Non-tunable Constants ---
     private static final double COUNTS_PER_REVOLUTION = 288;
     private static final double GEAR_RATIO = 2.0;
-    private static final double COUNTS_PER_DEGREE = (COUNTS_PER_REVOLUTION * GEAR_RATIO) / 360.0;
+    private static final double COUNTS_PER_DEGREE = (COUNTS_PER_REVOLUTION * GEAR_RATIO)/(7.5*Math.PI);
 
     // --- State Management ---
     public enum State { IDLE, HOMING, SEEKING_POSITION, HOLDING_POSITION, MANUAL_SPIN } // Added MANUAL_SPIN
@@ -49,6 +49,7 @@ public class Turnstile {
             indexMotor = hwMap.get(DcMotorEx.class, "indexMotor");
             limitSwitch = hwMap.get(TouchSensor.class, "indexerLimit");
 
+            indexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Use our own P
             indexMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); // Use our own PID
         } catch (Exception e) {
             telemetry.addData("Turnstile Hardware Not Found", e.getMessage());
@@ -65,18 +66,18 @@ public class Turnstile {
 
     public void seekToAngle(double angle) {
         // Refactored to have a single exit point
-        if (isHomed) {
-            targetAngle = angle;
-            currentState = State.SEEKING_POSITION;
-        }
+        //if (isHomed) {
+            this.targetAngle = angle;
+            this.currentState = State.SEEKING_POSITION;
+        //}
     }
 
     public void spin(double power) {
         // Refactored to have a single exit point
-        if (isHomed) {
+        //if (isHomed) {
             this.manualPower = power;
             this.currentState = State.MANUAL_SPIN;
-        }
+        //}
     }
 
     // --- State Inquiry ---
@@ -95,6 +96,7 @@ public class Turnstile {
         limitSwitchPressed = limitSwitch.isPressed();
 
         // --- 2. Run State Machine ---
+        double power;
         switch (currentState) {
             case IDLE:
                 indexerServo.setPower(0);
@@ -125,7 +127,11 @@ public class Turnstile {
                 if (isAtTarget()) {
                     currentState = State.HOLDING_POSITION;
                 }
+                angleController.setPID(P, I, D); // Re-apply PID gains from Dashboard
+                power = -angleController.calculate(currentAngle, targetAngle);
+                indexerServo.setPower(power);
                 // Fall-through to HOLDING_POSITION to apply power
+                break;
 
             case HOLDING_POSITION:
                 // If a magnet is detected while holding, we use it to correct for encoder drift.
@@ -137,7 +143,7 @@ public class Turnstile {
                 }
 
                 angleController.setPID(P, I, D); // Re-apply PID gains from Dashboard
-                double power = angleController.calculate(currentAngle, targetAngle);
+                power = -angleController.calculate(currentAngle, targetAngle);
                 indexerServo.setPower(power);
                 break;
         }
@@ -145,6 +151,7 @@ public class Turnstile {
         // --- 3. Telemetry ---
         telemetry.addData("Turnstile State", currentState.name());
         telemetry.addData("Turnstile Angle", currentAngle);
+        telemetry.addData("Turnstile Target", targetAngle);
         telemetry.addData("Limit Switch Pressed", limitSwitchPressed);
     }
 }

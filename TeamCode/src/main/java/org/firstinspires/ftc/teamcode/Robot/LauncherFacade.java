@@ -104,12 +104,12 @@ public class LauncherFacade {
         } else if (robotPose != null) {
             telemetry.addData("Aiming Mode", "ODOMETRY (Fallback)");
             Vector2d targetDirection = targetPos.minus(robotPose.position);
-            double robotRelativeAngle = robotPose.heading.toDouble() - turret.getCurrentPosition() * (Math.PI / 2);
+            double robotRelativeAngle = -robotPose.heading.toDouble() + (turret.getCurrentPosition() + 1) * (Math.PI/2);
             difference = -targetDirection.angleCast().toDouble() - robotRelativeAngle;
         } else {
             telemetry.addData("Aiming Mode", "NO TARGET");
         }
-        return turret.getCurrentPosition() + difference;
+        return turret.getCurrentPosition() + difference / (Math.PI);
     }
 
     /** Prepares the flywheel for a shot based on the robot's current pose. */
@@ -188,14 +188,14 @@ public class LauncherFacade {
 
     /** Stops all launcher activity and puts subsystems into a safe state. */
     public void stop() {
-        turret.holdPosition();
+        //turret.holdPosition();
         flywheel.stop();
     }
 
     public void setAlliance(ThunderBot2025.Alliance_Color color) {
         this.allianceColor = color;
-        this.targetPos = Objects.equals(this.allianceColor, "red") ? targetPosRed : targetPosBlue;
-        limelight.setPipeline(Objects.equals(this.allianceColor, "red") ? 2 : 1);
+        this.targetPos = Objects.equals(this.allianceColor, ThunderBot2025.Alliance_Color.RED) ? targetPosRed : targetPosBlue;
+        limelight.setPipeline(Objects.equals(this.allianceColor, ThunderBot2025.Alliance_Color.RED) ? 2 : 1);
     }
 
     // --- Private Helper Methods ---
