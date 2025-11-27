@@ -8,10 +8,12 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Utilities.DataLoggable;
+import org.firstinspires.ftc.teamcode.Utilities.DataLogger;
 
 import java.util.Objects;
 
-public class LauncherFacade {
+public class LauncherFacade implements DataLoggable {
     private static final double JOYSTICK_SENSITIVITY = 1;
     // 1. Composition: Subsystems are now all internal
     private Turret turret;
@@ -224,5 +226,11 @@ public class LauncherFacade {
 
     public boolean isAtTarget() {
         return turret.isAtTarget();
+    }
+
+    @Override
+    public void logData(DataLogger logger) {
+        limelight.logData(logger);
+        turret.logData(logger);
     }
 }

@@ -6,11 +6,13 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Utilities.DataLoggable;
+import org.firstinspires.ftc.teamcode.Utilities.DataLogger;
 
 import java.util.List;
 
 
-public class Limelight {
+public class Limelight implements DataLoggable {
 
     Limelight3A limelight = null;
     HardwareMap hardwareMap;
@@ -111,4 +113,9 @@ public class Limelight {
         return result.getTx();
     }
     */
+
+    @Override
+    public void logData(DataLogger logger) {
+        logger.addField(this.x);
+    }
 }

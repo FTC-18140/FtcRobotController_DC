@@ -18,10 +18,12 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Robot.Drives.MecanumDrive;
+import org.firstinspires.ftc.teamcode.Utilities.DataLoggable;
+import org.firstinspires.ftc.teamcode.Utilities.DataLogger;
 import org.jetbrains.annotations.Nullable;
 
 @Config
-public class ThunderBot2025
+public class ThunderBot2025 implements DataLoggable
 {
     public MecanumDrive drive;
     public Intake intake;
@@ -139,7 +141,7 @@ public class ThunderBot2025
     private void fieldCentricDrive(double north, double east, double clockwise, double speed, TelemetryPacket p)
     {
         drive.updatePoseEstimate();
-        double heading = drive.localizer.getPose().heading.toDouble() - Math.toRadians(90);
+        double heading = drive.localiz er.getPose().heading.toDouble() - Math.toRadians(90);
         Vector2d theVector = new Vector2d(
                 north * Math.cos(-heading) - (-east) * Math.sin(-heading),
                 north * Math.sin(-heading) + (-east) * Math.cos(-heading)
@@ -291,5 +293,14 @@ public class ThunderBot2025
                 return false; // This is a one-shot action.
             }
         };
+    }
+
+    @Override
+    public void logData(DataLogger logger) {
+        launcher.logData(logger);
+        Pose2d pose = drive.localizer.getPose();
+        logger.addField(pose.position.x);
+        logger.addField(pose.position.y);
+        logger.addField(pose.heading.toDouble());
     }
 }

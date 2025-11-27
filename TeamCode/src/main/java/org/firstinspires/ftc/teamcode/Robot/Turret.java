@@ -5,9 +5,11 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Utilities.DataLoggable;
+import org.firstinspires.ftc.teamcode.Utilities.DataLogger;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 
-public class Turret {
+public class Turret implements DataLoggable {
     // Define the states as an enum
     private enum State {
         HOLDING,
@@ -34,6 +36,7 @@ public class Turret {
     private double targetAngle = 0;
     private double manualPower = 0;
     private double currentPosition = 0;
+    private double seekingPower = 0; // Member variable to be accessible for logging
 
     public void init(HardwareMap hwMap, Telemetry telem) {
         this.telemetry = telem;
@@ -89,7 +92,7 @@ public class Turret {
                 break;
 
             case SEEKING_ANGLE:
-                double seekingPower = -turretAimPID.calculate(currentPosition, targetAngle);
+                seekingPower = -turretAimPID.calculate(currentPosition, targetAngle);
                 setHardwarePower(seekingPower);
                 if (isAtTarget()) {
                     this.currentState = State.HOLDING;
@@ -129,5 +132,15 @@ public class Turret {
 
     public boolean isAtTarget() {
         return Math.abs(this.currentPosition - targetAngle) < 0.02;
+    }
+
+    @Override
+    public void logData(DataLogger logger) {
+        logger.addField(this.targetAngle);
+        logger.addField(this.currentPosition);
+        logger.addField(P_TURRET);
+        logger.addField(I_TURRET);
+        logger.addField(D_TURRET);
+        logger.addField(this.seekingPower);
     }
 }
