@@ -195,6 +195,17 @@ public class Indexer {
         telemetry.addData("indexer position: ", 3*indexMotor.getCurrentPosition()/CPR);
         return false;
     }
+    public boolean turnToBallColor(BallColor ballColor){
+        int index = 0;
+        boolean isInIndexer = false;
+        index = inIndex.indexOf(ballColor);
+        if (index != -1){
+            isInIndexer = true;
+            int difference = 2 - index;
+            cycle(difference);
+        }
+        return isInIndexer;
+    }
     private boolean isWithinThresh(int[] values, int[][] thresholds){
         for(int i = 0; i < values.length; i++){
             if (values[i] < thresholds[i][0] || values[i] > thresholds[i][1]) {
