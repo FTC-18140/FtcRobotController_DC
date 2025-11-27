@@ -65,43 +65,22 @@ public class IndexerFacade {
 
     // --- High-Level API & Compatibility Shims ---
 
-    public void selectNextGreenBall() {
-        if (currentState == State.IDLE || currentState == State.AWAITING_FLIP) {
-            boolean ballFound = false;
-            for (int i = 0; i < ballSlots.length && !ballFound; i++) {
-                if (ballSlots[i] == BallState.GREEN) {
-                    selectSlot(i);
-                    ballFound = true;
-                }
-            }
-        }
-    }
 
-    public void selectNextPurpleBall() {
-        if (currentState == State.IDLE || currentState == State.AWAITING_FLIP) {
-            boolean ballFound = false;
-            for (int i = 0; i < ballSlots.length && !ballFound; i++) {
-                if (ballSlots[i] == BallState.PURPLE) {
-                    selectSlot(i);
-                    ballFound = true;
-                }
-            }
-        }
-    }
-    
-    public void selectNextEmptySlot() {
+    public boolean selectNextSlot(BallState ballState) {
         // Refactored to have a single exit point
+        boolean slotFound = false;
         if (currentState == State.IDLE || currentState == State.AWAITING_FLIP) {
             int startSlot = (currentTargetSlot + 1) % 3;
-            boolean slotFound = false;
+
             for (int i = 0; i < 3 && !slotFound; i++) {
                 int slotToCheck = (startSlot + i) % 3;
-                if (ballSlots[slotToCheck] == BallState.VACANT) {
+                if (ballSlots[slotToCheck] == ballState) {
                     selectSlot(slotToCheck);
                     slotFound = true;
                 }
             }
         }
+        return slotFound;
     }
 
     /**
