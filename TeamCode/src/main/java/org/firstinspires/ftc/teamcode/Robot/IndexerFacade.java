@@ -1,0 +1,282 @@
+package org.firstinspires.ftc.teamcode.Robot;
+
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
+import java.util.Arrays;
+import java.util.List;
+
+/**
+ * The IndexerFacade is the high-level controller for the entire indexing and loading mechanism.
+ * It coordinates the Turnstile, Flipper, and BallSensors to perform complex actions safely.
+ */
+public class IndexerFacade {
+
+    // --- Sub-Components ---
+    private Flipper flipper;
+    private Turnstile turnstile;
+    private BallSensor[] ballSensors = new BallSensor[3];
+    private Telemetry telemetry;
+    private ElapsedTime flipTimer = new ElapsedTime();
+
+    // --- Constants ---
+    public static final double[] SLOT_ANGLES = {0, 120, 240}; // Angles for slots 0, 1, and 2
+    private static final double FLIP_TIME_SECONDS = 0.3; // Time for the flipper to extend and retract
+
+    // --- State Management ---
+    public enum State { IDLE, HOMING, SELECTING_BALL, AWAITING_FLIP, FLIPPING, RETRACTING_FLIPPER }
+    private State currentState = State.IDLE;
+
+    /** The facade's internal model of what is in each slot. */
+    public enum BallState { GREEN, PURPLE, VACANT }
+    private BallState[] ballSlots = new BallState[3];
+    private int currentTargetSlot = 0;
+
+    // --- Auto-Sequence Management ---
+    private List<BallState> shotSequence = null;
+    private int sequenceIndex = -1;
+
+    public void init(HardwareMap hwMap, Telemetry telem) {
+        this.telemetry = telem;
+
+        flipper = new Flipper();
+        flipper.init(hwMap, telem);
+
+        turnstile = new Turnstile();
+        turnstile.init(hwMap, telem);
+
+        for (int i = 0; i < 3; i++) {
+            ballSensors[i] = new BallSensor();
+            ballSensors[i].init(hwMap, telem, "ball_sensor_" + i);
+            ballSlots[i] = BallState.VACANT;
+        }
+
+        currentState = State.IDLE;
+        turnstile.home();
+    }
+
+    public void setInitialBallStates(BallState[] initialStates) {
+        if (initialStates.length == 3) {
+            this.ballSlots = initialStates;
+        }
+    }
+
+    // --- High-Level API & Compatibility Shims ---
+
+
+    public boolean selectNextSlot(BallState ballState) {
+        // Refactored to have a single exit point
+        boolean slotFound = false;
+        if (currentState == State.IDLE || currentState == State.AWAITING_FLIP) {
+            int startSlot = (currentTargetSlot + 1) % 3;
+
+            for (int i = 0; i < 3 && !slotFound; i++) {
+                int slotToCheck = (startSlot + i) % 3;
+                if (ballSlots[slotToCheck] == ballState) {
+                    selectSlot(slotToCheck);
+                    slotFound = true;
+                }
+            }
+        }
+        return slotFound;
+    }
+
+    /**
+     * Commands the turnstile to rotate to a specific slot.
+     * This is a foundational public method for the Indexer, used by both manual controls (like
+     * cycling to the next slot) and by the autonomous shot planner. It will only execute if the
+     * state machine is in a safe state (IDLE or AWAITING_FLIP) to prevent conflicting commands.
+     *
+     * @param slot The index of the target slot (0, 1, or 2).
+     */
+    public void selectSlot(int slot) {
+        if ((currentState == State.IDLE || currentState == State.AWAITING_FLIP || currentState == State.SELECTING_BALL) && slot >= 0 && slot < 3) {
+            currentTargetSlot = slot;
+            turnstile.seekToAngle(SLOT_ANGLES[currentTargetSlot]);
+            currentState = State.SELECTING_BALL;
+        }
+    }
+
+    public void flip() {
+        if (currentState == State.AWAITING_FLIP && turnstile.isAtTarget()) {
+            currentState = State.FLIPPING;
+            flipper.extend();
+            flipTimer.reset();
+        }
+    }
+
+    /**
+     * Plans and initiates an autonomous shot sequence based on a detected AprilTag ID.
+     * This method creates the shot plan (e.g., [PURPLE, GREEN, PURPLE]) and then immediately
+     * begins the process by rotating the first required ball into the firing position. The
+     * actual flip/launch is handled automatically by the update() state machine.
+     *
+     * @param aprilTagId The ID of the AprilTag detected (21, 22, or 23).
+     */
+    public void planShotSequence(int aprilTagId) {
+        // Only start a new sequence if the facade is idle.
+        if (currentState != State.IDLE && currentState != State.AWAITING_FLIP) return;
+
+        switch (aprilTagId) {
+            case 21: // Motif: G-P-P
+                shotSequence = Arrays.asList(BallState.GREEN, BallState.PURPLE, BallState.PURPLE);
+                break;
+            case 22: // Motif: P-G-P
+                shotSequence = Arrays.asList(BallState.PURPLE, BallState.GREEN, BallState.PURPLE);
+                break;
+            case 23: // Motif: P-P-G
+                shotSequence = Arrays.asList(BallState.PURPLE, BallState.PURPLE, BallState.GREEN);
+                break;
+            default:
+                // Invalid ID, do nothing.
+                return;
+        }
+        
+        sequenceIndex = 0;
+        executeNextInSequence();
+    }
+
+    /**
+     * (Private Helper) Executes the next step in the planned shot sequence.
+     * This method is the core of the autonomous firing logic. It finds the next required ball
+     * from the sequence, locates it in one of the physical slots, and begins rotating the
+     * turnstile to that slot. It critically modifies the internal `ballSlots` model to prevent
+     * the same ball from being used twice to fulfill the sequence.
+     */
+    private void executeNextInSequence() {
+        // Safety check: Do nothing if the sequence is not active.
+        if (shotSequence == null || sequenceIndex < 0 || sequenceIndex >= shotSequence.size()) return;
+
+        // Determine which color we need for this step of the sequence.
+        BallState requiredColor = shotSequence.get(sequenceIndex);
+        boolean ballFound = false;
+
+        // Search all physical slots for a ball that matches the required color.
+        for (int i = 0; i < ballSlots.length && !ballFound; i++) {
+            if (ballSlots[i] == requiredColor) {
+                // --- Critical Step ---
+                // Mark this ball as "used" by changing its state in our software model to VACANT.
+                // This prevents the system from re-selecting this same physical ball for a
+                // later step in the sequence (e.g., if the sequence requires two PURPLE balls).
+                ballSlots[i] = BallState.VACANT; 
+
+                // Command the turnstile to rotate this slot into the firing position.
+                selectSlot(i);
+                ballFound = true;
+            }
+        }
+        
+        // If no ball of the required color could be found, something is wrong.
+        // To prevent getting stuck, we cancel the entire autonomous sequence.
+        if (!ballFound) {
+            cancelSequence();
+        }
+    }
+
+    public void cancelSequence() {
+        shotSequence = null;
+        sequenceIndex = -1;
+        if (currentState != State.IDLE) {
+            currentState = State.IDLE;
+        }
+    }
+
+    // --- Compatibility Shims for TeleOp (Corrected) ---
+    public void unflip() { /* The new state machine handles this automatically */ }
+    public void adjustToThird() { turnstile.home(); } // Corrected: This is now a manual homing trigger.
+    public void spin(double power) { turnstile.spin(power); }
+    public void cycle(int direction) {
+        // Corrected: This now cycles to the next adjacent slot.
+        int startSlot = (currentTargetSlot != -1) ? currentTargetSlot : 0;
+        int nextSlot = (startSlot + direction + 3) % 3; // Handles positive/negative direction and wrap-around
+        selectSlot(nextSlot);
+
+    }
+    public State getState() { return currentState; }
+    public void setState(State state) { this.currentState = state; }
+    public BallState getBallState(int slot) {
+        return (slot >= 0 && slot < 3) ? ballSlots[slot] : BallState.VACANT;
+    }
+    public int getCurrentTargetSlot() { return currentTargetSlot; }
+
+
+    public void update() {
+        flipper.update();
+        turnstile.update();
+        // Only update ball states from sensors if we are NOT in an active auto-sequence
+        // This prevents a ball that has been logically "used" from being re-detected.
+        if (shotSequence == null) {
+            updateBallStates();
+        }
+
+        switch (currentState) {
+            case HOMING:
+                if (turnstile.isHomed()) {
+                    currentState = State.IDLE;
+                }
+                break;
+            case IDLE: // Waiting for a command
+                break;
+            case SELECTING_BALL:
+                if (turnstile.isAtTarget()) {
+                    currentState = State.AWAITING_FLIP;
+                }
+                break;
+            case AWAITING_FLIP: // In position, ready to receive a flip() command from an external source.
+                // Do nothing. The system will wait here until flip() is called.
+                break;
+            case FLIPPING:
+                if (flipTimer.seconds() > FLIP_TIME_SECONDS) {
+                    flipper.retract();
+                    currentState = State.RETRACTING_FLIPPER;
+                }
+                break;
+            case RETRACTING_FLIPPER:
+                if (flipper.isRetracted()) {
+                    // If we were in a sequence, advance to the next step.
+                    if (shotSequence != null) {
+                        sequenceIndex++;
+                        if (sequenceIndex < shotSequence.size()) {
+                            executeNextInSequence();
+                        } else {
+                            cancelSequence(); // Sequence complete
+                        }
+                    } else {
+                        // Otherwise, just go back to idle.
+                        currentState = State.IDLE;
+                    }
+                }
+                break;
+        }
+
+        addTelemetry();
+    }
+
+    private void updateBallStates() {
+        for (int i = 0; i < 3; i++) {
+            BallSensor.BallColor detected = ballSensors[i].getDetectedColor();
+            switch (detected) {
+                case GREEN: ballSlots[i] = BallState.GREEN; break;
+                case PURPLE: ballSlots[i] = BallState.PURPLE; break;
+                case NONE: ballSlots[i] = BallState.VACANT; break;
+            }
+        }
+    }
+
+    private void addTelemetry() {
+        telemetry.addData("Facade State", currentState.name());
+        telemetry.addLine(String.format("Slots: [0]: %s, [1]: %s, [2]: %s",
+                ballSlots[0], ballSlots[1], ballSlots[2]));
+        if (shotSequence != null) {
+            telemetry.addData("Sequence Step", sequenceIndex + " / " + shotSequence.size());
+        }
+    }
+    
+    public boolean isDone() {
+        // The facade is "done" if it's idle or if it's ready for a manual flip.
+        // During an auto-sequence, it is NOT done.
+        return (shotSequence == null) && (currentState == State.IDLE || currentState == State.AWAITING_FLIP);
+    }
+}
