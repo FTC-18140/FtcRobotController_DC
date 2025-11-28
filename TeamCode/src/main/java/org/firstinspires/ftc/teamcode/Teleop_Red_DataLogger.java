@@ -94,13 +94,13 @@ public class Teleop_Red_DataLogger extends OpMode {
         theGamepad1.update();
         theGamepad2.update();
 
-        if (theGamepad1.getButtonPressed(TBDGamepad.Button.START)) {
+        if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_UP)) {
             if (!isLogging) {
                 startLogging();
             }
         }
 
-        if (theGamepad1.getButtonPressed(TBDGamepad.Button.BACK)) {
+        if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_DOWN)) {
             if (isLogging) {
                 stopLogging();
             }
