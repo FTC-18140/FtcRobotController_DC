@@ -141,7 +141,7 @@ public class ThunderBot2025 implements DataLoggable
     private void fieldCentricDrive(double north, double east, double clockwise, double speed, TelemetryPacket p)
     {
         drive.updatePoseEstimate();
-        double heading = drive.localiz er.getPose().heading.toDouble() - Math.toRadians(90);
+        double heading = drive.localizer.getPose().heading.toDouble() - Math.toRadians(90);
         Vector2d theVector = new Vector2d(
                 north * Math.cos(-heading) - (-east) * Math.sin(-heading),
                 north * Math.sin(-heading) + (-east) * Math.cos(-heading)
