@@ -102,7 +102,7 @@ public class Teleop_Red extends OpMode {
             isAutoLoading = !isAutoLoading;
             // When we enter the mode, find the first target slot.
             if (isAutoLoading) {
-                robot.indexer.selectNextEmptySlot();
+                robot.indexer.selectNextSlot(IndexerFacade.BallState.VACANT);
                 slotToWatch = robot.indexer.getCurrentTargetSlot();
             }
         }
@@ -125,7 +125,7 @@ public class Teleop_Red extends OpMode {
             // --- AUTO-LOADING MODE ---
             // When a ball arrives in the slot we are watching, cycle to the next empty one.
             if (slotToWatch != -1 && robot.indexer.getBallState(slotToWatch) != IndexerFacade.BallState.VACANT) {
-                robot.indexer.selectNextEmptySlot();
+            robot.indexer.selectNextSlot(IndexerFacade.BallState.VACANT);
                 slotToWatch = robot.indexer.getCurrentTargetSlot();
             }
         } else {
