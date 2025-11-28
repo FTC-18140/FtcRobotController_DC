@@ -25,8 +25,8 @@ public class DataLogger
     public DataLogger() { }
 
     public void openFile( String fileName) throws IOException {
-        String directoryPath    = "/storage/8895-B3F8/FIRST/DataLogger";
-//        String directoryPath    = String.format("%s/FIRST/DataLogger", Environment.getExternalStorageDirectory().getAbsolutePath());
+//        String directoryPath    = "/storage/8895-B3F8/FIRST/DataLogger";
+        String directoryPath    = String.format("%s/FIRST/DataLogger", Environment.getExternalStorageDirectory().getAbsolutePath());
         String filePath         = directoryPath + "/" + fileName + ".csv";
 
         logFullPathName = filePath;
