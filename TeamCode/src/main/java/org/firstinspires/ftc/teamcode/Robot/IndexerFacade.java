@@ -49,7 +49,7 @@ public class IndexerFacade {
 
         for (int i = 0; i < 3; i++) {
             ballSensors[i] = new BallSensor();
-            ballSensors[i].init(hwMap, telem, "ball_sensor_" + i);
+            ballSensors[i].init(hwMap, telem, "color" + i);
             ballSlots[i] = BallState.VACANT;
         }
 
@@ -205,6 +205,9 @@ public class IndexerFacade {
     public void update() {
         flipper.update();
         turnstile.update();
+        for (int i = 0; i < 3; i++) {
+            ballSensors[i].update();
+        }
         // Only update ball states from sensors if we are NOT in an active auto-sequence
         // This prevents a ball that has been logically "used" from being re-detected.
         if (shotSequence == null) {
