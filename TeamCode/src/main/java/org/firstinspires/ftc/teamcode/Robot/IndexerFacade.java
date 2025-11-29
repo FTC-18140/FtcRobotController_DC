@@ -49,7 +49,7 @@ public class IndexerFacade {
 
         for (int i = 0; i < 3; i++) {
             ballSensors[i] = new BallSensor();
-            ballSensors[i].init(hwMap, telem, "ball_sensor_" + i);
+            ballSensors[i].init(hwMap, telem, "color" + i);
             ballSlots[i] = BallState.VACANT;
         }
 
