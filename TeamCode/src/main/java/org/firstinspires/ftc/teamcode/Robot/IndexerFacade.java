@@ -54,7 +54,7 @@ public class IndexerFacade {
         }
 
         currentState = State.IDLE;
-        turnstile.home();
+        //turnstile.home();
     }
 
     public void setInitialBallStates(BallState[] initialStates) {
@@ -91,20 +91,24 @@ public class IndexerFacade {
      *
      * @param slot The index of the target slot (0, 1, or 2).
      */
-    public void selectSlot(int slot) {
+    public boolean selectSlot(int slot) {
         if ((currentState == State.IDLE || currentState == State.AWAITING_FLIP || currentState == State.SELECTING_BALL) && slot >= 0 && slot < 3) {
             currentTargetSlot = slot;
             turnstile.seekToAngle(SLOT_ANGLES[currentTargetSlot]);
             currentState = State.SELECTING_BALL;
+            return true;
         }
+        return false;
     }
 
-    public void flip() {
-        if (currentState == State.AWAITING_FLIP && turnstile.isAtTarget()) {
+    public boolean flip() {
+        if ((currentState == State.AWAITING_FLIP || currentState == State.IDLE) && turnstile.isAtTarget()) {
             currentState = State.FLIPPING;
             flipper.extend();
             flipTimer.reset();
+            return true;
         }
+        return false;
     }
 
     /**
@@ -187,11 +191,11 @@ public class IndexerFacade {
     public void unflip() { /* The new state machine handles this automatically */ }
     public void adjustToThird() { turnstile.home(); } // Corrected: This is now a manual homing trigger.
     public void spin(double power) { turnstile.spin(power); }
-    public void cycle(int direction) {
+    public boolean cycle(int direction) {
         // Corrected: This now cycles to the next adjacent slot.
         int startSlot = (currentTargetSlot != -1) ? currentTargetSlot : 0;
         int nextSlot = (startSlot + direction + 3) % 3; // Handles positive/negative direction and wrap-around
-        selectSlot(nextSlot);
+        return selectSlot(nextSlot);
 
     }
     public State getState() { return currentState; }

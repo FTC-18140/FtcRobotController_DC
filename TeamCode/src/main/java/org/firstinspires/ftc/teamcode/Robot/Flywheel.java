@@ -26,10 +26,10 @@ public class Flywheel {
     // Tunable constants from your original file
     public static double P = 0.004, I = 0.0, D = 0.0;
     public static double F_MAX = 0.6, F_MIN = 0.35;
-    public static double MAX_SHOOTER_RPM = 1100;
+    public static double MAX_SHOOTER_RPM = 1010;
     public static double MIN_SHOOTER_RPM = 850;
     public static double SHOOTER_RADIUS = 0.096 / 2.0;
-    public static double SPIN_EFFICIENCY = 1.35;
+    public static double SPIN_EFFICIENCY = 1.27;
 
     private double targetRpm = 0;
     private double currentRpm = 0;
@@ -122,7 +122,7 @@ public class Flywheel {
         double angleRad = Math.toRadians(angleDegrees);
         double g = 9.81;
         double numer = distance * distance * g;
-        double denom = 2 * Math.pow(Math.cos(angleRad), 2) * (distance * Math.tan(angleRad) - height);
+        double denom = (distance * Math.sin(2 * angleRad)) - (2 * height * Math.pow(Math.cos(angleRad), 2));
         return Math.sqrt(numer / denom);
     }
 

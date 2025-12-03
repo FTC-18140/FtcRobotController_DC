@@ -106,7 +106,7 @@ public class LauncherFacade implements DataLoggable {
         } else if (robotPose != null) {
             telemetry.addData("Aiming Mode", "ODOMETRY (Fallback)");
             Vector2d targetDirection = targetPos.minus(robotPose.position);
-            double robotRelativeAngle = -robotPose.heading.toDouble() + (turret.getCurrentPosition()-0.5) * (Math.PI/2);
+            double robotRelativeAngle = -robotPose.heading.toDouble() + (turret.getCurrentPosition()) * (Math.PI/2);
             difference = -targetDirection.angleCast().toDouble() - robotRelativeAngle;
         } else {
             telemetry.addData("Aiming Mode", "NO TARGET");
@@ -119,7 +119,7 @@ public class LauncherFacade implements DataLoggable {
         double distanceInches = getGoalDistance();
         double distanceMeters = distanceInches * 0.0254;
 
-        double targetVelocity = flywheel.calculateBallVelocity(distanceMeters, 0.89, 60);
+        double targetVelocity = flywheel.calculateBallVelocity(distanceMeters, 0.86, 48);
         double targetRpm = flywheel.calculateWheelRPM(targetVelocity);
 
         flywheel.setTargetRpm(targetRpm);

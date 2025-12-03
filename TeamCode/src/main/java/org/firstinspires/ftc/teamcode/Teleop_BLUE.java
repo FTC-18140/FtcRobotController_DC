@@ -114,10 +114,10 @@ public class Teleop_BLUE extends OpMode {
         }
         // Operator can cancel by pressing any manual indexer button.
         if (theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER) ||
-            theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER) ||
-            theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_LEFT) ||
-            theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_RIGHT) ||
-            theGamepad2.getButtonPressed(TBDGamepad.Button.LEFT_STICK_BUTTON)) {
+                theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER) ||
+                theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_LEFT) ||
+                theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_RIGHT) ||
+                theGamepad2.getButtonPressed(TBDGamepad.Button.LEFT_STICK_BUTTON)) {
             isAutoLoading = false;
         }
 
@@ -136,14 +136,14 @@ public class Teleop_BLUE extends OpMode {
                 robot.indexer.spin(0.2);
             } else {
                 // If not manually spinning, send a spin(0) to allow the turnstile to auto-align.
-                robot.indexer.spin(0);
+                robot.indexer.cycle(0);
 
                 // Then, check for discrete, one-shot commands.
                 if(theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_LEFT)){
                     robot.indexer.cycle(-1);
                 } else if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_RIGHT)) {
                     robot.indexer.cycle(1);
-                } else if (theGamepad2.getButtonPressed(TBDGamepad.Button.LEFT_STICK_BUTTON)){
+                } else if (theGamepad2.getButton(TBDGamepad.Button.LEFT_STICK_BUTTON)){
                     robot.indexer.adjustToThird();
                 }
             }

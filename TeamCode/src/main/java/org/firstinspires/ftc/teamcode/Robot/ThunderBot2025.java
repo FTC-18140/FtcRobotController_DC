@@ -213,7 +213,7 @@ public class ThunderBot2025 implements DataLoggable
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                return !(launcher.isAtTarget() && launcher.isAtTargetRpm());
+                return !(launcher.isAtTarget() && launcher.isAtTargetRpm() && (indexer.getState() == IndexerFacade.State.AWAITING_FLIP || indexer.getState() == IndexerFacade.State.IDLE));
             }
         };
     }
@@ -270,13 +270,16 @@ public class ThunderBot2025 implements DataLoggable
                     @Override
                     public boolean run(@NonNull TelemetryPacket packet) {
                         if (!hasStarted) {
-                           indexer.flip();
-                           hasStarted = true;
+                           hasStarted = indexer.flip();
+                           telemetry.addData("awaiting flip", indexer.getState());
+                        } else {
+                            telemetry.addData("cycling", 0);
+                            return !indexer.cycle(1);
                         }
-                        return !indexer.isDone();
+                        return true;
                     }
                 },
-                new SleepAction(0.15)
+                new SleepAction(0.25)
         );
     }
 

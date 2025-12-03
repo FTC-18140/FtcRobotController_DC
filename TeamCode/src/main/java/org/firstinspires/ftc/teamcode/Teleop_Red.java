@@ -143,7 +143,7 @@ public class Teleop_Red extends OpMode {
                     robot.indexer.cycle(-1);
                 } else if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_RIGHT)) {
                     robot.indexer.cycle(1);
-                } else if (theGamepad2.getButtonPressed(TBDGamepad.Button.LEFT_STICK_BUTTON)){
+                } else if (theGamepad2.getButton(TBDGamepad.Button.LEFT_STICK_BUTTON)){
                     robot.indexer.adjustToThird();
                 }
             }

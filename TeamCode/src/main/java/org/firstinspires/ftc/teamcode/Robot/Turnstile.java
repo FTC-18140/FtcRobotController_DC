@@ -20,14 +20,14 @@ public class Turnstile {
     private Telemetry telemetry;
 
     // --- Tunable Constants via FTC Dashboard ---
-    public static double P = 0.0016, I = 0.01, D = 0.0001;
+    public static double P = 0.002, I = 0.035, D = 0.00015;
     public static double HOMING_POWER = -0.05;
-    public static double ANGLE_TOLERANCE = 2.0; // In degrees
-
-    // --- Non-tunable Constants ---
-    private static final double COUNTS_PER_REVOLUTION = 288;
-    private static final double GEAR_RATIO = 2.0;
-    private static final double COUNTS_PER_DEGREE = (COUNTS_PER_REVOLUTION * GEAR_RATIO)/(7.5*Math.PI);
+    public static double ANGLE_TOLERANCE = 3.75; // In degrees
+    public static double HOMING_OFFSET = 10;
+    private double current_offset = 0; // --- Non-tunable Constants ---
+    private static final double COUNTS_PER_REVOLUTION = 8192;
+    private static final double GEAR_RATIO = 1.0;
+    private static final double COUNTS_PER_DEGREE = (COUNTS_PER_REVOLUTION * GEAR_RATIO)/360;
 
     // --- State Management ---
     public enum State { IDLE, HOMING, SEEKING_POSITION, HOLDING_POSITION, MANUAL_SPIN } // Added MANUAL_SPIN
@@ -108,6 +108,7 @@ public class Turnstile {
                     indexMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                     isHomed = true;
                     targetAngle = 0;
+                    current_offset = HOMING_OFFSET;
                     currentState = State.HOLDING_POSITION;
                 } else {
                     indexerServo.setPower(HOMING_POWER);
@@ -128,7 +129,7 @@ public class Turnstile {
                     currentState = State.HOLDING_POSITION;
                 }
                 angleController.setPID(P, I, D); // Re-apply PID gains from Dashboard
-                power = -angleController.calculate(currentAngle, targetAngle);
+                power = -angleController.calculate(currentAngle, targetAngle + current_offset);
                 indexerServo.setPower(power);
                 // Fall-through to HOLDING_POSITION to apply power
                 break;
@@ -143,7 +144,7 @@ public class Turnstile {
                 }
 
                 angleController.setPID(P, I, D); // Re-apply PID gains from Dashboard
-                power = -angleController.calculate(currentAngle, targetAngle);
+                power = -angleController.calculate(currentAngle, targetAngle + current_offset);
                 indexerServo.setPower(power);
                 break;
         }
