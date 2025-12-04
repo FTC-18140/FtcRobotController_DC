@@ -42,6 +42,7 @@ public class AutoBlueFar extends LinearOpMode{
         try {
             Actions.runBlocking(
                 new ParallelAction(
+                        robot.updateAction(),
                     new SequentialAction(
                         new RaceAction(
                             new SequentialAction(
@@ -52,13 +53,13 @@ public class AutoBlueFar extends LinearOpMode{
                                         // Plan the first shot sequence while driving.
                                         robot.planSequenceAction()
                                 ),
+                                    robot.intake.intakeStartAction(),
                                 // Launch Preloads
                                 new SequentialAction(
                                     robot.launchAction(),
                                     robot.launchAction(),
                                     robot.launchAction()
                                 ),
-                                robot.intake.intakeStartAction(),
                                 // Grab next 3 artifacts using intelligent, sensor-based actions
                                 new ParallelAction(
                                     robot.drive.actionBuilder(launchPos)
@@ -68,7 +69,7 @@ public class AutoBlueFar extends LinearOpMode{
                                     new SequentialAction(
                                         robot.seekToSlotAction(0), // Move to the first intake slot
                                         robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-                                        robot.waitForBallAndCycleAction()  // Wait for the next ball, then cycle
+                                        robot.waitForBallAndCycleAction() // Wait for the next ball, then cycle
                                         // The third ball will be loaded but we won't cycle away from it
                                     )
                                 ),
@@ -99,8 +100,7 @@ public class AutoBlueFar extends LinearOpMode{
                         robot.launcher.stopAction()
                     ),
                     robot.launcher.prepShotAction(),
-                    robot.aimAction(),
-                    robot.updateAction()
+                    robot.aimAction()
                 )
             );
         } finally {

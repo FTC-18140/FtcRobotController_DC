@@ -156,7 +156,7 @@ public class ThunderBot2025 implements DataLoggable
         drive.updatePoseEstimate();
         drive.localizer.update();
         indexer.update();
-        launcher.update( drive.localizer.getPose() );
+        launcher.update(this.drive.localizer.getPose());
     }
 
     public void charge() {
@@ -242,7 +242,7 @@ public class ThunderBot2025 implements DataLoggable
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!hasStarted) {
-                    slotToWatch = indexer.getCurrentTargetSlot();
+                    slotToWatch = 0;
                     hasStarted = true;
                 }
 
@@ -279,7 +279,7 @@ public class ThunderBot2025 implements DataLoggable
                         return true;
                     }
                 },
-                new SleepAction(0.25)
+                new SleepAction(0.45)
         );
     }
 

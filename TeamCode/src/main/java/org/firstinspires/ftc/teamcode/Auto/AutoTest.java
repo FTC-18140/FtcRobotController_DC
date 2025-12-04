@@ -26,10 +26,13 @@ public class AutoTest extends LinearOpMode {
 
         Actions.runBlocking(
                 new ParallelAction(
-                        robot.drive.actionBuilder(start)
-                                .strafeTo(new Vector2d(-12, -12))
-                                .build(),
-                        new SleepAction(5),
+                        new SequentialAction(
+                                robot.intake.intakeStartAction(),
+                                robot.seekToSlotAction(0), // Move to the first intake slot
+                                robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
+                                robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
+                                robot.waitForBallAndCycleAction()
+                        ),
                         robot.updateAction(),
                         robot.aimAction()
                 )
