@@ -102,16 +102,20 @@ public class LauncherFacade implements DataLoggable {
         if (limelight.hasTarget()) {
             telemetry.addData("Aiming Mode", "LIMELIGHT");
             double limelightXDegrees = limelight.getX();
-            difference = limelightXDegrees * Turret.TURN_SPEED * Turret.TURRET_DEGREES_PER_SERVO_COMMAND;
+            //difference = limelightXDegrees * Turret.TURN_SPEED * Turret.TURRET_DEGREES_PER_ENCODER_TICK;
+            difference = limelightXDegrees * Turret.TURRET_DEGREES_PER_ENCODER_TICK;
         } else if (robotPose != null) {
             telemetry.addData("Aiming Mode", "ODOMETRY (Fallback)");
             Vector2d targetDirection = targetPos.minus(robotPose.position);
-            double robotRelativeAngle = -robotPose.heading.toDouble() + (turret.getCurrentPosition()) * (Math.PI/2);
-            difference = -targetDirection.angleCast().toDouble() - robotRelativeAngle;
+            //double robotRelativeAngle = -robotPose.heading.toDouble() + (turret.getCurrentPosition()) * (Math.PI/2);
+            double robotRelativeAngle = Math.toDegrees(-robotPose.heading.toDouble()) + turret.getCurrentPosition();
+            difference = Math.toDegrees(-targetDirection.angleCast().toDouble()) - robotRelativeAngle;
         } else {
             telemetry.addData("Aiming Mode", "NO TARGET");
         }
-        return turret.getCurrentPosition() + difference / (Math.PI);
+        //return turret.getCurrentPosition() + difference / (Math.PI);
+        return turret.getCurrentPosition() + difference;
+
     }
 
     /** Prepares the flywheel for a shot based on the robot's current pose. */
@@ -205,8 +209,8 @@ public class LauncherFacade implements DataLoggable {
     private void aimWithOdometry() {
         if (robotPose == null) return; // Safety check
         Vector2d targetDirection = targetPos.minus(robotPose.position);
-        double robotRelativeAngle = robotPose.heading.toDouble() - turret.getCurrentPosition() * (Math.PI / 2);
-        double angleDifference = targetDirection.angleCast().toDouble() - robotRelativeAngle;
+        double robotRelativeAngle = Math.toDegrees(robotPose.heading.toDouble()) - turret.getCurrentPosition();
+        double angleDifference = Math.toDegrees(targetDirection.angleCast().toDouble()) - robotRelativeAngle;
         double newTurretTarget = turret.getCurrentPosition() - angleDifference;
 
         turret.seekToAngle(newTurretTarget);
@@ -214,7 +218,7 @@ public class LauncherFacade implements DataLoggable {
 
     private void aimWithLimelight() {
         double limelightXDegrees = limelight.getX(); // Get data directly from the internal object
-        double difference = limelightXDegrees * Turret.TURN_SPEED * Turret.TURRET_DEGREES_PER_SERVO_COMMAND;
+        double difference = limelightXDegrees * Turret.TURN_SPEED * Turret.TURRET_DEGREES_PER_ENCODER_TICK;
         double newTargetAngle = turret.getCurrentPosition() + difference;
         turret.seekToAngle(newTargetAngle);
     }

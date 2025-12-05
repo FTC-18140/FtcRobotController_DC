@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -8,7 +9,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Utilities.DataLoggable;
 import org.firstinspires.ftc.teamcode.Utilities.DataLogger;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
-
+@Config
 public class Turret implements DataLoggable {
     // Define the states as an enum
     private enum State {
@@ -26,11 +27,13 @@ public class Turret implements DataLoggable {
     private Telemetry telemetry;
 
     // Tunable constants from your original file
-    public static double P_TURRET = 0.8, I_TURRET = 0.25, D_TURRET = 0.0;
-    public static double MAX_TURRET_POS = 2.5;
-    public static double MIN_TURRET_POS = -0.5;
+    public static double P_TURRET = 0.017, I_TURRET = 0, D_TURRET = 0.001;
+    public static double MAX_TURRET_POS = 90;
+    public static double MIN_TURRET_POS = -90;
     public static double TURN_SPEED = 208.3; // From original lockOn
-    public static double TURRET_DEGREES_PER_SERVO_COMMAND = 0.0048 * ((1.0 / ((double) 40 / 190)) / 360.0);
+    //public static double TURRET_DEGREES_PER_ENCODER_TICK = 0.0048 * ((1.0 / ((double) 40 / 190)) / 360.0);
+    public static double TURRET_DEGREES_PER_ENCODER_TICK = (double) 1 /8192 * 360 * 40/190;
+
 
     // State-specific variables
     private double targetAngle = 0;
@@ -64,6 +67,10 @@ public class Turret implements DataLoggable {
 
     // --- High-Level Commands to Change State ---
 
+    /**
+     *
+     * @param angle in degrees
+     */
     public void seekToAngle(double angle) {
         this.targetAngle = Range.clip(angle, MIN_TURRET_POS, MAX_TURRET_POS);
         this.currentState = State.SEEKING_ANGLE;
@@ -110,9 +117,11 @@ public class Turret implements DataLoggable {
         telemetry.addData("Turret State", currentState.name());
         telemetry.addData("Turret Position", currentPosition);
         telemetry.addData("Turret Target", targetAngle);
+        telemetry.addData("Turret Power", seekingPower);
+
     }
 
-    private void setHardwarePower(double power) {
+    private void  setHardwarePower(double power) {
         if (power > 0 && currentPosition <= MIN_TURRET_POS) {
             turret.setPower(0);
         } else if (power < 0 && currentPosition >= MAX_TURRET_POS) {
@@ -123,7 +132,7 @@ public class Turret implements DataLoggable {
     }
 
     private void updateCurrentPosition() {
-        this.currentPosition = turretEnc.getCurrentPosition() * TURRET_DEGREES_PER_SERVO_COMMAND;
+        this.currentPosition = turretEnc.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK;
     }
 
     public double getCurrentPosition() {
@@ -131,7 +140,7 @@ public class Turret implements DataLoggable {
     }
 
     public boolean isAtTarget() {
-        return Math.abs(this.currentPosition - targetAngle) < 0.02;
+        return Math.abs(this.currentPosition - targetAngle) < 0.02*90;
     }
 
     @Override
