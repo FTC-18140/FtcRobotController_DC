@@ -17,7 +17,7 @@ public class LauncherFacade implements DataLoggable {
     private static final double JOYSTICK_SENSITIVITY = 1;
     // 1. Composition: Subsystems are now all internal
     private Turret turret;
-    private Flywheel flywheel;
+    public Flywheel flywheel;
     private Limelight limelight; // Limelight is now part of the facade
     private Telemetry telemetry;
 

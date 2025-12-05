@@ -14,6 +14,7 @@ import java.util.List;
  */
 public class IndexerFacade {
 
+
     // --- Sub-Components ---
     private Flipper flipper;
     private Turnstile turnstile;

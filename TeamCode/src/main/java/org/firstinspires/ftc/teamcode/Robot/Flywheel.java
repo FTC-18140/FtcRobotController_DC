@@ -26,6 +26,11 @@ public class Flywheel {
     // Tunable constants from your original file
     public static double P = 0.004, I = 0.0, D = 0.0;
     public static double F_MAX = 0.6, F_MIN = 0.35;
+    public static double F_MAX_ADJUST = F_MAX, F_MIN_ADJUST = F_MIN;
+    public static double F_STEP = .03;
+    public boolean AdjustedFF = false;
+    public double feedforward;
+
     public static double MAX_SHOOTER_RPM = 1010;
     public static double MIN_SHOOTER_RPM = 850;
     public static double SHOOTER_RADIUS = 0.096 / 2.0;
@@ -33,7 +38,7 @@ public class Flywheel {
 
     private double targetRpm = 0;
     private double currentRpm = 0;
-
+    double scaledPower = 0;
     public void init(HardwareMap hwMap, Telemetry telem) {
         this.telemetry = telem;
         rpmController = new PIDController(P, I, D);
@@ -91,8 +96,13 @@ public class Flywheel {
 
             case SPINNING_UP:
                 // --- Step 1: Calculate the Feedforward value ---
-                double scaledPower = Range.scale(distanceToGoal, 60, 130, F_MIN, F_MAX);
-                double feedforward = Range.clip(scaledPower, F_MIN, F_MAX);
+                if (AdjustedFF){
+                    scaledPower = Range.scale(distanceToGoal, 60, 130, F_MIN_ADJUST, F_MAX_ADJUST);
+                    feedforward = Range.clip(scaledPower, F_MIN_ADJUST, F_MAX_ADJUST);
+                } else {
+                    scaledPower = Range.scale(distanceToGoal, 60, 130, F_MIN, F_MAX);
+                    feedforward = Range.clip(scaledPower, F_MIN, F_MAX);
+                }
 
                 // --- Step 2: Calculate the PID correction ---
                 double pidOutput = rpmController.calculate(currentRpm, targetRpm);
@@ -110,6 +120,14 @@ public class Flywheel {
                 telemetry.addData("Final Power", finalPower);
                 break;
         }
+    }
+    public void adjustFF(double upDown){
+        AdjustedFF = true;
+        F_MAX_ADJUST += upDown * F_STEP;
+        F_MIN_ADJUST += upDown * F_STEP;
+    }
+    public void resetFF(){
+        AdjustedFF = false;
     }
 
     private void setPower(double power) {
