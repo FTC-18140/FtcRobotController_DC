@@ -18,6 +18,10 @@ public class Turret implements DataLoggable {
         MANUAL_CONTROL
     }
 
+    public State getCurrentState() {
+        return currentState;
+    }
+
     private State currentState = State.HOLDING; // Initial state
 
     // Hardware and Utilities
@@ -27,12 +31,12 @@ public class Turret implements DataLoggable {
     private Telemetry telemetry;
 
     // Tunable constants from your original file
-    public static double P_TURRET = 0.017, I_TURRET = 0, D_TURRET = 0.001;
+    public static double P_TURRET = 0.017, I_TURRET = 0.001, D_TURRET = 0.001;
     public static double MAX_TURRET_POS = 90;
     public static double MIN_TURRET_POS = -90;
     public static double TURN_SPEED = 208.3; // From original lockOn
     //public static double TURRET_DEGREES_PER_ENCODER_TICK = 0.0048 * ((1.0 / ((double) 40 / 190)) / 360.0);
-    public static double TURRET_DEGREES_PER_ENCODER_TICK = (double) 1 /8192 * 360 * 40/190;
+    public static double TURRET_DEGREES_PER_ENCODER_TICK = (double) 1 /8192 * 360 * 24/190;
 
 
     // State-specific variables
@@ -51,10 +55,10 @@ public class Turret implements DataLoggable {
             telemetry.addData("Motor\"turret\" not found", 0);
         }
 
-
-        // The encoder is on the "launcher2" motor in your original file
+        // The encoder is on the "launcher2" motor
         try {
             turretEnc = hwMap.get(DcMotor.class, "launcher2");
+            turretEnc.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         } catch (Exception e) {
             telemetry.addData("Motor \"launcher2\" not found", 0);
         }
@@ -133,6 +137,7 @@ public class Turret implements DataLoggable {
 
     private void updateCurrentPosition() {
         this.currentPosition = turretEnc.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK;
+        telemetry.addData("tc", turretEnc.getCurrentPosition());
     }
 
     public double getCurrentPosition() {
