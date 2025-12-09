@@ -20,9 +20,9 @@ public class Turnstile {
     private Telemetry telemetry;
 
     // --- Tunable Constants via FTC Dashboard ---
-    public static double P = 0.002, I = 0.035, D = 0.00015;
+    public static double P = 0.002, I = 0.0001, D = 0.0001;
     public static double HOMING_POWER = -0.05;
-    public static double ANGLE_TOLERANCE = 3.75; // In degrees
+    public static double ANGLE_TOLERANCE = 10; // In degrees
     public static double HOMING_OFFSET = 10;
     private double current_offset = 0; // --- Non-tunable Constants ---
     private static final double COUNTS_PER_REVOLUTION = 8192;
@@ -35,6 +35,7 @@ public class Turnstile {
     private double targetAngle = 0;
     private double manualPower = 0; // For spin()
     private boolean isHomed = false;
+
 
     // --- Cached Hardware Values ---
     private double currentAngle;
@@ -65,25 +66,26 @@ public class Turnstile {
     }
 
     public void seekToAngle(double angle) {
-        // To prevent seeking backwards, we ensure the target angle is always
-        // in the forward direction from the current angle.
-        double currentRawAngle = this.currentAngle;
 
         // Find the number of full revolutions completed.
-        double numRevolutions = Math.floor(currentRawAngle / 360.0);
+        double numRevolutions = Math.floor(currentAngle / 360.0);
 
         // Calculate the potential target in the same revolution-cycle as we are now.
         double potentialTarget = numRevolutions * 360.0 + angle;
 
         // If that potential target is "behind" our current angle (by more than a small tolerance),
         // it means we need to go to that same angle but in the *next* revolution.
-        if (potentialTarget < currentRawAngle - ANGLE_TOLERANCE) {
-            this.targetAngle = (numRevolutions + 1) * 360.0 + angle;
+        if (potentialTarget < (currentAngle - ANGLE_TOLERANCE)) {
+            targetAngle = (numRevolutions + 1) * 360.0 + angle;
+
         } else {
-            this.targetAngle = potentialTarget;
+            targetAngle = potentialTarget;
         }
 
-        this.currentState = State.SEEKING_POSITION;
+        currentState = State.SEEKING_POSITION;
+
+
+
 
         /* --- Old Implementation ---
         // Refactored to have a single exit point
@@ -141,7 +143,7 @@ public class Turnstile {
                 indexerServo.setPower(manualPower);
                 if (Math.abs(manualPower) < 0.05) {
                     // When driver lets go, find the nearest physical slot and seek to it.
-                    double nearestSlotAngle = Math.round(currentAngle / 120.0) * 120.0;
+                    double nearestSlotAngle = Math.ceil(currentAngle / 120.0) * 120.0;
                     this.seekToAngle(nearestSlotAngle);
                 }
                 break;
@@ -191,5 +193,6 @@ public class Turnstile {
         telemetry.addData("Turnstile Angle", currentAngle);
         telemetry.addData("Turnstile Target", targetAngle);
         telemetry.addData("Limit Switch Pressed", limitSwitchPressed);
+        telemetry.addData("targetAngle", targetAngle);
     }
 }
