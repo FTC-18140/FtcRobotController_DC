@@ -65,11 +65,33 @@ public class Turnstile {
     }
 
     public void seekToAngle(double angle) {
+        // To prevent seeking backwards, we ensure the target angle is always
+        // in the forward direction from the current angle.
+        double currentRawAngle = this.currentAngle;
+
+        // Find the number of full revolutions completed.
+        double numRevolutions = Math.floor(currentRawAngle / 360.0);
+
+        // Calculate the potential target in the same revolution-cycle as we are now.
+        double potentialTarget = numRevolutions * 360.0 + angle;
+
+        // If that potential target is "behind" our current angle (by more than a small tolerance),
+        // it means we need to go to that same angle but in the *next* revolution.
+        if (potentialTarget < currentRawAngle - ANGLE_TOLERANCE) {
+            this.targetAngle = (numRevolutions + 1) * 360.0 + angle;
+        } else {
+            this.targetAngle = potentialTarget;
+        }
+
+        this.currentState = State.SEEKING_POSITION;
+
+        /* --- Old Implementation ---
         // Refactored to have a single exit point
         //if (isHomed) {
             this.targetAngle = angle;
             this.currentState = State.SEEKING_POSITION;
         //}
+        */
     }
 
     public void spin(double power) {
@@ -127,12 +149,27 @@ public class Turnstile {
             case SEEKING_POSITION:
                 if (isAtTarget()) {
                     currentState = State.HOLDING_POSITION;
+                    // We have arrived. Stop the motor for this one cycle to prevent a "kick".
+                    // The next loop will execute the HOLDING_POSITION logic.
+                    indexerServo.setPower(0);
+                } else {
+                    // If not at target, continue seeking.
+                    angleController.setPID(P, I, D); // Re-apply PID gains from Dashboard
+                    power = -angleController.calculate(currentAngle, targetAngle + current_offset);
+                    indexerServo.setPower(power);
+                }
+                break;
+
+                /* --- Old SEEKING_POSITION Implementation ---
+                if (isAtTarget()) {
+                    currentState = State.HOLDING_POSITION;
                 }
                 angleController.setPID(P, I, D); // Re-apply PID gains from Dashboard
                 power = -angleController.calculate(currentAngle, targetAngle + current_offset);
                 indexerServo.setPower(power);
                 // Fall-through to HOLDING_POSITION to apply power
                 break;
+                */
 
             case HOLDING_POSITION:
                 // If a magnet is detected while holding, we use it to correct for encoder drift.
