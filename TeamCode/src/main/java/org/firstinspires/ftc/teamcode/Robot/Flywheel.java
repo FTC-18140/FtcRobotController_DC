@@ -88,6 +88,7 @@ public class Flywheel {
     public void update(double distanceToGoal) {
         rpmController.setPID(P, I, D);
         this.currentRpm = rpmFilter.addValue(-launcher.getVelocity());
+        telemetry.addData("launchervel",launcher.getVelocity());
 
         switch (currentState) {
             case IDLE:

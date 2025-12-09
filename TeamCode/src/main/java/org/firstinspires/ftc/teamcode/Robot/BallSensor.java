@@ -28,7 +28,7 @@ public class BallSensor {
     private String sensorName;
 
     // --- Tunable Constants via FTC Dashboard ---
-    public static double PRESENCE_DISTANCE_CM = 5.0;
+    public static double PRESENCE_DISTANCE_CM = 4.8;
 
     public static double GREEN_BALL_MIN_G = 0.1;
     public static double GREEN_BALL_MAX_R = 0.1;
@@ -36,7 +36,7 @@ public class BallSensor {
     public static double PURPLE_BALL_MIN_B = 0.12;
 
     public static int GREEN_HUE_MIN = 120;
-    public static int GREEN_HUE_MAX = 185;
+    public static int GREEN_HUE_MAX = 179;
     public static int PURPLE_HUE_MIN = 205;
     public static int PURPLE_HUE_MAX = 245;
 

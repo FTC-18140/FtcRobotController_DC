@@ -14,12 +14,16 @@ import org.firstinspires.ftc.teamcode.Utilities.DataLogger;
 import java.util.Objects;
 
 public class LauncherFacade implements DataLoggable {
-    private static final double JOYSTICK_SENSITIVITY = 1;
+    private static final double JOYSTICK_SENSITIVITY = 45;
     // 1. Composition: Subsystems are now all internal
     private Turret turret;
     public Flywheel flywheel;
     private Limelight limelight; // Limelight is now part of the facade
     private Telemetry telemetry;
+
+
+
+    private boolean usingLimelight = false;
 
     // 2. Internal State Management
     private Pose2d robotPose; // Internal copy of the robot's pose
@@ -40,6 +44,13 @@ public class LauncherFacade implements DataLoggable {
         this.limelight = new Limelight(); // Initialize Limelight here
         limelight.init(hwMap, telem);
 
+    }
+
+    public boolean isUsingLimelight() {
+        return usingLimelight;
+    }
+    public double getLimelightX(){
+        return limelight.getX();
     }
 
     /**
@@ -101,11 +112,15 @@ public class LauncherFacade implements DataLoggable {
         double difference = 0;
         if (limelight.hasTarget()) {
             telemetry.addData("Aiming Mode", "LIMELIGHT");
+            usingLimelight = true;
             double limelightXDegrees = limelight.getX();
             //difference = limelightXDegrees * Turret.TURN_SPEED * Turret.TURRET_DEGREES_PER_ENCODER_TICK;
-            difference = limelightXDegrees * Turret.TURRET_DEGREES_PER_ENCODER_TICK;
+            //difference = limelightXDegrees * Turret.TURRET_DEGREES_PER_ENCODER_TICK;
+            difference = limelightXDegrees;
+
         } else if (robotPose != null) {
             telemetry.addData("Aiming Mode", "ODOMETRY (Fallback)");
+            usingLimelight = false;
             Vector2d targetDirection = targetPos.minus(robotPose.position);
             //double robotRelativeAngle = -robotPose.heading.toDouble() + (turret.getCurrentPosition()) * (Math.PI/2);
             double robotRelativeAngle = Math.toDegrees(-robotPose.heading.toDouble()) + turret.getCurrentPosition();

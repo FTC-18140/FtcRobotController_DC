@@ -25,7 +25,7 @@ public class Limelight implements DataLoggable {
 
 
     private static final double MINIMUM_TARGET_AREA = 10.0; // Example value, adjust as needed
-    private boolean validResults;
+    private boolean validResults = false;
 
     public void init(HardwareMap hwMap, Telemetry telemetry) {
         hardwareMap = hwMap;
@@ -56,22 +56,24 @@ public class Limelight implements DataLoggable {
      * Updates the values associated with the apriltags the limelight sees
      */
     public void update() {
-        validResults = false;
         id = -1; // Reset ID to -1 at the start of every loop.
 
         LLResult result = limelight.getLatestResult();
         if ( result != null && result.isValid()) {
+            validResults = true;
             List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
             if (!fiducials.isEmpty()) {
                 // If we see any fiducials, take the first one in the list.
                 LLResultTypes.FiducialResult fiducial = fiducials.get(0);
                 id = fiducial.getFiducialId(); // The ID number of the fiducial
                 x = fiducial.getTargetXDegrees(); // Where it is (left-right)
-                y = fiducial.getTargetYDegrees(); // Where it is (up-down)
+                y = fiducial .getTargetYDegrees(); // Where it is (up-down)
                 distance = fiducial.getCameraPoseTargetSpace().getPosition().z;
-                validResults = true;
             }
+        } else {
+            validResults = false;
         }
+        telemetry.addData("validResults", validResults);
     }
 
     /**
