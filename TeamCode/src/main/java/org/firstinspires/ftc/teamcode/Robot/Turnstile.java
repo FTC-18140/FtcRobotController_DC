@@ -20,9 +20,9 @@ public class Turnstile {
     private Telemetry telemetry;
 
     // --- Tunable Constants via FTC Dashboard ---
-    public static double P = 0.002, I = 0.0001, D = 0.0001;
+    public static double P = 0.0021, I = 0.0001, D = 0.0001;
     public static double HOMING_POWER = -0.05;
-    public static double ANGLE_TOLERANCE = 10; // In degrees
+    public static double ANGLE_TOLERANCE = -10; // In degrees
     public static double HOMING_OFFSET = 10;
     private double current_offset = 0; // --- Non-tunable Constants ---
     private static final double COUNTS_PER_REVOLUTION = 8192;
@@ -76,7 +76,7 @@ public class Turnstile {
         // If that potential target is "behind" our current angle (by more than a small tolerance),
         // it means we need to go to that same angle but in the *next* revolution.
         if (potentialTarget < (currentAngle - ANGLE_TOLERANCE)) {
-            targetAngle = (numRevolutions + 1) * 360.0 + angle;
+            targetAngle = (numRevolutions) * 360.0 + angle;
 
         } else {
             targetAngle = potentialTarget;
