@@ -195,7 +195,7 @@ public class IndexerFacade {
     public boolean cycle(int direction) {
         // Corrected: This now cycles to the next adjacent slot.
         int startSlot = (currentTargetSlot != -1) ? currentTargetSlot : 0;
-        int nextSlot = (startSlot + direction + 3) % 3; // Handles positive/negative direction and wrap-around
+        int nextSlot = (startSlot + direction +3) % 3; // Handles positive/negative direction and wrap-around
         return selectSlot(nextSlot);
 
     }

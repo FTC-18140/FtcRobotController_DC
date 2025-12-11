@@ -22,7 +22,8 @@ public class Turnstile {
     // --- Tunable Constants via FTC Dashboard ---
     public static double P = 0.0021, I = 0.0001, D = 0.0001;
     public static double HOMING_POWER = -0.05;
-    public static double ANGLE_TOLERANCE = -10; // In degrees
+    public static double ANGLE_TOLERANCE = 5;// In degrees
+    public static double BACKWARD_TOLERANCE = 30;
     public static double HOMING_OFFSET = 10;
     private double current_offset = 0; // --- Non-tunable Constants ---
     private static final double COUNTS_PER_REVOLUTION = 8192;
@@ -67,26 +68,22 @@ public class Turnstile {
 
     public void seekToAngle(double angle) {
 
-        // Find the number of full revolutions completed.
-        double numRevolutions = Math.floor(currentAngle / 360.0);
+        angle = ((angle % 360) + 360) % 360; // Make sure angle is within [0, 360]
 
-        // Calculate the potential target in the same revolution-cycle as we are now.
-        double potentialTarget = numRevolutions * 360.0 + angle;
+        // Shortest path shortest_rot in [-180,180]
+        double shortest_rot = angle - (currentAngle % 360.0);
+        shortest_rot = ((shortest_rot + 180) % 360) - 180;
 
-        // If that potential target is "behind" our current angle (by more than a small tolerance),
-        // it means we need to go to that same angle but in the *next* revolution.
-        if (potentialTarget < (currentAngle - ANGLE_TOLERANCE)) {
-            targetAngle = (numRevolutions) * 360.0 + angle;
-
-        } else {
-            targetAngle = potentialTarget;
+        // If shortest_rot is too far behind, force forward rotation
+        if (shortest_rot < -ANGLE_TOLERANCE && Math.abs(shortest_rot) > BACKWARD_TOLERANCE) {
+            shortest_rot += 360.0;
         }
 
+        targetAngle = currentAngle + shortest_rot;
         currentState = State.SEEKING_POSITION;
 
 
-
-
+        currentState = State.SEEKING_POSITION;
         /* --- Old Implementation ---
         // Refactored to have a single exit point
         //if (isHomed) {
