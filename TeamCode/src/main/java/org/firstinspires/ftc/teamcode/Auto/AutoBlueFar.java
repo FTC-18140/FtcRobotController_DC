@@ -21,6 +21,7 @@ public class AutoBlueFar extends LinearOpMode{
         Pose2d start = new Pose2d(AutoPositions.Positions.START_BLUE_FAR.position, Math.toRadians(0));
         Pose2d launchPos = new Pose2d(AutoPositions.Positions.FAR_LAUNCH_ZONE_BLUE.position, Math.toRadians(23));
         Pose2d intakePos = new Pose2d(AutoPositions.Positions.ARTIFACT_BASE_BLUE.position, Math.toRadians(90));
+        Pose2d intakePos2 = new Pose2d(AutoPositions.Positions.ARTIFACT_CENTER_BLUE.position, Math.toRadians(90));
 
         ThunderBot2025 robot = new ThunderBot2025();
 
@@ -61,15 +62,16 @@ public class AutoBlueFar extends LinearOpMode{
                                     robot.launchAction()
                                 ),
                                 // Grab next 3 artifacts using intelligent, sensor-based actions
-                                new ParallelAction(
+                                new RaceAction(
                                     robot.drive.actionBuilder(launchPos)
                                             .splineToSplineHeading(intakePos, Math.toRadians(90))
-                                            .splineToConstantHeading(new Vector2d(intakePos.position.x, 56), Math.toRadians(90), new TranslationalVelConstraint(6))
+                                            .splineToConstantHeading(new Vector2d(intakePos.position.x, 52), Math.toRadians(90), new TranslationalVelConstraint(4))
                                             .build(),
                                     new SequentialAction(
                                         robot.seekToSlotAction(0), // Move to the first intake slot
                                         robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-                                        robot.waitForBallAndCycleAction() // Wait for the next ball, then cycle
+                                        robot.waitForBallAndCycleAction(), // Wait for the next ball, then cycle
+                                            new SleepAction(0.75)
                                         // The third ball will be loaded but we won't cycle away from it
                                     )
                                 ),
@@ -78,7 +80,6 @@ public class AutoBlueFar extends LinearOpMode{
                                         robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, 52), Math.toRadians(90)))
                                             .strafeToSplineHeading(launchPos.position, Math.toRadians(23))
                                             .build(),
-                                        robot.launcher.pointToAction(0),
                                         // Re-plan the shot sequence with the newly loaded balls
                                         robot.planSequenceAction()
                                 ),
@@ -87,7 +88,36 @@ public class AutoBlueFar extends LinearOpMode{
                                         robot.launchAction(),
                                         robot.launchAction(),
                                         robot.launchAction()
-                                )
+                                ),
+                                // Grab next 3 artifacts using intelligent, sensor-based actions
+                                    new RaceAction(
+                                            robot.drive.actionBuilder(launchPos)
+                                                    .splineToSplineHeading(intakePos2, Math.toRadians(90))
+                                                    .splineToConstantHeading(new Vector2d(intakePos2.position.x, 52), Math.toRadians(90), new TranslationalVelConstraint(4))
+                                                    .build(),
+                                            new SequentialAction(
+                                                    robot.seekToSlotAction(0), // Move to the first intake slot
+                                                    robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
+                                                    robot.waitForBallAndCycleAction(), // Wait for the next ball, then cycle
+                                                    new SleepAction(0.75)
+                                                    // The third ball will be loaded but we won't cycle away from it
+                                            )
+                                    ),
+                                    // Drive to launch spot
+                                    new ParallelAction(
+                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos2.position.x, 52), Math.toRadians(90)))
+                                                    .strafeToSplineHeading(launchPos.position, Math.toRadians(23))
+                                                    .build(),
+                                            // Re-plan the shot sequence with the newly loaded balls
+                                            robot.planSequenceAction()
+                                    ),
+                                    // Launch 2nd set of Artifacts
+                                    new SequentialAction(
+                                            robot.launchAction(),
+                                            robot.launchAction(),
+                                            robot.launchAction()
+                                    )
+
                             ),
                             new SleepAction(27)
                         ),

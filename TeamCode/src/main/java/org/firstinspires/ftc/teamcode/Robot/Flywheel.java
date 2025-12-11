@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -8,6 +9,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Utilities.MovingAverageFilter;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 
+@Config
 public class Flywheel {
     // Define the states as an enum
     private enum State {
@@ -25,7 +27,7 @@ public class Flywheel {
 
     // Tunable constants from your original file
     public static double P = 0.004, I = 0.0, D = 0.0;
-    public static double F_MAX = 0.6, F_MIN = 0.35;
+    public static double F_MAX = 0.6, F_MIN = 0.45;
     public static double F_MAX_ADJUST = F_MAX, F_MIN_ADJUST = F_MIN;
     public static double F_STEP = .03;
     public boolean AdjustedFF = false;
