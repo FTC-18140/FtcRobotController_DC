@@ -106,7 +106,7 @@ public class BallSensor {
     // --- Internal Helper Methods ---
 
     private boolean isBallPresentInternal() {
-        return distanceCm < PRESENCE_DISTANCE_CM;
+        return distanceCm < PRESENCE_DISTANCE_CM && colors.alpha > 0.05;
     }
 
 //    private boolean isGreenRGB() {

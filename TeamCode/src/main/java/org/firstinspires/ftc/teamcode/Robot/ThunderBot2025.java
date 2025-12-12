@@ -171,6 +171,7 @@ public class ThunderBot2025 implements DataLoggable
                 @Override
                 public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                     update();
+                    telemetry.update();
                     return true;
                 }
             };

@@ -149,7 +149,7 @@ public class Turret implements DataLoggable {
     private void updateCurrentPosition() {
         this.currentPosition = turretEnc.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK + startingAngle;
         //this.currentPosition = turretEnc.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK - offsetAngle;
-        telemetry.addData("tc", turretEnc.getCurrentPosition());
+        //telemetry.addData("tc", turretEnc.getCurrentPosition());
     }
 
     public double getCurrentPosition() {

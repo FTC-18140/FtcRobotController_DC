@@ -42,6 +42,7 @@ public class AutoBlueDepot extends LinearOpMode{
                     new ParallelAction(
                             robot.updateAction(),
                             robot.aimAction(),
+
                             new SequentialAction(
                                     new RaceAction(
                                             new SequentialAction(
