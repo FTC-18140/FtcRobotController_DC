@@ -135,9 +135,9 @@ public class LauncherFacade implements DataLoggable {
         return turret.getCurrentPosition() + difference;
 
     }
-    public void setOffestAngle(double angle) {
-        turret.setOffsetAngle(angle);
-    }
+//    public void setOffestAngle(double angle) {
+//        turret.setOffsetAngle(angle);
+//    }
 
     /** Prepares the flywheel for a shot based on the robot's current pose. */
     public void prepShot() {
