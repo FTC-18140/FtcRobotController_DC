@@ -148,12 +148,9 @@ public class Flywheel {
         double numer = distance * distance * g;
         double denom = (distance * Math.sin(2 * angleRad)) - (2 * height * Math.pow(Math.cos(angleRad), 2));
 
-<<<<<<< HEAD
         denom = Math.max(denom, 0.3);
 
         telemetry.addData("Denominator: ", denom);
-=======
->>>>>>> Nathan_Sandbox
         return Math.sqrt(numer / denom);
     }
 
