@@ -33,7 +33,7 @@ public class Turret implements DataLoggable {
     private Telemetry telemetry;
 
     // Tunable constants from your original file
-    public static double P_TURRET = 0.017, I_TURRET = 0.001, D_TURRET = 0.001;
+    public static double P_TURRET = 0.018, I_TURRET = 0.0001, D_TURRET = 0.000;
     public static double MAX_TURRET_POS = 90;
     public static double MIN_TURRET_POS = -90;
     public static double TURN_SPEED = 208.3; // From original lockOn
@@ -148,6 +148,7 @@ public class Turret implements DataLoggable {
 
     private void updateCurrentPosition() {
         this.currentPosition = turretEnc.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK + startingAngle;
+
         //this.currentPosition = turretEnc.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK - offsetAngle;
         //telemetry.addData("tc", turretEnc.getCurrentPosition());
     }
