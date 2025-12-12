@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.robotcore.external.JavaUtil;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Utilities.MovingAverageFilter;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
@@ -90,7 +92,7 @@ public class Flywheel {
     public void update(double distanceToGoal) {
         rpmController.setPID(P, I, D);
         this.currentRpm = rpmFilter.addValue(-launcher.getVelocity());
-        telemetry.addData("launchervel",launcher.getVelocity());
+        //telemetry.addData("launchervel",launcher.getVelocity());
 
         switch (currentState) {
             case IDLE:
@@ -142,12 +144,16 @@ public class Flywheel {
     public double calculateBallVelocity(double distance, double height, double angleDegrees) {
         double angleRad = Math.toRadians(angleDegrees);
         double g = 9.81;
+
         double numer = distance * distance * g;
         double denom = (distance * Math.sin(2 * angleRad)) - (2 * height * Math.pow(Math.cos(angleRad), 2));
 
+<<<<<<< HEAD
         denom = Math.max(denom, 0.3);
 
         telemetry.addData("Denominator: ", denom);
+=======
+>>>>>>> Nathan_Sandbox
         return Math.sqrt(numer / denom);
     }
 

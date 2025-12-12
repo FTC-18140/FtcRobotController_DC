@@ -14,7 +14,6 @@ import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
-import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -51,7 +50,7 @@ public class ThunderBot2025 implements DataLoggable
 
     public void init(HardwareMap hwMap, Telemetry telem, @Nullable Pose2d pose)
     {
-        starting_position = (Pose2d) blackboard.getOrDefault(STARTING_POSITION, new Pose2d(0,0,0));
+        starting_position = (Pose2d) blackboard.getOrDefault(STARTING_POSITION, null);
         if(pose == null){
             if(starting_position == null) {
                 pose = new Pose2d(0,0,0);
@@ -172,6 +171,7 @@ public class ThunderBot2025 implements DataLoggable
                 @Override
                 public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                     update();
+                    telemetry.update();
                     return true;
                 }
             };

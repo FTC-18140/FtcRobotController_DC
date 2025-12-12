@@ -24,7 +24,6 @@ public class AutoRedDepot extends LinearOpMode{
         Pose2d intakePos2 = new Pose2d(AutoPositions.Positions.ARTIFACT_CENTER_RED.position, Math.toRadians(-90));
 
         ThunderBot2025 robot = new ThunderBot2025();
-        blackboard.put("TURRET_ENDING_ANGLE_AUTO", (double) 0);
 
         robot.init(hardwareMap, telemetry, start);
 
@@ -49,8 +48,7 @@ public class AutoRedDepot extends LinearOpMode{
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(start)
                                                                     .strafeToSplineHeading(launchPos.position, Math.toRadians(-23))
-                                                                    .build(),
-                                                            robot.planSequenceAction()
+                                                                    .build()
                                                     ),
                                                     robot.intake.intakeStartAction(),
                                                     //new SleepAction(2),
@@ -136,6 +134,8 @@ public class AutoRedDepot extends LinearOpMode{
         }finally{
             blackboard.put("ENDING_POSITION_AUTO", robot.drive.localizer.getPose());
             blackboard.put("TURRET_ENDING_ANGLE_AUTO", robot.launcher.getTurretAngle());
+//            ThunderBot2025.starting_position = robot.drive.localizer.getPose();
+//            ThunderBot2025.starting_turret_angle = robot.launcher.getTurretAngle();
         }
     }
 }

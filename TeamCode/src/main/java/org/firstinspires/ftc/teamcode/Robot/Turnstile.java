@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
+import static com.qualcomm.robotcore.eventloop.opmode.OpMode.blackboard;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -20,7 +22,7 @@ public class Turnstile {
     private Telemetry telemetry;
 
     // --- Tunable Constants via FTC Dashboard ---
-    public static double P = 0.0025, I = 0.025, D = 0.0001;
+    public static double P = 0.0025, I = 0.0001, D = 0.0001;
     public static double HOMING_POWER = -0.05;
     public static double ANGLE_TOLERANCE = 15;// In degrees
     public static double BACKWARD_TOLERANCE = 30;
@@ -29,6 +31,8 @@ public class Turnstile {
     private static final double COUNTS_PER_REVOLUTION = 8192;
     private static final double GEAR_RATIO = 1.0;
     private static final double COUNTS_PER_DEGREE = (COUNTS_PER_REVOLUTION * GEAR_RATIO)/360;
+    public static final String STARTING_ANGLE_KEY = "ENDING_ANGLE_INDEXER";
+    public double startingAngle;
 
     // --- State Management ---
     public enum State { IDLE, HOMING, SEEKING_POSITION, HOLDING_POSITION, MANUAL_SPIN } // Added MANUAL_SPIN
@@ -46,6 +50,7 @@ public class Turnstile {
         this.telemetry = telem;
         angleController = new PIDController(P, I, D);
 
+
         try {
             indexerServo = hwMap.crservo.get("indexer");
             indexMotor = hwMap.get(DcMotorEx.class, "indexMotor");
@@ -56,6 +61,7 @@ public class Turnstile {
         } catch (Exception e) {
             telemetry.addData("Turnstile Hardware Not Found", e.getMessage());
         }
+        startingAngle = (double) blackboard.getOrDefault(STARTING_ANGLE_KEY, (double) 0);
     }
 
     // --- High-Level Commands ---
@@ -111,9 +117,14 @@ public class Turnstile {
         return this.isHomed;
     }
 
+
+    public double getCurrentAngle() {
+        return currentAngle;
+    }
+
     public void update() {
         // --- 1. Cache Hardware Reads ---
-        currentAngle = indexMotor.getCurrentPosition() / COUNTS_PER_DEGREE;
+        currentAngle = indexMotor.getCurrentPosition() / COUNTS_PER_DEGREE + startingAngle;
         limitSwitchPressed = limitSwitch.isPressed();
 
         // --- 2. Run State Machine ---
@@ -190,6 +201,5 @@ public class Turnstile {
         telemetry.addData("Turnstile Angle", currentAngle);
         telemetry.addData("Turnstile Target", targetAngle);
         telemetry.addData("Limit Switch Pressed", limitSwitchPressed);
-        telemetry.addData("targetAngle", targetAngle);
     }
 }

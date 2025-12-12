@@ -62,6 +62,6 @@ public class Flipper {
         }
 
         telemetry.addData("Flipper State", currentState);
-        telemetry.addData("Flipper Servo Pos", currentServoPosition);
+//        telemetry.addData("Flipper Servo Pos", currentServoPosition);
     }
 }

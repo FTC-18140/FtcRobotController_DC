@@ -45,6 +45,7 @@ public class Turret implements DataLoggable {
     private double targetAngle = 0;
     private double manualPower = 0;
     private double currentPosition = 0;
+    //private double offsetAngle = 0;
     private double seekingPower = 0; // Member variable to be accessible for logging
     public static String STARTING_ANGLE = "TURRET_ENDING_ANGLE_AUTO";
     double startingAngle = (double) blackboard.getOrDefault(STARTING_ANGLE, (double) 0);
@@ -90,6 +91,10 @@ public class Turret implements DataLoggable {
         this.manualPower = power;
         this.currentState = State.MANUAL_CONTROL;
     }
+
+//    public void setOffsetAngle(double angle) {
+//        offsetAngle = angle;
+//    }
 
     public void holdPosition() {
         this.targetAngle = this.currentPosition; // Hold where we are
@@ -143,7 +148,8 @@ public class Turret implements DataLoggable {
 
     private void updateCurrentPosition() {
         this.currentPosition = turretEnc.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK + startingAngle;
-        telemetry.addData("tc", turretEnc.getCurrentPosition());
+        //this.currentPosition = turretEnc.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK - offsetAngle;
+        //telemetry.addData("tc", turretEnc.getCurrentPosition());
     }
 
     public double getCurrentPosition() {

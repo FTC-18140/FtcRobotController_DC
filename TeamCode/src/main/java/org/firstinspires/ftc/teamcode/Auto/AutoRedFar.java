@@ -24,7 +24,6 @@ public class AutoRedFar extends LinearOpMode{
         Pose2d intakePos2 = new Pose2d(AutoPositions.Positions.ARTIFACT_CENTER_RED.position, Math.toRadians(-90));
 
         ThunderBot2025 robot = new ThunderBot2025();
-        blackboard.put("TURRET_ENDING_ANGLE_AUTO", (double) 0);
 
         robot.init(hardwareMap, telemetry, start);
 
@@ -138,6 +137,9 @@ public class AutoRedFar extends LinearOpMode{
             // This block will always run, even if the opmode is stopped prematurely.
             blackboard.put("ENDING_POSITION_AUTO", robot.drive.localizer.getPose());
             blackboard.put("TURRET_ENDING_ANGLE_AUTO", robot.launcher.getTurretAngle());
+            blackboard.put("ENDING_ANGLE_INDEXER", robot.indexer.getIndexerAngle());
+//            ThunderBot2025.starting_position = robot.drive.localizer.getPose();
+//            ThunderBot2025.starting_turret_angle = robot.launcher.getTurretAngle();
         }
     }
 }

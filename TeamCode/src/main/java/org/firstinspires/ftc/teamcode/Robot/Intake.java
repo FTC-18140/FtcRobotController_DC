@@ -35,6 +35,7 @@ public class Intake {
      */
     public void intake(){
         intakeMotor.setPower(INTAKE_SPEED);
+        telemetry.addData("Intaking", 0);
     }
 
     public Action intakeStartAction(){
@@ -51,6 +52,7 @@ public class Intake {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 stop();
+
                 return false;
             }
         };
@@ -61,6 +63,7 @@ public class Intake {
      */
     public void spit(){
         intakeMotor.setPower(-INTAKE_SPEED);
+        telemetry.addData("Spitting", 0);
     }
 
     /**

@@ -30,8 +30,8 @@ public class LauncherFacade implements DataLoggable {
 
     // Target and alliance properties
     private Vector2d targetPos;
-    private final Vector2d targetPosBlue = new Vector2d(67, 67);
-    private final Vector2d targetPosRed = new Vector2d(67, -67); // Adjusted for typical field symmetry
+    private final Vector2d targetPosBlue = new Vector2d(60, 60);
+    private final Vector2d targetPosRed = new Vector2d(60, -60); // Adjusted for typical field symmetry
     private ThunderBot2025.Alliance_Color allianceColor = ThunderBot2025.Alliance_Color.BLUE;
 
     // Constructor initializes all subsystems
@@ -80,6 +80,9 @@ public class LauncherFacade implements DataLoggable {
     public int getDetectedAprilTagId() {
         return limelight.id();
     }
+    public double getTurretAngle(){
+        return turret.getCurrentPosition();
+    }
 
     /**
      * Aims automatically using the best available sensor data.
@@ -119,7 +122,7 @@ public class LauncherFacade implements DataLoggable {
             difference = limelightXDegrees;
 
         } else if (robotPose != null) {
-            telemetry.addData("Aiming Mode", "ODOMETRY (Fallback)");
+            telemetry.addData("Aiming Mode", "ODOMETRY");
             usingLimelight = false;
             Vector2d targetDirection = targetPos.minus(robotPose.position);
             //double robotRelativeAngle = -robotPose.heading.toDouble() + (turret.getCurrentPosition()) * (Math.PI/2);
@@ -132,6 +135,9 @@ public class LauncherFacade implements DataLoggable {
         return turret.getCurrentPosition() + difference;
 
     }
+//    public void setOffestAngle(double angle) {
+//        turret.setOffsetAngle(angle);
+//    }
 
     /** Prepares the flywheel for a shot based on the robot's current pose. */
     public void prepShot() {
@@ -241,9 +247,6 @@ public class LauncherFacade implements DataLoggable {
     private double getGoalDistance() {
         if (robotPose == null || targetPos == null) return 0;
         return targetPos.minus(robotPose.position).norm();
-    }
-    public double getTurretAngle() {
-        return turret.getCurrentPosition();
     }
 
     public boolean isAtTarget() {

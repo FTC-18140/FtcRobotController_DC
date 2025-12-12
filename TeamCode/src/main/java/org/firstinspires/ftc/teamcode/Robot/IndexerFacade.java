@@ -26,6 +26,7 @@ public class IndexerFacade {
     public static final double[] SLOT_ANGLES = {0, 120, 240}; // Angles for slots 0, 1, and 2
     private static final double FLIP_TIME_SECONDS = 0.3; // Time for the flipper to extend and retract
 
+
     // --- State Management ---
     public enum State { IDLE, HOMING, SELECTING_BALL, AWAITING_FLIP, FLIPPING, RETRACTING_FLIPPER }
     private State currentState = State.IDLE;
@@ -66,7 +67,56 @@ public class IndexerFacade {
 
     // --- High-Level API & Compatibility Shims ---
 
+    /**
+     * (Private Helper) Executes the next step in the planned shot sequence.
+     * This method is the core of the autonomous firing logic. It finds the next required ball
+     * from the sequence, locates it in one of the physical slots, and begins rotating the
+     * turnstile to that slot. It critically modifies the internal `ballSlots` model to prevent
+     * the same ball from being used twice to fulfill the sequence.
+     */
+    private void executeNextInSequence() {
+        // Safety check: Do nothing if the sequence is not active.
+        if (shotSequence == null || sequenceIndex < 0 || sequenceIndex >= shotSequence.size()) return;
 
+        // Determine which color we need for this step of the sequence.
+        BallState requiredColor = shotSequence.get(sequenceIndex);
+        boolean ballFound = false;
+
+        // Search all physical slots for a ball that matches the required color.
+        for (int i = 0; i < ballSlots.length && !ballFound; i++) {
+            if (ballSlots[i] == requiredColor) {
+                // --- Critical Step ---
+                // Mark this ball as "used" by changing its state in our software model to VACANT.
+                // This prevents the system from re-selecting this same physical ball for a
+                // later step in the sequence (e.g., if the sequence requires two PURPLE balls).
+                ballSlots[i] = BallState.VACANT;
+
+                // Command the turnstile to rotate this slot into the firing position.
+                selectSlot(i);
+                ballFound = true;
+            }
+        }
+
+        // If no ball of the required color could be found, something is wrong.
+        // To prevent getting stuck, we cancel the entire autonomous sequence.
+        if (!ballFound) {
+            cancelSequence();
+        }
+    }
+
+    public void cancelSequence() {
+        shotSequence = null;
+        sequenceIndex = -1;
+        if (currentState != State.IDLE) {
+            currentState = State.IDLE;
+        }
+    }
+
+    /**
+     * Indexes a color i
+     * @param ballState the color we want to select
+     * @return whether it found that color
+     */
     public boolean selectNextSlot(BallState ballState) {
         // Refactored to have a single exit point
         boolean slotFound = false;
@@ -143,50 +193,6 @@ public class IndexerFacade {
         executeNextInSequence();
     }
 
-    /**
-     * (Private Helper) Executes the next step in the planned shot sequence.
-     * This method is the core of the autonomous firing logic. It finds the next required ball
-     * from the sequence, locates it in one of the physical slots, and begins rotating the
-     * turnstile to that slot. It critically modifies the internal `ballSlots` model to prevent
-     * the same ball from being used twice to fulfill the sequence.
-     */
-    private void executeNextInSequence() {
-        // Safety check: Do nothing if the sequence is not active.
-        if (shotSequence == null || sequenceIndex < 0 || sequenceIndex >= shotSequence.size()) return;
-
-        // Determine which color we need for this step of the sequence.
-        BallState requiredColor = shotSequence.get(sequenceIndex);
-        boolean ballFound = false;
-
-        // Search all physical slots for a ball that matches the required color.
-        for (int i = 0; i < ballSlots.length && !ballFound; i++) {
-            if (ballSlots[i] == requiredColor) {
-                // --- Critical Step ---
-                // Mark this ball as "used" by changing its state in our software model to VACANT.
-                // This prevents the system from re-selecting this same physical ball for a
-                // later step in the sequence (e.g., if the sequence requires two PURPLE balls).
-                ballSlots[i] = BallState.VACANT; 
-
-                // Command the turnstile to rotate this slot into the firing position.
-                selectSlot(i);
-                ballFound = true;
-            }
-        }
-        
-        // If no ball of the required color could be found, something is wrong.
-        // To prevent getting stuck, we cancel the entire autonomous sequence.
-        if (!ballFound) {
-            cancelSequence();
-        }
-    }
-
-    public void cancelSequence() {
-        shotSequence = null;
-        sequenceIndex = -1;
-        if (currentState != State.IDLE) {
-            currentState = State.IDLE;
-        }
-    }
 
     // --- Compatibility Shims for TeleOp (Corrected) ---
     public void unflip() { /* The new state machine handles this automatically */ }
@@ -205,7 +211,9 @@ public class IndexerFacade {
         return (slot >= 0 && slot < 3) ? ballSlots[slot] : BallState.VACANT;
     }
     public int getCurrentTargetSlot() { return currentTargetSlot; }
-
+    public double getIndexerAngle(){
+        return turnstile.getCurrentAngle();
+    }
 
     public void update() {
         flipper.update();

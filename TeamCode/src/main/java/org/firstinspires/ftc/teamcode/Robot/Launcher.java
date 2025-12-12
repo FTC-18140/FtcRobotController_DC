@@ -7,6 +7,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -21,7 +22,7 @@ import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 import java.util.Objects;
 
 @Config
-
+@Deprecated
 public class Launcher {
     Telemetry telemetry;
     HardwareMap hardwareMap;
@@ -152,15 +153,15 @@ public class Launcher {
         turretAimPID.setPID(pTurret, iTurret, dTurret);
         RPMController.setPID(p, i, d);
 
-        telemetry.addData("launcher vel: ", launcher.getVelocity());
-        telemetry.addData("launcher2 vel: ", launcher2.getVelocity());
+//        telemetry.addData("launcher vel: ", launcher.getVelocity());
+//        telemetry.addData("launcher2 vel: ", launcher2.getVelocity());
 
 
         telemetry.addData("odometry target angle: ", target_odo);
         telemetry.addData("limelight target angle: ", target_limelight);
 
-        telemetry.addData("time: ", timer.milliseconds());
-        telemetry.addData("time difference: ", timeDifference);
+//        telemetry.addData("time: ", timer.milliseconds());
+//        telemetry.addData("time difference: ", timeDifference);
     }
 
     public Action updateAction(){
