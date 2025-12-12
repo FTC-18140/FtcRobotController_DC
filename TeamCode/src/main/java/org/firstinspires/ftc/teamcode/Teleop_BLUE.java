@@ -86,6 +86,14 @@ public class Teleop_BLUE extends OpMode {
         if(theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.RIGHT_TRIGGER)){
             robot.indexer.flip();
         }
+        if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_UP)){
+            robot.launcher.flywheel.adjustFF(1);
+        } else if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_DOWN)) {
+            robot.launcher.flywheel.adjustFF(-1);
+        } else if (theGamepad2.getButtonPressed(TBDGamepad.Button.Y)) {
+            robot.launcher.flywheel.resetFF();
+        }
+
 
         // --- Intake Controls (Stateful Latch) ---
         if(theGamepad2.getButton(TBDGamepad.Button.X) || theGamepad1.getButton(TBDGamepad.Button.X)){

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
+import static com.qualcomm.robotcore.eventloop.opmode.OpMode.blackboard;
+
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -42,12 +44,14 @@ public class ThunderBot2025 implements DataLoggable
     private Telemetry telemetry = null;
     public static boolean field_centric = true;
     public static Pose2d starting_position;
+    public static String STARTING_POSITION = "ENDING_POSITION_AUTO";
 
     Pose2d TELEOP_START_RED = new Pose2d(-12, -12, 0);
     Pose2d TELEOP_START_BLUE = new Pose2d(-12, 12, 0);
 
     public void init(HardwareMap hwMap, Telemetry telem, @Nullable Pose2d pose)
     {
+        starting_position = (Pose2d) blackboard.getOrDefault(STARTING_POSITION, 0);
         if(pose == null){
             if(starting_position == null) {
                 pose = new Pose2d(0,0,0);

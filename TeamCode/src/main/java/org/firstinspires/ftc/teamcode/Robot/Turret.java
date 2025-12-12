@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
+import static com.qualcomm.robotcore.eventloop.opmode.OpMode.blackboard;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -44,8 +46,12 @@ public class Turret implements DataLoggable {
     private double manualPower = 0;
     private double currentPosition = 0;
     private double seekingPower = 0; // Member variable to be accessible for logging
-
+    public static String STARTING_ANGLE = "TURRET_ENDING_ANGLE_AUTO";
+    double startingAngle = (double) blackboard.getOrDefault(STARTING_ANGLE, 0);
     public void init(HardwareMap hwMap, Telemetry telem) {
+
+
+        currentPosition = startingAngle;
         this.telemetry = telem;
         turretAimPID = new PIDController(P_TURRET, I_TURRET, D_TURRET);
         try{
@@ -136,7 +142,7 @@ public class Turret implements DataLoggable {
     }
 
     private void updateCurrentPosition() {
-        this.currentPosition = turretEnc.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK;
+        this.currentPosition = turretEnc.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK + startingAngle;
         telemetry.addData("tc", turretEnc.getCurrentPosition());
     }
 

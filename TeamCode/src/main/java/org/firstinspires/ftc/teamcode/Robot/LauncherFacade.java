@@ -80,6 +80,9 @@ public class LauncherFacade implements DataLoggable {
     public int getDetectedAprilTagId() {
         return limelight.id();
     }
+    public double getTurretAngle(){
+        return turret.getCurrentPosition();
+    }
 
     /**
      * Aims automatically using the best available sensor data.
