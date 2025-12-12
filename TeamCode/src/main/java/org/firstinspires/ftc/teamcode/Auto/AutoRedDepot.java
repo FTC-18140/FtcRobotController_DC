@@ -24,6 +24,7 @@ public class AutoRedDepot extends LinearOpMode{
         Pose2d intakePos2 = new Pose2d(AutoPositions.Positions.ARTIFACT_CENTER_RED.position, Math.toRadians(-90));
 
         ThunderBot2025 robot = new ThunderBot2025();
+        blackboard.put("TURRET_ENDING_ANGLE_AUTO", (double) 0);
 
         robot.init(hardwareMap, telemetry, start);
 
@@ -36,18 +37,20 @@ public class AutoRedDepot extends LinearOpMode{
         }
         waitForStart();
 
-        robot.setColor(ThunderBot2025.Alliance_Color.BLUE);
+        robot.setColor(ThunderBot2025.Alliance_Color.RED);
         try {
             Actions.runBlocking(
                     new ParallelAction(
                             robot.updateAction(),
+                            robot.aimAction(),
                             new SequentialAction(
                                     new RaceAction(
                                             new SequentialAction(
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(start)
                                                                     .strafeToSplineHeading(launchPos.position, Math.toRadians(-23))
-                                                                    .build()
+                                                                    .build(),
+                                                            robot.planSequenceAction()
                                                     ),
                                                     robot.intake.intakeStartAction(),
                                                     //new SleepAction(2),
@@ -127,8 +130,7 @@ public class AutoRedDepot extends LinearOpMode{
 
                             ),
                             //robot.chargeAction(robot.drive.localizer.getPose(), 30),
-                            robot.launcher.prepShotAction(),
-                            robot.aimAction()
+                            robot.launcher.prepShotAction()
                     )
             );
         }finally{

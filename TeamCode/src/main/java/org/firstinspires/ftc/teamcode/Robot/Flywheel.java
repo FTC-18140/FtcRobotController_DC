@@ -27,7 +27,7 @@ public class Flywheel {
 
     // Tunable constants from your original file
     public static double P = 0.004, I = 0.0, D = 0.0;
-    public static double F_MAX = 0.6, F_MIN = 0.45;
+    public static double F_MAX = 0.65, F_MIN = 0.45;
     public static double F_MAX_ADJUST = F_MAX, F_MIN_ADJUST = F_MIN;
     public static double F_STEP = .03;
     public boolean AdjustedFF = false;
@@ -144,6 +144,10 @@ public class Flywheel {
         double g = 9.81;
         double numer = distance * distance * g;
         double denom = (distance * Math.sin(2 * angleRad)) - (2 * height * Math.pow(Math.cos(angleRad), 2));
+
+        denom = Math.max(denom, 0.3);
+
+        telemetry.addData("Denominator: ", denom);
         return Math.sqrt(numer / denom);
     }
 

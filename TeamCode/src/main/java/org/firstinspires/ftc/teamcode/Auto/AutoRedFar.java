@@ -24,6 +24,7 @@ public class AutoRedFar extends LinearOpMode{
         Pose2d intakePos2 = new Pose2d(AutoPositions.Positions.ARTIFACT_CENTER_RED.position, Math.toRadians(-90));
 
         ThunderBot2025 robot = new ThunderBot2025();
+        blackboard.put("TURRET_ENDING_ANGLE_AUTO", (double) 0);
 
         robot.init(hardwareMap, telemetry, start);
 
@@ -38,12 +39,13 @@ public class AutoRedFar extends LinearOpMode{
 
         waitForStart();
 
-        robot.setColor(ThunderBot2025.Alliance_Color.BLUE);
+        robot.setColor(ThunderBot2025.Alliance_Color.RED);
 
         try {
             Actions.runBlocking(
                     new ParallelAction(
                             robot.updateAction(),
+                            robot.aimAction(),
                             new SequentialAction(
                                     new RaceAction(
                                             new SequentialAction(
@@ -129,8 +131,7 @@ public class AutoRedFar extends LinearOpMode{
                                     robot.launcher.pointToAction(0),
                                     robot.launcher.stopAction()
                             ),
-                            robot.launcher.prepShotAction(),
-                            robot.aimAction()
+                            robot.launcher.prepShotAction()
                     )
             );
         } finally {

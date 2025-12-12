@@ -51,7 +51,7 @@ public class ThunderBot2025 implements DataLoggable
 
     public void init(HardwareMap hwMap, Telemetry telem, @Nullable Pose2d pose)
     {
-        starting_position = (Pose2d) blackboard.getOrDefault(STARTING_POSITION, 0);
+        starting_position = (Pose2d) blackboard.getOrDefault(STARTING_POSITION, new Pose2d(0,0,0));
         if(pose == null){
             if(starting_position == null) {
                 pose = new Pose2d(0,0,0);

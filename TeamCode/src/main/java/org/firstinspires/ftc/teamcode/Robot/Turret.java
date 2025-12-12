@@ -47,7 +47,7 @@ public class Turret implements DataLoggable {
     private double currentPosition = 0;
     private double seekingPower = 0; // Member variable to be accessible for logging
     public static String STARTING_ANGLE = "TURRET_ENDING_ANGLE_AUTO";
-    double startingAngle = (double) blackboard.getOrDefault(STARTING_ANGLE, 0);
+    double startingAngle = (double) blackboard.getOrDefault(STARTING_ANGLE, (double) 0);
     public void init(HardwareMap hwMap, Telemetry telem) {
 
 
