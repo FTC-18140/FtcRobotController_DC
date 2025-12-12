@@ -22,6 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Config
+@Deprecated
 public class Indexer {
     Telemetry telemetry;
     HardwareMap hardwareMap;
@@ -59,6 +60,8 @@ public class Indexer {
     public static double LIMITER_OFFSET = 0.1;
     double offset = 0;
     final double CPR = 8192;
+
+
     private double indexPos = 0;
     private double targetAngle = 0;
 
@@ -171,6 +174,8 @@ public class Indexer {
         telemetry.addData("current State: ", state);
 
     }
+
+
 
     public void intake(){
         indexer.setPower(0.5);

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Robot;
 import android.graphics.Color;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
@@ -86,7 +87,7 @@ public class BallSensor {
             }
 
             // 3. Telemetry (optional, for tuning)
-            addTelemetry(); // Good to have this on during tuning sessions
+            //addTelemetry(); // Good to have this on during tuning sessions
         } else {
             telemetry.addData(sensorName + " Not initialized", 0);
         }
@@ -143,11 +144,12 @@ public class BallSensor {
     }
 
     /** Call this from update() to see live sensor values for tuning. */
+
     public void addTelemetry() {
         telemetry.addLine(String.format("--- Sensor: %s ---", sensorName));
         telemetry.addData("Detected", String.format("%s (Dist: %.2f cm)", detectedColor, distanceCm));
         //telemetry.addData("R | G | B", String.format("%.3f | %.3f | %.3f", colors.red, colors.green, colors.blue));
-        telemetry.addData("H | S | V", String.format("%.3f | %.3f | %.3f", hsv[0], hsv[1],hsv[2]));
-        telemetry.addData("Tunable Gain", GAIN);
+        //telemetry.addData("H | S | V", String.format("%.3f | %.3f | %.3f", hsv[0], hsv[1],hsv[2]));
+        //telemetry.addData("Tunable Gain", GAIN);
     }
 }

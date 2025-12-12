@@ -162,9 +162,6 @@ public class Teleop_BLUE extends OpMode {
         telemetry.addData("position X: ", robot.drive.localizer.getPose().position.x);
         telemetry.addData("position Y: ", robot.drive.localizer.getPose().position.y);
         telemetry.addData("heading: ", Math.toDegrees(robot.drive.localizer.getPose().heading.toDouble()));
-        telemetry.addData("Turret Tracking Mode", robot.launcher.isUsingLimelight());
-        telemetry.addData("Limelight X Angle", robot.launcher.getLimelightX());
-
 
         dashboard.sendTelemetryPacket(p);
     }

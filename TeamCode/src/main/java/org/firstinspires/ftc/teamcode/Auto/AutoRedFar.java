@@ -137,6 +137,7 @@ public class AutoRedFar extends LinearOpMode{
             // This block will always run, even if the opmode is stopped prematurely.
             blackboard.put("ENDING_POSITION_AUTO", robot.drive.localizer.getPose());
             blackboard.put("TURRET_ENDING_ANGLE_AUTO", robot.launcher.getTurretAngle());
+            blackboard.put("ENDING_ANGLE_INDEXER", robot.indexer.getIndexerAngle());
 //            ThunderBot2025.starting_position = robot.drive.localizer.getPose();
 //            ThunderBot2025.starting_turret_angle = robot.launcher.getTurretAngle();
         }

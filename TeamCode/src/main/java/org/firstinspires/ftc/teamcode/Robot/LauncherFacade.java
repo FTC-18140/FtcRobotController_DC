@@ -122,7 +122,7 @@ public class LauncherFacade implements DataLoggable {
             difference = limelightXDegrees;
 
         } else if (robotPose != null) {
-            telemetry.addData("Aiming Mode", "ODOMETRY (Fallback)");
+            telemetry.addData("Aiming Mode", "ODOMETRY");
             usingLimelight = false;
             Vector2d targetDirection = targetPos.minus(robotPose.position);
             //double robotRelativeAngle = -robotPose.heading.toDouble() + (turret.getCurrentPosition()) * (Math.PI/2);
