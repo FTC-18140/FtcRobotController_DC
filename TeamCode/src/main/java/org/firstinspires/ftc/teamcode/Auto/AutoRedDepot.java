@@ -36,7 +36,7 @@ public class AutoRedDepot extends LinearOpMode{
         }
         waitForStart();
 
-        robot.setColor(ThunderBot2025.Alliance_Color.BLUE);
+        robot.setColor(ThunderBot2025.Alliance_Color.RED);
         try {
             Actions.runBlocking(
                     new ParallelAction(
