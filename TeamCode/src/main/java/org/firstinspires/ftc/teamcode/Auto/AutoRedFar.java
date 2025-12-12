@@ -24,6 +24,7 @@ public class AutoRedFar extends LinearOpMode{
         Pose2d intakePos2 = new Pose2d(AutoPositions.Positions.ARTIFACT_CENTER_RED.position, Math.toRadians(-90));
 
         ThunderBot2025 robot = new ThunderBot2025();
+        blackboard.put("TURRET_ENDING_ANGLE_AUTO", (double) 0);
 
         robot.init(hardwareMap, telemetry, start);
 
