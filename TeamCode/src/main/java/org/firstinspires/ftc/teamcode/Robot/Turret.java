@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
+import static com.qualcomm.robotcore.eventloop.opmode.OpMode.blackboard;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -43,10 +45,13 @@ public class Turret implements DataLoggable {
     private double targetAngle = 0;
     private double manualPower = 0;
     private double currentPosition = 0;
-    private double offsetAngle = 0;
     private double seekingPower = 0; // Member variable to be accessible for logging
-
+    public static String STARTING_ANGLE = "TURRET_ENDING_ANGLE_AUTO";
+    double startingAngle = (double) blackboard.getOrDefault(STARTING_ANGLE, 0);
     public void init(HardwareMap hwMap, Telemetry telem) {
+
+
+        currentPosition = startingAngle;
         this.telemetry = telem;
         turretAimPID = new PIDController(P_TURRET, I_TURRET, D_TURRET);
         try{
@@ -86,10 +91,6 @@ public class Turret implements DataLoggable {
         this.currentState = State.MANUAL_CONTROL;
     }
 
-    public void setOffsetAngle(double angle) {
-        offsetAngle = angle;
-    }
-
     public void holdPosition() {
         this.targetAngle = this.currentPosition; // Hold where we are
         this.currentState = State.HOLDING;
@@ -100,7 +101,6 @@ public class Turret implements DataLoggable {
     public void update() {
         updateCurrentPosition(); // Always read the sensor
         turretAimPID.setPID(P_TURRET, I_TURRET, D_TURRET);
-        targetAngle = Range.clip(targetAngle, MIN_TURRET_POS, MAX_TURRET_POS);
 
         switch (currentState) {
             case HOLDING:
@@ -117,9 +117,6 @@ public class Turret implements DataLoggable {
                 break;
 
             case MANUAL_CONTROL:
-                if((currentPosition < MIN_TURRET_POS && manualPower > 0) || (currentPosition > MAX_TURRET_POS && manualPower < 0)) {
-                    this.currentState = State.SEEKING_ANGLE;
-                }
                 setHardwarePower(manualPower);
                 if (Math.abs(manualPower) < 0.05) {
                     holdPosition();
@@ -145,7 +142,7 @@ public class Turret implements DataLoggable {
     }
 
     private void updateCurrentPosition() {
-        this.currentPosition = turretEnc.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK + offsetAngle;
+        this.currentPosition = turretEnc.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK + startingAngle;
         telemetry.addData("tc", turretEnc.getCurrentPosition());
     }
 

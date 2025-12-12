@@ -36,21 +36,18 @@ public class AutoRedDepot extends LinearOpMode{
         }
         waitForStart();
 
-        robot.setColor(ThunderBot2025.Alliance_Color.RED);
+        robot.setColor(ThunderBot2025.Alliance_Color.BLUE);
         try {
             Actions.runBlocking(
                     new ParallelAction(
                             robot.updateAction(),
-                            robot.aimAction(),
                             new SequentialAction(
                                     new RaceAction(
                                             new SequentialAction(
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(start)
                                                                     .strafeToSplineHeading(launchPos.position, Math.toRadians(-23))
-                                                                    .build(),
-
-                                                            robot.planSequenceAction()
+                                                                    .build()
                                                     ),
                                                     robot.intake.intakeStartAction(),
                                                     //new SleepAction(2),
@@ -80,7 +77,8 @@ public class AutoRedDepot extends LinearOpMode{
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, -48), Math.toRadians(-90)))
                                                                     .strafeToSplineHeading(launchPos.position, Math.toRadians(-23))
-                                                                    .build()
+                                                                    .build(),
+                                                            robot.launcher.pointToAction(0)
                                                     ),
                                                     robot.launcher.stopAction(),
                                                     // Launch Preloads
@@ -128,12 +126,14 @@ public class AutoRedDepot extends LinearOpMode{
                                     robot.launcher.stopAction()
 
                             ),
-                            robot.launcher.prepShotAction()
+                            //robot.chargeAction(robot.drive.localizer.getPose(), 30),
+                            robot.launcher.prepShotAction(),
+                            robot.aimAction()
                     )
             );
         }finally{
-            ThunderBot2025.starting_position = robot.drive.localizer.getPose();
-            ThunderBot2025.starting_turret_angle = robot.launcher.getTurretAngle();
+            blackboard.put("ENDING_POSITION_AUTO", robot.drive.localizer.getPose());
+            blackboard.put("TURRET_ENDING_ANGLE_AUTO", robot.launcher.getTurretAngle());
         }
     }
 }

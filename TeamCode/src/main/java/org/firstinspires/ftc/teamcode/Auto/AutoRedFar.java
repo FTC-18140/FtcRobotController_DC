@@ -38,13 +38,12 @@ public class AutoRedFar extends LinearOpMode{
 
         waitForStart();
 
-        robot.setColor(ThunderBot2025.Alliance_Color.RED);
+        robot.setColor(ThunderBot2025.Alliance_Color.BLUE);
 
         try {
             Actions.runBlocking(
                     new ParallelAction(
                             robot.updateAction(),
-                            robot.aimAction(),
                             new SequentialAction(
                                     new RaceAction(
                                             new SequentialAction(
@@ -130,13 +129,14 @@ public class AutoRedFar extends LinearOpMode{
                                     robot.launcher.pointToAction(0),
                                     robot.launcher.stopAction()
                             ),
-                            robot.launcher.prepShotAction()
+                            robot.launcher.prepShotAction(),
+                            robot.aimAction()
                     )
             );
         } finally {
             // This block will always run, even if the opmode is stopped prematurely.
-            ThunderBot2025.starting_position = robot.drive.localizer.getPose();
-            ThunderBot2025.starting_turret_angle = robot.launcher.getTurretAngle();
+            blackboard.put("ENDING_POSITION_AUTO", robot.drive.localizer.getPose());
+            blackboard.put("TURRET_ENDING_ANGLE_AUTO", robot.launcher.getTurretAngle());
         }
     }
 }
