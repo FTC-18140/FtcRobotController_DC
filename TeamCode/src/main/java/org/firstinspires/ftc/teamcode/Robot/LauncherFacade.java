@@ -248,9 +248,6 @@ public class LauncherFacade implements DataLoggable {
         if (robotPose == null || targetPos == null) return 0;
         return targetPos.minus(robotPose.position).norm();
     }
-    public double getTurretAngle() {
-        return turret.getCurrentPosition();
-    }
 
     public boolean isAtTarget() {
         return turret.isAtTarget();
