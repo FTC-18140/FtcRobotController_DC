@@ -36,6 +36,7 @@ public class Turret implements DataLoggable {
     public static double P_TURRET = 0.018, I_TURRET = 0.0001, D_TURRET = 0.000;
     public static double MAX_TURRET_POS = 90;
     public static double MIN_TURRET_POS = -90;
+    public static double TURRET_ANGLE_TOLERANCE = 5;
     public static double TURN_SPEED = 208.3; // From original lockOn
     //public static double TURRET_DEGREES_PER_ENCODER_TICK = 0.0048 * ((1.0 / ((double) 40 / 190)) / 360.0);
     public static double TURRET_DEGREES_PER_ENCODER_TICK = (double) 1 /8192 * 360 * 24/190;
@@ -147,7 +148,7 @@ public class Turret implements DataLoggable {
     }
 
     private void updateCurrentPosition() {
-        this.currentPosition = turretEnc.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK + startingAngle;
+        this.currentPosition = turretEnc.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK - startingAngle;
 
         //this.currentPosition = turretEnc.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK - offsetAngle;
         //telemetry.addData("tc", turretEnc.getCurrentPosition());
@@ -158,7 +159,7 @@ public class Turret implements DataLoggable {
     }
 
     public boolean isAtTarget() {
-        return Math.abs(this.currentPosition - targetAngle) < 0.02*90;
+        return Math.abs(this.currentPosition - targetAngle) < TURRET_ANGLE_TOLERANCE;
     }
 
     @Override

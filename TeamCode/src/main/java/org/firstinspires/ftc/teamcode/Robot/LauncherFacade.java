@@ -30,8 +30,8 @@ public class LauncherFacade implements DataLoggable {
 
     // Target and alliance properties
     private Vector2d targetPos;
-    private final Vector2d targetPosBlue = new Vector2d(60, 60);
-    private final Vector2d targetPosRed = new Vector2d(60, -60); // Adjusted for typical field symmetry
+    private final Vector2d targetPosBlue = new Vector2d(67, 67);
+    private final Vector2d targetPosRed = new Vector2d(67, -67); // Adjusted for typical field symmetry
     private ThunderBot2025.Alliance_Color allianceColor = ThunderBot2025.Alliance_Color.BLUE;
 
     // Constructor initializes all subsystems

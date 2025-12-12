@@ -83,7 +83,6 @@ public class AutoBlueDepot extends LinearOpMode{
                                                                     .build(),
                                                             robot.launcher.pointToAction(0)
                                                     ),
-                                                    robot.launcher.stopAction(),
                                                     // Launch Preloads
                                                     new SequentialAction(
                                                             robot.launchAction(),
@@ -108,9 +107,10 @@ public class AutoBlueDepot extends LinearOpMode{
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos2.position.x, 52), Math.toRadians(90)))
                                                                     .strafeToSplineHeading(launchPos.position, Math.toRadians(23))
-                                                                    .build(),
-                                                            // Re-plan the shot sequence with the newly loaded balls
-                                                            robot.planSequenceAction()
+                                                                    .build()
+//                                                            ,
+//                                                            // Re-plan the shot sequence with the newly loaded balls
+//                                                            robot.planSequenceAction()
                                                     ),
                                                     // Launch 2nd set of Artifacts
                                                     new SequentialAction(

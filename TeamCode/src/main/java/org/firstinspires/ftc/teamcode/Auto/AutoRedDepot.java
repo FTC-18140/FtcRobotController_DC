@@ -66,7 +66,7 @@ public class AutoRedDepot extends LinearOpMode{
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
                                                                     .splineToSplineHeading(intakePos, Math.toRadians(-90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x, -48), Math.toRadians(-90), new TranslationalVelConstraint(4))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x, -48), Math.toRadians(-90), new TranslationalVelConstraint(5))
                                                                     .build(),
                                                             new SequentialAction(
                                                                     robot.seekToSlotAction(0), // Move to the first intake slot
@@ -79,10 +79,10 @@ public class AutoRedDepot extends LinearOpMode{
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, -48), Math.toRadians(-90)))
                                                                     .strafeToSplineHeading(launchPos.position, Math.toRadians(-23))
-                                                                    .build(),
-                                                            robot.launcher.pointToAction(0)
+                                                                    .build()
+//                                                            ,
+//                                                            robot.planSequenceAction()
                                                     ),
-                                                    robot.launcher.stopAction(),
                                                     // Launch Preloads
                                                     new SequentialAction(
                                                             robot.launchAction(),
@@ -107,9 +107,10 @@ public class AutoRedDepot extends LinearOpMode{
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos2.position.x, -52), Math.toRadians(-90)))
                                                                     .strafeToSplineHeading(launchPos.position, Math.toRadians(-23))
-                                                                    .build(),
-                                                            // Re-plan the shot sequence with the newly loaded balls
-                                                            robot.planSequenceAction()
+                                                                    .build()
+//                                                            ,
+//                                                            // Re-plan the shot sequence with the newly loaded balls
+//                                                            robot.planSequenceAction()
                                                     ),
                                                     // Launch 2nd set of Artifacts
                                                     new SequentialAction(
