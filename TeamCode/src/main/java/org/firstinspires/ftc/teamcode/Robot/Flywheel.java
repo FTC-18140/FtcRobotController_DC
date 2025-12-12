@@ -40,7 +40,10 @@ public class Flywheel {
     public static double SHOOTER_RADIUS = 0.096 / 2.0;
     public static double SPIN_EFFICIENCY = 1.27;
 
+
     private double targetRpm = 0;
+
+
     private double currentRpm = 0;
     double scaledPower = 0;
     public void init(HardwareMap hwMap, Telemetry telem) {
@@ -60,6 +63,13 @@ public class Flywheel {
         this.targetRpm = Range.clip(rpm, MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
         this.currentState = State.SPINNING_UP;
     }
+    public double getCurrentRpm() {
+        return currentRpm;
+    }
+    public double getTargetRpm() {
+        return targetRpm;
+    }
+
 
 
     /**
@@ -90,6 +100,7 @@ public class Flywheel {
      * Call this once per loop. It executes the logic for the current state.
      */
     public void update(double distanceToGoal) {
+
         rpmController.setPID(P, I, D);
         this.currentRpm = rpmFilter.addValue(-launcher.getVelocity());
         //telemetry.addData("launchervel",launcher.getVelocity());

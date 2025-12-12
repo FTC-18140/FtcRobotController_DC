@@ -64,6 +64,7 @@ public class LauncherFacade implements DataLoggable {
         turret.update();
         flywheel.update(distanceToGoal);
         limelight.update();
+
     }
 
     /**
@@ -82,6 +83,12 @@ public class LauncherFacade implements DataLoggable {
     }
     public double getTurretAngle(){
         return turret.getCurrentPosition();
+    }
+    public double getFlywheelRpm(){
+        return flywheel.getCurrentRpm();
+    }
+    public double getFlywheelTargetRpm(){
+        return flywheel.getTargetRpm();
     }
 
     /**
