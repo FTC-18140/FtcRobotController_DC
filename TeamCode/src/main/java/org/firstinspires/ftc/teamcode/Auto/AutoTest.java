@@ -38,7 +38,7 @@ public class AutoTest extends LinearOpMode {
                 )
         );
 
-        robot.setStartPosForTeleop(robot.drive.localizer.getPose());
+        robot.setStartPosForTeleop(robot.drive.localizer.getPose(), 0);
 
     }
 }

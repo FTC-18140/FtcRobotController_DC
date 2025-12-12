@@ -44,6 +44,7 @@ public class AutoBlueFar extends LinearOpMode{
             Actions.runBlocking(
                 new ParallelAction(
                         robot.updateAction(),
+                        robot.aimAction(),
                     new SequentialAction(
                         new RaceAction(
                             new SequentialAction(
@@ -129,13 +130,13 @@ public class AutoBlueFar extends LinearOpMode{
                         robot.launcher.pointToAction(0),
                         robot.launcher.stopAction()
                     ),
-                    robot.launcher.prepShotAction(),
-                    robot.aimAction()
+                    robot.launcher.prepShotAction()
                 )
             );
         } finally {
             // This block will always run, even if the opmode is stopped prematurely.
             ThunderBot2025.starting_position = robot.drive.localizer.getPose();
+            ThunderBot2025.starting_turret_angle = robot.launcher.getTurretAngle();
         }
     }
 }

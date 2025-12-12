@@ -43,6 +43,7 @@ public class Turret implements DataLoggable {
     private double targetAngle = 0;
     private double manualPower = 0;
     private double currentPosition = 0;
+    private double offsetAngle = 0;
     private double seekingPower = 0; // Member variable to be accessible for logging
 
     public void init(HardwareMap hwMap, Telemetry telem) {
@@ -83,6 +84,10 @@ public class Turret implements DataLoggable {
     public void setManualPower(double power) {
         this.manualPower = power;
         this.currentState = State.MANUAL_CONTROL;
+    }
+
+    public void setOffsetAngle(double angle) {
+        offsetAngle = angle;
     }
 
     public void holdPosition() {
@@ -136,7 +141,7 @@ public class Turret implements DataLoggable {
     }
 
     private void updateCurrentPosition() {
-        this.currentPosition = turretEnc.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK;
+        this.currentPosition = turretEnc.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK + offsetAngle;
         telemetry.addData("tc", turretEnc.getCurrentPosition());
     }
 

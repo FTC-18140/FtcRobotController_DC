@@ -42,6 +42,7 @@ public class ThunderBot2025 implements DataLoggable
     private Telemetry telemetry = null;
     public static boolean field_centric = true;
     public static Pose2d starting_position;
+    public static double starting_turret_angle;
 
     Pose2d TELEOP_START_RED = new Pose2d(-12, -12, 0);
     Pose2d TELEOP_START_BLUE = new Pose2d(-12, 12, 0);
@@ -55,6 +56,7 @@ public class ThunderBot2025 implements DataLoggable
                 pose = starting_position;
             }
         }
+
         drive = new MecanumDrive(hwMap, pose);
 
         intake = new Intake();
@@ -67,6 +69,9 @@ public class ThunderBot2025 implements DataLoggable
         launcher.init(hwMap, telem);
         launcher.setAlliance(color);
 
+        if(starting_turret_angle != 0){
+            launcher.setOffestAngle(starting_turret_angle);
+        }
         led = new LED();
         led.init(hwMap, telem);
 
@@ -110,8 +115,9 @@ public class ThunderBot2025 implements DataLoggable
         }
     }
 
-    public void setStartPosForTeleop(Pose2d pos){
+    public void setStartPosForTeleop(Pose2d pos, double angle){
         starting_position = pos;
+        starting_turret_angle = angle;
     }
 
     public boolean isFieldCentric(){
