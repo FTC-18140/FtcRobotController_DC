@@ -71,6 +71,7 @@ public class ThunderBot2025 implements DataLoggable
 
         if(starting_turret_angle != 0){
             launcher.setOffestAngle(starting_turret_angle);
+            starting_turret_angle = 0;
         }
         led = new LED();
         led.init(hwMap, telem);

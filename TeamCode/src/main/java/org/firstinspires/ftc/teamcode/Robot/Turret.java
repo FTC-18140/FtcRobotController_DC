@@ -100,6 +100,7 @@ public class Turret implements DataLoggable {
     public void update() {
         updateCurrentPosition(); // Always read the sensor
         turretAimPID.setPID(P_TURRET, I_TURRET, D_TURRET);
+        targetAngle = Range.clip(targetAngle, MIN_TURRET_POS, MAX_TURRET_POS);
 
         switch (currentState) {
             case HOLDING:
@@ -116,6 +117,9 @@ public class Turret implements DataLoggable {
                 break;
 
             case MANUAL_CONTROL:
+                if((currentPosition < MIN_TURRET_POS && manualPower > 0) || (currentPosition > MAX_TURRET_POS && manualPower < 0)) {
+                    this.currentState = State.SEEKING_ANGLE;
+                }
                 setHardwarePower(manualPower);
                 if (Math.abs(manualPower) < 0.05) {
                     holdPosition();
@@ -141,7 +145,7 @@ public class Turret implements DataLoggable {
     }
 
     private void updateCurrentPosition() {
-        this.currentPosition = turretEnc.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK - offsetAngle;
+        this.currentPosition = turretEnc.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK + offsetAngle;
         telemetry.addData("tc", turretEnc.getCurrentPosition());
     }
 

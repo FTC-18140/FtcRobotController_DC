@@ -48,7 +48,9 @@ public class AutoRedDepot extends LinearOpMode{
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(start)
                                                                     .strafeToSplineHeading(launchPos.position, Math.toRadians(-23))
-                                                                    .build()
+                                                                    .build(),
+
+                                                            robot.planSequenceAction()
                                                     ),
                                                     robot.intake.intakeStartAction(),
                                                     //new SleepAction(2),
@@ -78,8 +80,7 @@ public class AutoRedDepot extends LinearOpMode{
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, -48), Math.toRadians(-90)))
                                                                     .strafeToSplineHeading(launchPos.position, Math.toRadians(-23))
-                                                                    .build(),
-                                                            robot.launcher.pointToAction(0)
+                                                                    .build()
                                                     ),
                                                     robot.launcher.stopAction(),
                                                     // Launch Preloads
@@ -127,7 +128,6 @@ public class AutoRedDepot extends LinearOpMode{
                                     robot.launcher.stopAction()
 
                             ),
-                            //robot.chargeAction(robot.drive.localizer.getPose(), 30),
                             robot.launcher.prepShotAction()
                     )
             );
