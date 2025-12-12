@@ -41,7 +41,6 @@ public class AutoBlueDepot extends LinearOpMode{
             Actions.runBlocking(
                     new ParallelAction(
                             robot.updateAction(),
-                            robot.aimAction(),
                             new SequentialAction(
                                     new RaceAction(
                                             new SequentialAction(
@@ -128,12 +127,13 @@ public class AutoBlueDepot extends LinearOpMode{
 
                             ),
                             //robot.chargeAction(robot.drive.localizer.getPose(), 30),
-                            robot.launcher.prepShotAction()
+                            robot.launcher.prepShotAction(),
+                            robot.aimAction()
                     )
             );
         }finally{
-            ThunderBot2025.starting_position = robot.drive.localizer.getPose();
-            ThunderBot2025.starting_turret_angle = robot.launcher.getTurretAngle();
+            blackboard.put("ENDING_POSITION_AUTO", robot.drive.localizer.getPose());
+            blackboard.put("TURRET_ENDING_ANGLE_AUTO", robot.launcher.getTurretAngle());
         }
     }
 }
