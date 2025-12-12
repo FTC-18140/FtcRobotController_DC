@@ -36,11 +36,12 @@ public class AutoRedDepot extends LinearOpMode{
         }
         waitForStart();
 
-        robot.setColor(ThunderBot2025.Alliance_Color.BLUE);
+        robot.setColor(ThunderBot2025.Alliance_Color.RED);
         try {
             Actions.runBlocking(
                     new ParallelAction(
                             robot.updateAction(),
+                            robot.aimAction(),
                             new SequentialAction(
                                     new RaceAction(
                                             new SequentialAction(
@@ -127,13 +128,14 @@ public class AutoRedDepot extends LinearOpMode{
 
                             ),
                             //robot.chargeAction(robot.drive.localizer.getPose(), 30),
-                            robot.launcher.prepShotAction(),
-                            robot.aimAction()
+                            robot.launcher.prepShotAction()
                     )
             );
         }finally{
             blackboard.put("ENDING_POSITION_AUTO", robot.drive.localizer.getPose());
             blackboard.put("TURRET_ENDING_ANGLE_AUTO", robot.launcher.getTurretAngle());
+//            ThunderBot2025.starting_position = robot.drive.localizer.getPose();
+//            ThunderBot2025.starting_turret_angle = robot.launcher.getTurretAngle();
         }
     }
 }
