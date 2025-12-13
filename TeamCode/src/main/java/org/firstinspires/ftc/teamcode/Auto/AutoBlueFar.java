@@ -74,7 +74,9 @@ public class AutoBlueFar extends LinearOpMode{
                                             .build(),
                                     new SequentialAction(
                                         robot.seekToSlotAction(0), // Move to the first intake slot
+                                            robot.indexerIsAtTargetAction(),
                                         robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
+                                            robot.indexerIsAtTargetAction(),
                                         robot.waitForBallAndCycleAction(), // Wait for the next ball, then cycle
                                             new SleepAction(0.25),
                                             robot.waitForBallAction()
@@ -105,7 +107,9 @@ public class AutoBlueFar extends LinearOpMode{
                                                     .build(),
                                             new SequentialAction(
                                                     robot.seekToSlotAction(0), // Move to the first intake slot
+                                                    robot.indexerIsAtTargetAction(),
                                                     robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
+                                                    robot.indexerIsAtTargetAction(),
                                                     robot.waitForBallAndCycleAction(), // Wait for the next ball, then cycle
                                                     new SleepAction(0.25),
                                                     robot.waitForBallAction()

@@ -38,12 +38,13 @@ public class AutoRedDepot extends LinearOpMode{
         }
         waitForStart();
 
-        robot.setColor(ThunderBot2025.Alliance_Color.RED);
+        robot.setColor(ThunderBot2025.Alliance_Color.BLUE);
         try {
             Actions.runBlocking(
                     new ParallelAction(
                             robot.updateAction(),
                             robot.aimAction(),
+
                             new SequentialAction(
                                     new RaceAction(
                                             new SequentialAction(
@@ -67,11 +68,13 @@ public class AutoRedDepot extends LinearOpMode{
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
                                                                     .splineToSplineHeading(intakePos, Math.toRadians(-90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x, -48), Math.toRadians(-90), new TranslationalVelConstraint(5))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x, -50), Math.toRadians(-90), new TranslationalVelConstraint(4))
                                                                     .build(),
                                                             new SequentialAction(
                                                                     robot.seekToSlotAction(0), // Move to the first intake slot
+                                                                    robot.indexerIsAtTargetAction(),
                                                                     robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
+                                                                    robot.indexerIsAtTargetAction(),
                                                                     robot.waitForBallAndCycleAction(), // Wait for the next ball, then cycle
                                                                     new SleepAction(0.25),
                                                                     robot.waitForBallAction()
@@ -80,11 +83,10 @@ public class AutoRedDepot extends LinearOpMode{
                                                             robot.indexerFullAction()
                                                     ),
                                                     new ParallelAction(
-                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, -48), Math.toRadians(-90)))
+                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, -50), Math.toRadians(-90)))
                                                                     .strafeToSplineHeading(launchPos.position, Math.toRadians(-23))
-                                                                    .build()
-//                                                            ,
-//                                                            robot.planSequenceAction()
+                                                                    .build(),
+                                                            robot.launcher.pointToAction(0)
                                                     ),
                                                     // Launch Preloads
                                                     new SequentialAction(
@@ -100,7 +102,9 @@ public class AutoRedDepot extends LinearOpMode{
                                                                     .build(),
                                                             new SequentialAction(
                                                                     robot.seekToSlotAction(0), // Move to the first intake slot
+                                                                    robot.indexerIsAtTargetAction(),
                                                                     robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
+                                                                    robot.indexerIsAtTargetAction(),
                                                                     robot.waitForBallAndCycleAction(), // Wait for the next ball, then cycle
                                                                     new SleepAction(0.25),
                                                                     robot.waitForBallAction()
@@ -128,7 +132,7 @@ public class AutoRedDepot extends LinearOpMode{
                                     ),
                                     robot.intake.intakeStopAction(),
                                     robot.drive.actionBuilder(launchPos)
-                                            .strafeToSplineHeading(new Vector2d(12, -12), Math.toRadians(0))
+                                            .strafeToSplineHeading(new Vector2d(12, -38), Math.toRadians(0))
                                             .build(),
                                     robot.launcher.pointToAction(0),
                                     robot.launcher.stopAction()

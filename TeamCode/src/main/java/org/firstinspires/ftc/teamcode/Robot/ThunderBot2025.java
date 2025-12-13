@@ -283,10 +283,18 @@ public class ThunderBot2025 implements DataLoggable
             }
         };
     }
+    public Action indexerIsAtTargetAction(){
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                return !indexer.isAtTarget();
+            }
+        };
+    }
     public Action launchAction(){
         return new SequentialAction(
                 launchReadyAction(),
-                new Action() { 
+                new Action() {
                     private boolean hasStarted = false;
                     @Override
                     public boolean run(@NonNull TelemetryPacket packet) {
@@ -300,7 +308,7 @@ public class ThunderBot2025 implements DataLoggable
                         return true;
                     }
                 },
-                new SleepAction(0.45)
+                indexerIsAtTargetAction()
         );
     }
 
