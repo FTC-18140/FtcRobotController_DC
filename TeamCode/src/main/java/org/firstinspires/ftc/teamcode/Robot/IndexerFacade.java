@@ -205,10 +205,16 @@ public class IndexerFacade {
         return selectSlot(nextSlot);
 
     }
+    public boolean isAtTarget(){
+        return turnstile.isAtTarget();
+    }
     public State getState() { return currentState; }
     public void setState(State state) { this.currentState = state; }
     public BallState getBallState(int slot) {
         return (slot >= 0 && slot < 3) ? ballSlots[slot] : BallState.VACANT;
+    }
+    public boolean indexerIsFull(){
+        return !(getBallState(0) == BallState.VACANT || getBallState(1) == BallState.VACANT || getBallState(2) == BallState.VACANT);
     }
     public int getCurrentTargetSlot() { return currentTargetSlot; }
     public double getIndexerAngle(){

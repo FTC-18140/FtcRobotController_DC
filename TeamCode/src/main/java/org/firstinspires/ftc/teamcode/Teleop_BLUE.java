@@ -66,7 +66,7 @@ public class Teleop_BLUE extends OpMode {
             robot.drive.localizer.setPose(new Pose2d(robot.drive.localizer.getPose().position, 0));
         }
 
-        robot.drive(forward, strafe, turn * 0.7, speed, p);
+        robot.drive(forward, strafe, turn, speed, p);
 
         // --- Launcher Controls ---
         if(Math.abs(theGamepad2.getRightX()) > 0.01){
@@ -144,7 +144,7 @@ public class Teleop_BLUE extends OpMode {
                 robot.indexer.spin(0.2);
             } else {
                 // If not manually spinning, send a spin(0) to allow the turnstile to auto-align.
-                robot.indexer.cycle(0);
+
 
                 // Then, check for discrete, one-shot commands.
                 if(theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_LEFT)){
@@ -153,6 +153,8 @@ public class Teleop_BLUE extends OpMode {
                     robot.indexer.cycle(-1);
                 } else if (theGamepad2.getButton(TBDGamepad.Button.LEFT_STICK_BUTTON)){
                     robot.indexer.adjustToThird();
+                }else{
+                    robot.indexer.cycle(0);
                 }
             }
         }

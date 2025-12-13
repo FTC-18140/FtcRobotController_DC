@@ -151,7 +151,7 @@ public class ThunderBot2025 implements DataLoggable
         );
 
         theVector = theVector.times(speed);
-        PoseVelocity2d thePose = new PoseVelocity2d(theVector, -clockwise);
+        PoseVelocity2d thePose = new PoseVelocity2d(theVector, -clockwise * speed);
         drive.setDrivePowers(thePose);
     }
 
@@ -217,7 +217,7 @@ public class ThunderBot2025 implements DataLoggable
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                return !(launcher.isAtTarget() && launcher.isAtTargetRpm() && (indexer.getState() == IndexerFacade.State.AWAITING_FLIP || indexer.getState() == IndexerFacade.State.IDLE));
+                return !(launcher.isAtTarget() && launcher.isAtTargetRpm() && indexer.isAtTarget() && (indexer.getState() == IndexerFacade.State.AWAITING_FLIP || indexer.getState() == IndexerFacade.State.IDLE));
             }
         };
     }
@@ -259,6 +259,14 @@ public class ThunderBot2025 implements DataLoggable
             }
         };
     }
+    public Action waitForBallAction(){
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                return indexer.getBallState(0) == IndexerFacade.BallState.VACANT;
+            }
+        };
+    }
 
     // --- Deprecated and Re-implemented Actions ---
 
@@ -266,6 +274,14 @@ public class ThunderBot2025 implements DataLoggable
         return seekToSlotAction(0); // Default to something safe, but shouldn't be used
     }
 
+    public Action indexerFullAction(){
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                return !indexer.indexerIsFull();
+            }
+        };
+    }
     public Action launchAction(){
         return new SequentialAction(
                 launchReadyAction(),

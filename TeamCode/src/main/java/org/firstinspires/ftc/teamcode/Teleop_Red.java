@@ -50,8 +50,8 @@ public class Teleop_Red extends OpMode {
         theGamepad2.update();
 
         // --- Drive Controls ---
-        double forward = theGamepad1.getLeftY();
-        double strafe = theGamepad1.getLeftX();
+        double forward = -theGamepad1.getLeftY();
+        double strafe = -theGamepad1.getLeftX();
         double turn = theGamepad1.getRightX();
         double speed = 0.7;
 
@@ -94,6 +94,7 @@ public class Teleop_Red extends OpMode {
             robot.launcher.flywheel.resetFF();
         }
 
+
         // --- Intake Controls (Stateful Latch) ---
         if(theGamepad2.getButton(TBDGamepad.Button.X) || theGamepad1.getButton(TBDGamepad.Button.X)){
             robot.intake.intake();
@@ -121,10 +122,10 @@ public class Teleop_Red extends OpMode {
         }
         // Operator can cancel by pressing any manual indexer button.
         if (theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER) ||
-            theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER) ||
-            theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_LEFT) ||
-            theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_RIGHT) ||
-            theGamepad2.getButtonPressed(TBDGamepad.Button.LEFT_STICK_BUTTON)) {
+                theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER) ||
+                theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_LEFT) ||
+                theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_RIGHT) ||
+                theGamepad2.getButtonPressed(TBDGamepad.Button.LEFT_STICK_BUTTON)) {
             isAutoLoading = false;
         }
 
@@ -132,7 +133,7 @@ public class Teleop_Red extends OpMode {
             // --- AUTO-LOADING MODE ---
             // When a ball arrives in the slot we are watching, cycle to the next empty one.
             if (slotToWatch != -1 && robot.indexer.getBallState(slotToWatch) != IndexerFacade.BallState.VACANT) {
-            robot.indexer.selectNextSlot(IndexerFacade.BallState.VACANT);
+                robot.indexer.selectNextSlot(IndexerFacade.BallState.VACANT);
                 slotToWatch = robot.indexer.getCurrentTargetSlot();
             }
         } else {

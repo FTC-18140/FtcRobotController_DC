@@ -25,6 +25,7 @@ public class AutoBlueFar extends LinearOpMode{
 
         ThunderBot2025 robot = new ThunderBot2025();
         blackboard.put("TURRET_ENDING_ANGLE_AUTO", (double) 0);
+        blackboard.put("ENDING_ANGLE_INDEXER", (double) 0);
 
         robot.init(hardwareMap, telemetry, start);
 
@@ -75,9 +76,11 @@ public class AutoBlueFar extends LinearOpMode{
                                         robot.seekToSlotAction(0), // Move to the first intake slot
                                         robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
                                         robot.waitForBallAndCycleAction(), // Wait for the next ball, then cycle
-                                            new SleepAction(0.75)
+                                            new SleepAction(0.25),
+                                            robot.waitForBallAction()
                                         // The third ball will be loaded but we won't cycle away from it
-                                    )
+                                    ),
+                                        robot.indexerFullAction()
                                 ),
                                 // Drive to launch spot
                                 new ParallelAction(
@@ -104,9 +107,11 @@ public class AutoBlueFar extends LinearOpMode{
                                                     robot.seekToSlotAction(0), // Move to the first intake slot
                                                     robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
                                                     robot.waitForBallAndCycleAction(), // Wait for the next ball, then cycle
-                                                    new SleepAction(0.75)
+                                                    new SleepAction(0.25),
+                                                    robot.waitForBallAction()
                                                     // The third ball will be loaded but we won't cycle away from it
-                                            )
+                                            ),
+                                            robot.indexerFullAction()
                                     ),
                                     // Drive to launch spot
                                     new ParallelAction(

@@ -29,13 +29,13 @@ public class Flywheel {
 
     // Tunable constants from your original file
     public static double P = 0.004, I = 0.0, D = 0.0;
-    public static double F_MAX = 0.65, F_MIN = 0.45;
+    public static double F_MAX = 0.63, F_MIN = 0.45;
     public static double F_MAX_ADJUST = F_MAX, F_MIN_ADJUST = F_MIN;
     public static double F_STEP = .03;
     public boolean AdjustedFF = false;
     public double feedforward;
 
-    public static double MAX_SHOOTER_RPM = 1010;
+    public static double MAX_SHOOTER_RPM = 1000;
     public static double MIN_SHOOTER_RPM = 850;
     public static double SHOOTER_RADIUS = 0.096 / 2.0;
     public static double SPIN_EFFICIENCY = 1.27;
