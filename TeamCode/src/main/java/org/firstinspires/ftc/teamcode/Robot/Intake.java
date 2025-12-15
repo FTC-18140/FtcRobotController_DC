@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
+import androidx.annotation.NonNull;
+
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -26,12 +30,45 @@ public class Intake {
         }
     }
 
+    /**
+     * sets the intake motor to the preset intake speed
+     */
     public void intake(){
         intakeMotor.setPower(INTAKE_SPEED);
+        telemetry.addData("Intaking", 0);
     }
+
+    public Action intakeStartAction(){
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                intake();
+                return false;
+            }
+        };
+    }
+    public Action intakeStopAction(){
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                stop();
+
+                return false;
+            }
+        };
+    }
+
+    /**
+     * Sets the intake motor to the opposite of the preset intake speed
+     */
     public void spit(){
         intakeMotor.setPower(-INTAKE_SPEED);
+        telemetry.addData("Spitting", 0);
     }
+
+    /**
+     * Stops the intake motor
+     */
     public void stop() {
         intakeMotor.setPower(0.0);
     }

@@ -1,27 +1,44 @@
 package org.firstinspires.ftc.teamcode.Auto;
 
+import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.Robot.Drives.MecanumDrive;
+import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
+
 @Autonomous
 public class AutoTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0,0,Math.toRadians(90)));
+        Pose2d start = new Pose2d(AutoPositions.Positions.START_RED_FAR.position, Math.toRadians(0));
 
+        ThunderBot2025 robot = new ThunderBot2025();
+
+        robot.init(hardwareMap, telemetry, start);
         waitForStart();
 
+        robot.setColor(ThunderBot2025.Alliance_Color.RED);
+
         Actions.runBlocking(
-                drive.actionBuilder(new Pose2d(0,0,Math.toRadians(90)))
-                        .splineToConstantHeading(new Vector2d(-24, 24), Math.toRadians(90))
-                        .splineToSplineHeading(new Pose2d(-12, 12, 0), 0)
-                        .splineToSplineHeading(new Pose2d(0, 0, Math.toRadians(90)), Math.toRadians(-90))
-                .build()
+                new ParallelAction(
+                        new SequentialAction(
+                                robot.intake.intakeStartAction(),
+                                robot.seekToSlotAction(0), // Move to the first intake slot
+                                robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
+                                robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
+                                robot.waitForBallAndCycleAction()
+                        ),
+                        robot.updateAction(),
+                        robot.aimAction()
+                )
         );
+
+        //robot.setStartPosForTeleop(robot.drive.localizer.getPose(), 0);
 
     }
 }
