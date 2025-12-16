@@ -26,7 +26,7 @@ public class Turnstile {
     public static double HOMING_POWER = -0.05;
     public static double ANGLE_TOLERANCE = 13;// In degrees
     public static double BACKWARD_TOLERANCE = 30;
-    public static double HOMING_OFFSET = 25;
+    public static double HOMING_OFFSET = 15;
     private double current_offset = 0; // --- Non-tunable Constants ---
     private static final double COUNTS_PER_REVOLUTION = 8192;
     private static final double GEAR_RATIO = 1.0;
@@ -110,7 +110,7 @@ public class Turnstile {
     // --- State Inquiry ---
 
     public boolean isAtTarget() {
-        return Math.abs(currentAngle - targetAngle) < ANGLE_TOLERANCE;
+        return Math.abs(currentAngle - (targetAngle + current_offset)) < ANGLE_TOLERANCE;
     }
 
     public boolean isHomed() {
@@ -199,7 +199,7 @@ public class Turnstile {
         // --- 3. Telemetry ---
         telemetry.addData("Turnstile State", currentState.name());
         telemetry.addData("Turnstile Angle", currentAngle);
-        telemetry.addData("Turnstile Target", targetAngle);
+        telemetry.addData("Turnstile Target", targetAngle + current_offset);
         telemetry.addData("Limit Switch Pressed", limitSwitchPressed);
     }
 }

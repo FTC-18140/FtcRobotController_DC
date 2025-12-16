@@ -42,6 +42,8 @@ public class ThunderBot2025 implements DataLoggable
     public Alliance_Color color = Alliance_Color.BLUE;
     private Telemetry telemetry = null;
     public static boolean field_centric = true;
+    public static double MIN_SPEED = 0.3, DEFAULT_SPEED = 0.7, MAX_SPEED = 1.0;
+    public double speed = DEFAULT_SPEED;
     public static Pose2d starting_position;
     public static String STARTING_POSITION = "ENDING_POSITION_AUTO";
 
@@ -121,8 +123,14 @@ public class ThunderBot2025 implements DataLoggable
         return field_centric;
     }
 
-    public void drive( double forward, double right, double clockwise, double speed, TelemetryPacket p)
+
+    public void drive( double forward, double right, double clockwise, double in_speed, TelemetryPacket p)
     {
+        if(intake.getIntakePower() != 0 && in_speed > DEFAULT_SPEED){
+            speed = DEFAULT_SPEED;
+        } else {
+            speed = in_speed;
+        }
         if (field_centric)
         {
             fieldCentricDrive(forward, right, clockwise, speed, p);
@@ -165,6 +173,12 @@ public class ThunderBot2025 implements DataLoggable
 
     public void charge() {
         launcher.prepShot();
+    }
+
+    public void flip(){
+        if(launcher.isAtTargetRpm()){
+            indexer.flipAndCycle();
+        }
     }
 
     public Action updateAction(){

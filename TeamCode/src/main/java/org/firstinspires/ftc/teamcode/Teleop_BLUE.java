@@ -53,12 +53,12 @@ public class Teleop_BLUE extends OpMode {
         double forward = theGamepad1.getLeftY();
         double strafe = theGamepad1.getLeftX();
         double turn = theGamepad1.getRightX();
-        double speed = 0.7;
+        double speed = ThunderBot2025.DEFAULT_SPEED;
 
         if(theGamepad1.getTriggerBoolean(TBDGamepad.Trigger.RIGHT_TRIGGER)){
-            speed = 0.3;
+            speed = ThunderBot2025.MIN_SPEED;
         } else if(theGamepad1.getTriggerBoolean(TBDGamepad.Trigger.LEFT_TRIGGER)){
-            speed = 1.0;
+            speed = ThunderBot2025.MAX_SPEED;
         }
 
         // Note: The driver's 'Y' button is used for resetting pose.
@@ -84,7 +84,7 @@ public class Teleop_BLUE extends OpMode {
         }
 
         if(theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.RIGHT_TRIGGER)){
-            robot.indexer.flip();
+            robot.flip();
         }
         if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_UP)){
             robot.launcher.flywheel.adjustFF(1);
@@ -153,8 +153,6 @@ public class Teleop_BLUE extends OpMode {
                     robot.indexer.cycle(-1);
                 } else if (theGamepad2.getButton(TBDGamepad.Button.LEFT_STICK_BUTTON)){
                     robot.indexer.adjustToThird();
-                }else{
-                    robot.indexer.cycle(0);
                 }
             }
         }

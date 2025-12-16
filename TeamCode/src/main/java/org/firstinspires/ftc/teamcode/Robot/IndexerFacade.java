@@ -24,15 +24,15 @@ public class IndexerFacade {
 
     // --- Constants ---
     public static final double[] SLOT_ANGLES = {0, 120, 240}; // Angles for slots 0, 1, and 2
-    private static final double FLIP_TIME_SECONDS = 0.3; // Time for the flipper to extend and retract
+    private static final double FLIP_TIME_SECONDS = 0.25; // Time for the flipper to extend and retract
 
 
     // --- State Management ---
-    public enum State { IDLE, HOMING, SELECTING_BALL, AWAITING_FLIP, FLIPPING, RETRACTING_FLIPPER }
+    public enum State { IDLE, HOMING, SELECTING_BALL, AWAITING_FLIP, FLIPPING, FLIP_TO_CYCLE, RETRACTING_FLIPPER }
     private State currentState = State.IDLE;
 
     /** The facade's internal model of what is in each slot. */
-    public enum BallState { GREEN, PURPLE, VACANT }
+    public enum BallState { GREEN, PURPLE, VACANT, ALL }
     private BallState[] ballSlots = new BallState[3];
     private int currentTargetSlot = 0;
 
@@ -84,7 +84,7 @@ public class IndexerFacade {
 
         // Search all physical slots for a ball that matches the required color.
         for (int i = 0; i < ballSlots.length && !ballFound; i++) {
-            if (ballSlots[i] == requiredColor) {
+            if (ballSlots[i] == requiredColor || (requiredColor == BallState.ALL && ballSlots[i] != BallState.VACANT)) {
                 // --- Critical Step ---
                 // Mark this ball as "used" by changing its state in our software model to VACANT.
                 // This prevents the system from re-selecting this same physical ball for a
@@ -102,6 +102,24 @@ public class IndexerFacade {
         if (!ballFound) {
             cancelSequence();
         }
+    }
+    public void launchAllInIndexer(){
+        if (currentState != State.IDLE && currentState != State.AWAITING_FLIP) return;
+
+
+        shotSequence = Arrays.asList(BallState.ALL, BallState.ALL, BallState.ALL);
+
+        sequenceIndex = 0;
+        executeNextInSequence();
+    }
+    public boolean runCurrentSequence(){
+        if (shotSequence == null) return true;
+
+        if(currentState == State.AWAITING_FLIP || currentState == State.IDLE){
+            flipAndCycle();
+        }
+
+        return false;
     }
 
     public void cancelSequence() {
@@ -143,7 +161,7 @@ public class IndexerFacade {
      * @param slot The index of the target slot (0, 1, or 2).
      */
     public boolean selectSlot(int slot) {
-        if ((currentState == State.IDLE || currentState == State.AWAITING_FLIP || currentState == State.SELECTING_BALL) && slot >= 0 && slot < 3) {
+        if ((currentState == State.IDLE || currentState == State.AWAITING_FLIP || currentState == State.SELECTING_BALL || currentState == State.FLIP_TO_CYCLE) && slot >= 0 && slot < 3) {
             currentTargetSlot = slot;
             turnstile.seekToAngle(SLOT_ANGLES[currentTargetSlot]);
             currentState = State.SELECTING_BALL;
@@ -155,6 +173,16 @@ public class IndexerFacade {
     public boolean flip() {
         if ((currentState == State.AWAITING_FLIP || currentState == State.IDLE) && turnstile.isAtTarget()) {
             currentState = State.FLIPPING;
+            flipper.extend();
+            flipTimer.reset();
+            return true;
+        }
+        return false;
+    }
+
+    public boolean flipAndCycle(){
+        if ((currentState == State.AWAITING_FLIP || currentState == State.IDLE) && turnstile.isAtTarget()) {
+            currentState = State.FLIP_TO_CYCLE;
             flipper.extend();
             flipTimer.reset();
             return true;
@@ -214,7 +242,7 @@ public class IndexerFacade {
         return (slot >= 0 && slot < 3) ? ballSlots[slot] : BallState.VACANT;
     }
     public boolean indexerIsFull(){
-        return !(getBallState(0) == BallState.VACANT || getBallState(1) == BallState.VACANT || getBallState(2) == BallState.VACANT);
+        return !((getBallState(0) == BallState.VACANT || getBallState(1) == BallState.VACANT || getBallState(2) == BallState.VACANT) || currentState == State.SELECTING_BALL);
     }
     public int getCurrentTargetSlot() { return currentTargetSlot; }
     public double getIndexerAngle(){
@@ -253,6 +281,14 @@ public class IndexerFacade {
                 if (flipTimer.seconds() > FLIP_TIME_SECONDS) {
                     flipper.retract();
                     currentState = State.RETRACTING_FLIPPER;
+                }
+                break;
+            case FLIP_TO_CYCLE:
+                if (flipTimer.seconds() > FLIP_TIME_SECONDS) {
+                    flipper.retract();
+                    if(cycle(1)) {
+                        currentState = State.RETRACTING_FLIPPER;
+                    }
                 }
                 break;
             case RETRACTING_FLIPPER:

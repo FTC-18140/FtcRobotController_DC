@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.Utilities.TBDGamepad;
 public class IndexerTest extends OpMode {
     private TBDGamepad theGamepad1;
     ThunderBot2025 robot = new ThunderBot2025();
+    private boolean firing = false;
 
     @Override
     public void init() {
@@ -32,6 +33,19 @@ public class IndexerTest extends OpMode {
         }
 
         if(theGamepad1.getButtonPressed(TBDGamepad.Button.RIGHT_BUMPER)){
+            robot.indexer.launchAllInIndexer();
+        }
+
+        if(theGamepad1.getButtonPressed(TBDGamepad.Button.Y)){
+            firing = true;
+        }
+        if(firing){
+            robot.charge();
+            if(robot.launcher.isAtTargetRpm()) {
+                firing = !robot.indexer.runCurrentSequence();
+            }
+        } else {
+            robot.launcher.stop();
         }
 
 //        telemetry.addData("rpm: ", robot.launcher.avgRpm);

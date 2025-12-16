@@ -77,8 +77,8 @@ public class AutoBlueFar extends LinearOpMode{
                                             robot.indexerIsAtTargetAction(),
                                         robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
                                             robot.indexerIsAtTargetAction(),
-                                        robot.waitForBallAndCycleAction(), // Wait for the next ball, then cycle
-                                            new SleepAction(0.25),
+                                        robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
+                                            robot.indexerIsAtTargetAction(),
                                             robot.waitForBallAction()
                                         // The third ball will be loaded but we won't cycle away from it
                                     ),
@@ -110,8 +110,8 @@ public class AutoBlueFar extends LinearOpMode{
                                                     robot.indexerIsAtTargetAction(),
                                                     robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
                                                     robot.indexerIsAtTargetAction(),
-                                                    robot.waitForBallAndCycleAction(), // Wait for the next ball, then cycle
-                                                    new SleepAction(0.25),
+                                                    robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
+                                                    robot.indexerIsAtTargetAction(),
                                                     robot.waitForBallAction()
                                                     // The third ball will be loaded but we won't cycle away from it
                                             ),
