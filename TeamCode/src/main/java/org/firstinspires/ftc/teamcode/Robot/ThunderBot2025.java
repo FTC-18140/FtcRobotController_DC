@@ -256,7 +256,8 @@ public class ThunderBot2025 implements DataLoggable
                     indexer.selectSlot(slot);
                     hasStarted = true;
                 }
-                return !indexer.isDone();
+//                return !indexer.isDone();
+                return !indexer.isAtTarget();
             }
         };
     }

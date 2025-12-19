@@ -22,7 +22,7 @@ public class Turnstile {
     private Telemetry telemetry;
 
     // --- Tunable Constants via FTC Dashboard ---
-    public static double P = 0.0025, I = 0.0005, D = 0.0001;
+    public static double P = 0.0040, I = 0.0007, D = 0.0001;
     public static double HOMING_POWER = -0.05;
     public static double ANGLE_TOLERANCE = 13;// In degrees
     public static double BACKWARD_TOLERANCE = 30;
