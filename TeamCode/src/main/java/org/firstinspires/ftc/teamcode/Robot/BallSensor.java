@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.Robot;
 
 import android.graphics.Color;
 
+import androidx.annotation.Size;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
@@ -29,15 +31,17 @@ public class BallSensor {
     private String sensorName;
 
     // --- Tunable Constants via FTC Dashboard ---
-    public static double PRESENCE_DISTANCE_CM = 4.8;
+    public static double PRESENCE_DISTANCE_CM = 6;
+    public static double PRESENCE_ALPHA = 0.004;
+    public static double PRESENCE_SATURATION = .332;
 
-    public static double GREEN_BALL_MIN_G = 0.1;
-    public static double GREEN_BALL_MAX_R = 0.1;
-    public static double PURPLE_BALL_MIN_R = 0.12;
-    public static double PURPLE_BALL_MIN_B = 0.12;
+//    public static double GREEN_BALL_MIN_G = 0.1;
+//    public static double GREEN_BALL_MAX_R = 0.1;
+//    public static double PURPLE_BALL_MIN_R = 0.12;
+//    public static double PURPLE_BALL_MIN_B = 0.12;
 
     public static int GREEN_HUE_MIN = 120;
-    public static int GREEN_HUE_MAX = 179;
+    public static int GREEN_HUE_MAX = 180;
     public static int PURPLE_HUE_MIN = 205;
     public static int PURPLE_HUE_MAX = 245;
 
@@ -87,7 +91,7 @@ public class BallSensor {
             }
 
             // 3. Telemetry (optional, for tuning)
-            //addTelemetry(); // Good to have this on during tuning sessions
+//            addTelemetry(); // Good to have this on during tuning sessions
         } else {
             telemetry.addData(sensorName + " Not initialized", 0);
         }
@@ -106,7 +110,7 @@ public class BallSensor {
     // --- Internal Helper Methods ---
 
     private boolean isBallPresentInternal() {
-        return distanceCm < PRESENCE_DISTANCE_CM && colors.alpha > 0.05;
+        return distanceCm < PRESENCE_DISTANCE_CM && colors.alpha > PRESENCE_ALPHA;
     }
 
 //    private boolean isGreenRGB() {
@@ -116,6 +120,7 @@ public class BallSensor {
 //    private boolean isPurpleRGB() {
 //        return colors.red > PURPLE_BALL_MIN_R && colors.blue > PURPLE_BALL_MIN_B;
 //    }
+
 
     private boolean isBallColorHSV(BallColor ballColor){
         boolean isBallColor = false;
@@ -133,11 +138,32 @@ public class BallSensor {
         return isBallColor;
 
     }
+//    private void colorToHSV(double red, double green, double blue, @Size(3) double[] hsv) {
+//        double colorMax = Math.max(red, Math.max(green, blue));
+//        double colorMin = Math.min(red, Math.min(green, blue));
+//        double delta = colorMax - colorMin;
+//        double hue = 0;
+//        double saturation;
+//        double value = colorMax;
+//        if(delta == 0){
+//            hue= 0;
+//        } else if (colorMax == red) {
+//            hue = 60 * ((((green - blue) / delta)) % 6);
+//        } else if (colorMax == green) {
+//            hue = 60 * ((((blue - red) / delta)) + 2);
+//        } else if (colorMax == blue) {
+//            hue = 60 * ((((red - green) / delta)) + 4);
+//        }
+//        saturation = colorMax == 0 ? 0 : delta/colorMax;
+//        hsv[0] = hue;
+//        hsv[1] = saturation
+//        hsv[2] = value
+//    }
     private float[] updateColorsToHSV(){
         Color.RGBToHSV(
                 (int)(colors.red * 255),
                 (int)(colors.green * 255),
-                (int)(colors.blue * 255),
+                (int) (colors.blue * 255),
                 hsv
         );
         return hsv;
@@ -149,7 +175,7 @@ public class BallSensor {
         telemetry.addLine(String.format("--- Sensor: %s ---", sensorName));
         telemetry.addData("Detected", String.format("%s (Dist: %.2f cm)", detectedColor, distanceCm));
         //telemetry.addData("R | G | B", String.format("%.3f | %.3f | %.3f", colors.red, colors.green, colors.blue));
-        //telemetry.addData("H | S | V", String.format("%.3f | %.3f | %.3f", hsv[0], hsv[1],hsv[2]));
+        telemetry.addData("H | S | V", String.format("%.3f | %.3f | %.3f", hsv[0], hsv[1],hsv[2]));
         //telemetry.addData("Tunable Gain", GAIN);
     }
 }

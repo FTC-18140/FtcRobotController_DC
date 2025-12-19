@@ -324,7 +324,7 @@ public class IndexerFacade {
     }
 
     private void addTelemetry() {
-        telemetry.addData("Facade State", currentState.name());
+        telemetry.addData("Indexer Facade State", currentState.name());
         telemetry.addLine(String.format("Slots: [0]: %s, [1]: %s, [2]: %s",
                 ballSlots[0], ballSlots[1], ballSlots[2]));
         if (shotSequence != null) {

@@ -169,6 +169,10 @@ public class ThunderBot2025 implements DataLoggable
         indexer.update();
         launcher.update(this.drive.localizer.getPose());
         led.update(launcher.getFlywheelRpm(), launcher.getFlywheelTargetRpm());
+        telemetry.addData("position X: ", drive.localizer.getPose().position.x);
+        telemetry.addData("position Y: ", drive.localizer.getPose().position.y);
+        telemetry.addData("heading: ", Math.toDegrees(drive.localizer.getPose().heading.toDouble()));
+
     }
 
     public void charge() {
@@ -232,7 +236,11 @@ public class ThunderBot2025 implements DataLoggable
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                return !(launcher.isAtTarget() && launcher.isAtTargetRpm() && indexer.isAtTarget() && (indexer.getState() == IndexerFacade.State.AWAITING_FLIP || indexer.getState() == IndexerFacade.State.IDLE));
+                telemetry.addData("Current Action: launchReadyAction()", 0);
+                return !(launcher.isAtTarget()
+                        && launcher.isAtTargetRpm()
+                        && indexer.isAtTarget()
+                        && (indexer.getState() == IndexerFacade.State.AWAITING_FLIP || indexer.getState() == IndexerFacade.State.IDLE));
             }
         };
     }
@@ -312,11 +320,12 @@ public class ThunderBot2025 implements DataLoggable
                     private boolean hasStarted = false;
                     @Override
                     public boolean run(@NonNull TelemetryPacket packet) {
+                        telemetry.addData("Current Action: launchAction()", 0);
                         if (!hasStarted) {
                            hasStarted = indexer.flip();
-                           telemetry.addData("awaiting flip", indexer.getState());
+                           telemetry.addData("launchAction() just called indexer.flip()", indexer.getState());
                         } else {
-                            telemetry.addData("cycling", 0);
+                            telemetry.addData("launchAction() just called indexer.cycle(1)", 0);
                             return !indexer.cycle(1);
                         }
                         return true;

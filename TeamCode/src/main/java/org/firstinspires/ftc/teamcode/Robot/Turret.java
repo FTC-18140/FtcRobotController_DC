@@ -131,9 +131,9 @@ public class Turret implements DataLoggable {
         }
 
         telemetry.addData("Turret State", currentState.name());
-        telemetry.addData("Turret Position", currentPosition);
-        telemetry.addData("Turret Target", targetAngle);
-        telemetry.addData("Turret Power", seekingPower);
+//        telemetry.addData("Turret Position", currentPosition);
+//        telemetry.addData("Turret Target", targetAngle);
+//        telemetry.addData("Turret Power", seekingPower);
 
     }
 

@@ -69,7 +69,7 @@ public class AutoRedFar extends LinearOpMode{
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
                                                                     .splineToSplineHeading(intakePos, Math.toRadians(-90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x, -52), Math.toRadians(-90), new TranslationalVelConstraint(5))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x, -52), Math.toRadians(-90), new TranslationalVelConstraint(2))
                                                                     .build(),
                                                             new SequentialAction(
                                                                     robot.seekToSlotAction(0), // Move to the first intake slot
@@ -102,7 +102,7 @@ public class AutoRedFar extends LinearOpMode{
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
                                                                     .splineToSplineHeading(intakePos2, Math.toRadians(-90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos2.position.x, -52), Math.toRadians(-90), new TranslationalVelConstraint(5))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos2.position.x, -52), Math.toRadians(-90), new TranslationalVelConstraint(2))
                                                                     .build(),
                                                             new SequentialAction(
                                                                     robot.seekToSlotAction(0), // Move to the first intake slot
