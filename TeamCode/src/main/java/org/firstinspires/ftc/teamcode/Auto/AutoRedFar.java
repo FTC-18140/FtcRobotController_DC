@@ -69,7 +69,7 @@ public class AutoRedFar extends LinearOpMode{
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(launchPos)
                                                                     .splineToSplineHeading(intakePos, Math.toRadians(-90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x, -52), Math.toRadians(-90), new TranslationalVelConstraint(4))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x, -52), Math.toRadians(-90), new TranslationalVelConstraint(5))
                                                                     .build(),
                                                             new RaceAction(
                                                                     new SequentialAction(
@@ -104,7 +104,7 @@ public class AutoRedFar extends LinearOpMode{
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
                                                                     .splineToSplineHeading(intakePos2, Math.toRadians(-90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos2.position.x, -52), Math.toRadians(-90), new TranslationalVelConstraint(4))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos2.position.x, -52), Math.toRadians(-90), new TranslationalVelConstraint(5))
                                                                     .build(),
                                                             new SequentialAction(
                                                                     robot.seekToSlotAction(0), // Move to the first intake slot
