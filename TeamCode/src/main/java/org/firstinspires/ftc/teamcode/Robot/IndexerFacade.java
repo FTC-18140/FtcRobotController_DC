@@ -142,6 +142,11 @@ public class IndexerFacade {
         if (currentState == State.IDLE || currentState == State.AWAITING_FLIP) {
             int startSlot = (currentTargetSlot + 1) % 3;
 
+            if ( ballState == BallState.ALL)
+            {
+                selectSlot(startSlot);
+                slotFound = true;
+            }
             for (int i = 0; i < 3 && !slotFound; i++) {
                 int slotToCheck = (startSlot + i) % 3;
                 if (ballSlots[slotToCheck] == ballState) {
