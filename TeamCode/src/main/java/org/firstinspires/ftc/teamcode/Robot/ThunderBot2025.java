@@ -46,7 +46,7 @@ public class ThunderBot2025 implements DataLoggable
     public double speed = DEFAULT_SPEED;
     public static Pose2d starting_position;
     public static String STARTING_POSITION = "ENDING_POSITION_AUTO";
-
+    public ElapsedTime runtime = new ElapsedTime();
     Pose2d TELEOP_START_RED = new Pose2d(-12, -12, 0);
     Pose2d TELEOP_START_BLUE = new Pose2d(-12, 12, 0);
 
@@ -75,8 +75,11 @@ public class ThunderBot2025 implements DataLoggable
         led = new LED();
         led.init(hwMap, telem);
 
+        runtime.reset();
+
         telemetry = new MultipleTelemetry(telem, FtcDashboard.getInstance().getTelemetry());
     }
+
 
     public void setColor(Alliance_Color alliance){
         color = alliance;
@@ -145,8 +148,8 @@ public class ThunderBot2025 implements DataLoggable
     {
         PoseVelocity2d thePose = new PoseVelocity2d(new Vector2d(forward, -right).times(speed), -clockwise);
         drive.setDrivePowers(thePose);
-        telemetry.addData("Odometry X: ", drive.localizer.getPose().position.x);
-        telemetry.addData("Odometry Y: ", drive.localizer.getPose().position.y);
+        //telemetry.addData("Odometry X: ", drive.localizer.getPose().position.x);
+        //telemetry.addData("Odometry Y: ", drive.localizer.getPose().position.y);
     }
 
     private void fieldCentricDrive(double north, double east, double clockwise, double speed, TelemetryPacket p)
@@ -168,11 +171,7 @@ public class ThunderBot2025 implements DataLoggable
         drive.localizer.update();
         indexer.update();
         launcher.update(this.drive.localizer.getPose());
-        led.update(indexer.getBallState(2));
-        telemetry.addData("position X: ", drive.localizer.getPose().position.x);
-        telemetry.addData("position Y: ", drive.localizer.getPose().position.y);
-        telemetry.addData("heading: ", Math.toDegrees(drive.localizer.getPose().heading.toDouble()));
-
+        led.update(indexer.getBallState(2), 120 - runtime.seconds());
     }
 
     public void charge() {

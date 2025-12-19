@@ -30,7 +30,6 @@ public class AutoBlueFar extends LinearOpMode{
         robot.init(hardwareMap, telemetry, start);
 
 
-
         // This is the equivalent of init_loop()
         while (opModeInInit()) {
             // Code here runs repeatedly during init phase.  Need to be looking at ObeliskID
@@ -45,105 +44,111 @@ public class AutoBlueFar extends LinearOpMode{
 
         try {
             Actions.runBlocking(
-                new ParallelAction(
-                        robot.updateAction(),
-                        robot.aimAction(),
-                    new SequentialAction(
-                        new RaceAction(
+                    new ParallelAction(
+                            robot.updateAction(),
+                            robot.aimAction(),
                             new SequentialAction(
-                                new ParallelAction(
-                                        robot.drive.actionBuilder(start)
-                                                .strafeToSplineHeading(new Vector2d(launchPos.position.x, 12), Math.toRadians(23))
-                                                .build()
-//                                        ,
-//                                        // Plan the first shot sequence while driving.
-//                                        robot.planSequenceAction()
-                                ),
-                                    robot.intake.intakeStartAction(),
-                                // Launch Preloads
-                                new SequentialAction(
-                                    robot.launchAction(),
-                                    robot.launchAction(),
-                                    robot.launchAction()
-                                ),
-                                // Grab next 3 artifacts using intelligent, sensor-based actions
-                                new RaceAction(
-                                    robot.drive.actionBuilder(launchPos)
-                                            .splineToSplineHeading(intakePos, Math.toRadians(90))
-                                            .splineToConstantHeading(new Vector2d(intakePos.position.x, 52), Math.toRadians(90), new TranslationalVelConstraint(4))
-                                            .build(),
-                                    new SequentialAction(
-                                        robot.seekToSlotAction(0), // Move to the first intake slot
-                                            robot.indexerIsAtTargetAction(),
-                                        robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-                                            robot.indexerIsAtTargetAction(),
-                                        robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-                                            robot.indexerIsAtTargetAction(),
-                                            robot.waitForBallAction()
-                                        // The third ball will be loaded but we won't cycle away from it
-                                    ),
-                                        robot.indexerFullAction()
-                                ),
-                                // Drive to launch spot
-                                new ParallelAction(
-                                        robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, 52), Math.toRadians(90)))
-                                            .strafeToSplineHeading(launchPos.position, Math.toRadians(23))
-                                            .build()
-//                                        ,
-//                                        // Re-plan the shot sequence with the newly loaded balls
-//                                        robot.planSequenceAction()
-                                ),
-                                // Launch 2nd set of Artifacts
-                                new SequentialAction(
-                                        robot.launchAction(),
-                                        robot.launchAction(),
-                                        robot.launchAction()
-                                ),
-                                // Grab next 3 artifacts using intelligent, sensor-based actions
                                     new RaceAction(
-                                            robot.drive.actionBuilder(launchPos)
-                                                    .splineToSplineHeading(intakePos2, Math.toRadians(90))
-                                                    .splineToConstantHeading(new Vector2d(intakePos2.position.x, 52), Math.toRadians(90), new TranslationalVelConstraint(4))
-                                                    .build(),
                                             new SequentialAction(
-                                                    robot.seekToSlotAction(0), // Move to the first intake slot
-                                                    robot.indexerIsAtTargetAction(),
-                                                    robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-                                                    robot.indexerIsAtTargetAction(),
-                                                    robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-                                                    robot.indexerIsAtTargetAction(),
-                                                    robot.waitForBallAction()
-                                                    // The third ball will be loaded but we won't cycle away from it
-                                            ),
-                                            robot.indexerFullAction()
-                                    ),
-                                    // Drive to launch spot
-                                    new ParallelAction(
-                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos2.position.x, 52), Math.toRadians(90)))
-                                                    .strafeToSplineHeading(launchPos.position, Math.toRadians(23))
-                                                    .build()
-//                                            ,
-//                                            // Re-plan the shot sequence with the newly loaded balls
-//                                            robot.planSequenceAction()
-                                    ),
-                                    // Launch 2nd set of Artifacts
-                                    new SequentialAction(
-                                            robot.launchAction(),
-                                            robot.launchAction(),
-                                            robot.launchAction()
-                                    )
+                                                    new ParallelAction(
+                                                            robot.drive.actionBuilder(start)
+                                                                    .strafeToSplineHeading(new Vector2d(launchPos.position.x, 12), Math.toRadians(23))
+                                                                    .build()
+        //                                        ,
+        //                                        // Plan the first shot sequence while driving.
+        //                                        robot.planSequenceAction()
+                                                    ),
+                                                    robot.intake.intakeStartAction(),
+                                                    // Launch Preloads
+                                                    new SequentialAction(
+                                                            robot.launchAction(),
+                                                            robot.launchAction(),
+                                                            robot.launchAction()
+                                                    ),
+                                                    new ParallelAction(
+                                                            robot.drive.actionBuilder(launchPos)
+                                                                    .splineToSplineHeading(intakePos, Math.toRadians(90))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x, 52), Math.toRadians(90), new TranslationalVelConstraint(5))
+                                                                    .build(),
+                                                            new RaceAction(
+                                                                    new SequentialAction(
+                                                                            robot.seekToSlotAction(0), // Move to the first intake slot
+                                                                            //robot.indexerIsAtTargetAction(),
+                                                                            robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
+                                                                            //robot.indexerIsAtTargetAction(),
+                                                                            robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
+                                                                            //robot.indexerIsAtTargetAction(),
+                                                                            robot.waitForBallAction()
+                                                                            // The third ball will be loaded but we won't cycle away from it
+                                                                    ),
+                                                                    robot.indexerFullAction()
+                                                            )
+                                                    ),
+                                                    // Grab next 3 artifacts using intelligent, sensor-based actions
 
+                                                    // Drive to launch spot
+                                                    new ParallelAction(
+                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, 52), Math.toRadians(90)))
+                                                                    .strafeToSplineHeading(launchPos.position, Math.toRadians(23))
+                                                                    .build()
+        //                                        ,
+        //                                        // Re-plan the shot sequence with the newly loaded balls
+        //                                        robot.planSequenceAction()
+                                                    ),
+                                                    // Launch 2nd set of Artifacts
+                                                    new SequentialAction(
+                                                            robot.launchAction(),
+                                                            robot.launchAction(),
+                                                            robot.launchAction()
+                                                    ),
+                                                    // Grab next 3 artifacts using intelligent, sensor-based actions
+                                                    new ParallelAction(
+                                                            robot.drive.actionBuilder(launchPos)
+                                                                    .splineToSplineHeading(intakePos2, Math.toRadians(90))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos2.position.x, 49), Math.toRadians(90), new TranslationalVelConstraint(5))
+                                                                    .build(),
+                                                            new RaceAction(
+                                                                    new SequentialAction(
+                                                                            robot.seekToSlotAction(0), // Move to the first intake slot
+                                                                            //robot.indexerIsAtTargetAction(),
+                                                                            robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
+        //                                                                    robot.indexerIsAtTargetAction(),
+                                                                            robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
+        //                                                                    robot.indexerIsAtTargetAction(),
+                                                                            robot.waitForBallAction()
+                                                                            // The third ball will be loaded but we won't cycle away from it
+                                                                    ),
+                                                                    robot.indexerFullAction()
+                                                            )
+                                                    ),
+
+                                                    // Drive to launch spot
+                                                    new ParallelAction(
+                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos2.position.x, 52), Math.toRadians(90)))
+                                                                    .strafeToSplineHeading(launchPos.position, Math.toRadians(23))
+                                                                    .build()
+        //                                            ,
+        //                                            // Re-plan the shot sequence with the newly loaded balls
+        //                                            robot.planSequenceAction()
+                                                    ),
+                                                    // Launch 2nd set of Artifacts
+                                                    new SequentialAction(
+                                                            robot.launchAction(),
+                                                            robot.launchAction(),
+                                                            robot.launchAction()
+                                                    )
+
+                                            ),
+                                            new SleepAction(27)
+                                    ),
+                                // Park
+                                robot.intake.intakeStopAction(),
+                                robot.drive.actionBuilder(launchPos)
+                                        .strafeToSplineHeading(new Vector2d(-12, 12), Math.toRadians(0))
+                                        .build(),
+                                robot.launcher.pointToAction(0),
+                                robot.launcher.stopAction()
                             ),
-                            new SleepAction(27)
-                        ),
-                        // Park
-                        robot.intake.intakeStopAction(),
-                        robot.drive.actionBuilder(launchPos)
-                                .strafeToSplineHeading(new Vector2d(-12, 12), Math.toRadians(0))
-                                .build(),
-                        robot.launcher.pointToAction(0),
-                        robot.launcher.stopAction()
-                    ),
                     robot.launcher.prepShotAction()
                 )
             );

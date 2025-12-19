@@ -104,7 +104,7 @@ public class AutoRedFar extends LinearOpMode{
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(launchPos)
                                                                     .splineToSplineHeading(intakePos2, Math.toRadians(-90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos2.position.x, -52), Math.toRadians(-90), new TranslationalVelConstraint(5))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos2.position.x, -49), Math.toRadians(-90), new TranslationalVelConstraint(5))
                                                                     .build(),
                                                             new RaceAction(
                                                                     new SequentialAction(

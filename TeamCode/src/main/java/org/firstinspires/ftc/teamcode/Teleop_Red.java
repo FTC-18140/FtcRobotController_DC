@@ -42,6 +42,9 @@ public class Teleop_Red extends OpMode {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
     }
+    public void start() {
+        robot.runtime.reset();
+    }
 
     @Override
     public void loop() {

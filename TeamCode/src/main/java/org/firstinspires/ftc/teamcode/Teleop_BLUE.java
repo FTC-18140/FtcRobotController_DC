@@ -42,6 +42,9 @@ public class Teleop_BLUE extends OpMode {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
     }
+    public void start() {
+        robot.runtime.reset();
+    }
 
     @Override
     public void loop() {
@@ -162,7 +165,7 @@ public class Teleop_BLUE extends OpMode {
         telemetry.addData("position X: ", robot.drive.localizer.getPose().position.x);
         telemetry.addData("position Y: ", robot.drive.localizer.getPose().position.y);
         telemetry.addData("heading: ", Math.toDegrees(robot.drive.localizer.getPose().heading.toDouble()));
-
+        telemetry.addData("Time since start", robot.runtime.seconds());
         dashboard.sendTelemetryPacket(p);
     }
 }
