@@ -103,6 +103,7 @@ public class IndexerFacade {
             cancelSequence();
         }
     }
+
     public void launchAllInIndexer(){
         if (currentState != State.IDLE && currentState != State.AWAITING_FLIP) return;
 
