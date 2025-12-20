@@ -99,6 +99,12 @@ public class Teleop_Red extends OpMode {
             robot.launcher.flywheel.resetFF();
         }
 
+        if (theGamepad2.getButtonPressed(TBDGamepad.Button.RIGHT_STICK_BUTTON)) {
+            robot.flipperUp();
+        } else if ( theGamepad2.getButtonReleased(TBDGamepad.Button.RIGHT_STICK_BUTTON)) {
+            robot.flipperDown();
+        }
+
 
         // --- Intake Controls (Stateful Latch) ---
         if(theGamepad2.getButton(TBDGamepad.Button.X) || theGamepad1.getButton(TBDGamepad.Button.X)){

@@ -171,7 +171,8 @@ public class ThunderBot2025 implements DataLoggable
         drive.localizer.update();
         indexer.update();
         launcher.update(this.drive.localizer.getPose());
-        led.update(indexer.getBallState(2), 120 - runtime.seconds());
+//        led.update(indexer.getBallState(2), 120 - runtime.seconds());
+        led.update(launcher.getFlywheelRpm(), launcher.getFlywheelTargetRpm(), 120 - runtime.seconds());
     }
 
     public void charge() {
@@ -183,6 +184,15 @@ public class ThunderBot2025 implements DataLoggable
             indexer.flipAndCycle();
         }
     }
+
+    public void flipperUp()
+    {
+        indexer.flipOverride(true);
+    }
+    public void flipperDown() {
+        indexer.flipOverride(false);
+    }
+
 
     public Action updateAction(){
             return new Action() {

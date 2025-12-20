@@ -32,19 +32,18 @@ public class LED {
     }
 
 
-//    public void update(double measured_tps, double target_tps) {
-//        double difference_tps =  measured_tps - target_tps ;
-//        double acceptable_range_up = 50;
-//        double acceptable_range_down = -50;
-//        if (difference_tps < acceptable_range_down) {
-//            setToColor("red");
-//        } else if (difference_tps > acceptable_range_up) {
-//            setToColor("blue");
-//        } else {
-//            setToColor("green");
-//        }
-//    }
-    public void update(IndexerFacade.BallState ballcolor, double remainingSeconds) {
+    public void update(double measured_tps, double target_tps, double remainingSeconds) {
+        double difference_tps =  measured_tps - target_tps ;
+        double acceptable_range_up = 50;
+        double acceptable_range_down = -50;
+        if (difference_tps < acceptable_range_down) {
+            setToColor("red");
+        } else if (difference_tps > acceptable_range_up) {
+            setToColor("blue");
+        } else {
+            setToColor("green");
+        }
+
         if (remainingSeconds < 10) {
             if (Math.ceil(remainingSeconds * 2) % 2 == 1){
                 setToColor("off");
@@ -53,14 +52,25 @@ public class LED {
             }
 
         }
-        else if (ballcolor == IndexerFacade.BallState.GREEN) {
-            setToColor("green");
-        } else if (ballcolor == IndexerFacade.BallState.PURPLE) {
-            setToColor("purple");
-        } else {
-            setToColor("blue");
-        }
+
     }
+//    public void update(IndexerFacade.BallState ballcolor, double remainingSeconds) {
+//        if (remainingSeconds < 10) {
+//            if (Math.ceil(remainingSeconds * 2) % 2 == 1){
+//                setToColor("off");
+//            } else {
+//                setToColor("orange");
+//            }
+//
+//        }
+//        else if (ballcolor == IndexerFacade.BallState.GREEN) {
+//            setToColor("green");
+//        } else if (ballcolor == IndexerFacade.BallState.PURPLE) {
+//            setToColor("purple");
+//        } else {
+//            setToColor("blue");
+//        }
+//    }
 
     /**
      * sets the color of the leds based on an input string

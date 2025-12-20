@@ -26,6 +26,15 @@ public class IndexerFacade {
     public static final double[] SLOT_ANGLES = {0, 120, 240}; // Angles for slots 0, 1, and 2
     private static final double FLIP_TIME_SECONDS = 0.25; // Time for the flipper to extend and retract
 
+    public void flipOverride( boolean up ) {
+        if (up) {
+            flipper.extend();
+        }
+        else {
+            flipper.retract();
+        }
+    }
+
 
     // --- State Management ---
     public enum State { IDLE, HOMING, SELECTING_BALL, AWAITING_FLIP, FLIPPING, FLIP_TO_CYCLE, RETRACTING_FLIPPER }
@@ -184,6 +193,11 @@ public class IndexerFacade {
             return true;
         }
         return false;
+    }
+
+    public void manualFlip()
+    {
+
     }
 
     public boolean flipAndCycle(){
