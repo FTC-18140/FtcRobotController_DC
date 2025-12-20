@@ -142,6 +142,7 @@ public class Turnstile {
                     targetAngle = 0;
                     current_offset = HOMING_OFFSET;
                     currentState = State.HOLDING_POSITION;
+                    isHomed = false;
                 } else {
                     indexerServo.setPower(HOMING_POWER);
                 }
