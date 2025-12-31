@@ -29,6 +29,8 @@ public class Teleop_Red extends OpMode {
     private TBDGamepad theGamepad2;
 
     ThunderBot2025 robot = new ThunderBot2025();
+    public static double INDEXER_SPEED = 0.8;
+
 
     @Override
     public void init() {
@@ -150,9 +152,9 @@ public class Teleop_Red extends OpMode {
         } else {
             // --- MANUAL INDEXER MODE ---
             if(theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER)){
-                robot.indexer.spin(-0.2);
+                robot.indexer.spin(-INDEXER_SPEED);
             } else if (theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER)) {
-                robot.indexer.spin(0.2);
+                robot.indexer.spin(INDEXER_SPEED);
             } else {
                 // If not manually spinning, send a spin(0) to allow the turnstile to auto-align.
                 //robot.indexer.cycle(0);
