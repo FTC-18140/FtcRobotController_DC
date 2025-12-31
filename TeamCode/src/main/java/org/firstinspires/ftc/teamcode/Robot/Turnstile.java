@@ -15,7 +15,8 @@ import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 public class Turnstile {
 
     // --- Hardware & Utilities ---
-    private CRServo indexerServo;
+    private CRServo indexerServo1;
+    private CRServo indexerServo2;
     private DcMotorEx indexMotor;
     private TouchSensor limitSwitch;
     private PIDController angleController;
@@ -52,7 +53,8 @@ public class Turnstile {
 
 
         try {
-            indexerServo = hwMap.crservo.get("indexer");
+            indexerServo1 = hwMap.crservo.get("indexer");
+            indexerServo2 = hwMap.crservo.get("indexer2");
             indexMotor = hwMap.get(DcMotorEx.class, "indexMotor");
             limitSwitch = hwMap.get(TouchSensor.class, "indexerLimit");
 
@@ -131,7 +133,8 @@ public class Turnstile {
         double power;
         switch (currentState) {
             case IDLE:
-                indexerServo.setPower(0);
+                indexerServo1.setPower(0);
+                indexerServo2.setPower(0);
                 break;
 
             case HOMING:
@@ -144,12 +147,14 @@ public class Turnstile {
                     currentState = State.HOLDING_POSITION;
                     isHomed = false;
                 } else {
-                    indexerServo.setPower(HOMING_POWER);
+                    indexerServo1.setPower(HOMING_POWER);
+                    indexerServo2.setPower(-HOMING_POWER);
                 }
                 break;
 
             case MANUAL_SPIN:
-                indexerServo.setPower(manualPower);
+                indexerServo1.setPower(manualPower);
+                indexerServo2.setPower(-manualPower);
                 if (Math.abs(manualPower) < 0.05) {
                     // When driver lets go, find the nearest physical slot and seek to it.
                     double nearestSlotAngle = Math.ceil(currentAngle / 120.0) * 120.0;
@@ -162,12 +167,14 @@ public class Turnstile {
                     currentState = State.HOLDING_POSITION;
                     // We have arrived. Stop the motor for this one cycle to prevent a "kick".
                     // The next loop will execute the HOLDING_POSITION logic.
-                    indexerServo.setPower(0);
+                    indexerServo1.setPower(0);
+                    indexerServo2.setPower(0);
                 } else {
                     // If not at target, continue seeking.
                     angleController.setPID(P, I, D); // Re-apply PID gains from Dashboard
                     power = -angleController.calculate(currentAngle, targetAngle + current_offset);
-                    indexerServo.setPower(power);
+                    indexerServo1.setPower(power);
+                    indexerServo2.setPower(-power);
                 }
                 break;
 
@@ -193,7 +200,8 @@ public class Turnstile {
 
                 angleController.setPID(P, I, D); // Re-apply PID gains from Dashboard
                 power = -angleController.calculate(currentAngle, targetAngle + current_offset);
-                indexerServo.setPower(power);
+                indexerServo1.setPower(power);
+                indexerServo2.setPower(-power);
                 break;
         }
 
