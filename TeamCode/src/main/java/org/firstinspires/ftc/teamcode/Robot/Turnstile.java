@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -55,8 +56,9 @@ public class Turnstile {
         try {
             indexerServo1 = hwMap.crservo.get("indexer");
             indexerServo2 = hwMap.crservo.get("indexer2");
-            indexMotor = hwMap.get(DcMotorEx.class, "indexMotor");
+            indexMotor = hwMap.get(DcMotorEx.class, "launcher2");
             limitSwitch = hwMap.get(TouchSensor.class, "indexerLimit");
+
 
             indexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Use our own P
             indexMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); // Use our own PID
@@ -148,13 +150,13 @@ public class Turnstile {
                     isHomed = false;
                 } else {
                     indexerServo1.setPower(HOMING_POWER);
-                    indexerServo2.setPower(-HOMING_POWER);
+                    indexerServo2.setPower(HOMING_POWER);
                 }
                 break;
 
             case MANUAL_SPIN:
                 indexerServo1.setPower(manualPower);
-                indexerServo2.setPower(-manualPower);
+                indexerServo2.setPower(manualPower);
                 if (Math.abs(manualPower) < 0.05) {
                     // When driver lets go, find the nearest physical slot and seek to it.
                     double nearestSlotAngle = Math.ceil(currentAngle / 120.0) * 120.0;
@@ -174,7 +176,7 @@ public class Turnstile {
                     angleController.setPID(P, I, D); // Re-apply PID gains from Dashboard
                     power = -angleController.calculate(currentAngle, targetAngle + current_offset);
                     indexerServo1.setPower(power);
-                    indexerServo2.setPower(-power);
+                    indexerServo2.setPower(power);
                 }
                 break;
 
@@ -201,7 +203,7 @@ public class Turnstile {
                 angleController.setPID(P, I, D); // Re-apply PID gains from Dashboard
                 power = -angleController.calculate(currentAngle, targetAngle + current_offset);
                 indexerServo1.setPower(power);
-                indexerServo2.setPower(-power);
+                indexerServo2.setPower(power);
                 break;
         }
 
