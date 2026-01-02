@@ -70,7 +70,7 @@ public class Teleop_BLUE extends OpMode {
             robot.drive.localizer.setPose(new Pose2d(robot.drive.localizer.getPose().position, 0));
         }
 
-        robot.drive(forward, strafe, turn, speed, p);
+        robot.drive(forward, strafe, turn * 0.7, speed, p);
 
         // --- Launcher Controls ---
         if(Math.abs(theGamepad2.getRightX()) > 0.01){

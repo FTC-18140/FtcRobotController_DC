@@ -87,9 +87,7 @@ public class Teleop_Red extends OpMode {
         } else {
             robot.launcher.stop();
         }
-        if (theGamepad2.getButtonPressed(TBDGamepad.Button.RIGHT_STICK_BUTTON)) {
-
-        }
+         
         if(theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.RIGHT_TRIGGER)){
             robot.flip();
         }
