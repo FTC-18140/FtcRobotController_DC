@@ -29,6 +29,7 @@ public class Teleop_BLUE extends OpMode {
     private TBDGamepad theGamepad2;
 
     ThunderBot2025 robot = new ThunderBot2025();
+    public static double INDEXER_SPEED = 0.8;
 
     @Override
     public void init() {
@@ -42,6 +43,9 @@ public class Teleop_BLUE extends OpMode {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
     }
+    public void start() {
+        robot.runtime.reset();
+    }
 
     @Override
     public void loop() {
@@ -53,12 +57,12 @@ public class Teleop_BLUE extends OpMode {
         double forward = theGamepad1.getLeftY();
         double strafe = theGamepad1.getLeftX();
         double turn = theGamepad1.getRightX();
-        double speed = 0.7;
+        double speed = ThunderBot2025.DEFAULT_SPEED;
 
         if(theGamepad1.getTriggerBoolean(TBDGamepad.Trigger.RIGHT_TRIGGER)){
-            speed = 0.3;
+            speed = ThunderBot2025.MIN_SPEED;
         } else if(theGamepad1.getTriggerBoolean(TBDGamepad.Trigger.LEFT_TRIGGER)){
-            speed = 1.0;
+            speed = ThunderBot2025.MAX_SPEED;
         }
 
         // Note: The driver's 'Y' button is used for resetting pose.
@@ -84,7 +88,7 @@ public class Teleop_BLUE extends OpMode {
         }
 
         if(theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.RIGHT_TRIGGER)){
-            robot.indexer.flip();
+            robot.flip();
         }
         if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_UP)){
             robot.launcher.flywheel.adjustFF(1);
@@ -92,6 +96,12 @@ public class Teleop_BLUE extends OpMode {
             robot.launcher.flywheel.adjustFF(-1);
         } else if (theGamepad2.getButtonPressed(TBDGamepad.Button.Y)) {
             robot.launcher.flywheel.resetFF();
+        }
+
+        if (theGamepad2.getButtonPressed(TBDGamepad.Button.RIGHT_STICK_BUTTON)) {
+            robot.flipperUp();
+        } else if ( theGamepad2.getButtonReleased(TBDGamepad.Button.RIGHT_STICK_BUTTON)) {
+            robot.flipperDown();
         }
 
 
@@ -139,9 +149,9 @@ public class Teleop_BLUE extends OpMode {
         } else {
             // --- MANUAL INDEXER MODE ---
             if(theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER)){
-                robot.indexer.spin(-0.2);
+                robot.indexer.spin(-INDEXER_SPEED);
             } else if (theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER)) {
-                robot.indexer.spin(0.2);
+                robot.indexer.spin(INDEXER_SPEED);
             } else {
                 // If not manually spinning, send a spin(0) to allow the turnstile to auto-align.
 
@@ -153,8 +163,6 @@ public class Teleop_BLUE extends OpMode {
                     robot.indexer.cycle(-1);
                 } else if (theGamepad2.getButton(TBDGamepad.Button.LEFT_STICK_BUTTON)){
                     robot.indexer.adjustToThird();
-                }else{
-                    robot.indexer.cycle(0);
                 }
             }
         }
@@ -164,7 +172,7 @@ public class Teleop_BLUE extends OpMode {
         telemetry.addData("position X: ", robot.drive.localizer.getPose().position.x);
         telemetry.addData("position Y: ", robot.drive.localizer.getPose().position.y);
         telemetry.addData("heading: ", Math.toDegrees(robot.drive.localizer.getPose().heading.toDouble()));
-
+        telemetry.addData("Time since start", robot.runtime.seconds());
         dashboard.sendTelemetryPacket(p);
     }
 }

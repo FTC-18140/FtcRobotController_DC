@@ -12,27 +12,30 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
 @Autonomous
-public class AutoBlueFar_WAIT extends LinearOpMode{
+public class AutoRedFar_WAIT extends LinearOpMode{
 
     @Override
     public void runOpMode() throws InterruptedException {
-        Pose2d start = new Pose2d(AutoPositions.Positions.START_BLUE_FAR.position, Math.toRadians(0));
-        Pose2d launchPos = new Pose2d(AutoPositions.Positions.FAR_LAUNCH_ZONE_BLUE.position, Math.toRadians(23));
-        Pose2d intakePos = new Pose2d(AutoPositions.Positions.ARTIFACT_BASE_BLUE.position, Math.toRadians(90));
+        Pose2d start = new Pose2d(AutoPositions.Positions.START_RED_FAR.position, Math.toRadians(0));
+        Pose2d launchPos = new Pose2d(AutoPositions.Positions.FAR_LAUNCH_ZONE_RED.position, Math.toRadians(-23));
+        Pose2d intakePos = new Pose2d(AutoPositions.Positions.ARTIFACT_BASE_RED.position, Math.toRadians(90));
 
         ThunderBot2025 robot = new ThunderBot2025();
 
         robot.init(hardwareMap, telemetry, start);
         waitForStart();
 
-        robot.setColor(ThunderBot2025.Alliance_Color.BLUE);
+        robot.setColor(ThunderBot2025.Alliance_Color.RED);
         Actions.runBlocking(
                 new ParallelAction(
+                        robot.updateAction(),
+                        robot.aimAction(),
+
                         new SequentialAction(
                                 new SleepAction(22),
                                 new ParallelAction(
                                         robot.drive.actionBuilder(start)
-                                                .strafeToSplineHeading(new Vector2d(launchPos.position.x, 12), Math.toRadians(23))
+                                                .strafeToSplineHeading(new Vector2d(launchPos.position.x, -12), Math.toRadians(-23))
                                                 .build()
                                 ),
                                 robot.intake.intakeStartAction(),
@@ -40,30 +43,23 @@ public class AutoBlueFar_WAIT extends LinearOpMode{
 
 
                                 new SequentialAction(
-                                        robot.intake.intakeStopAction(),
                                         robot.launchAction(),
-                                        robot.intake.intakeStartAction(),
 
-                                        robot.intake.intakeStopAction(),
                                         robot.launchAction(),
-                                        robot.intake.intakeStartAction(),
 
-                                        robot.intake.intakeStopAction(),
-                                        robot.launchAction(),
-                                        robot.intake.intakeStartAction()
+                                        robot.launchAction()
                                 ),
                                 robot.launcher.stopAction(),
                                 robot.intake.intakeStopAction(),
                                 robot.drive.actionBuilder(launchPos)
-                                        .strafeToSplineHeading(new Vector2d(-12, 12), Math.toRadians(0))
+                                        .strafeToSplineHeading(new Vector2d(-16, -12), Math.toRadians(0))
                                         .build(),
                                 robot.launcher.pointToAction(0),
                                 robot.launcher.stopAction()
 
                         ),
-                        robot.launcher.prepShotAction(),
-                        robot.aimAction(),
-                        robot.updateAction()
+                        robot.launcher.prepShotAction()
+
                 )
         );
     }

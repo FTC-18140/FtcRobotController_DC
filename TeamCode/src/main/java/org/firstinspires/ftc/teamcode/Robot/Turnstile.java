@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -15,18 +16,19 @@ import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 public class Turnstile {
 
     // --- Hardware & Utilities ---
-    private CRServo indexerServo;
+    private CRServo indexerServo1;
+    private CRServo indexerServo2;
     private DcMotorEx indexMotor;
     private TouchSensor limitSwitch;
     private PIDController angleController;
     private Telemetry telemetry;
 
     // --- Tunable Constants via FTC Dashboard ---
-    public static double P = 0.0025, I = 0.0005, D = 0.0001;
+    public static double P = 0.0040, I = 0.0007, D = 0.0001;
     public static double HOMING_POWER = -0.05;
     public static double ANGLE_TOLERANCE = 13;// In degrees
     public static double BACKWARD_TOLERANCE = 30;
-    public static double HOMING_OFFSET = 25;
+    public static double HOMING_OFFSET = 15;
     private double current_offset = 0; // --- Non-tunable Constants ---
     private static final double COUNTS_PER_REVOLUTION = 8192;
     private static final double GEAR_RATIO = 1.0;
@@ -52,9 +54,11 @@ public class Turnstile {
 
 
         try {
-            indexerServo = hwMap.crservo.get("indexer");
-            indexMotor = hwMap.get(DcMotorEx.class, "indexMotor");
+            indexerServo1 = hwMap.crservo.get("indexer");
+            indexerServo2 = hwMap.crservo.get("indexer2");
+            indexMotor = hwMap.get(DcMotorEx.class, "launcher2");
             limitSwitch = hwMap.get(TouchSensor.class, "indexerLimit");
+
 
             indexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Use our own P
             indexMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); // Use our own PID
@@ -110,7 +114,7 @@ public class Turnstile {
     // --- State Inquiry ---
 
     public boolean isAtTarget() {
-        return Math.abs(currentAngle - targetAngle) < ANGLE_TOLERANCE;
+        return Math.abs(currentAngle - (targetAngle + current_offset)) < ANGLE_TOLERANCE;
     }
 
     public boolean isHomed() {
@@ -131,7 +135,8 @@ public class Turnstile {
         double power;
         switch (currentState) {
             case IDLE:
-                indexerServo.setPower(0);
+                indexerServo1.setPower(0);
+                indexerServo2.setPower(0);
                 break;
 
             case HOMING:
@@ -142,13 +147,16 @@ public class Turnstile {
                     targetAngle = 0;
                     current_offset = HOMING_OFFSET;
                     currentState = State.HOLDING_POSITION;
+                    isHomed = false;
                 } else {
-                    indexerServo.setPower(HOMING_POWER);
+                    indexerServo1.setPower(HOMING_POWER);
+                    indexerServo2.setPower(HOMING_POWER);
                 }
                 break;
 
             case MANUAL_SPIN:
-                indexerServo.setPower(manualPower);
+                indexerServo1.setPower(manualPower);
+                indexerServo2.setPower(manualPower);
                 if (Math.abs(manualPower) < 0.05) {
                     // When driver lets go, find the nearest physical slot and seek to it.
                     double nearestSlotAngle = Math.ceil(currentAngle / 120.0) * 120.0;
@@ -161,12 +169,14 @@ public class Turnstile {
                     currentState = State.HOLDING_POSITION;
                     // We have arrived. Stop the motor for this one cycle to prevent a "kick".
                     // The next loop will execute the HOLDING_POSITION logic.
-                    indexerServo.setPower(0);
+                    indexerServo1.setPower(0);
+                    indexerServo2.setPower(0);
                 } else {
                     // If not at target, continue seeking.
                     angleController.setPID(P, I, D); // Re-apply PID gains from Dashboard
                     power = -angleController.calculate(currentAngle, targetAngle + current_offset);
-                    indexerServo.setPower(power);
+                    indexerServo1.setPower(power);
+                    indexerServo2.setPower(power);
                 }
                 break;
 
@@ -192,14 +202,15 @@ public class Turnstile {
 
                 angleController.setPID(P, I, D); // Re-apply PID gains from Dashboard
                 power = -angleController.calculate(currentAngle, targetAngle + current_offset);
-                indexerServo.setPower(power);
+                indexerServo1.setPower(power);
+                indexerServo2.setPower(power);
                 break;
         }
 
         // --- 3. Telemetry ---
         telemetry.addData("Turnstile State", currentState.name());
-        telemetry.addData("Turnstile Angle", currentAngle);
-        telemetry.addData("Turnstile Target", targetAngle);
-        telemetry.addData("Limit Switch Pressed", limitSwitchPressed);
+//        telemetry.addData("Turnstile Angle", currentAngle);
+//        telemetry.addData("Turnstile Target", targetAngle + current_offset);
+//        telemetry.addData("Limit Switch Pressed", limitSwitchPressed);
     }
 }

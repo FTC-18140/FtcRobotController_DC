@@ -31,12 +31,8 @@ public class LED {
         }
     }
 
-    /**
-     * Does some math to determine whether if the leds should signal if the measured_tps is close enough to the target_tps for launch
-     * @param measured_tps the tps the flywheel is measured to be moving
-     * @param target_tps the tps we want it to be moving at
-     */
-    public void update(double measured_tps, double target_tps) {
+
+    public void update(double measured_tps, double target_tps, double remainingSeconds) {
         double difference_tps =  measured_tps - target_tps ;
         double acceptable_range_up = 50;
         double acceptable_range_down = -50;
@@ -47,7 +43,34 @@ public class LED {
         } else {
             setToColor("green");
         }
+
+        if (remainingSeconds < 10) {
+            if (Math.ceil(remainingSeconds * 2) % 2 == 1){
+                setToColor("off");
+            } else {
+                setToColor("orange");
+            }
+
+        }
+
     }
+//    public void update(IndexerFacade.BallState ballcolor, double remainingSeconds) {
+//        if (remainingSeconds < 10) {
+//            if (Math.ceil(remainingSeconds * 2) % 2 == 1){
+//                setToColor("off");
+//            } else {
+//                setToColor("orange");
+//            }
+//
+//        }
+//        else if (ballcolor == IndexerFacade.BallState.GREEN) {
+//            setToColor("green");
+//        } else if (ballcolor == IndexerFacade.BallState.PURPLE) {
+//            setToColor("purple");
+//        } else {
+//            setToColor("blue");
+//        }
+//    }
 
     /**
      * sets the color of the leds based on an input string
@@ -75,7 +98,7 @@ public class LED {
                     theColor = green;
                     break;
                 case("rainbow"):
-                    theColor = Range.clip(0.22*Math.sin(ledTimer.seconds()/3)+0.5, 0.28, 0.72);
+                    theColor = Range.clip(0.22*Math.sin(ledTimer.seconds()*3)+0.5, 0.28, 0.72);
                     break;
                 case("orange"):
 //                    if(Math.sin(ledTimer.seconds()/2) > 0){

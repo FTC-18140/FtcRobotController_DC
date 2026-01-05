@@ -27,8 +27,8 @@ public class Turret implements DataLoggable {
     private State currentState = State.HOLDING; // Initial state
 
     // Hardware and Utilities
-    private CRServo turret;
-    private DcMotor turretEnc;
+    private DcMotor turret;
+    //private DcMotor turretEnc;
     private PIDController turretAimPID;
     private Telemetry telemetry;
 
@@ -57,18 +57,12 @@ public class Turret implements DataLoggable {
         this.telemetry = telem;
         turretAimPID = new PIDController(P_TURRET, I_TURRET, D_TURRET);
         try{
-            turret = hwMap.crservo.get("turret");
+            turret = hwMap.dcMotor.get("turret");
             turret.setDirection(DcMotor.Direction.REVERSE);
+            turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            turret.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         } catch (Exception e) {
             telemetry.addData("Motor\"turret\" not found", 0);
-        }
-
-        // The encoder is on the "launcher2" motor
-        try {
-            turretEnc = hwMap.get(DcMotor.class, "launcher2");
-            turretEnc.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        } catch (Exception e) {
-            telemetry.addData("Motor \"launcher2\" not found", 0);
         }
 
     }
@@ -131,9 +125,9 @@ public class Turret implements DataLoggable {
         }
 
         telemetry.addData("Turret State", currentState.name());
-        telemetry.addData("Turret Position", currentPosition);
-        telemetry.addData("Turret Target", targetAngle);
-        telemetry.addData("Turret Power", seekingPower);
+//        telemetry.addData("Turret Position", currentPosition);
+//        telemetry.addData("Turret Target", targetAngle);
+//        telemetry.addData("Turret Power", seekingPower);
 
     }
 
@@ -148,10 +142,13 @@ public class Turret implements DataLoggable {
     }
 
     private void updateCurrentPosition() {
-        this.currentPosition = turretEnc.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK + startingAngle;
+        this.currentPosition = turret.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK + startingAngle;
 
         //this.currentPosition = turretEnc.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK - offsetAngle;
         //telemetry.addData("tc", turretEnc.getCurrentPosition());
+    }
+    public void zeroTurret() {
+        turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     public double getCurrentPosition() {

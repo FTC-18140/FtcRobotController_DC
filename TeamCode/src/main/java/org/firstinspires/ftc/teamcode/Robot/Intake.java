@@ -57,6 +57,7 @@ public class Intake {
             }
         };
     }
+    public double getIntakePower(){ return intakeMotor.getPower();}
 
     /**
      * Sets the intake motor to the opposite of the preset intake speed

@@ -81,6 +81,9 @@ public class Flywheel {
         if (currentState != State.SPINNING_UP) {
             return false;
         }
+        if (AdjustedFF){
+            return true;
+        }
 
         // Check if the current RPM is within a reasonable tolerance (e.g., 50 RPM) of the target.
         // This tolerance can be tuned.

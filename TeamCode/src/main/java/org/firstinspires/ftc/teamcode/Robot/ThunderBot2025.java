@@ -42,9 +42,11 @@ public class ThunderBot2025 implements DataLoggable
     public Alliance_Color color = Alliance_Color.BLUE;
     private Telemetry telemetry = null;
     public static boolean field_centric = true;
+    public static double MIN_SPEED = 0.3, DEFAULT_SPEED = 0.7, MAX_SPEED = 1.0;
+    public double speed = DEFAULT_SPEED;
     public static Pose2d starting_position;
     public static String STARTING_POSITION = "ENDING_POSITION_AUTO";
-
+    public ElapsedTime runtime = new ElapsedTime();
     Pose2d TELEOP_START_RED = new Pose2d(-12, -12, 0);
     Pose2d TELEOP_START_BLUE = new Pose2d(-12, 12, 0);
 
@@ -73,8 +75,11 @@ public class ThunderBot2025 implements DataLoggable
         led = new LED();
         led.init(hwMap, telem);
 
+        runtime.reset();
+
         telemetry = new MultipleTelemetry(telem, FtcDashboard.getInstance().getTelemetry());
     }
+
 
     public void setColor(Alliance_Color alliance){
         color = alliance;
@@ -121,8 +126,14 @@ public class ThunderBot2025 implements DataLoggable
         return field_centric;
     }
 
-    public void drive( double forward, double right, double clockwise, double speed, TelemetryPacket p)
+
+    public void drive( double forward, double right, double clockwise, double in_speed, TelemetryPacket p)
     {
+        if(intake.getIntakePower() != 0 && in_speed > DEFAULT_SPEED){
+            speed = DEFAULT_SPEED;
+        } else {
+            speed = in_speed;
+        }
         if (field_centric)
         {
             fieldCentricDrive(forward, right, clockwise, speed, p);
@@ -137,8 +148,8 @@ public class ThunderBot2025 implements DataLoggable
     {
         PoseVelocity2d thePose = new PoseVelocity2d(new Vector2d(forward, -right).times(speed), -clockwise);
         drive.setDrivePowers(thePose);
-        telemetry.addData("Odometry X: ", drive.localizer.getPose().position.x);
-        telemetry.addData("Odometry Y: ", drive.localizer.getPose().position.y);
+        //telemetry.addData("Odometry X: ", drive.localizer.getPose().position.x);
+        //telemetry.addData("Odometry Y: ", drive.localizer.getPose().position.y);
     }
 
     private void fieldCentricDrive(double north, double east, double clockwise, double speed, TelemetryPacket p)
@@ -160,12 +171,28 @@ public class ThunderBot2025 implements DataLoggable
         drive.localizer.update();
         indexer.update();
         launcher.update(this.drive.localizer.getPose());
-        led.update(launcher.getFlywheelRpm(), launcher.getFlywheelTargetRpm());
+//        led.update(indexer.getBallState(2), 120 - runtime.seconds());
+        led.update(launcher.getFlywheelRpm(), launcher.getFlywheelTargetRpm(), 120 - runtime.seconds());
     }
 
     public void charge() {
         launcher.prepShot();
     }
+
+    public void flip(){
+        if(launcher.isAtTargetRpm()){
+            indexer.flipAndCycle();
+        }
+    }
+
+    public void flipperUp()
+    {
+        indexer.flipOverride(true);
+    }
+    public void flipperDown() {
+        indexer.flipOverride(false);
+    }
+
 
     public Action updateAction(){
             return new Action() {
@@ -218,7 +245,11 @@ public class ThunderBot2025 implements DataLoggable
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                return !(launcher.isAtTarget() && launcher.isAtTargetRpm() && indexer.isAtTarget() && (indexer.getState() == IndexerFacade.State.AWAITING_FLIP || indexer.getState() == IndexerFacade.State.IDLE));
+                telemetry.addData("Current Action: launchReadyAction()", 0);
+                return !(launcher.isAtTarget()
+                        && launcher.isAtTargetRpm()
+                        && indexer.isAtTarget()
+                        && (indexer.getState() == IndexerFacade.State.AWAITING_FLIP || indexer.getState() == IndexerFacade.State.IDLE));
             }
         };
     }
@@ -234,7 +265,8 @@ public class ThunderBot2025 implements DataLoggable
                     indexer.selectSlot(slot);
                     hasStarted = true;
                 }
-                return !indexer.isDone();
+//                return !indexer.isDone();
+                return !indexer.isAtTarget();
             }
         };
     }
@@ -254,7 +286,7 @@ public class ThunderBot2025 implements DataLoggable
                 // Condition to exit: if the slot we were watching is no longer vacant.
                 if (indexer.getBallState(slotToWatch) != IndexerFacade.BallState.VACANT) {
 
-                    return !indexer.selectNextSlot(IndexerFacade.BallState.VACANT); // End this action, the cycle command has been sent.
+                    return !indexer.selectNextSlot(IndexerFacade.BallState.ALL); // End this action, the cycle command has been sent.
                 }
                 return true; // Continue waiting for a ball.
             }
@@ -298,11 +330,12 @@ public class ThunderBot2025 implements DataLoggable
                     private boolean hasStarted = false;
                     @Override
                     public boolean run(@NonNull TelemetryPacket packet) {
+                        telemetry.addData("Current Action: launchAction()", 0);
                         if (!hasStarted) {
                            hasStarted = indexer.flip();
-                           telemetry.addData("awaiting flip", indexer.getState());
+                           telemetry.addData("launchAction() just called indexer.flip()", indexer.getState());
                         } else {
-                            telemetry.addData("cycling", 0);
+                            telemetry.addData("launchAction() just called indexer.cycle(1)", 0);
                             return !indexer.cycle(1);
                         }
                         return true;

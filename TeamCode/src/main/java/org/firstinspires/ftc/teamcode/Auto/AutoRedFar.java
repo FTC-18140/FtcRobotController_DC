@@ -66,20 +66,23 @@ public class AutoRedFar extends LinearOpMode{
                                                             robot.launchAction()
                                                     ),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
-                                                    new RaceAction(
+                                                    new ParallelAction(
                                                             robot.drive.actionBuilder(launchPos)
                                                                     .splineToSplineHeading(intakePos, Math.toRadians(-90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x, -52), Math.toRadians(-90), new TranslationalVelConstraint(4))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x, -52), Math.toRadians(-90), new TranslationalVelConstraint(5))
                                                                     .build(),
-                                                            new SequentialAction(
-                                                                    robot.seekToSlotAction(0), // Move to the first intake slot
-                                                                    robot.indexerIsAtTargetAction(),
-                                                                    robot.waitForBallAndCycleAction(),// Wait for a ball, then cycle
-                                                                    robot.indexerIsAtTargetAction(),
-                                                                    robot.waitForBallAndCycleAction(), // Wait for the next ball, then cycle
-                                                                    new SleepAction(0.25),
-                                                                    robot.waitForBallAction()
-                                                                    // The third ball will be loaded but we won't cycle away from it
+                                                            new RaceAction(
+                                                                    new SequentialAction(
+                                                                            robot.seekToSlotAction(0), // Move to the first intake slot
+                                                                            //robot.indexerIsAtTargetAction(),
+                                                                            robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
+                                                                            //robot.indexerIsAtTargetAction(),
+                                                                            robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
+                                                                            //robot.indexerIsAtTargetAction(),
+                                                                            robot.waitForBallAction()
+                                                                            // The third ball will be loaded but we won't cycle away from it
+                                                                    ),
+                                                                    robot.indexerFullAction()
                                                             )
                                                     ),
                                                     // Drive to launch spot
@@ -98,20 +101,23 @@ public class AutoRedFar extends LinearOpMode{
                                                             robot.launchAction()
                                                     ),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
-                                                    new RaceAction(
+                                                    new ParallelAction(
                                                             robot.drive.actionBuilder(launchPos)
                                                                     .splineToSplineHeading(intakePos2, Math.toRadians(-90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos2.position.x, -52), Math.toRadians(-90), new TranslationalVelConstraint(4))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos2.position.x, -49), Math.toRadians(-90), new TranslationalVelConstraint(5))
                                                                     .build(),
-                                                            new SequentialAction(
-                                                                    robot.seekToSlotAction(0), // Move to the first intake slot
-                                                                    robot.indexerIsAtTargetAction(),
-                                                                    robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-                                                                    robot.indexerIsAtTargetAction(),
-                                                                    robot.waitForBallAndCycleAction(), // Wait for the next ball, then cycle
-                                                                    new SleepAction(0.25),
-                                                                    robot.waitForBallAction()
-                                                                    // The third ball will be loaded but we won't cycle away from it
+                                                            new RaceAction(
+                                                                    new SequentialAction(
+                                                                            robot.seekToSlotAction(0), // Move to the first intake slot
+                                                                            //robot.indexerIsAtTargetAction(),
+                                                                            robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
+                                                                            //robot.indexerIsAtTargetAction(),
+                                                                            robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
+                                                                            //robot.indexerIsAtTargetAction(),
+                                                                            robot.waitForBallAction()
+                                                                            // The third ball will be loaded but we won't cycle away from it
+                                                                    ),
+                                                                    robot.indexerFullAction()
                                                             )
                                                     ),
                                                     // Drive to launch spot
@@ -148,7 +154,6 @@ public class AutoRedFar extends LinearOpMode{
             // This block will always run, even if the opmode is stopped prematurely.
             blackboard.put("ENDING_POSITION_AUTO", robot.drive.localizer.getPose());
             blackboard.put("TURRET_ENDING_ANGLE_AUTO", robot.launcher.getTurretAngle());
-            blackboard.put("ENDING_ANGLE_INDEXER", robot.indexer.getIndexerAngle());
 //            ThunderBot2025.starting_position = robot.drive.localizer.getPose();
 //            ThunderBot2025.starting_turret_angle = robot.launcher.getTurretAngle();
         }

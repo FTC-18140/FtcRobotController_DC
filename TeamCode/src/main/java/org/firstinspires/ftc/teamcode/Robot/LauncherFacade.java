@@ -134,7 +134,7 @@ public class LauncherFacade implements DataLoggable {
             Vector2d targetDirection = targetPos.minus(robotPose.position);
             //double robotRelativeAngle = -robotPose.heading.toDouble() + (turret.getCurrentPosition()) * (Math.PI/2);
             double robotRelativeAngle = Math.toDegrees(-robotPose.heading.toDouble()) + turret.getCurrentPosition();
-            difference = Math.toDegrees(-targetDirection.angleCast().toDouble()) - robotRelativeAngle;
+            difference = Math.toDegrees(-targetDirection.angleCast().toDouble()) -  robotRelativeAngle;
         } else {
             telemetry.addData("Aiming Mode", "NO TARGET");
         }
