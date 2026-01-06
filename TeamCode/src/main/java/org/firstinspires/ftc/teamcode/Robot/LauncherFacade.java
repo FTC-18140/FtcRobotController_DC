@@ -120,6 +120,8 @@ public class LauncherFacade implements DataLoggable {
 
         turret.update();
         flywheel.update(distanceToGoal);
+
+        telemetry.addData("Using Limelight: ", usingLimelight);
     }
 
     public void updateVision() { limelight.update(); }
@@ -165,14 +167,14 @@ public class LauncherFacade implements DataLoggable {
         double fieldAngleToGoal = Math.atan2(targetDirection.y, targetDirection.x);
 
         // Relative Angle = FieldAngle - RobotHeading
-        double relativeAngleRad = fieldAngleToGoal - robotHeading;
+        double relativeAngleRad = robotHeading - fieldAngleToGoal;
 
         // Convert to degrees
         double relativeAngleDeg = Math.toDegrees(relativeAngleRad);
 
-        // Normalize to -180 to 180 range so the turret takes shortest path
-        while (relativeAngleDeg > 180) relativeAngleDeg -= 360;
-        while (relativeAngleDeg < -180) relativeAngleDeg += 360;
+        // Normalize to Turret's range so the turret takes shortest path
+        while (relativeAngleDeg > Turret.MAX_TURRET_POS) relativeAngleDeg -= 360;
+        while (relativeAngleDeg < Turret.MIN_TURRET_POS) relativeAngleDeg += 360;
 
         // Note: You might need to add turret.getCurrentPosition() offset here depending
         // on if your turret acts in absolute mode or relative mode.

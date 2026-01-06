@@ -14,7 +14,7 @@ public class Flipper {
 
     // --- Tunable Constants via FTC Dashboard ---
     public static double EXTENDED_POSITION = 0.45;
-    public static double RETRACTED_POSITION = 0.035;
+    public static double RETRACTED_POSITION = 0.045;
 
     // --- State Management ---
     public enum State { EXTENDED, RETRACTED }
