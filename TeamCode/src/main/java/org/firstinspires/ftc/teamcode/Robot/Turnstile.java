@@ -223,7 +223,7 @@ public class Turnstile {
         }
 
         // --- 3. Telemetry ---
-        telemetry.addData("Turnstile State", currentState.name());
+//        telemetry.addData("Turnstile State", currentState.name());
         telemetry.addData("Turnstile Angle", currentAngle);
         telemetry.addData("Turnstile Target", targetAngle + current_offset);
         telemetry.addData("Limit Switch Pressed", limitSwitchPressed);
