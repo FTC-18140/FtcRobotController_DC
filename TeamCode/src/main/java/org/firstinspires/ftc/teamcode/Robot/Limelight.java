@@ -1,11 +1,14 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.Utilities.DataLoggable;
 import org.firstinspires.ftc.teamcode.Utilities.DataLogger;
 
@@ -14,14 +17,17 @@ import java.util.List;
 
 public class Limelight implements DataLoggable {
 
+    public static final double INCHES_PER_METER = 39.3701;
     Limelight3A limelight = null;
     HardwareMap hardwareMap;
     Telemetry telemetry;
     int id = -1; // The ID number of the fiducial. Set to -1 to indicate no target.
     double x = 0; // Where it is (left-right)
     double y = 0; // Where it is (up-down)
-    double distance = 0;
+    double distance = -1;
     int index = 1;
+
+    Pose2d visionPose;
 
 
     private static final double MINIMUM_TARGET_AREA = 10.0; // Example value, adjust as needed
@@ -41,6 +47,7 @@ public class Limelight implements DataLoggable {
             throw new RuntimeException(e);
         }
         this.telemetry = telemetry;
+        visionPose = new Pose2d(0,0,0);
     }
 
     /**
@@ -57,6 +64,9 @@ public class Limelight implements DataLoggable {
      */
     public void update() {
         id = -1; // Reset ID to -1 at the start of every loop.
+        distance = -1;
+        visionPose = null;
+        validResults = false;
 
         LLResult result = limelight.getLatestResult();
         if ( result != null && result.isValid()) {
@@ -68,10 +78,20 @@ public class Limelight implements DataLoggable {
                 id = fiducial.getFiducialId(); // The ID number of the fiducial
                 x = fiducial.getTargetXDegrees(); // Where it is (left-right)
                 y = fiducial .getTargetYDegrees(); // Where it is (up-down)
-                distance = fiducial.getCameraPoseTargetSpace().getPosition().z;
+                distance = fiducial.getCameraPoseTargetSpace().getPosition().z * INCHES_PER_METER;
             }
-        } else {
-            validResults = false;
+
+            // Grab the MegaTag2 results to use for localization
+            if (result.getBotposeTagCount() > 0) {
+                Pose3D fullBotPose = result.getBotpose_MT2();
+
+                double x_inches = fullBotPose.getPosition().x * INCHES_PER_METER;
+                double y_inches = fullBotPose.getPosition().y * INCHES_PER_METER;
+                double heading_radians = fullBotPose.getOrientation().getYaw(AngleUnit.RADIANS);
+
+                visionPose = new Pose2d(x_inches, y_inches, heading_radians);
+            }
+
         }
         telemetry.addData("validResults", validResults);
     }
@@ -116,8 +136,17 @@ public class Limelight implements DataLoggable {
     }
     */
 
+    public double getDistanceToTarget() {
+        return distance;
+    }
+
     @Override
     public void logData(DataLogger logger) {
         logger.addField(this.x);
     }
+
+    public Pose2d getMegaTagPose() {
+        return visionPose;
+    }
+
 }
