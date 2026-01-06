@@ -4,11 +4,14 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.Utilities.DataLoggable;
 import org.firstinspires.ftc.teamcode.Utilities.DataLogger;
 
@@ -19,6 +22,7 @@ public class Limelight implements DataLoggable {
 
     public static final double INCHES_PER_METER = 39.3701;
     Limelight3A limelight = null;
+    IMU imu = null;
     HardwareMap hardwareMap;
     Telemetry telemetry;
     int id = -1; // The ID number of the fiducial. Set to -1 to indicate no target.
@@ -26,7 +30,7 @@ public class Limelight implements DataLoggable {
     double y = 0; // Where it is (up-down)
     double distance = -1;
     int index = 1;
-
+    YawPitchRollAngles robotOrientation;
     Pose2d visionPose;
 
 
@@ -40,7 +44,17 @@ public class Limelight implements DataLoggable {
             limelight = hwMap.get(Limelight3A.class, "limelight");
             limelight.setPollRateHz(100);
             limelight.pipelineSwitch(4);
+
             limelight.start();
+            imu = hwMap.get(IMU.class, "imu");
+            imu.initialize(
+                    new IMU.Parameters(
+                            new RevHubOrientationOnRobot(
+                                    RevHubOrientationOnRobot.LogoFacingDirection.UP,
+                                    RevHubOrientationOnRobot.UsbFacingDirection.FORWARD
+                            )
+                    )
+            );
         }
         catch (Exception e)
         {
@@ -77,19 +91,19 @@ public class Limelight implements DataLoggable {
                 LLResultTypes.FiducialResult fiducial = fiducials.get(0);
                 id = fiducial.getFiducialId(); // The ID number of the fiducial
                 x = fiducial.getTargetXDegrees(); // Where it is (left-right)
-                y = fiducial .getTargetYDegrees(); // Where it is (up-down)
+                y = fiducial.getTargetYDegrees(); // Where it is (up-down)
                 distance = fiducial.getCameraPoseTargetSpace().getPosition().z * INCHES_PER_METER;
             }
 
-            // Grab the MegaTag2 results to use for localization
-            if (result.getBotposeTagCount() > 0) {
-                Pose3D fullBotPose = result.getBotpose_MT2();
-
-                double x_inches = fullBotPose.getPosition().x * INCHES_PER_METER;
-                double y_inches = fullBotPose.getPosition().y * INCHES_PER_METER;
-                double heading_radians = fullBotPose.getOrientation().getYaw(AngleUnit.RADIANS);
-
-                visionPose = new Pose2d(x_inches, y_inches, heading_radians);
+            robotOrientation = imu.getRobotYawPitchRollAngles();
+            limelight.updateRobotOrientation(robotOrientation.getYaw(AngleUnit.DEGREES));
+            if (result != null && result.isValid()) {
+                Pose3D botpose_mt2 = result.getBotpose_MT2();
+                if (botpose_mt2 != null) {
+                    double x = botpose_mt2.getPosition().x;
+                    double y = botpose_mt2.getPosition().y;
+                    telemetry.addData("MT2 Location:", "(" + x + ", " + y + ")");
+                }
             }
 
         }
