@@ -30,6 +30,8 @@ public class LauncherFacade implements DataLoggable {
     private KalmanPoseEstimator poseEstimator;
     private Pose2d fusedPose = new Pose2d(0, 0, 0); // This is the "Truth" we aim with
     private Pose2d lastOdoPose = null; // Used to calculate delta
+    private double TURRET_OFFSET_X = 3.5;
+    private double TURRET_OFFSET_Y = -4;
     // -------------------------------
 
     // Target and alliance properties
@@ -157,11 +159,17 @@ public class LauncherFacade implements DataLoggable {
     private double getAutoAimAngle() {
         if (targetPos == null) return turret.getCurrentPosition();
 
-        // Vector from Robot to Goal
-        Vector2d targetDirection = targetPos.minus(fusedPose.position);
-
         // Robot Heading (from fused pose)
         double robotHeading = fusedPose.heading.toDouble();
+
+        //Offset Turret center of rotation
+        Vector2d offsetPos = new Vector2d(
+                TURRET_OFFSET_Y * Math.cos(-robotHeading) - (-TURRET_OFFSET_X) * Math.sin(-robotHeading),
+                TURRET_OFFSET_Y * Math.sin(-robotHeading) + (-TURRET_OFFSET_X) * Math.cos(-robotHeading)
+        );
+
+        // Vector from Robot to Goal
+        Vector2d targetDirection = targetPos.minus(fusedPose.position.minus(offsetPos));
 
         // Absolute Field Angle to Goal (atan2 returns -PI to PI)
         double fieldAngleToGoal = Math.atan2(targetDirection.y, targetDirection.x);

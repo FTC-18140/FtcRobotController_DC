@@ -52,7 +52,7 @@ public class AutoBlueFar extends LinearOpMode{
                                             new SequentialAction(
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(start)
-                                                                    .strafeToSplineHeading(new Vector2d(launchPos.position.x, 12), Math.toRadians(23))
+                                                                    .strafeTo(new Vector2d(launchPos.position.x, 12))
                                                                     .build()
         //                                        ,
         //                                        // Plan the first shot sequence while driving.
@@ -89,7 +89,7 @@ public class AutoBlueFar extends LinearOpMode{
                                                     // Drive to launch spot
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, 52), Math.toRadians(90)))
-                                                                    .strafeToSplineHeading(launchPos.position, Math.toRadians(23))
+                                                                    .strafeToSplineHeading(launchPos.position, Math.toRadians(0))
                                                                     .build()
         //                                        ,
         //                                        // Re-plan the shot sequence with the newly loaded balls
@@ -125,7 +125,7 @@ public class AutoBlueFar extends LinearOpMode{
                                                     // Drive to launch spot
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos2.position.x, 52), Math.toRadians(90)))
-                                                                    .strafeToSplineHeading(launchPos.position, Math.toRadians(23))
+                                                                    .strafeToSplineHeading(launchPos.position, Math.toRadians(0))
                                                                     .build()
         //                                            ,
         //                                            // Re-plan the shot sequence with the newly loaded balls
