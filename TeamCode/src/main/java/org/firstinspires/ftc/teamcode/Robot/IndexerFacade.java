@@ -25,6 +25,7 @@ public class IndexerFacade {
     // --- Constants ---
     public static final double[] SLOT_ANGLES = {0, 120, 240}; // Angles for slots 0, 1, and 2
     private static final double FLIP_TIME_SECONDS = 0.25; // Time for the flipper to extend and retract
+    private static final double CYCLE_TIME_SECONDS = 0.5; // Time for the flipper to extend and retract
 
     public void flipOverride( boolean up ) {
         if (up) {
@@ -306,8 +307,10 @@ public class IndexerFacade {
             case FLIP_TO_CYCLE:
                 if (flipTimer.seconds() > FLIP_TIME_SECONDS) {
                     flipper.retract();
-                    if(cycle(1)) {
-                        currentState = State.RETRACTING_FLIPPER;
+                    if(flipper.isRetracted()) {
+                        if (cycle(1)) {
+                            currentState = State.RETRACTING_FLIPPER;
+                        }
                     }
                 }
                 break;

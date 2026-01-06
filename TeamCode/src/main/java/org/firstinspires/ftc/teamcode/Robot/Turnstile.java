@@ -24,11 +24,11 @@ public class Turnstile {
     private Telemetry telemetry;
 
     // --- Tunable Constants via FTC Dashboard ---
-    public static double P = 0.0040, I = 0.0007, D = 0.0001;
+    public static double P = 0.0026, I = 0.0100, D = 0.000009;
     public static double HOMING_POWER = -0.05;
     public static double ANGLE_TOLERANCE = 13;// In degrees
     public static double BACKWARD_TOLERANCE = 30;
-    public static double HOMING_OFFSET = 15;
+    public static double HOMING_OFFSET = 20;
     private double current_offset = 0; // --- Non-tunable Constants ---
     private static final double COUNTS_PER_REVOLUTION = 8192;
     private static final double GEAR_RATIO = 1.0;
@@ -56,6 +56,10 @@ public class Turnstile {
         try {
             indexerServo1 = hwMap.crservo.get("indexer");
             indexerServo2 = hwMap.crservo.get("indexer2");
+
+            indexerServo1.setDirection(DcMotorSimple.Direction.REVERSE);
+            indexerServo2.setDirection(DcMotorSimple.Direction.REVERSE);
+
             indexMotor = hwMap.get(DcMotorEx.class, "launcher2");
             limitSwitch = hwMap.get(TouchSensor.class, "indexerLimit");
 
@@ -128,7 +132,7 @@ public class Turnstile {
 
     public void update() {
         // --- 1. Cache Hardware Reads ---
-        currentAngle = indexMotor.getCurrentPosition() / COUNTS_PER_DEGREE - startingAngle;
+        currentAngle = -indexMotor.getCurrentPosition() / COUNTS_PER_DEGREE - startingAngle;
         limitSwitchPressed = limitSwitch.isPressed();
 
         // --- 2. Run State Machine ---
@@ -174,7 +178,7 @@ public class Turnstile {
                 } else {
                     // If not at target, continue seeking.
                     angleController.setPID(P, I, D); // Re-apply PID gains from Dashboard
-                    power = -angleController.calculate(currentAngle, targetAngle + current_offset);
+                    power = angleController.calculate(currentAngle, targetAngle + current_offset);
                     indexerServo1.setPower(power);
                     indexerServo2.setPower(power);
                 }
@@ -201,7 +205,7 @@ public class Turnstile {
                 }
 
                 angleController.setPID(P, I, D); // Re-apply PID gains from Dashboard
-                power = -angleController.calculate(currentAngle, targetAngle + current_offset);
+                power = angleController.calculate(currentAngle, targetAngle + current_offset);
                 indexerServo1.setPower(power);
                 indexerServo2.setPower(power);
                 break;
@@ -209,8 +213,8 @@ public class Turnstile {
 
         // --- 3. Telemetry ---
         telemetry.addData("Turnstile State", currentState.name());
-//        telemetry.addData("Turnstile Angle", currentAngle);
-//        telemetry.addData("Turnstile Target", targetAngle + current_offset);
-//        telemetry.addData("Limit Switch Pressed", limitSwitchPressed);
+        telemetry.addData("Turnstile Angle", currentAngle);
+        telemetry.addData("Turnstile Target", targetAngle + current_offset);
+        telemetry.addData("Limit Switch Pressed", limitSwitchPressed);
     }
 }
