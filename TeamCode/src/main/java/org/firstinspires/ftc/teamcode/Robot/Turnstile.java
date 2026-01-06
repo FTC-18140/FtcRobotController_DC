@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -23,11 +24,11 @@ public class Turnstile {
     private Telemetry telemetry;
 
     // --- Tunable Constants via FTC Dashboard ---
-    public static double P = 0.0040, I = 0.0007, D = 0.0001;
+    public static double P = 0.0026, I = 0.0100, D = 0.000009;
     public static double HOMING_POWER = -0.05;
     public static double ANGLE_TOLERANCE = 13;// In degrees
     public static double BACKWARD_TOLERANCE = 30;
-    public static double HOMING_OFFSET = 15;
+    public static double HOMING_OFFSET = 20;
     private double current_offset = 0; // --- Non-tunable Constants ---
     private static final double COUNTS_PER_REVOLUTION = 8192;
     private static final double GEAR_RATIO = 1.0;
@@ -55,8 +56,13 @@ public class Turnstile {
         try {
             indexerServo1 = hwMap.crservo.get("indexer");
             indexerServo2 = hwMap.crservo.get("indexer2");
-            indexMotor = hwMap.get(DcMotorEx.class, "indexMotor");
+
+            indexerServo1.setDirection(DcMotorSimple.Direction.REVERSE);
+            indexerServo2.setDirection(DcMotorSimple.Direction.REVERSE);
+
+            indexMotor = hwMap.get(DcMotorEx.class, "launcher2");
             limitSwitch = hwMap.get(TouchSensor.class, "indexerLimit");
+
 
             indexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Use our own P
             indexMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); // Use our own PID
@@ -126,7 +132,7 @@ public class Turnstile {
 
     public void update() {
         // --- 1. Cache Hardware Reads ---
-        currentAngle = indexMotor.getCurrentPosition() / COUNTS_PER_DEGREE - startingAngle;
+        currentAngle = -indexMotor.getCurrentPosition() / COUNTS_PER_DEGREE - startingAngle;
         limitSwitchPressed = limitSwitch.isPressed();
 
         // --- 2. Run State Machine ---
@@ -148,13 +154,13 @@ public class Turnstile {
                     isHomed = false;
                 } else {
                     indexerServo1.setPower(HOMING_POWER);
-                    indexerServo2.setPower(-HOMING_POWER);
+                    indexerServo2.setPower(HOMING_POWER);
                 }
                 break;
 
             case MANUAL_SPIN:
                 indexerServo1.setPower(manualPower);
-                indexerServo2.setPower(-manualPower);
+                indexerServo2.setPower(manualPower);
                 if (Math.abs(manualPower) < 0.05) {
                     // When driver lets go, find the nearest physical slot and seek to it.
                     double nearestSlotAngle = Math.ceil(currentAngle / 120.0) * 120.0;
@@ -172,9 +178,9 @@ public class Turnstile {
                 } else {
                     // If not at target, continue seeking.
                     angleController.setPID(P, I, D); // Re-apply PID gains from Dashboard
-                    power = -angleController.calculate(currentAngle, targetAngle + current_offset);
+                    power = angleController.calculate(currentAngle, targetAngle + current_offset);
                     indexerServo1.setPower(power);
-                    indexerServo2.setPower(-power);
+                    indexerServo2.setPower(power);
                 }
                 break;
 
@@ -199,16 +205,16 @@ public class Turnstile {
                 }
 
                 angleController.setPID(P, I, D); // Re-apply PID gains from Dashboard
-                power = -angleController.calculate(currentAngle, targetAngle + current_offset);
+                power = angleController.calculate(currentAngle, targetAngle + current_offset);
                 indexerServo1.setPower(power);
-                indexerServo2.setPower(-power);
+                indexerServo2.setPower(power);
                 break;
         }
 
         // --- 3. Telemetry ---
         telemetry.addData("Turnstile State", currentState.name());
-//        telemetry.addData("Turnstile Angle", currentAngle);
-//        telemetry.addData("Turnstile Target", targetAngle + current_offset);
-//        telemetry.addData("Limit Switch Pressed", limitSwitchPressed);
+        telemetry.addData("Turnstile Angle", currentAngle);
+        telemetry.addData("Turnstile Target", targetAngle + current_offset);
+        telemetry.addData("Limit Switch Pressed", limitSwitchPressed);
     }
 }

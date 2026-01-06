@@ -27,14 +27,14 @@ public class Turret implements DataLoggable {
     private State currentState = State.HOLDING; // Initial state
 
     // Hardware and Utilities
-    private CRServo turret;
-    private DcMotor turretEnc;
+    private DcMotor turret;
+    //private DcMotor turretEnc;
     private PIDController turretAimPID;
     private Telemetry telemetry;
 
     // Tunable constants from your original file
-    public static double P_TURRET = 0.018, I_TURRET = 0.0003, D_TURRET = 0.000;
-    public static double MAX_TURRET_POS = 90;
+    public static double P_TURRET = 0.007, I_TURRET = 0.07, D_TURRET = 0.00085;
+    public static double MAX_TURRET_POS = 180;
     public static double MIN_TURRET_POS = -90;
     public static double TURRET_ANGLE_TOLERANCE = 3.5;
     public static double TURN_SPEED = 208.3; // From original lockOn
@@ -57,18 +57,12 @@ public class Turret implements DataLoggable {
         this.telemetry = telem;
         turretAimPID = new PIDController(P_TURRET, I_TURRET, D_TURRET);
         try{
-            turret = hwMap.crservo.get("turret");
+            turret = hwMap.dcMotor.get("turret");
             turret.setDirection(DcMotor.Direction.REVERSE);
+            turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            turret.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         } catch (Exception e) {
             telemetry.addData("Motor\"turret\" not found", 0);
-        }
-
-        // The encoder is on the "launcher2" motor
-        try {
-            turretEnc = hwMap.get(DcMotor.class, "launcher2");
-            turretEnc.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        } catch (Exception e) {
-            telemetry.addData("Motor \"launcher2\" not found", 0);
         }
 
     }
@@ -110,12 +104,12 @@ public class Turret implements DataLoggable {
 
         switch (currentState) {
             case HOLDING:
-                double holdingPower = -turretAimPID.calculate(currentPosition, targetAngle);
+                double holdingPower = turretAimPID.calculate(currentPosition, targetAngle);
                 setHardwarePower(holdingPower);
                 break;
 
             case SEEKING_ANGLE:
-                seekingPower = -turretAimPID.calculate(currentPosition, targetAngle);
+                seekingPower = turretAimPID.calculate(currentPosition, targetAngle);
                 setHardwarePower(seekingPower);
                 if (isAtTarget()) {
                     this.currentState = State.HOLDING;
@@ -131,16 +125,16 @@ public class Turret implements DataLoggable {
         }
 
         telemetry.addData("Turret State", currentState.name());
-//        telemetry.addData("Turret Position", currentPosition);
-//        telemetry.addData("Turret Target", targetAngle);
-//        telemetry.addData("Turret Power", seekingPower);
+        telemetry.addData("Turret Position", currentPosition);
+        telemetry.addData("Turret Target", targetAngle);
+        telemetry.addData("Turret Power", seekingPower);
 
     }
 
     private void  setHardwarePower(double power) {
-        if (power > 0 && currentPosition <= MIN_TURRET_POS) {
+        if (power < 0 && currentPosition + power*45 <= MIN_TURRET_POS) {
             turret.setPower(0);
-        } else if (power < 0 && currentPosition >= MAX_TURRET_POS) {
+        } else if (power > 0 && currentPosition + power*45 >= MAX_TURRET_POS) {
             turret.setPower(0);
         } else {
             turret.setPower(power);
@@ -148,13 +142,13 @@ public class Turret implements DataLoggable {
     }
 
     private void updateCurrentPosition() {
-        this.currentPosition = turretEnc.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK + startingAngle;
+        this.currentPosition = turret.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK + startingAngle;
 
         //this.currentPosition = turretEnc.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK - offsetAngle;
         //telemetry.addData("tc", turretEnc.getCurrentPosition());
     }
     public void zeroTurret() {
-        turretEnc.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     public double getCurrentPosition() {
