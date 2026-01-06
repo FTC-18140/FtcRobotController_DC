@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Robot;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
@@ -54,6 +55,8 @@ public class Flywheel {
         launcher.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         launcher2 = hwMap.get(DcMotorEx.class, "launcher2");
         launcher2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        launcher2.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     // --- High-Level Commands to Change State ---
