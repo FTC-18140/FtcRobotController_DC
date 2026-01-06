@@ -78,6 +78,8 @@ public class Turret implements DataLoggable {
      * @param angle in degrees
      */
     public void seekToAngle(double angle) {
+
+
         this.targetAngle = Range.clip(angle, MIN_TURRET_POS, MAX_TURRET_POS) - 2;
         this.currentState = State.SEEKING_ANGLE;
     }
@@ -143,7 +145,6 @@ public class Turret implements DataLoggable {
 
     private void updateCurrentPosition() {
         this.currentPosition = turret.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK + startingAngle;
-
         //this.currentPosition = turretEnc.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK - offsetAngle;
         //telemetry.addData("tc", turretEnc.getCurrentPosition());
     }
