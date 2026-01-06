@@ -169,8 +169,8 @@ public class ThunderBot2025 implements DataLoggable
     public void update(){
         drive.updatePoseEstimate();
         drive.localizer.update();
-        indexer.update();
         launcher.update(this.drive.localizer.getPose());
+        indexer.update();
 //        led.update(indexer.getBallState(2), 120 - runtime.seconds());
         led.update(launcher.getFlywheelRpm(), launcher.getFlywheelTargetRpm(), 120 - runtime.seconds());
     }

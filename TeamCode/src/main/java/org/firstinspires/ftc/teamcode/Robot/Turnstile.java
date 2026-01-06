@@ -24,9 +24,9 @@ public class Turnstile {
     private Telemetry telemetry;
 
     // --- Tunable Constants via FTC Dashboard ---
-    public static double P = 0.0026, I = 0.0100, D = 0.000009;
+    public static double P = 0.0021, I = 0.0, D = 0.000001;
     public static double HOMING_POWER = -0.05;
-    public static double ANGLE_TOLERANCE = 13;// In degrees
+    public static double ANGLE_TOLERANCE = 10;// In degrees
     public static double BACKWARD_TOLERANCE = 30;
     public static double HOMING_OFFSET = 20;
     private double current_offset = 0; // --- Non-tunable Constants ---
@@ -94,7 +94,6 @@ public class Turnstile {
         }
 
         targetAngle = currentAngle + shortest_rot;
-        currentState = State.SEEKING_POSITION;
 
 
         currentState = State.SEEKING_POSITION;
@@ -110,8 +109,19 @@ public class Turnstile {
     public void spin(double power) {
         // Refactored to have a single exit point
         //if (isHomed) {
+
+        if (Math.abs(power) == 0 && currentState != State.SEEKING_POSITION && currentState != State.HOLDING_POSITION) {
+            // When driver lets go, find the nearest physical slot and seek to it.
+            double nearestSlotAngle = ((int)Math.round(currentAngle / 120.0)) * 120.0;
+            this.seekToAngle(nearestSlotAngle);
+            this.currentState = State.SEEKING_POSITION;
+        } else if(Math.abs(power) > 0){
             this.manualPower = power;
             this.currentState = State.MANUAL_SPIN;
+        } else {
+            this.currentState = State.SEEKING_POSITION;
+        }
+
         //}
     }
 
@@ -161,10 +171,11 @@ public class Turnstile {
             case MANUAL_SPIN:
                 indexerServo1.setPower(manualPower);
                 indexerServo2.setPower(manualPower);
-                if (Math.abs(manualPower) < 0.05) {
+                if (Math.abs(manualPower) < 0.01) {
                     // When driver lets go, find the nearest physical slot and seek to it.
-                    double nearestSlotAngle = Math.ceil(currentAngle / 120.0) * 120.0;
+                    double nearestSlotAngle = ((int)Math.round(currentAngle / 120.0)) * 120.0;
                     this.seekToAngle(nearestSlotAngle);
+                    currentState = State.SEEKING_POSITION;
                 }
                 break;
 

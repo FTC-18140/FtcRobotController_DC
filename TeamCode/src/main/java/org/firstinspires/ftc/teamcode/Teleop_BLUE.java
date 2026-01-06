@@ -76,7 +76,8 @@ public class Teleop_BLUE extends OpMode {
         if(Math.abs(theGamepad2.getRightX()) > 0.01){
             robot.launcher.setTurretManualPower(theGamepad2.getRightX() * 0.5);
         } else if(Math.abs(theGamepad1.getRightX()) > 0.01){
-            robot.launcher.augmentedAim(-theGamepad1.getRightX() * speed * 0.75);
+//            robot.launcher.augmentedAim(-theGamepad1.getRightX() * speed * 0.75);
+            robot.launcher.aim();
         } else {
             robot.launcher.aim();
         }
@@ -153,8 +154,6 @@ public class Teleop_BLUE extends OpMode {
             } else if (theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER)) {
                 robot.indexer.spin(INDEXER_SPEED);
             } else {
-                // If not manually spinning, send a spin(0) to allow the turnstile to auto-align.
-
 
                 // Then, check for discrete, one-shot commands.
                 if(theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_LEFT)){
@@ -163,6 +162,10 @@ public class Teleop_BLUE extends OpMode {
                     robot.indexer.cycle(-1);
                 } else if (theGamepad2.getButton(TBDGamepad.Button.LEFT_STICK_BUTTON)){
                     robot.indexer.adjustToThird();
+                } else if (robot.indexer.getState() == IndexerFacade.State.IDLE || robot.indexer.getState() == IndexerFacade.State.AWAITING_FLIP){
+
+                    // If not manually spinning, send a spin(0) to allow the turnstile to auto-align.
+                    robot.indexer.spin(0);
                 }
             }
         }

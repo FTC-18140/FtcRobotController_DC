@@ -166,6 +166,10 @@ public class Teleop_Red extends OpMode {
                     robot.indexer.cycle(-1);
                 } else if (theGamepad2.getButton(TBDGamepad.Button.LEFT_STICK_BUTTON)){
                     robot.indexer.adjustToThird();
+                } else {
+
+                    // If not manually spinning, send a spin(0) to allow the turnstile to auto-align.
+                    robot.indexer.cycle(0);
                 }
             }
         }
