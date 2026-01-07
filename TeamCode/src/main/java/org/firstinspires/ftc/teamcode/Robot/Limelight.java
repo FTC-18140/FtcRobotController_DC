@@ -76,7 +76,7 @@ public class Limelight implements DataLoggable {
     /**
      * Updates the values associated with the apriltags the limelight sees
      */
-    public void update() {
+    public void update(double limelightAngle) {
         id = -1; // Reset ID to -1 at the start of every loop.
         distance = -1;
         visionPose = null;
@@ -95,8 +95,8 @@ public class Limelight implements DataLoggable {
                 distance = fiducial.getCameraPoseTargetSpace().getPosition().z * INCHES_PER_METER;
             }
 
-            robotOrientation = imu.getRobotYawPitchRollAngles();
-            limelight.updateRobotOrientation(robotOrientation.getYaw(AngleUnit.DEGREES));
+
+            limelight.updateRobotOrientation(limelightAngle);
             if (result != null && result.isValid()) {
                 Pose3D botpose_mt2 = result.getBotpose_MT2();
                 if (botpose_mt2 != null) {

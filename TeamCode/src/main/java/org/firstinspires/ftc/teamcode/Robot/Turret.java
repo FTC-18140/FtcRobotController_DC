@@ -107,11 +107,13 @@ public class Turret implements DataLoggable {
         switch (currentState) {
             case HOLDING:
                 seekingPower = turretAimPID.calculate(currentPosition, targetAngle);
+
                 setHardwarePower(seekingPower);
                 break;
 
             case SEEKING_ANGLE:
                 seekingPower = turretAimPID.calculate(currentPosition, targetAngle);
+
                 setHardwarePower(seekingPower);
                 if (isAtTarget()) {
                     this.currentState = State.HOLDING;

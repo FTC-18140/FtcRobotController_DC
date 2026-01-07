@@ -83,7 +83,8 @@ public class LauncherFacade implements DataLoggable {
         lastOdoPose = currentOdoPose;
 
         // --- 3. MEASURE: Check Vision ---
-        limelight.update();
+        telemetry.addData("Megatag2 Angle",Math.toDegrees(currentOdoPose.heading.toDouble()) - getTurretAngle());
+        limelight.update(Math.toDegrees(currentOdoPose.heading.toDouble()) - getTurretAngle());
         Pose2d visionPose = limelight.getMegaTagPose();
 
         if (visionPose != null) {
@@ -126,7 +127,7 @@ public class LauncherFacade implements DataLoggable {
         telemetry.addData("Using Limelight: ", usingLimelight);
     }
 
-    public void updateVision() { limelight.update(); }
+    public void updateVision() { limelight.update(Math.toDegrees(fusedPose.heading.toDouble()) - getTurretAngle()); }
     public int getDetectedAprilTagId() { return limelight.id(); }
     public double getTurretAngle() { return turret.getCurrentPosition(); }
     public double getFlywheelRpm() { return flywheel.getCurrentRpm(); }
