@@ -90,7 +90,7 @@ public class Flywheel {
 
         // Check if the current RPM is within a reasonable tolerance (e.g., 50 RPM) of the target.
         // This tolerance can be tuned.
-        final double RPM_TOLERANCE = 50.0;
+        final double RPM_TOLERANCE = 25.0;
         return Math.abs(currentRpm - targetRpm) < RPM_TOLERANCE;
     }
 
@@ -165,7 +165,7 @@ public class Flywheel {
         double numer = distance * distance * g;
         double denom = (distance * Math.sin(2 * angleRad)) - (2 * height * Math.pow(Math.cos(angleRad), 2));
 
-        denom = Math.max(denom, 0.4);
+        denom = Math.max(denom, 0.3);
 
         telemetry.addData("Denominator: ", denom);
         return Math.sqrt(numer / denom);

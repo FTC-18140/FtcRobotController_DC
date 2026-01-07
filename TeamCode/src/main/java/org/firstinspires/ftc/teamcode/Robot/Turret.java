@@ -33,13 +33,13 @@ public class Turret implements DataLoggable {
     private Telemetry telemetry;
 
     // Tunable constants from your original file
-    public static double P_TURRET = 0.01, I_TURRET = 0.09, D_TURRET = 0.0009;
+    public static double P_TURRET = 0.0065, I_TURRET = 0.08, D_TURRET = 0.0;
     public static double MAX_TURRET_POS = 225;
     public static double MIN_TURRET_POS = -90;
     public static double TURRET_ANGLE_TOLERANCE = 3.5;
     public static double TURN_SPEED = 208.3; // From original lockOn
     //public static double TURRET_DEGREES_PER_ENCODER_TICK = 0.0048 * ((1.0 / ((double) 40 / 190)) / 360.0);
-    public static double TURRET_DEGREES_PER_ENCODER_TICK = (double) 1 /8192 * 360 * 24/190;
+    public static double TURRET_DEGREES_PER_ENCODER_TICK = (double) 1 /8192 * 360 * 24.24/190.5;
 
 
     // State-specific variables

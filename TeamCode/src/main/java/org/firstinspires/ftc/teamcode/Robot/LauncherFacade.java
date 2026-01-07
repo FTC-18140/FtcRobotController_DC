@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Robot;
 
 import androidx.annotation.NonNull;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Twist2d;
@@ -15,6 +16,7 @@ import org.firstinspires.ftc.teamcode.Utilities.KalmanPoseEstimator;
 
 import java.util.Objects;
 
+@Config
 public class LauncherFacade implements DataLoggable {
     private static final double JOYSTICK_SENSITIVITY = 45;
 
@@ -30,14 +32,15 @@ public class LauncherFacade implements DataLoggable {
     private KalmanPoseEstimator poseEstimator;
     private Pose2d fusedPose = new Pose2d(0, 0, 0); // This is the "Truth" we aim with
     private Pose2d lastOdoPose = null; // Used to calculate delta
-    private double TURRET_OFFSET_X = 3.5;
-    private double TURRET_OFFSET_Y = -4;
+    public static double TURRET_OFFSET_X = 3.5;
+    public static double TURRET_OFFSET_Y = -4;
+    public Vector2d turret_pos = fusedPose.position;
     // -------------------------------
 
     // Target and alliance properties
     private Vector2d targetPos;
-    private final Vector2d targetPosBlue = new Vector2d(67, 67);
-    private final Vector2d targetPosRed = new Vector2d(67, -67);
+    private final Vector2d targetPosBlue = new Vector2d(66, 66);
+    private final Vector2d targetPosRed = new Vector2d(66, -66);
     private ThunderBot2025.Alliance_Color allianceColor = ThunderBot2025.Alliance_Color.BLUE;
 
     public void init(HardwareMap hwMap, Telemetry telem) {
@@ -170,10 +173,10 @@ public class LauncherFacade implements DataLoggable {
         );
 
         // Vector from Robot to Goal
-        Vector2d targetDirection = targetPos.minus(fusedPose.position.minus(offsetPos));
+        turret_pos = targetPos.minus(fusedPose.position.minus(offsetPos));
 
         // Absolute Field Angle to Goal (atan2 returns -PI to PI)
-        double fieldAngleToGoal = Math.atan2(targetDirection.y, targetDirection.x);
+        double fieldAngleToGoal = Math.atan2(turret_pos.y, turret_pos.x);
 
         // Relative Angle = FieldAngle - RobotHeading
         double relativeAngleRad = robotHeading - fieldAngleToGoal;
@@ -267,9 +270,9 @@ public class LauncherFacade implements DataLoggable {
     }
 
     private double getGoalDistance() {
-        if (fusedPose == null || targetPos == null) return 0;
+        if (turret_pos == null || targetPos == null) return 0;
         // Use FUSED pose for distance calculation
-        return targetPos.minus(fusedPose.position).norm();
+        return targetPos.minus(turret_pos).norm();
     }
 
     public boolean isAtTarget() {
