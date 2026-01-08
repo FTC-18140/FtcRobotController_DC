@@ -164,7 +164,7 @@ public class LauncherFacade implements DataLoggable {
         if (targetPos == null) return turret.getCurrentPosition();
 
         // Robot Heading (from fused pose)
-        double robotHeading = fusedPose.heading.toDouble();
+        double robotHeading = this.fusedPose.heading.toDouble();
 
         //Offset Turret center of rotation
         Vector2d offsetPos = new Vector2d(
@@ -173,7 +173,7 @@ public class LauncherFacade implements DataLoggable {
         );
 
         // Vector from Robot to Goal
-        turret_pos = targetPos.minus(fusedPose.position.minus(offsetPos));
+        this.turret_pos = targetPos.minus(this.fusedPose.position.minus(offsetPos));
 
         // Absolute Field Angle to Goal (atan2 returns -PI to PI)
         double fieldAngleToGoal = Math.atan2(turret_pos.y, turret_pos.x);

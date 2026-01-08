@@ -27,14 +27,15 @@ public class AutoTest extends LinearOpMode {
         Actions.runBlocking(
                 new ParallelAction(
                         new SequentialAction(
-                                robot.intake.intakeStartAction(),
+//                                robot.intake.intakeStartAction(),
                                 robot.seekToSlotAction(0), // Move to the first intake slot
                                 robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
                                 robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
                                 robot.waitForBallAndCycleAction()
                         ),
                         robot.updateAction(),
-                        robot.aimAction()
+                        robot.aimAction(),
+                        robot.launcher.prepShotAction()
                 )
         );
 
