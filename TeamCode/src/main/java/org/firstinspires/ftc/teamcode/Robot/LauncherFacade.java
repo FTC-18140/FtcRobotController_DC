@@ -118,7 +118,11 @@ public class LauncherFacade implements DataLoggable {
         }
 
         // --- 4. UPDATE FUSED POSE ---
-        this.fusedPose = poseEstimator.getFusedPose();
+        //this.fusedPose = poseEstimator.getFusedPose();
+
+        // ------------- HOTFIX for AIMING
+        this.fusedPose = currentOdoPose;
+        // ------------- End HOTFIX for AIMING
 
         // --- 5. RUN SUBSYSTEMS ---
         // Use fusedPose for distance calculation
@@ -161,6 +165,31 @@ public class LauncherFacade implements DataLoggable {
      * Calculates pure geometric angle from Fused Robot Pose to Goal
      */
     private double getAutoAimAngle() {
+        double difference = 0;
+        if (limelight.hasTarget()) {
+            telemetry.addData("Aiming Mode", "LIMELIGHT");
+            usingLimelight = true;
+            double limelightXDegrees = limelight.getX();
+            //difference = limelightXDegrees * Turret.TURN_SPEED * Turret.TURRET_DEGREES_PER_ENCODER_TICK;
+            //difference = limelightXDegrees * Turret.TURRET_DEGREES_PER_ENCODER_TICK;
+            difference = limelightXDegrees;
+
+        } else if (fusedPose != null) {
+            telemetry.addData("Aiming Mode", "ODOMETRY");
+            usingLimelight = false;
+            Vector2d targetDirection = targetPos.minus(fusedPose.position);
+            //double robotRelativeAngle = -robotPose.heading.toDouble() + (turret.getCurrentPosition()) * (Math.PI/2);
+            double robotRelativeAngle = Math.toDegrees(-fusedPose.heading.toDouble()) + turret.getCurrentPosition();
+            difference = Math.toDegrees(-targetDirection.angleCast().toDouble()) - robotRelativeAngle;
+        } else {
+            telemetry.addData("Aiming Mode", "NO TARGET");
+        }
+        //return turret.getCurrentPosition() + difference / (Math.PI);
+        return turret.getCurrentPosition() + difference;
+
+    }
+
+    private double getAutoAimAngleFUSION() {
         if (targetPos == null) return turret.getCurrentPosition();
 
         // Robot Heading (from fused pose)
@@ -269,11 +298,18 @@ public class LauncherFacade implements DataLoggable {
         limelight.setPipeline(Objects.equals(this.allianceColor, ThunderBot2025.Alliance_Color.RED) ? 2 : 1);
     }
 
-    private double getGoalDistance() {
+    private double getGoalDistanceFUSION() {
         if (turret_pos == null || targetPos == null) return 0;
         // Use FUSED pose for distance calculation
         telemetry.addData("distance: ", targetPos.minus(turret_pos).norm());
         return targetPos.minus(turret_pos).norm();
+    }
+    private double getGoalDistance() {
+        if (fusedPose == null || targetPos == null) return 0;
+        // Use FUSED pose for distance calculation
+        double distance = targetPos.minus(fusedPose.position).norm();
+        telemetry.addData("distance: ", distance);
+        return distance;
     }
 
     public boolean isAtTarget() {

@@ -46,15 +46,6 @@ public class Limelight implements DataLoggable {
             limelight.pipelineSwitch(4);
 
             limelight.start();
-            imu = hwMap.get(IMU.class, "imu");
-            imu.initialize(
-                    new IMU.Parameters(
-                            new RevHubOrientationOnRobot(
-                                    RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                                    RevHubOrientationOnRobot.UsbFacingDirection.FORWARD
-                            )
-                    )
-            );
         }
         catch (Exception e)
         {
