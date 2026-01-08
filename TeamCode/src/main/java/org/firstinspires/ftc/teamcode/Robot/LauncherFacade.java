@@ -213,9 +213,9 @@ public class LauncherFacade implements DataLoggable {
         // Convert to degrees
         double relativeAngleDeg = Math.toDegrees(relativeAngleRad);
 
-        // Normalize to Turret's range so the turret takes shortest path
-        while (relativeAngleDeg > Turret.MAX_TURRET_POS) relativeAngleDeg -= 360;
-        while (relativeAngleDeg < Turret.MIN_TURRET_POS) relativeAngleDeg += 360;
+//        // Normalize to Turret's range so the turret takes shortest path
+//        while (relativeAngleDeg > Turret.MAX_TURRET_POS) relativeAngleDeg -= 360;
+//        while (relativeAngleDeg < Turret.MIN_TURRET_POS) relativeAngleDeg += 360;
 
         // Note: You might need to add turret.getCurrentPosition() offset here depending
         // on if your turret acts in absolute mode or relative mode.

@@ -18,6 +18,8 @@ public class AutoTest extends LinearOpMode {
         Pose2d start = new Pose2d(AutoPositions.Positions.START_RED_FAR.position, Math.toRadians(0));
 
         ThunderBot2025 robot = new ThunderBot2025();
+        blackboard.put("TURRET_ENDING_ANGLE_AUTO", (double) 0);
+        blackboard.put("ENDING_ANGLE_INDEXER", (double) 0);
 
         robot.init(hardwareMap, telemetry, start);
         waitForStart();
@@ -26,16 +28,16 @@ public class AutoTest extends LinearOpMode {
 
         Actions.runBlocking(
                 new ParallelAction(
-                        new SequentialAction(
-//                                robot.intake.intakeStartAction(),
-                                robot.seekToSlotAction(0), // Move to the first intake slot
-                                robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-                                robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-                                robot.waitForBallAndCycleAction()
-                        ),
                         robot.updateAction(),
                         robot.aimAction(),
                         robot.launcher.prepShotAction()
+//                        new SequentialAction(
+////                                robot.intake.intakeStartAction(),
+//                                robot.seekToSlotAction(0), // Move to the first intake slot
+//                                robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
+//                                robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
+//                                robot.waitForBallAndCycleAction()
+//                        )
                 )
         );
 

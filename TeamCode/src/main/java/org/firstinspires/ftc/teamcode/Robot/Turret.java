@@ -34,7 +34,7 @@ public class Turret implements DataLoggable {
     private Telemetry telemetry;
 
     // Tunable constants from your original file
-    public static double P_TURRET = 0.0065, I_TURRET = 0.0, D_TURRET = 0.000001;
+    public static double P_TURRET = 0.01, I_TURRET = 0.0005, D_TURRET = 0.001, F_TURRET_MIN = 0.05, F_TURRET_MAX = 0.08;
     public static double MAX_TURRET_POS = 225;
     public static double MIN_TURRET_POS = -90;
     public static double TURRET_ANGLE_TOLERANCE = 3.5;
@@ -42,7 +42,7 @@ public class Turret implements DataLoggable {
 //    public static double near_limit_resistance_factor_i = 0.0;
     public static boolean TELEM = true;
 
-    public static double MAX_POWER = 0.2;
+    public static double MAX_POWER = 0.8;
 
     public static double TURN_SPEED = 208.3; // From original lockOn
     //public static double TURRET_DEGREES_PER_ENCODER_TICK = 0.0048 * ((1.0 / ((double) 40 / 190)) / 360.0);
@@ -114,6 +114,7 @@ public class Turret implements DataLoggable {
 //        double limit_resistance_i = 1 + near_limit_resistance_factor_p * Math.abs(Range.scale(currentPosition, MIN_TURRET_POS, MAX_TURRET_POS, -1, 1));
 //        turretAimPID.setPID(P_TURRET * limit_resistance_p, I_TURRET * limit_resistance_i, D_TURRET);
         turretAimPID.setPID(P_TURRET, I_TURRET, D_TURRET);
+        double ff = 0;
 
 //        telemetry.addData("limit resistance: ", limit_resistance_p);
 //        telemetry.addData("resisting p: ", P_TURRET * limit_resistance_p);
@@ -122,14 +123,18 @@ public class Turret implements DataLoggable {
         switch (currentState) {
             case HOLDING:
                 seekingPower = turretAimPID.calculate(currentPosition, targetAngle);
+                ff = Range.clip(Range.scale(currentPosition, -90, -30, F_TURRET_MAX, F_TURRET_MIN), F_TURRET_MIN, F_TURRET_MAX);
+                ff *= ((seekingPower >= 0) ? 1 : -1);
 
-                setHardwarePower(seekingPower);
+                setHardwarePower(seekingPower + ff);
                 break;
 
             case SEEKING_ANGLE:
                 seekingPower = turretAimPID.calculate(currentPosition, targetAngle);
+                ff = Range.clip(Range.scale(currentPosition, -90, -30, F_TURRET_MAX, F_TURRET_MIN), F_TURRET_MIN, F_TURRET_MAX);
+                ff *= ((seekingPower >= 0) ? 1 : -1);
 
-                setHardwarePower(seekingPower);
+                setHardwarePower(seekingPower + ff);
                 if (isAtTarget()) {
                     this.currentState = State.HOLDING;
                 }
@@ -147,7 +152,7 @@ public class Turret implements DataLoggable {
 //        telemetry.addData("Turret State", currentState.name());
             telemetry.addData("Turret Position", currentPosition);
             telemetry.addData("Turret Target", targetAngle);
-            telemetry.addData("Turret Power", seekingPower);
+            telemetry.addData("Turret Power", seekingPower + ff);
             telemetry.addData("Turret State: ", currentState);
         }
 

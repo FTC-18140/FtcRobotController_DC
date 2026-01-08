@@ -47,6 +47,7 @@ public class AutoBlueFar extends LinearOpMode{
                     new ParallelAction(
                             robot.updateAction(),
                             robot.aimAction(),
+                            robot.launcher.prepShotAction(),
                             new SequentialAction(
                                     new RaceAction(
                                             new SequentialAction(
@@ -148,8 +149,7 @@ public class AutoBlueFar extends LinearOpMode{
                                         .build(),
                                 robot.launcher.pointToAction(0),
                                 robot.launcher.stopAction()
-                            ),
-                    robot.launcher.prepShotAction()
+                            )
                 )
             );
         } finally {
