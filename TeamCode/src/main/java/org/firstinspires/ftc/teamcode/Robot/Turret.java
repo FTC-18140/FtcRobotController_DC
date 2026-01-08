@@ -108,6 +108,10 @@ public class Turret implements DataLoggable {
     // --- Main Update Method ---
 
     public void update() {
+        if ( TELEM ) {
+            telemetry.addLine(" ------------- TURRET TELEM -------------");
+        }
+
         updateCurrentPosition(); // Always read the sensor
 
 //        double limit_resistance_p = 1 + near_limit_resistance_factor_p * Math.abs(Range.scale(currentPosition, MIN_TURRET_POS, MAX_TURRET_POS, -1, 1));
@@ -149,10 +153,10 @@ public class Turret implements DataLoggable {
         }
 
         if ( TELEM ) {
-//        telemetry.addData("Turret State", currentState.name());
-            telemetry.addData("Turret Position", currentPosition);
-            telemetry.addData("Turret Target", targetAngle);
-            telemetry.addData("Turret Power", seekingPower + ff);
+            telemetry.addData("Turret Starting Angle: ", startingAngle);
+            telemetry.addData("Turret Position: ", currentPosition);
+            telemetry.addData("Turret Target: ", targetAngle);
+            telemetry.addData("Turret Power: ", seekingPower + ff);
             telemetry.addData("Turret State: ", currentState);
         }
 
@@ -160,11 +164,16 @@ public class Turret implements DataLoggable {
 
     private void  setHardwarePower(double power) {
         if (power < 0 && currentPosition + power*45 <= MIN_TURRET_POS) {
+            telemetry.addData("Turret position power override value: ", currentPosition + power*45);
+            telemetry.addData("Turret Power sent to hardware: ", 0);
             turret.setPower(0);
         } else if (power > 0 && currentPosition + power*45 >= MAX_TURRET_POS) {
+            telemetry.addData("Turret position power override value: ", currentPosition + power*45);
+            telemetry.addData("Turret Power sent to hardware: ", 0);
             turret.setPower(0);
         } else {
             power = Range.clip(power, -MAX_POWER, MAX_POWER);
+            telemetry.addData("Turret Power sent to hardware", power);
             turret.setPower(power);
         }
     }
