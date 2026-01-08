@@ -23,6 +23,8 @@ public class Turnstile {
     private PIDController angleController;
     private Telemetry telemetry;
 
+    public static boolean TELEM = false;
+
     // --- Tunable Constants via FTC Dashboard ---
     public static double P = 0.0027, I = 0.0, D = 0.000001;
     public static double HOMING_POWER = -0.05;
@@ -223,9 +225,11 @@ public class Turnstile {
         }
 
         // --- 3. Telemetry ---
+        if (TELEM ) {
 //        telemetry.addData("Turnstile State", currentState.name());
-        telemetry.addData("Turnstile Angle", currentAngle);
-        telemetry.addData("Turnstile Target", targetAngle + current_offset);
-        telemetry.addData("Limit Switch Pressed", limitSwitchPressed);
+            telemetry.addData("Turnstile Angle", currentAngle);
+            telemetry.addData("Turnstile Target", targetAngle + current_offset);
+            telemetry.addData("Limit Switch Pressed", limitSwitchPressed);
+        }
     }
 }

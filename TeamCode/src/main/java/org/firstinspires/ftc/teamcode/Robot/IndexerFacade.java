@@ -27,6 +27,8 @@ public class IndexerFacade {
     private static final double FLIP_TIME_SECONDS = 0.25; // Time for the flipper to extend and retract
     private static final double CYCLE_TIME_SECONDS = 0.5; // Time for the flipper to extend and retract
 
+    public static boolean TELEM = false;
+
     public void flipOverride( boolean up ) {
         if (up) {
             flipper.extend();
@@ -338,7 +340,9 @@ public class IndexerFacade {
                 break;
         }
 
-        addTelemetry();
+        if ( TELEM ) {
+            addTelemetry();
+        }
     }
 
     private void updateBallStates() {

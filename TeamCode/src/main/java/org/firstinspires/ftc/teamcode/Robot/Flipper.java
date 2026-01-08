@@ -15,6 +15,7 @@ public class Flipper {
     // --- Tunable Constants via FTC Dashboard ---
     public static double EXTENDED_POSITION = 0.45;
     public static double RETRACTED_POSITION = 0.045;
+    public static boolean TELEM = false;
 
     // --- State Management ---
     public enum State { EXTENDED, RETRACTED }
@@ -61,7 +62,9 @@ public class Flipper {
             }
         }
 
-        telemetry.addData("Flipper State", currentState);
-        telemetry.addData("Flipper Servo Pos", currentServoPosition);
+        if ( TELEM ) {
+            telemetry.addData("Flipper State", currentState);
+            telemetry.addData("Flipper Servo Pos", currentServoPosition);
+        }
     }
 }

@@ -36,6 +36,7 @@ public class Flywheel {
     public boolean AdjustedFF = false;
     public double feedforward;
 
+    public static boolean TELEM = false;
     public static double MAX_SHOOTER_RPM = 1000;
     public static double MIN_SHOOTER_RPM = 850;
     public static double SHOOTER_RADIUS = 0.096 / 2.0;
@@ -135,11 +136,13 @@ public class Flywheel {
                 setPower(finalPower);
 
                 // --- Telemetry for Debugging ---
-                telemetry.addData("Target RPM", targetRpm);
-                telemetry.addData("Current RPM", currentRpm);
-                telemetry.addData("Feedforward", feedforward);
-                telemetry.addData("PID Output", clippedPidOutput);
-                telemetry.addData("Final Power", finalPower);
+                if ( TELEM ) {
+                    telemetry.addData("Target RPM", targetRpm);
+                    telemetry.addData("Current RPM", currentRpm);
+                    telemetry.addData("Feedforward", feedforward);
+                    telemetry.addData("PID Output", clippedPidOutput);
+                    telemetry.addData("Final Power", finalPower);
+                }
                 break;
         }
     }

@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.Utilities.DataLogger;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 @Config
 public class Turret implements DataLoggable {
+
     // Define the states as an enum
     private enum State {
         HOLDING,
@@ -39,6 +40,10 @@ public class Turret implements DataLoggable {
     public static double TURRET_ANGLE_TOLERANCE = 3.5;
 //    public static double near_limit_resistance_factor_p = 0.0;
 //    public static double near_limit_resistance_factor_i = 0.0;
+    public static boolean TELEM = true;
+
+    public static double MAX_POWER = 0.2;
+
     public static double TURN_SPEED = 208.3; // From original lockOn
     //public static double TURRET_DEGREES_PER_ENCODER_TICK = 0.0048 * ((1.0 / ((double) 40 / 190)) / 360.0);
     public static double TURRET_DEGREES_PER_ENCODER_TICK = (double) 1 /8192 * 360 * 24.24/190.5;
@@ -138,10 +143,13 @@ public class Turret implements DataLoggable {
                 break;
         }
 
+        if ( TELEM ) {
 //        telemetry.addData("Turret State", currentState.name());
-        telemetry.addData("Turret Position", currentPosition);
-        telemetry.addData("Turret Target", targetAngle);
-        telemetry.addData("Turret Power", seekingPower);
+            telemetry.addData("Turret Position", currentPosition);
+            telemetry.addData("Turret Target", targetAngle);
+            telemetry.addData("Turret Power", seekingPower);
+            telemetry.addData("Turret State: ", currentState);
+        }
 
     }
 
@@ -151,6 +159,7 @@ public class Turret implements DataLoggable {
         } else if (power > 0 && currentPosition + power*45 >= MAX_TURRET_POS) {
             turret.setPower(0);
         } else {
+            power = Range.clip(power, -MAX_POWER, MAX_POWER);
             turret.setPower(power);
         }
     }
