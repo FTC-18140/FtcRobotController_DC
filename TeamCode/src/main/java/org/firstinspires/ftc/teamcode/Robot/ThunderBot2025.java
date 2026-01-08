@@ -69,7 +69,7 @@ public class ThunderBot2025 implements DataLoggable
         indexer.init(hwMap, telem);
 
         launcher = new LauncherFacade();
-        launcher.init(hwMap, telem);
+        launcher.init(hwMap, telem, pose);
         launcher.setAlliance(color);
 
         led = new LED();

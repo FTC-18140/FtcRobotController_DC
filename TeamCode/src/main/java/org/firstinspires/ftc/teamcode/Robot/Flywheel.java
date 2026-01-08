@@ -39,7 +39,7 @@ public class Flywheel {
     public static double MAX_SHOOTER_RPM = 1000;
     public static double MIN_SHOOTER_RPM = 850;
     public static double SHOOTER_RADIUS = 0.096 / 2.0;
-    public static double SPIN_EFFICIENCY = 1.27;
+    public static double SPIN_EFFICIENCY = 1.1;
 
 
     private double targetRpm = 0;
@@ -165,7 +165,7 @@ public class Flywheel {
         double numer = distance * distance * g;
         double denom = (distance * Math.sin(2 * angleRad)) - (2 * height * Math.pow(Math.cos(angleRad), 2));
 
-        denom = Math.max(denom, 0.3);
+        denom = Math.max(denom, 0.4);
 
         telemetry.addData("Denominator: ", denom);
         return Math.sqrt(numer / denom);

@@ -43,7 +43,7 @@ public class LauncherFacade implements DataLoggable {
     private final Vector2d targetPosRed = new Vector2d(66, -66);
     private ThunderBot2025.Alliance_Color allianceColor = ThunderBot2025.Alliance_Color.BLUE;
 
-    public void init(HardwareMap hwMap, Telemetry telem) {
+    public void init(HardwareMap hwMap, Telemetry telem, Pose2d startPose) {
         this.telemetry = telem;
         this.turret = new Turret();
         turret.init(hwMap, telem);
@@ -53,7 +53,7 @@ public class LauncherFacade implements DataLoggable {
         limelight.init(hwMap, telem);
 
         // Initialize Kalman Filter at (0,0,0) or load from file/auto transition
-        poseEstimator = new KalmanPoseEstimator(new Pose2d(0,0,0));
+        poseEstimator = new KalmanPoseEstimator(startPose);
     }
 
     public boolean isUsingLimelight() { return usingLimelight; }
@@ -272,6 +272,7 @@ public class LauncherFacade implements DataLoggable {
     private double getGoalDistance() {
         if (turret_pos == null || targetPos == null) return 0;
         // Use FUSED pose for distance calculation
+        telemetry.addData("distance: ", targetPos.minus(turret_pos).norm());
         return targetPos.minus(turret_pos).norm();
     }
 
