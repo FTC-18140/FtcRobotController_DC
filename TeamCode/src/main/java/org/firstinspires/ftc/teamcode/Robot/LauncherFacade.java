@@ -121,12 +121,13 @@ public class LauncherFacade implements DataLoggable {
         //this.fusedPose = poseEstimator.getFusedPose();
 
         // ------------- HOTFIX for AIMING
-        if (dt_h  > 180 ) {
-            Pose2d fixedPose = new Pose2d(fusedPose.position.x, fusedPose.position.y, fusedPose.heading.toDouble() - 360);
+        double target_shift = turret.getTargetPos() - Math.toDegrees(fusedPose.heading.toDouble());
+        if (target_shift  > 180 ) {
+            Pose2d fixedPose = new Pose2d(fusedPose.position.x, fusedPose.position.y, fusedPose.heading.toDouble() - 2*Math.PI);
             this.fusedPose = fixedPose;
         }
-        else if (dt_h  < 180 ) {
-            Pose2d fixedPose = new Pose2d(fusedPose.position.x, fusedPose.position.y, fusedPose.heading.toDouble() + 360);
+        else if (target_shift  < 180 ) {
+            Pose2d fixedPose = new Pose2d(fusedPose.position.x, fusedPose.position.y, fusedPose.heading.toDouble() + 2*Math.PI);
             this.fusedPose = fixedPose;
         } else {
             this.fusedPose = currentOdoPose;
