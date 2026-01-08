@@ -33,12 +33,12 @@ public class Turret implements DataLoggable {
     private Telemetry telemetry;
 
     // Tunable constants from your original file
-    public static double P_TURRET = 0.0065, I_TURRET = 0.1, D_TURRET = 0.000001;
+    public static double P_TURRET = 0.0065, I_TURRET = 0.0, D_TURRET = 0.000001;
     public static double MAX_TURRET_POS = 225;
     public static double MIN_TURRET_POS = -90;
     public static double TURRET_ANGLE_TOLERANCE = 3.5;
-    public static double near_limit_resistance_factor_p = 0.0;
-    public static double near_limit_resistance_factor_i = 0.0;
+//    public static double near_limit_resistance_factor_p = 0.0;
+//    public static double near_limit_resistance_factor_i = 0.0;
     public static double TURN_SPEED = 208.3; // From original lockOn
     //public static double TURRET_DEGREES_PER_ENCODER_TICK = 0.0048 * ((1.0 / ((double) 40 / 190)) / 360.0);
     public static double TURRET_DEGREES_PER_ENCODER_TICK = (double) 1 /8192 * 360 * 24.24/190.5;
@@ -105,13 +105,14 @@ public class Turret implements DataLoggable {
     public void update() {
         updateCurrentPosition(); // Always read the sensor
 
-        double limit_resistance_p = 1 + near_limit_resistance_factor_p * Math.abs(Range.scale(currentPosition, MIN_TURRET_POS, MAX_TURRET_POS, -1, 1));
-        double limit_resistance_i = 1 + near_limit_resistance_factor_p * Math.abs(Range.scale(currentPosition, MIN_TURRET_POS, MAX_TURRET_POS, -1, 1));
-        turretAimPID.setPID(P_TURRET * limit_resistance_p, I_TURRET * limit_resistance_i, D_TURRET);
+//        double limit_resistance_p = 1 + near_limit_resistance_factor_p * Math.abs(Range.scale(currentPosition, MIN_TURRET_POS, MAX_TURRET_POS, -1, 1));
+//        double limit_resistance_i = 1 + near_limit_resistance_factor_p * Math.abs(Range.scale(currentPosition, MIN_TURRET_POS, MAX_TURRET_POS, -1, 1));
+//        turretAimPID.setPID(P_TURRET * limit_resistance_p, I_TURRET * limit_resistance_i, D_TURRET);
+        turretAimPID.setPID(P_TURRET, I_TURRET, D_TURRET);
 
-        telemetry.addData("limit resistance: ", limit_resistance_p);
-        telemetry.addData("resisting p: ", P_TURRET * limit_resistance_p);
-        telemetry.addData("resisting i: ", I_TURRET * limit_resistance_i);
+//        telemetry.addData("limit resistance: ", limit_resistance_p);
+//        telemetry.addData("resisting p: ", P_TURRET * limit_resistance_p);
+//        telemetry.addData("resisting i: ", I_TURRET * limit_resistance_i);
 
         switch (currentState) {
             case HOLDING:
