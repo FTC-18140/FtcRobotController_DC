@@ -30,6 +30,8 @@ public class BallSensor {
     private Telemetry telemetry;
     private String sensorName;
 
+    public static boolean TELEM = false;
+
     // --- Tunable Constants via FTC Dashboard ---
 
     public static double PRESENCE_SATURATION = .332;
@@ -96,6 +98,7 @@ public class BallSensor {
         } else {
             telemetry.addData(sensorName + " Not initialized", 0);
         }
+        addTelemetry();
     }
 
     /** Returns the color of the ball detected during the last update(). */
@@ -176,6 +179,7 @@ public class BallSensor {
     /** Call this from update() to see live sensor values for tuning. */
 
     public void addTelemetry() {
+        if ( !TELEM ) return;
         telemetry.addLine(String.format("--- Sensor: %s ---", sensorName));
         telemetry.addData("Detected", String.format("%s (Dist: %.2f cm, Hue: %.4f)", detectedColor, distanceCm, hsv[0]));
         //telemetry.addData("R | G | B", String.format("%.3f | %.3f | %.3f", colors.red, colors.green, colors.blue));
