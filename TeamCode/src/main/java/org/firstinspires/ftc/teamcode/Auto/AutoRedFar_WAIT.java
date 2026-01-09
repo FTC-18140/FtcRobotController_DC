@@ -38,7 +38,7 @@ public class AutoRedFar_WAIT extends LinearOpMode{
                                                 .strafeToSplineHeading(new Vector2d(launchPos.position.x, -12), Math.toRadians(-23))
                                                 .build()
                                 ),
-                                robot.intake.intakeStartAction(),
+                                robot.intakeStartAction(),
                                 //new SleepAction(2),
 
 

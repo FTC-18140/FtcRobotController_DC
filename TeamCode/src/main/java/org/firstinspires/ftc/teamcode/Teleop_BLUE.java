@@ -108,7 +108,7 @@ public class Teleop_BLUE extends OpMode {
 
         // --- Intake Controls (Stateful Latch) ---
         if(theGamepad2.getButton(TBDGamepad.Button.X) || theGamepad1.getButton(TBDGamepad.Button.X)){
-            robot.intake.intake();
+            robot.intake();
         } else if (theGamepad2.getButton(TBDGamepad.Button.B) || theGamepad1.getButton(TBDGamepad.Button.B)) {
             robot.intake.stop();
         } else if (theGamepad2.getButton(TBDGamepad.Button.A) || theGamepad1.getButton(TBDGamepad.Button.A)) {

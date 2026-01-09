@@ -38,15 +38,7 @@ public class Intake {
         telemetry.addData("Intaking", 0);
     }
 
-    public Action intakeStartAction(){
-        return new Action() {
-            @Override
-            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                intake();
-                return false;
-            }
-        };
-    }
+
     public Action intakeStopAction(){
         return new Action() {
             @Override

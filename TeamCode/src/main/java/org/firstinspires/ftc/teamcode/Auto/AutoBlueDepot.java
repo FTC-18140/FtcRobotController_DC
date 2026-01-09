@@ -53,7 +53,7 @@ public class AutoBlueDepot extends LinearOpMode{
                                                                     .strafeToSplineHeading(launchPos.position, Math.toRadians(23))
                                                                     .build()
                                                     ),
-                                                    robot.intake.intakeStartAction(),
+                                                    robot.intakeStartAction(),
                                                     //new SleepAction(2),
 
 

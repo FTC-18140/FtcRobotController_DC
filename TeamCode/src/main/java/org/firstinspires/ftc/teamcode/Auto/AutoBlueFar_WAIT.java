@@ -35,22 +35,22 @@ public class AutoBlueFar_WAIT extends LinearOpMode{
                                                 .strafeToSplineHeading(new Vector2d(launchPos.position.x, 12), Math.toRadians(23))
                                                 .build()
                                 ),
-                                robot.intake.intakeStartAction(),
+                                robot.intakeStartAction(),
                                 //new SleepAction(2),
 
 
                                 new SequentialAction(
                                         robot.intake.intakeStopAction(),
                                         robot.launchAction(),
-                                        robot.intake.intakeStartAction(),
+                                        robot.intakeStartAction(),
 
                                         robot.intake.intakeStopAction(),
                                         robot.launchAction(),
-                                        robot.intake.intakeStartAction(),
+                                        robot.intakeStartAction(),
 
                                         robot.intake.intakeStopAction(),
                                         robot.launchAction(),
-                                        robot.intake.intakeStartAction()
+                                        robot.intakeStartAction()
                                 ),
                                 robot.launcher.stopAction(),
                                 robot.intake.intakeStopAction(),

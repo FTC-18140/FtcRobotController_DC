@@ -100,6 +100,8 @@ public class IndexerFacade {
 
         // Search all physical slots for a ball that matches the required color.
         for (int i = 0; i < ballSlots.length && !ballFound; i++) {
+            updateBallSensors();
+            updateBallStates();
             if (ballSlots[i] == requiredColor || (requiredColor == BallState.ALL && ballSlots[i] != BallState.VACANT)) {
                 // --- Critical Step ---
                 // Mark this ball as "used" by changing its state in our software model to VACANT.
@@ -164,6 +166,7 @@ public class IndexerFacade {
                 slotFound = true;
             }
             for (int i = 0; i < 3 && !slotFound; i++) {
+                updateBallSensors();
                 int slotToCheck = (startSlot + i) % 3;
                 if (ballSlots[slotToCheck] == ballState) {
                     selectSlot(slotToCheck);
@@ -266,6 +269,7 @@ public class IndexerFacade {
     public State getState() { return currentState; }
     public void setState(State state) { this.currentState = state; }
     public BallState getBallState(int slot) {
+        updateBallSensors();
         return (slot >= 0 && slot < 3) ? ballSlots[slot] : BallState.VACANT;
     }
     public boolean indexerIsFull(){
@@ -275,14 +279,18 @@ public class IndexerFacade {
     public double getIndexerAngle(){
         return turnstile.getCurrentAngle();
     }
+    public void updateBallSensors() {
+        if(TELEM){
+            telemetry.addData("updating color sensors: ", true);
+        }
+        for (int i = 0; i < 3; i++) {
+            ballSensors[i].update();
+        }
+    }
 
     public void update() {
         flipper.update();
         turnstile.update();
-
-        for (int i = 0; i < 3; i++) {
-            ballSensors[i].update();
-        }
 
         // Only update ball states from sensors if we are NOT in an active auto-sequence
         // This prevents a ball that has been logically "used" from being re-detected.

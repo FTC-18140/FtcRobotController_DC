@@ -175,6 +175,19 @@ public class ThunderBot2025 implements DataLoggable
         led.update(launcher.getFlywheelRpm(), launcher.getFlywheelTargetRpm(), 120 - runtime.seconds());
     }
 
+    public void intake() {
+        intake.intake();
+    }
+
+    public Action intakeStartAction(){
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                intake.intake();
+                return false;
+            }
+        };
+    }
     public void charge() {
         launcher.prepShot();
     }
