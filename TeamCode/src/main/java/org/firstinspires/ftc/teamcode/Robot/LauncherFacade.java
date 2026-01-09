@@ -235,6 +235,9 @@ public class LauncherFacade implements DataLoggable {
 
         return relativeAngleDeg;
     }
+    public void holdTurretPosition() {
+        turret.holdPosition();
+    }
 
     public void prepShot() {
         double distanceInches = getGoalDistance();

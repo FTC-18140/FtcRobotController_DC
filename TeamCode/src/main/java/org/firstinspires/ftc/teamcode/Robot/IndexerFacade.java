@@ -27,7 +27,8 @@ public class IndexerFacade {
     private static final double FLIP_TIME_SECONDS = 0.25; // Time for the flipper to extend and retract
     private static final double CYCLE_TIME_SECONDS = 0.5; // Time for the flipper to extend and retract
 
-    public static boolean TELEM = false;
+    public static boolean TELEM = true;
+    private boolean updated = false;
 
     public void flipOverride( boolean up ) {
         if (up) {
@@ -45,7 +46,7 @@ public class IndexerFacade {
 
     /** The facade's internal model of what is in each slot. */
     public enum BallState { GREEN, PURPLE, VACANT, ALL }
-    private BallState[] ballSlots = new BallState[6];
+    private BallState[] ballSlots = new BallState[3];
     private int currentTargetSlot = 0;
 
     // --- Auto-Sequence Management ---
@@ -65,7 +66,7 @@ public class IndexerFacade {
             ballSensors[i] = new BallSensor();
             ballSensors[i].init(hwMap, telem, "color" + i);
         }
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 3; i++) {
             ballSlots[i] = BallState.VACANT;
         }
 
@@ -77,7 +78,7 @@ public class IndexerFacade {
     }
 
     public void setInitialBallStates(BallState[] initialStates) {
-        if (initialStates.length == 6) {
+        if (initialStates.length == 3) {
             this.ballSlots = initialStates;
         }
     }
@@ -285,17 +286,22 @@ public class IndexerFacade {
         return turnstile.getCurrentAngle();
     }
     public void updateBallSensors() {
-        if(TELEM){
-            telemetry.addData("updating color sensors: ", true);
-        }
-        for (int i = 0; i < 3; i++) {
-            ballSensors[i].update();
+        if(!updated){
+                if (TELEM) {
+                    telemetry.addData("updating color sensors: ", true);
+                }
+                for (int i = 0; i < 6; i++) {
+                    ballSensors[i].update();
+                }
+                updated = true;
         }
     }
 
     public void update() {
         flipper.update();
         turnstile.update();
+
+        updated = false;
 
         // Only update ball states from sensors if we are NOT in an active auto-sequence
         // This prevents a ball that has been logically "used" from being re-detected.
@@ -313,6 +319,7 @@ public class IndexerFacade {
                 break;
             case SELECTING_BALL:
                 if (turnstile.isAtTarget()) {
+                    updateBallSensors();
                     currentState = State.AWAITING_FLIP;
                 }
                 break;
@@ -364,7 +371,7 @@ public class IndexerFacade {
             if (sensorA == BallSensor.BallColor.PURPLE || sensorB == BallSensor.BallColor.PURPLE) {
                 // Priority 1: Either is Purple
                 ballSlots[i] = BallState.PURPLE;
-            } else if (sensorA == BallSensor.BallColor.GREEN && sensorB == BallSensor.BallColor.GREEN) {
+            } else if (sensorA == BallSensor.BallColor.GREEN || sensorB == BallSensor.BallColor.GREEN) {
                 // Priority 2: Both must be Green
                 ballSlots[i] = BallState.GREEN;
             } else {

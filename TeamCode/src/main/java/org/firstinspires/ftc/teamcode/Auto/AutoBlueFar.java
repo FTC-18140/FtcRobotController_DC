@@ -59,19 +59,20 @@ public class AutoBlueFar extends LinearOpMode{
         //                                        // Plan the first shot sequence while driving.
         //                                        robot.planSequenceAction()
                                                     ),
-                                                    robot.intakeStartAction(),
                                                     // Launch Preloads
                                                     new SequentialAction(
                                                             robot.launchAction(),
                                                             robot.launchAction(),
                                                             robot.launchAction()
                                                     ),
+                                                    robot.intakeStartAction(),
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(launchPos)
                                                                     .splineToSplineHeading(intakePos, Math.toRadians(90))
                                                                     .splineToConstantHeading(new Vector2d(intakePos.position.x, 52), Math.toRadians(90), new TranslationalVelConstraint(5))
                                                                     .build(),
                                                             new RaceAction(
+                                                                    robot.holdTurretAction(),
                                                                     new SequentialAction(
                                                                             robot.seekToSlotAction(0), // Move to the first intake slot
                                                                             //robot.indexerIsAtTargetAction(),
@@ -85,6 +86,7 @@ public class AutoBlueFar extends LinearOpMode{
                                                                     robot.indexerFullAction()
                                                             )
                                                     ),
+                                                    robot.intake.intakeStopAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
 
                                                     // Drive to launch spot
@@ -102,6 +104,7 @@ public class AutoBlueFar extends LinearOpMode{
                                                             robot.launchAction(),
                                                             robot.launchAction()
                                                     ),
+                                                    robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(launchPos)
@@ -109,6 +112,7 @@ public class AutoBlueFar extends LinearOpMode{
                                                                     .splineToConstantHeading(new Vector2d(intakePos2.position.x, 49), Math.toRadians(90), new TranslationalVelConstraint(5))
                                                                     .build(),
                                                             new RaceAction(
+                                                                    robot.holdTurretAction(),
                                                                     new SequentialAction(
                                                                             robot.seekToSlotAction(0), // Move to the first intake slot
                                                                             //robot.indexerIsAtTargetAction(),
@@ -122,6 +126,7 @@ public class AutoBlueFar extends LinearOpMode{
                                                                     robot.indexerFullAction()
                                                             )
                                                     ),
+                                                    robot.intake.intakeStopAction(),
 
                                                     // Drive to launch spot
                                                     new ParallelAction(

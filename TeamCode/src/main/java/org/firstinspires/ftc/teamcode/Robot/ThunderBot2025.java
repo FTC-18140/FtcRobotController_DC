@@ -172,7 +172,7 @@ public class ThunderBot2025 implements DataLoggable
         launcher.update(this.drive.localizer.getPose());
         indexer.update();
 //        led.update(indexer.getBallState(2), 120 - runtime.seconds());
-        led.update(launcher.getFlywheelRpm(), launcher.getFlywheelTargetRpm(), 120 - runtime.seconds(), indexer.getLastBallState(1));
+        led.update(launcher.getFlywheelRpm(), launcher.getFlywheelTargetRpm(), 120 - runtime.seconds(), indexer.getLastBallState(2));
     }
 
     public void intake() {
@@ -254,6 +254,16 @@ public class ThunderBot2025 implements DataLoggable
         };
     }
 
+    public Action holdTurretAction(){
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                launcher.holdTurretPosition();
+                return true;
+            }
+        };
+    }
+
     public Action launchReadyAction(){
         return new Action() {
             @Override
@@ -296,9 +306,9 @@ public class ThunderBot2025 implements DataLoggable
                     hasStarted = true;
                 }
 
+                indexer.updateBallSensors();
                 // Condition to exit: if the slot we were watching is no longer vacant.
                 if (indexer.getBallState(slotToWatch) != IndexerFacade.BallState.VACANT) {
-
                     return !indexer.selectNextSlot(IndexerFacade.BallState.ALL); // End this action, the cycle command has been sent.
                 }
                 return true; // Continue waiting for a ball.
