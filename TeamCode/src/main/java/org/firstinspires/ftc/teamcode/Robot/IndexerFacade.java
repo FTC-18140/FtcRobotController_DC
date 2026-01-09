@@ -293,13 +293,6 @@ public class IndexerFacade {
         flipper.update();
         turnstile.update();
 
-<<<<<<< HEAD
-=======
-//        for (int i = 0; i < 6; i++) {
-//            ballSensors[i].update();
-//        }
-
->>>>>>> origin/River_Sandbox
         // Only update ball states from sensors if we are NOT in an active auto-sequence
         // This prevents a ball that has been logically "used" from being re-detected.
         if (shotSequence == null) {
