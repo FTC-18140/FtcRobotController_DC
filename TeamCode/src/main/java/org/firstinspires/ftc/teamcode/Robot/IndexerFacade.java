@@ -45,7 +45,7 @@ public class IndexerFacade {
 
     /** The facade's internal model of what is in each slot. */
     public enum BallState { GREEN, PURPLE, VACANT, ALL }
-    private BallState[] ballSlots = new BallState[3];
+    private BallState[] ballSlots = new BallState[6];
     private int currentTargetSlot = 0;
 
     // --- Auto-Sequence Management ---

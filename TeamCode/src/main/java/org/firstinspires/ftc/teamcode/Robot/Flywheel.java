@@ -40,7 +40,7 @@ public class Flywheel {
     public static double MAX_SHOOTER_RPM = 1000;
     public static double MIN_SHOOTER_RPM = 850;
     public static double SHOOTER_RADIUS = 0.096 / 2.0;
-    public static double SPIN_EFFICIENCY = 1.1;
+    public static double SPIN_EFFICIENCY = 1.25;
 
 
     private double targetRpm = 0;
@@ -57,7 +57,7 @@ public class Flywheel {
         launcher2 = hwMap.get(DcMotorEx.class, "launcher2");
         launcher2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        launcher2.setDirection(DcMotorSimple.Direction.REVERSE);
+//        launcher2.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     // --- High-Level Commands to Change State ---

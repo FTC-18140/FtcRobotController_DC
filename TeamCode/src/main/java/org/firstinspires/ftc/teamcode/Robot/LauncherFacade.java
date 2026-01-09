@@ -121,12 +121,12 @@ public class LauncherFacade implements DataLoggable {
         //this.fusedPose = poseEstimator.getFusedPose();
 
         // ------------- HOTFIX for AIMING
-        double target_shift = turret.getTargetPos() - Math.toDegrees(lastOdoPose.heading.toDouble());
+        double target_shift = turret.getTargetPos() - turret.getCurrentPosition();
         if (target_shift  > 180 ) {
             Pose2d fixedPose = new Pose2d(fusedPose.position.x, fusedPose.position.y, fusedPose.heading.toDouble() - 2*Math.PI);
             this.fusedPose = fixedPose;
         }
-        else if (target_shift  < 180 ) {
+        else if (target_shift  < -180 ) {
             Pose2d fixedPose = new Pose2d(fusedPose.position.x, fusedPose.position.y, fusedPose.heading.toDouble() + 2*Math.PI);
             this.fusedPose = fixedPose;
         } else {
@@ -142,6 +142,7 @@ public class LauncherFacade implements DataLoggable {
         flywheel.update(distanceToGoal);
 
         telemetry.addData("Using Limelight: ", usingLimelight);
+        telemetry.addData("Amount Moved: ", target_shift);
     }
 
     public void updateVision() { limelight.update(Math.toDegrees(fusedPose.heading.toDouble()) - getTurretAngle()); }
