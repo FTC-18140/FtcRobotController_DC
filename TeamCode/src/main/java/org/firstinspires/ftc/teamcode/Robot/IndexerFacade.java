@@ -27,6 +27,7 @@ public class IndexerFacade {
     private static final double FLIP_TIME_SECONDS = 0.25; // Time for the flipper to extend and retract
     private static final double CYCLE_TIME_SECONDS = 0.5; // Time for the flipper to extend and retract
 
+    private boolean checkColors = false;
     public static boolean TELEM = false;
 
     public void flipOverride( boolean up ) {
@@ -288,7 +289,7 @@ public class IndexerFacade {
         if(TELEM){
             telemetry.addData("updating color sensors: ", true);
         }
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 6; i++) {
             ballSensors[i].update();
         }
     }
@@ -364,7 +365,7 @@ public class IndexerFacade {
             if (sensorA == BallSensor.BallColor.PURPLE || sensorB == BallSensor.BallColor.PURPLE) {
                 // Priority 1: Either is Purple
                 ballSlots[i] = BallState.PURPLE;
-            } else if (sensorA == BallSensor.BallColor.GREEN && sensorB == BallSensor.BallColor.GREEN) {
+            } else if (sensorA == BallSensor.BallColor.GREEN || sensorB == BallSensor.BallColor.GREEN) {
                 // Priority 2: Both must be Green
                 ballSlots[i] = BallState.GREEN;
             } else {
