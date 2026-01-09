@@ -274,6 +274,9 @@ public class IndexerFacade {
         updateBallStates();
         return (slot >= 0 && slot < 3) ? ballSlots[slot] : BallState.VACANT;
     }
+    public BallState getLastBallState(int slot) {
+        return (slot >= 0 && slot < 3) ? ballSlots[slot] : BallState.VACANT;
+    }
     public boolean indexerIsFull(){
         return !((getBallState(0) == BallState.VACANT || getBallState(1) == BallState.VACANT || getBallState(2) == BallState.VACANT) || currentState == State.SELECTING_BALL);
     }

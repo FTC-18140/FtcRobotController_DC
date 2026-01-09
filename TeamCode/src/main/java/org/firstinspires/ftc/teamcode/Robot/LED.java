@@ -9,7 +9,8 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class LED {
     Telemetry telemetry;
-    Servo led = null;
+    Servo rpmLed = null;
+    Servo launcherLed = null;
 
     public ElapsedTime ledTimer = new ElapsedTime();
     public double off = 0;
@@ -24,33 +25,50 @@ public class LED {
     public void init(HardwareMap hwMap, Telemetry telem){
         telemetry = telem;
         try{
-            led = hwMap.servo.get("led");
-            led.setPosition(red);
+            rpmLed = hwMap.servo.get("led");
+            rpmLed.setPosition(red);
         }catch (Exception e){
             telemetry.addData("led not found in configuration", 0);
+        }
+        try{
+            launcherLed = hwMap.servo.get("led2");
+            launcherLed.setPosition(red);
+        }catch (Exception e){
+            telemetry.addData("led2 not found in configuration", 0);
         }
     }
 
 
-    public void update(double measured_tps, double target_tps, double remainingSeconds) {
+    public void update(double measured_tps, double target_tps, double remainingSeconds, IndexerFacade.BallState loaded_color) {
         double difference_tps =  measured_tps - target_tps ;
         double acceptable_range_up = 50;
         double acceptable_range_down = -50;
         if (difference_tps < acceptable_range_down) {
-            setToColor("red");
+            setRPMLedToColor("red");
         } else if (difference_tps > acceptable_range_up) {
-            setToColor("blue");
+            setRPMLedToColor("blue");
         } else {
-            setToColor("green");
+            setRPMLedToColor("green");
         }
 
         if (remainingSeconds < 10) {
             if (Math.ceil(remainingSeconds * 2) % 2 == 1){
-                setToColor("off");
+                setRPMLedToColor("off");
             } else {
-                setToColor("orange");
+                setRPMLedToColor("orange");
             }
 
+        }
+
+        switch (loaded_color) {
+            case GREEN:
+                setLuncherLedToColor("green");
+                break;
+            case PURPLE:
+                setLuncherLedToColor("purple");
+                break;
+            default:
+                setLuncherLedToColor("off");
         }
 
     }
@@ -71,13 +89,19 @@ public class LED {
 //            setToColor("blue");
 //        }
 //    }
+    public void setRPMLedToColor(String color) {
+        rpmLed.setPosition(getColor(color));
+    }
+    public void setLuncherLedToColor(String color){
+        launcherLed.setPosition(getColor(color));
+    }
 
     /**
      * sets the color of the leds based on an input string
      * @param color
      */
-    public void setToColor(String color) {
-        if(led != null) {
+    public double getColor(String color) {
+        if(rpmLed != null) {
             switch(color){
                 case("off"):
                     theColor = off;
@@ -111,8 +135,7 @@ public class LED {
                     theColor = white;
                     break;
             }
-            led.setPosition(theColor);
-
         }
+        return theColor;
     }
 }
