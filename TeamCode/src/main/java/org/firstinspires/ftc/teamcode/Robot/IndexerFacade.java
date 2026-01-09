@@ -65,7 +65,7 @@ public class IndexerFacade {
             ballSensors[i] = new BallSensor();
             ballSensors[i].init(hwMap, telem, "color" + i);
         }
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 6; i++) {
             ballSlots[i] = BallState.VACANT;
         }
 
@@ -271,6 +271,7 @@ public class IndexerFacade {
     public void setState(State state) { this.currentState = state; }
     public BallState getBallState(int slot) {
         updateBallSensors();
+        updateBallStates();
         return (slot >= 0 && slot < 3) ? ballSlots[slot] : BallState.VACANT;
     }
     public boolean indexerIsFull(){
