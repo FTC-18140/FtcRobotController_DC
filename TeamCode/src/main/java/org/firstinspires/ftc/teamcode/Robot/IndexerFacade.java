@@ -18,7 +18,7 @@ public class IndexerFacade {
     // --- Sub-Components ---
     private Flipper flipper;
     private Turnstile turnstile;
-    private BallSensor[] ballSensors = new BallSensor[3];
+    private BallSensor[] ballSensors = new BallSensor[6];
     private Telemetry telemetry;
     private ElapsedTime flipTimer = new ElapsedTime();
 
@@ -61,14 +61,15 @@ public class IndexerFacade {
         turnstile = new Turnstile();
         turnstile.init(hwMap, telem);
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 6; i++) {
             ballSensors[i] = new BallSensor();
             ballSensors[i].init(hwMap, telem, "color" + i);
+        }
+        for (int i = 0; i < 3; i++) {
             ballSlots[i] = BallState.VACANT;
         }
 
-
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 6; i++) {
             ballSensors[i].update();
         }
         currentState = State.IDLE;
@@ -76,7 +77,7 @@ public class IndexerFacade {
     }
 
     public void setInitialBallStates(BallState[] initialStates) {
-        if (initialStates.length == 3) {
+        if (initialStates.length == 6) {
             this.ballSlots = initialStates;
         }
     }
@@ -280,9 +281,9 @@ public class IndexerFacade {
         flipper.update();
         turnstile.update();
 
-        for (int i = 0; i < 3; i++) {
-            ballSensors[i].update();
-        }
+//        for (int i = 0; i < 6; i++) {
+//            ballSensors[i].update();
+//        }
 
         // Only update ball states from sensors if we are NOT in an active auto-sequence
         // This prevents a ball that has been logically "used" from being re-detected.
@@ -339,24 +340,30 @@ public class IndexerFacade {
                 }
                 break;
         }
-
-        if ( TELEM ) {
-            addTelemetry();
-        }
+        addTelemetry();
     }
 
     private void updateBallStates() {
         for (int i = 0; i < 3; i++) {
-            BallSensor.BallColor detected = ballSensors[i].getDetectedColor();
-            switch (detected) {
-                case GREEN: ballSlots[i] = BallState.GREEN; break;
-                case PURPLE: ballSlots[i] = BallState.PURPLE; break;
-                case NONE: ballSlots[i] = BallState.VACANT; break;
+            // Get the detected colors from the sensor pairs (0,1), (2,3), (4,5)
+            BallSensor.BallColor sensorA = ballSensors[i * 2].getDetectedColor();
+            BallSensor.BallColor sensorB = ballSensors[i * 2 + 1].getDetectedColor();
+
+            if (sensorA == BallSensor.BallColor.PURPLE || sensorB == BallSensor.BallColor.PURPLE) {
+                // Priority 1: Either is Purple
+                ballSlots[i] = BallState.PURPLE;
+            } else if (sensorA == BallSensor.BallColor.GREEN && sensorB == BallSensor.BallColor.GREEN) {
+                // Priority 2: Both must be Green
+                ballSlots[i] = BallState.GREEN;
+            } else {
+                // Default: Both NONE or mixed Green/None
+                ballSlots[i] = BallState.VACANT;
             }
         }
     }
 
     private void addTelemetry() {
+        if ( !TELEM ) return;
         telemetry.addData("Indexer Facade State", currentState.name());
         telemetry.addLine(String.format("Slots: [0]: %s, [1]: %s, [2]: %s",
                 ballSlots[0], ballSlots[1], ballSlots[2]));
