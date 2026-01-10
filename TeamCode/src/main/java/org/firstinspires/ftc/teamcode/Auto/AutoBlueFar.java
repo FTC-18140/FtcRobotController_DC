@@ -91,7 +91,7 @@ public class AutoBlueFar extends LinearOpMode{
 
                                                     // Drive to launch spot
                                                     new ParallelAction(
-                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, 52), Math.toRadians(90)))
+                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, 49), Math.toRadians(90)))
                                                                     .strafeToSplineHeading(launchPos.position, Math.toRadians(0))
                                                                     .build()
         //                                        ,
@@ -130,7 +130,7 @@ public class AutoBlueFar extends LinearOpMode{
 
                                                     // Drive to launch spot
                                                     new ParallelAction(
-                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos2.position.x, 52), Math.toRadians(90)))
+                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos2.position.x, 49), Math.toRadians(90)))
                                                                     .strafeToSplineHeading(launchPos.position, Math.toRadians(0))
                                                                     .build()
         //                                            ,
