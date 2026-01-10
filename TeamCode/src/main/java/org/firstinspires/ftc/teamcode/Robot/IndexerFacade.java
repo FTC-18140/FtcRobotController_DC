@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Robot;
 
 import androidx.annotation.NonNull;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -16,6 +17,7 @@ import java.util.List;
  * The IndexerFacade is the high-level controller for the entire indexing and loading mechanism.
  * It coordinates the Turnstile, Flipper, and BallSensors to perform complex actions safely.
  */
+@Config
 public class IndexerFacade {
 
 
@@ -27,11 +29,11 @@ public class IndexerFacade {
     private ElapsedTime flipTimer = new ElapsedTime();
 
     // --- Constants ---
-    public static final double[] SLOT_ANGLES = {0, 120, 240}; // Angles for slots 0, 1, and 2
+    public static final double[] SLOT_ANGLES = {240, 120, 0}; // Angles for slots 0, 1, and 2
     private static final double FLIP_TIME_SECONDS = 0.25; // Time for the flipper to extend and retract
     private static final double CYCLE_TIME_SECONDS = 0.5; // Time for the flipper to extend and retract
 
-    public static boolean TELEM = false;
+    public static boolean TELEM = true;
     private boolean updated = false;
 
     public void flipOverride( boolean up ) {
@@ -51,10 +53,11 @@ public class IndexerFacade {
     /** The facade's internal model of what is in each slot. */
     public enum BallState { GREEN, PURPLE, VACANT, ALL }
     private BallState[] ballSlots = new BallState[3];
-    private int currentTargetSlot = 0;
+    private int currentTargetSlot = 2;
 
     // --- Auto-Sequence Management ---
     private List<BallState> shotSequence = null;
+    private boolean sequenceStarted = false;
     private int sequenceIndex = -1;
 
     public void init(HardwareMap hwMap, Telemetry telem) {
@@ -99,6 +102,8 @@ public class IndexerFacade {
         // Safety check: Do nothing if the sequence is not active.
         if (shotSequence == null || sequenceIndex < 0 || sequenceIndex >= shotSequence.size()) return false;
 
+        sequenceStarted = true;
+
         // Determine which color we need for this step of the sequence.
         BallState requiredColor = shotSequence.get(sequenceIndex);
         boolean ballFound = false;
@@ -116,10 +121,9 @@ public class IndexerFacade {
 
                 // Command the turnstile to rotate this slot into the firing position.
                 ballFound = true;
-                int slot = Math.abs(i - 2);
-                telemetry.addData("selected Sequence Slot: ", slot);
-                currentTargetSlot = slot;
-                turnstile.seekToAngle(SLOT_ANGLES[slot]);
+                telemetry.addData("selected Sequence Slot: ", i);
+                currentTargetSlot = i;
+                turnstile.seekToAngle(SLOT_ANGLES[i]);
                 currentState = State.SELECTING_BALL;
             }
         }
@@ -155,6 +159,7 @@ public class IndexerFacade {
     }
 
     public void cancelSequence() {
+        sequenceStarted = false;
         shotSequence = null;
         sequenceIndex = -1;
         if (currentState != State.IDLE) {
@@ -337,7 +342,7 @@ public class IndexerFacade {
                 break;
             case AWAITING_FLIP: // In position, ready to receive a flip() command from an external source.
                 // Do nothing. The system will wait here until flip() is called.
-                if(shotSequence != null && turnstile.isAtTarget()){
+                if(shotSequence != null && turnstile.isAtTarget() && sequenceStarted){
                     flip();
                 }
                 break;
@@ -411,6 +416,7 @@ public class IndexerFacade {
         telemetry.addData("Indexer Facade State", currentState.name());
         telemetry.addLine(String.format("Slots: [0]: %s, [1]: %s, [2]: %s",
                 ballSlots[0], ballSlots[1], ballSlots[2]));
+        telemetry.addData("in Sequence: ", sequenceStarted);
         if (shotSequence != null) {
             telemetry.addData("Target Slot: ", getCurrentTargetSlot());
             telemetry.addData("Sequence: ", shotSequence);
