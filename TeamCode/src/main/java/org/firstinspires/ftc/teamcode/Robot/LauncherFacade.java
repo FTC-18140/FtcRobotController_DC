@@ -255,6 +255,9 @@ public class LauncherFacade implements DataLoggable {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 prepShot();
+                telemetry.addData("Flywheel Target RPM", flywheel.getTargetRpm());
+                telemetry.addData("Flywheel RPM", flywheel.getCurrentRpm());
+
                 return false;
             }
         };

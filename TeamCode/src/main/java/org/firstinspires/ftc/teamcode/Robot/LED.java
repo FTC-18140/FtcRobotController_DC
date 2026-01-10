@@ -39,10 +39,10 @@ public class LED {
     }
 
 
-    public void update(double measured_tps, double target_tps, double remainingSeconds, IndexerFacade.BallState loaded_color) {
-        double difference_tps =  measured_tps - target_tps ;
-        double acceptable_range_up = 50;
-        double acceptable_range_down = -50;
+    public void update(double measured_rpm, double target_rpm, double remainingSeconds, IndexerFacade.BallState loaded_color) {
+        double difference_tps =  measured_rpm - target_rpm;
+        double acceptable_range_up = 30;
+        double acceptable_range_down = -30;
         if (difference_tps < acceptable_range_down) {
             setRPMLedToColor("red");
         } else if (difference_tps > acceptable_range_up) {
