@@ -29,18 +29,18 @@ public class Flywheel {
     private Telemetry telemetry;
 
     // Tunable constants from your original file
-    public static double P = 0.004, I = 0.0, D = 0.0;
-    public static double F_MAX = 0.62, F_MIN = 0.45;
+    public static double P = 0.025, I = 0.01, D = 0.005;
+    public static double F_MAX = 0.5, F_MIN = 0.35;
     public static double F_MAX_ADJUST = F_MAX, F_MIN_ADJUST = F_MIN;
     public static double F_STEP = .03;
     public boolean AdjustedFF = false;
     public double feedforward;
 
     public static boolean TELEM = false;
-    public static double MAX_SHOOTER_RPM = 1000;
-    public static double MIN_SHOOTER_RPM = 850;
+    public static double MAX_SHOOTER_RPM = 2300;
+    public static double MIN_SHOOTER_RPM = 1000;
     public static double SHOOTER_RADIUS = 0.096 / 2.0;
-    public static double SPIN_EFFICIENCY = 1.26;
+    public static double SPIN_EFFICIENCY = 0.65;
 
 
     private double targetRpm = 0;
@@ -91,10 +91,16 @@ public class Flywheel {
 
         // Check if the current RPM is within a reasonable tolerance (e.g., 50 RPM) of the target.
         // This tolerance can be tuned.
-        final double RPM_TOLERANCE = 25.0;
+        final double RPM_TOLERANCE = 20.0;
         return Math.abs(currentRpm - targetRpm) < RPM_TOLERANCE;
     }
 
+    public double getRPM(){
+        double tps = -launcher.getVelocity();
+
+        double rpm = (tps * 60) / 28;
+        return rpm;
+    }
 
     /** Commands the flywheel to stop. */
     public void stop() {
@@ -109,7 +115,9 @@ public class Flywheel {
     public void update(double distanceToGoal) {
 
         rpmController.setPID(P, I, D);
-        this.currentRpm = rpmFilter.addValue(-launcher.getVelocity());
+        //this.currentRpm = rpmFilter.addValue(-launcher.getVelocity());
+        this.currentRpm = getRPM();
+
         //telemetry.addData("launchervel",launcher.getVelocity());
 
         switch (currentState) {
@@ -120,10 +128,10 @@ public class Flywheel {
             case SPINNING_UP:
                 // --- Step 1: Calculate the Feedforward value ---
                 if (AdjustedFF){
-                    scaledPower = Range.scale(distanceToGoal, 60, 130, F_MIN_ADJUST, F_MAX_ADJUST);
+                    scaledPower = Range.scale(targetRpm, MIN_SHOOTER_RPM, MAX_SHOOTER_RPM, F_MIN_ADJUST, F_MAX_ADJUST);
                     feedforward = Range.clip(scaledPower, F_MIN_ADJUST, F_MAX_ADJUST);
                 } else {
-                    scaledPower = Range.scale(distanceToGoal, 60, 130, F_MIN, F_MAX);
+                    scaledPower = Range.scale(targetRpm, MIN_SHOOTER_RPM, MAX_SHOOTER_RPM, F_MIN, F_MAX);
                     feedforward = Range.clip(scaledPower, F_MIN, F_MAX);
                 }
 

@@ -51,14 +51,14 @@ public class LED {
             setRPMLedToColor("green");
         }
 
-        if (remainingSeconds < 10) {
-            if (Math.ceil(remainingSeconds * 2) % 2 == 1){
-                setRPMLedToColor("off");
-            } else {
-                setRPMLedToColor("orange");
-            }
-
-        }
+//        if (remainingSeconds < 10) {
+//            if (Math.ceil(remainingSeconds * 2) % 2 == 1){
+//                setRPMLedToColor("off");
+//            } else {
+//                setRPMLedToColor("orange");
+//            }
+//
+//        }
 
         switch (loaded_color) {
             case GREEN:

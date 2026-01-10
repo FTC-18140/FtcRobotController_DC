@@ -26,9 +26,9 @@ public class Turnstile {
     public static boolean TELEM = false;
 
     // --- Tunable Constants via FTC Dashboard ---
-    public static double P = 0.0027, I = 0.0, D = 0.000001;
+    public static double P = 0.004, I = 0.001, D = 0.0001;
     public static double HOMING_POWER = -0.05;
-    public static double ANGLE_TOLERANCE = 10;// In degrees
+    public static double ANGLE_TOLERANCE = 5;// In degrees
     public static double BACKWARD_TOLERANCE = 30;
     public static double HOMING_OFFSET = 20;
     private double current_offset = 0; // --- Non-tunable Constants ---

@@ -176,6 +176,8 @@ public class Teleop_BLUE extends OpMode {
         telemetry.addData("position Y: ", robot.drive.localizer.getPose().position.y);
         telemetry.addData("heading: ", Math.toDegrees(robot.drive.localizer.getPose().heading.toDouble()));
         telemetry.addData("Time since start", robot.runtime.seconds());
+        telemetry.addData("Flywheel RPM ", robot.launcher.getFlywheelRpm());
+        telemetry.addData("Flywheel Target ", robot.launcher.getFlywheelTargetRpm());
         dashboard.sendTelemetryPacket(p);
     }
 }
