@@ -39,7 +39,7 @@ public class LED {
     }
 
 
-    public void update(double measured_rpm, double target_rpm, double remainingSeconds, IndexerFacade.BallState loaded_color) {
+    public void update(double measured_rpm, double target_rpm, double runtime, IndexerFacade.BallState loaded_color, boolean isIndexerFull) {
         double difference_tps =  measured_rpm - target_rpm;
         double acceptable_range_up = 30;
         double acceptable_range_down = -30;
@@ -50,26 +50,33 @@ public class LED {
         } else {
             setRPMLedToColor("green");
         }
+        double alertTime_End = 10;
+        if ((120 - runtime) < alertTime_End) {
+            if (Math.ceil(runtime * 2) % 2 == 1){
+                setRPMLedToColor("off");
+            } else {
+                setRPMLedToColor("orange");
+            }
 
-//        if (remainingSeconds < 10) {
-//            if (Math.ceil(remainingSeconds * 2) % 2 == 1){
-//                setRPMLedToColor("off");
-//            } else {
-//                setRPMLedToColor("orange");
-//            }
-//
-//        }
-
-        switch (loaded_color) {
-            case GREEN:
-                setLuncherLedToColor("green");
-                break;
-            case PURPLE:
-                setLuncherLedToColor("purple");
-                break;
-            default:
-                setLuncherLedToColor("off");
         }
+        if (isIndexerFull) {
+            if (Math.ceil(runtime * 2) % 2 == 1){
+                setRPMLedToColor("white");
+            } else {
+                switch (loaded_color) {
+                    case GREEN:
+                        setLauncherLedToColor("green");
+                        break;
+                    case PURPLE:
+                        setLauncherLedToColor("purple");
+                        break;
+                    default:
+                        setLauncherLedToColor("off");
+                }
+            }
+
+        }
+
 
     }
 //    public void update(IndexerFacade.BallState ballcolor, double remainingSeconds) {
@@ -92,7 +99,7 @@ public class LED {
     public void setRPMLedToColor(String color) {
         rpmLed.setPosition(getColor(color));
     }
-    public void setLuncherLedToColor(String color){
+    public void setLauncherLedToColor(String color){
         launcherLed.setPosition(getColor(color));
     }
 

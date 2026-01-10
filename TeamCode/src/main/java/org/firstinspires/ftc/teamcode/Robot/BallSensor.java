@@ -81,6 +81,7 @@ public class BallSensor {
             //colorSensor.setGain(GAIN);
 
             // 2. Determine presence and color
+
             if (isBallPresentInternal()) {
                 if (isBallColorHSV(BallColor.PURPLE)) {
                     detectedColor = BallColor.PURPLE;

@@ -12,7 +12,6 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.SequentialAction;
-import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -22,8 +21,6 @@ import org.firstinspires.ftc.teamcode.Robot.Drives.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Utilities.DataLoggable;
 import org.firstinspires.ftc.teamcode.Utilities.DataLogger;
 import org.jetbrains.annotations.Nullable;
-
-import java.net.BindException;
 
 @Config
 public class ThunderBot2025 implements DataLoggable
@@ -186,7 +183,7 @@ public class ThunderBot2025 implements DataLoggable
         launcher.update(this.drive.localizer.getPose());
         indexer.update();
 //        led.update(indexer.getBallState(2), 120 - runtime.seconds());
-        led.update(launcher.getFlywheelRpm(), launcher.getFlywheelTargetRpm(), 120 - runtime.seconds(), indexer.getLastBallState(2));
+        led.update(launcher.getFlywheelRpm(), launcher.getFlywheelTargetRpm(), 120 - runtime.seconds(), indexer.getLastBallState(2), indexer.indexerIsFull());
     }
 
     public void intake() {
