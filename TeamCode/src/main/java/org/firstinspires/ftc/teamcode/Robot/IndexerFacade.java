@@ -304,15 +304,12 @@ public class IndexerFacade {
 
         updated = false;
 
-        // Only update ball states from sensors if we are NOT in an active auto-sequence
-        // This prevents a ball that has been logically "used" from being re-detected.
-        if (shotSequence == null) {
-            updateBallStates();
-        }
+
 
         switch (currentState) {
             case HOMING:
                 if (turnstile.isHomed()) {
+                    updateBallSensors();
                     currentState = State.IDLE;
                 }
                 break;
@@ -355,11 +352,19 @@ public class IndexerFacade {
                         }
                     } else {
                         // Otherwise, just go back to idle.
+                        updateBallSensors();
                         currentState = State.IDLE;
                     }
                 }
                 break;
         }
+
+        // Only update ball states from sensors if we are NOT in an active auto-sequence
+        // This prevents a ball that has been logically "used" from being re-detected.
+        if (shotSequence == null) {
+            updateBallStates();
+        }
+
         addTelemetry();
     }
 
