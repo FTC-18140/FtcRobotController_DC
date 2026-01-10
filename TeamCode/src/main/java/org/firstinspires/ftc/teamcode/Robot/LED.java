@@ -61,7 +61,7 @@ public class LED {
         }
         if (isIndexerFull) {
             if (Math.ceil(runtime * 2) % 2 == 1){
-                setRPMLedToColor("white");
+                setLauncherLedToColor("white");
             } else {
                 switch (loaded_color) {
                     case GREEN:
@@ -75,6 +75,17 @@ public class LED {
                 }
             }
 
+        } else {
+            switch (loaded_color) {
+                case GREEN:
+                    setLauncherLedToColor("green");
+                    break;
+                case PURPLE:
+                    setLauncherLedToColor("purple");
+                    break;
+                default:
+                    setLauncherLedToColor("off");
+            }
         }
 
 
