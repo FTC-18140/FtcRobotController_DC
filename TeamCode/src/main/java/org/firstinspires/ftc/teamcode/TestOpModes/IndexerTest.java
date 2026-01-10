@@ -42,7 +42,7 @@ public class IndexerTest extends OpMode {
         if(firing){
             robot.charge();
             if(robot.launcher.isAtTargetRpm()) {
-                firing = !robot.indexer.runCurrentSequence();
+                //firing = !robot.indexer.runCurrentSequence();
             }
         } else {
             robot.launcher.stop();

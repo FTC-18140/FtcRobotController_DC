@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
+import androidx.annotation.NonNull;
+
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -70,9 +74,8 @@ public class IndexerFacade {
             ballSlots[i] = BallState.VACANT;
         }
 
-        for (int i = 0; i < 6; i++) {
-            ballSensors[i].update();
-        }
+        updateBallSensors();
+        updateBallStates();
         currentState = State.IDLE;
         //turnstile.home();
     }
@@ -92,9 +95,9 @@ public class IndexerFacade {
      * turnstile to that slot. It critically modifies the internal `ballSlots` model to prevent
      * the same ball from being used twice to fulfill the sequence.
      */
-    private void executeNextInSequence() {
+    private boolean executeNextInSequence() {
         // Safety check: Do nothing if the sequence is not active.
-        if (shotSequence == null || sequenceIndex < 0 || sequenceIndex >= shotSequence.size()) return;
+        if (shotSequence == null || sequenceIndex < 0 || sequenceIndex >= shotSequence.size()) return false;
 
         // Determine which color we need for this step of the sequence.
         BallState requiredColor = shotSequence.get(sequenceIndex);
@@ -109,12 +112,12 @@ public class IndexerFacade {
                 // Mark this ball as "used" by changing its state in our software model to VACANT.
                 // This prevents the system from re-selecting this same physical ball for a
                 // later step in the sequence (e.g., if the sequence requires two PURPLE balls).
-                ballSlots[i] = BallState.VACANT;
+//                ballSlots[i] = BallState.VACANT;
 
                 // Command the turnstile to rotate this slot into the firing position.
-                selectSlot(i);
                 ballFound = true;
-                flip();
+                telemetry.addData("selected Sequence Slot: ", i);
+                return selectSlot(i);
             }
         }
 
@@ -123,6 +126,7 @@ public class IndexerFacade {
         if (!ballFound) {
             cancelSequence();
         }
+        return false;
     }
 
     public void launchAllInIndexer(){
@@ -134,10 +138,15 @@ public class IndexerFacade {
         sequenceIndex = 0;
         executeNextInSequence();
     }
-    public boolean runCurrentSequence(){
-        for(int i = 0; i < 3; i++ ){
+    public Action runCurrentSequenceAction(){
+        return new Action() {
+            boolean started = false;
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
 
-        }
+                return !executeNextInSequence();
+            }
+        };
     }
 
     public void cancelSequence() {
@@ -185,7 +194,7 @@ public class IndexerFacade {
      * @param slot The index of the target slot (0, 1, or 2).
      */
     public boolean selectSlot(int slot) {
-        if ((currentState == State.IDLE || currentState == State.AWAITING_FLIP || currentState == State.SELECTING_BALL || currentState == State.FLIP_TO_CYCLE) && slot >= 0 && slot < 3) {
+        if ((currentState == State.IDLE || currentState == State.AWAITING_FLIP || currentState == State.SELECTING_BALL || currentState == State.FLIP_TO_CYCLE || currentState == State.RETRACTING_FLIPPER) && slot >= 0 && slot < 3) {
             currentTargetSlot = slot;
             turnstile.seekToAngle(SLOT_ANGLES[currentTargetSlot]);
             currentState = State.SELECTING_BALL;
@@ -323,6 +332,7 @@ public class IndexerFacade {
                 break;
             case AWAITING_FLIP: // In position, ready to receive a flip() command from an external source.
                 // Do nothing. The system will wait here until flip() is called.
+
                 break;
             case FLIPPING:
                 if (flipTimer.seconds() > FLIP_TIME_SECONDS) {
@@ -384,6 +394,8 @@ public class IndexerFacade {
                 // Default: Both NONE or mixed Green/None
                 ballSlots[i] = BallState.VACANT;
             }
+            ballSensors[i*2].addTelemetry();
+            ballSensors[i*2 + 1].addTelemetry();
         }
     }
 

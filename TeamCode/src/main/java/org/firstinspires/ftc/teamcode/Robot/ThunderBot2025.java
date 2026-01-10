@@ -23,6 +23,8 @@ import org.firstinspires.ftc.teamcode.Utilities.DataLoggable;
 import org.firstinspires.ftc.teamcode.Utilities.DataLogger;
 import org.jetbrains.annotations.Nullable;
 
+import java.net.BindException;
+
 @Config
 public class ThunderBot2025 implements DataLoggable
 {
@@ -103,13 +105,14 @@ public class ThunderBot2025 implements DataLoggable
      */
     public boolean registerObeliskID(){
         // Step 1: Latch the official ID if we haven't already.
-        if (latchedObeliskId == -1) {
-            int currentId = launcher.getDetectedAprilTagId();
-            if (currentId != -1) {
-                latchedObeliskId = currentId;
-                telemetry.addData("Obelisk ID Latched: ", latchedObeliskId);
-            }
+
+        launcher.setPipeline(0);
+        int currentId = launcher.getDetectedAprilTagId();
+        if (currentId != -1) {
+            latchedObeliskId = currentId;
+            telemetry.addData("Obelisk ID Latched: ", latchedObeliskId);
         }
+
 
         // Step 2: Plan the sequence using the latched ID.
         // This will only proceed if an ID has been successfully latched.
@@ -303,6 +306,19 @@ public class ThunderBot2025 implements DataLoggable
                 return !indexer.isAtTarget();
             }
         };
+    }
+
+    public Action startSequenceAction(){
+        return new SequentialAction(
+                indexer.runCurrentSequenceAction(),
+                launchReadyAction(),
+                new Action() {
+                    @Override
+                    public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                        return !indexer.flip();
+                    }
+                }
+        );
     }
     
     public Action waitForBallAndCycleAction() {
