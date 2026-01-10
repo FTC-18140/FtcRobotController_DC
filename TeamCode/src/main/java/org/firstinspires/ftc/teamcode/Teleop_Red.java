@@ -31,11 +31,9 @@ public class Teleop_Red extends OpMode {
     ThunderBot2025 robot = new ThunderBot2025();
     public static double INDEXER_SPEED = 0.8;
 
-
     @Override
     public void init() {
         robot.init(hardwareMap, telemetry, null);
-        robot.setColor(alliance);
 
         theGamepad1 = new TBDGamepad(gamepad1);
         theGamepad2 = new TBDGamepad(gamepad2);
@@ -46,6 +44,7 @@ public class Teleop_Red extends OpMode {
     }
     public void start() {
         robot.runtime.reset();
+        robot.setColor(alliance);
     }
 
     @Override
@@ -77,7 +76,7 @@ public class Teleop_Red extends OpMode {
         if(Math.abs(theGamepad2.getRightX()) > 0.01){
             robot.launcher.setTurretManualPower(theGamepad2.getRightX() * 0.5);
         } else if(Math.abs(theGamepad1.getRightX()) > 0.01){
-            robot.launcher.augmentedAim(-theGamepad1.getRightX() * speed * 0.75);
+            robot.launcher.augmentedAim(-theGamepad1.getRightX() * speed);
         } else {
             robot.launcher.aim();
         }
@@ -164,10 +163,10 @@ public class Teleop_Red extends OpMode {
                     robot.indexer.cycle(-1);
                 } else if (theGamepad2.getButton(TBDGamepad.Button.LEFT_STICK_BUTTON)){
                     robot.indexer.adjustToThird();
-                } else {
+                } else if (robot.indexer.getState() == IndexerFacade.State.IDLE || robot.indexer.getState() == IndexerFacade.State.AWAITING_FLIP){
 
                     // If not manually spinning, send a spin(0) to allow the turnstile to auto-align.
-                    robot.indexer.cycle(0);
+                    robot.indexer.spin(0);
                 }
             }
         }

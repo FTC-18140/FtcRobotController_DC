@@ -54,6 +54,8 @@ public class LauncherFacade implements DataLoggable {
 
         // Initialize Kalman Filter at (0,0,0) or load from file/auto transition
         poseEstimator = new KalmanPoseEstimator(startPose);
+        fusedPose = startPose;
+        lastOdoPose = startPose;
     }
 
     public boolean isUsingLimelight() { return usingLimelight; }
@@ -247,6 +249,9 @@ public class LauncherFacade implements DataLoggable {
         double distanceMeters = distanceInches * 0.0254;
         double targetVelocity = flywheel.calculateBallVelocity(distanceMeters, 0.86, 48);
         double targetRpm = flywheel.calculateWheelRPM(targetVelocity);
+
+        telemetry.addData("Distance Meters: ", distanceMeters);
+        telemetry.addData("Target Velocity: ", targetVelocity);
         flywheel.setTargetRpm(targetRpm);
     }
 
@@ -315,7 +320,7 @@ public class LauncherFacade implements DataLoggable {
     public void setAlliance(ThunderBot2025.Alliance_Color color) {
         this.allianceColor = color;
         this.targetPos = Objects.equals(this.allianceColor, ThunderBot2025.Alliance_Color.RED) ? targetPosRed : targetPosBlue;
-        limelight.setPipeline(Objects.equals(this.allianceColor, ThunderBot2025.Alliance_Color.RED) ? 2 : 1);
+//        limelight.setPipeline(Objects.equals(this.allianceColor, ThunderBot2025.Alliance_Color.RED) ? 2 : 1);
     }
 
     private double getGoalDistanceFUSION() {

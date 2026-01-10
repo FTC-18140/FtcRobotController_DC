@@ -69,7 +69,6 @@ public class ThunderBot2025 implements DataLoggable
 
         launcher = new LauncherFacade();
         launcher.init(hwMap, telem, pose);
-        launcher.setAlliance(color);
 
         led = new LED();
         led.init(hwMap, telem);
@@ -181,7 +180,7 @@ public class ThunderBot2025 implements DataLoggable
         drive.updatePoseEstimate();
         this.drive.localizer.update();
         launcher.update(this.drive.localizer.getPose());
-        indexer.update();
+        indexer.update(launcher.isAtTargetRpm());
 //        led.update(indexer.getBallState(2), 120 - runtime.seconds());
         led.update(launcher.getFlywheelRpm(), launcher.getFlywheelTargetRpm(), 120 - runtime.seconds(), indexer.getLastBallState(2), indexer.indexerIsFull());
     }

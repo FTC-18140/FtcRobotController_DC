@@ -34,7 +34,6 @@ public class Teleop_BLUE extends OpMode {
     @Override
     public void init() {
         robot.init(hardwareMap, telemetry, null);
-        robot.setColor(alliance);
 
         theGamepad1 = new TBDGamepad(gamepad1);
         theGamepad2 = new TBDGamepad(gamepad2);
@@ -45,6 +44,7 @@ public class Teleop_BLUE extends OpMode {
     }
     public void start() {
         robot.runtime.reset();
+        robot.setColor(alliance);
     }
 
     @Override

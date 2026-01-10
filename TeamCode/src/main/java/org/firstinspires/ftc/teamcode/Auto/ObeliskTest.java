@@ -11,6 +11,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
+import java.util.Objects;
+
 @Autonomous
 public class ObeliskTest extends LinearOpMode {
     @Override
@@ -22,6 +24,7 @@ public class ObeliskTest extends LinearOpMode {
         blackboard.put("ENDING_ANGLE_INDEXER", (double) 0);
 
         robot.init(hardwareMap, telemetry, start);
+        robot.setColor(ThunderBot2025.Alliance_Color.RED);
         while (opModeInInit()) {
             // Code here runs repeatedly during init phase.  Need to be looking at ObeliskID
             robot.launcher.updateVision();
@@ -31,7 +34,7 @@ public class ObeliskTest extends LinearOpMode {
         }
         waitForStart();
 
-        robot.setColor(ThunderBot2025.Alliance_Color.RED);
+        robot.launcher.setPipeline(2);
 
         Actions.runBlocking(
                 new ParallelAction(
@@ -39,9 +42,10 @@ public class ObeliskTest extends LinearOpMode {
                         robot.aimAction(),
                         robot.launcher.prepShotAction(),
                         new SequentialAction(
-                                new SleepAction(1),
+                                new SleepAction(0.1),
                                 robot.startSequenceAction()
                         )
+
                 )
         );
 

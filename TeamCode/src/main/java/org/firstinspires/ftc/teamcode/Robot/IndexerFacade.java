@@ -111,7 +111,7 @@ public class IndexerFacade {
         updateBallStates();
 
         // Search all physical slots for a ball that matches the required color.
-        for (int i = 0; i < ballSlots.length && !ballFound; i++) {
+        for (int i = 2; i > -1 && !ballFound; i--) {
             if (ballSlots[i] == requiredColor || (requiredColor == BallState.ALL && ballSlots[i] != BallState.VACANT)) {
                 // --- Critical Step ---
                 // Mark this ball as "used" by changing its state in our software model to VACANT.
@@ -318,7 +318,7 @@ public class IndexerFacade {
         }
     }
 
-    public void update() {
+    public void update(boolean isAtRpm) {
         flipper.update();
         turnstile.update();
 
@@ -343,7 +343,7 @@ public class IndexerFacade {
                 break;
             case AWAITING_FLIP: // In position, ready to receive a flip() command from an external source.
                 // Do nothing. The system will wait here until flip() is called.
-                if(shotSequence != null && turnstile.isAtTarget() && sequenceStarted){
+                if(shotSequence != null && turnstile.isAtTarget() && sequenceStarted && isAtRpm){
                     flip();
                     sequenceStarted = false;
                 }
@@ -395,13 +395,17 @@ public class IndexerFacade {
     private void updateBallStates() {
         for (int i = 0; i < 3; i++) {
             // Get the detected colors from the sensor pairs (0,1), (2,3), (4,5)
-            BallSensor.BallColor sensorA = ballSensors[i * 2].getDetectedColor();
-            BallSensor.BallColor sensorB = ballSensors[i * 2 + 1].getDetectedColor();
+            BallSensor sensorA = ballSensors[i * 2];
+            BallSensor sensorB = ballSensors[i * 2 + 1];
+            BallSensor.BallColor colorA = ballSensors[i * 2].getDetectedColor();
+            BallSensor.BallColor colorB = ballSensors[i * 2 + 1].getDetectedColor();
 
-            if (sensorA == BallSensor.BallColor.PURPLE || sensorB == BallSensor.BallColor.PURPLE) {
+            BallSensor V3 = (sensorA.isV2 ? sensorB : sensorA);
+
+            if (V3.isBallPresent() && (colorA == BallSensor.BallColor.PURPLE || colorB == BallSensor.BallColor.PURPLE)) {
                 // Priority 1: Either is Purple
                 ballSlots[i] = BallState.PURPLE;
-            } else if (sensorA == BallSensor.BallColor.GREEN || sensorB == BallSensor.BallColor.GREEN) {
+            } else if (V3.isBallPresent() && (colorA == BallSensor.BallColor.GREEN || colorB == BallSensor.BallColor.GREEN)) {
                 // Priority 2: Both must be Green
                 ballSlots[i] = BallState.GREEN;
             } else {
