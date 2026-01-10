@@ -84,10 +84,8 @@ public class BallSensor {
             if (isBallPresentInternal()) {
                 if (isBallColorHSV(BallColor.PURPLE)) {
                     detectedColor = BallColor.PURPLE;
-                } else if (distanceCm < 4.5) {
+                } else{
                     detectedColor = BallColor.GREEN;
-                } else {
-                    detectedColor = BallColor.NONE; // Ball is present but color is not recognized
                 }
             } else {
                 detectedColor = BallColor.NONE;

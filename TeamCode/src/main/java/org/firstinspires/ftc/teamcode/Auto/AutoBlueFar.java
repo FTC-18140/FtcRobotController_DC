@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Auto;
 
+import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.RaceAction;
@@ -34,6 +35,7 @@ public class AutoBlueFar extends LinearOpMode{
         while (opModeInInit()) {
             // Code here runs repeatedly during init phase.  Need to be looking at ObeliskID
             robot.launcher.updateVision();
+            robot.registerObeliskID();
             telemetry.addData("Status", "Waiting for start");
             telemetry.update();
         }
@@ -55,15 +57,11 @@ public class AutoBlueFar extends LinearOpMode{
                                                             robot.drive.actionBuilder(start)
                                                                     .strafeTo(new Vector2d(launchPos.position.x, 12))
                                                                     .build()
-        //                                        ,
-        //                                        // Plan the first shot sequence while driving.
-        //                                        robot.planSequenceAction()
+                                                             // Plan the first shot sequence while driving.
                                                     ),
                                                     // Launch Preloads
                                                     new SequentialAction(
-                                                            robot.launchAction(),
-                                                            robot.launchAction(),
-                                                            robot.launchAction()
+
                                                     ),
                                                     robot.intakeStartAction(),
                                                     new ParallelAction(

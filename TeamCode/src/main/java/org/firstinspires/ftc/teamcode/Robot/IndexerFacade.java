@@ -114,6 +114,7 @@ public class IndexerFacade {
                 // Command the turnstile to rotate this slot into the firing position.
                 selectSlot(i);
                 ballFound = true;
+                flip();
             }
         }
 
@@ -134,13 +135,9 @@ public class IndexerFacade {
         executeNextInSequence();
     }
     public boolean runCurrentSequence(){
-        if (shotSequence == null) return true;
+        for(int i = 0; i < 3; i++ ){
 
-        if(currentState == State.AWAITING_FLIP || currentState == State.IDLE){
-            flipAndCycle();
         }
-
-        return false;
     }
 
     public void cancelSequence() {
@@ -229,10 +226,11 @@ public class IndexerFacade {
      * actual flip/launch is handled automatically by the update() state machine.
      *
      * @param aprilTagId The ID of the AprilTag detected (21, 22, or 23).
+     * @return
      */
-    public void planShotSequence(int aprilTagId) {
+    public String planShotSequence(int aprilTagId) {
         // Only start a new sequence if the facade is idle.
-        if (currentState != State.IDLE && currentState != State.AWAITING_FLIP) return;
+        if (currentState != State.IDLE && currentState != State.AWAITING_FLIP) return null;
 
         switch (aprilTagId) {
             case 21: // Motif: G-P-P
@@ -246,11 +244,14 @@ public class IndexerFacade {
                 break;
             default:
                 // Invalid ID, do nothing.
-                return;
+                return null;
         }
         
         sequenceIndex = 0;
-        executeNextInSequence();
+
+        return shotSequence.toString();
+
+
     }
 
 

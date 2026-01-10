@@ -101,7 +101,7 @@ public class ThunderBot2025 implements DataLoggable
      * The first time it is called with a valid AprilTag in view, it "latches" that ID.
      * Every subsequent call will use the latched ID, ignoring any new tags the robot might see.
      */
-    public void registerObeliskID(){
+    public boolean registerObeliskID(){
         // Step 1: Latch the official ID if we haven't already.
         if (latchedObeliskId == -1) {
             int currentId = launcher.getDetectedAprilTagId();
@@ -114,8 +114,19 @@ public class ThunderBot2025 implements DataLoggable
         // Step 2: Plan the sequence using the latched ID.
         // This will only proceed if an ID has been successfully latched.
         if (latchedObeliskId != -1) {
-            indexer.planShotSequence(latchedObeliskId);
+            telemetry.addData("Sequence Planned:", indexer.planShotSequence(latchedObeliskId));
+            return true;
         }
+        return false;
+    }
+    public Action registerObeliskIdAction(){
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+
+                return !registerObeliskID();
+            }
+        };
     }
 
     public void setStartPosForTeleop(Pose2d pos){
