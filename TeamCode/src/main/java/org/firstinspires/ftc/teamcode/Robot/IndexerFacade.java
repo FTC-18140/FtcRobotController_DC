@@ -31,7 +31,7 @@ public class IndexerFacade {
     private static final double FLIP_TIME_SECONDS = 0.25; // Time for the flipper to extend and retract
     private static final double CYCLE_TIME_SECONDS = 0.5; // Time for the flipper to extend and retract
 
-    public static boolean TELEM = true;
+    public static boolean TELEM = false;
     private boolean updated = false;
 
     public void flipOverride( boolean up ) {
@@ -102,11 +102,11 @@ public class IndexerFacade {
         // Determine which color we need for this step of the sequence.
         BallState requiredColor = shotSequence.get(sequenceIndex);
         boolean ballFound = false;
+        updateBallSensors();
+        updateBallStates();
 
         // Search all physical slots for a ball that matches the required color.
         for (int i = 0; i < ballSlots.length && !ballFound; i++) {
-            updateBallSensors();
-            updateBallStates();
             if (ballSlots[i] == requiredColor || (requiredColor == BallState.ALL && ballSlots[i] != BallState.VACANT)) {
                 // --- Critical Step ---
                 // Mark this ball as "used" by changing its state in our software model to VACANT.
@@ -116,8 +116,11 @@ public class IndexerFacade {
 
                 // Command the turnstile to rotate this slot into the firing position.
                 ballFound = true;
-                telemetry.addData("selected Sequence Slot: ", i);
-                return selectSlot(i);
+                int slot = Math.abs(i - 2);
+                telemetry.addData("selected Sequence Slot: ", slot);
+                currentTargetSlot = slot;
+                turnstile.seekToAngle(SLOT_ANGLES[slot]);
+                currentState = State.SELECTING_BALL;
             }
         }
 
@@ -125,6 +128,8 @@ public class IndexerFacade {
         // To prevent getting stuck, we cancel the entire autonomous sequence.
         if (!ballFound) {
             cancelSequence();
+        } else if (currentState == State.SELECTING_BALL){
+            return true;
         }
         return false;
     }
@@ -332,7 +337,9 @@ public class IndexerFacade {
                 break;
             case AWAITING_FLIP: // In position, ready to receive a flip() command from an external source.
                 // Do nothing. The system will wait here until flip() is called.
-
+                if(shotSequence != null && turnstile.isAtTarget()){
+                    flip();
+                }
                 break;
             case FLIPPING:
                 if (flipTimer.seconds() > FLIP_TIME_SECONDS) {
@@ -405,6 +412,8 @@ public class IndexerFacade {
         telemetry.addLine(String.format("Slots: [0]: %s, [1]: %s, [2]: %s",
                 ballSlots[0], ballSlots[1], ballSlots[2]));
         if (shotSequence != null) {
+            telemetry.addData("Target Slot: ", getCurrentTargetSlot());
+            telemetry.addData("Sequence: ", shotSequence);
             telemetry.addData("Sequence Step", sequenceIndex + " / " + shotSequence.size());
         }
     }

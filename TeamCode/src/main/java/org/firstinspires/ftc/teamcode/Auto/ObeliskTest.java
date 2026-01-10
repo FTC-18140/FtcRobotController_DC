@@ -39,8 +39,7 @@ public class ObeliskTest extends LinearOpMode {
                         robot.aimAction(),
                         robot.launcher.prepShotAction(),
                         new SequentialAction(
-                                robot.startSequenceAction(),
-                                robot.startSequenceAction(),
+                                new SleepAction(1),
                                 robot.startSequenceAction()
                         )
                 )
