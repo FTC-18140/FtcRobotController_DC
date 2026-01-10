@@ -29,7 +29,7 @@ public class IndexerFacade {
     private ElapsedTime flipTimer = new ElapsedTime();
 
     // --- Constants ---
-    public static final double[] SLOT_ANGLES = {240, 120, 0}; // Angles for slots 0, 1, and 2
+    public static final double[] SLOT_ANGLES = {120, 240, 0}; // Angles for slots 0, 1, and 2
     private static final double FLIP_TIME_SECONDS = 0.25; // Time for the flipper to extend and retract
     private static final double CYCLE_TIME_SECONDS = 0.5; // Time for the flipper to extend and retract
 
@@ -121,9 +121,10 @@ public class IndexerFacade {
 
                 // Command the turnstile to rotate this slot into the firing position.
                 ballFound = true;
-                telemetry.addData("selected Sequence Slot: ", i);
-                currentTargetSlot = i;
-                turnstile.seekToAngle(SLOT_ANGLES[i]);
+                int slot = (currentTargetSlot + (2-i)) % 3;
+                telemetry.addData("selected Sequence Slot: ", slot);
+                currentTargetSlot = slot;
+                turnstile.seekToAngle(SLOT_ANGLES[slot]);
                 currentState = State.SELECTING_BALL;
             }
         }
@@ -344,6 +345,7 @@ public class IndexerFacade {
                 // Do nothing. The system will wait here until flip() is called.
                 if(shotSequence != null && turnstile.isAtTarget() && sequenceStarted){
                     flip();
+                    sequenceStarted = false;
                 }
                 break;
             case FLIPPING:
