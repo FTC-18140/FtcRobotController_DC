@@ -300,7 +300,7 @@ public class IndexerFacade {
         return (slot >= 0 && slot < 3) ? ballSlots[slot] : BallState.VACANT;
     }
     public boolean indexerIsFull(){
-        return !((getBallState(0) == BallState.VACANT || getBallState(1) == BallState.VACANT || getBallState(2) == BallState.VACANT) || currentState == State.SELECTING_BALL);
+        return !((ballSlots[0] == BallState.VACANT || ballSlots[1] == BallState.VACANT || ballSlots[2] == BallState.VACANT) || currentState == State.SELECTING_BALL);
     }
     public int getCurrentTargetSlot() { return currentTargetSlot; }
     public double getIndexerAngle(){
