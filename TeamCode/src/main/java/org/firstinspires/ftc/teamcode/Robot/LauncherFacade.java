@@ -5,7 +5,7 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.Twist2d;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -66,9 +66,11 @@ public class LauncherFacade implements DataLoggable {
 
     /**
      * MAIN UPDATE LOOP
-     * @param currentOdoPose The raw pose from RoadRunner drive.getPoseEstimate()
+     *
+     * @param currentOdoPose     The raw pose from RoadRunner drive.getPoseEstimate()
+     * @param currentOdoVelocity
      */
-    public void update(Pose2d currentOdoPose) {
+    public void update(Pose2d currentOdoPose, PoseVelocity2d currentOdoVelocity) {
         // --- 1. Calculate Odometry Delta ---
         if (lastOdoPose == null)  {
             lastOdoPose = currentOdoPose;
@@ -143,7 +145,7 @@ public class LauncherFacade implements DataLoggable {
         // Use fusedPose for distance calculation
         double distanceToGoal = getGoalDistance();
 
-        turret.update();
+        turret.update(currentOdoVelocity);
         flywheel.update(distanceToGoal);
 
         telemetry.addData("Using Limelight: ", usingLimelight);

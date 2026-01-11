@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.Robot;
 import static com.qualcomm.robotcore.eventloop.opmode.OpMode.blackboard;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.qualcomm.robotcore.hardware.CRServo;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
@@ -38,14 +38,14 @@ public class Turret implements DataLoggable {
     public static double MAX_TURRET_POS = 225;
     public static double MIN_TURRET_POS = -90;
     public static double TURRET_ANGLE_TOLERANCE = 2.5;
-//    public static double near_limit_resistance_factor_p = 0.0;
-//    public static double near_limit_resistance_factor_i = 0.0;
+
+    public static double KV_ROT = 0;
+
     public static boolean TELEM = true;
 
     public static double MAX_POWER = 0.8;
 
     public static double TURN_SPEED = 208.3; // From original lockOn
-    //public static double TURRET_DEGREES_PER_ENCODER_TICK = 0.0048 * ((1.0 / ((double) 40 / 190)) / 360.0);
     public static double TURRET_DEGREES_PER_ENCODER_TICK = (double) 1 /8192 * 360 * 24.24/190.5;
 
 
@@ -107,22 +107,16 @@ public class Turret implements DataLoggable {
 
     // --- Main Update Method ---
 
-    public void update() {
+    public void update(PoseVelocity2d robotPoseVelocity) {
         if ( TELEM ) {
             telemetry.addLine(" ------------- TURRET TELEM -------------");
         }
 
         updateCurrentPosition(); // Always read the sensor
 
-//        double limit_resistance_p = 1 + near_limit_resistance_factor_p * Math.abs(Range.scale(currentPosition, MIN_TURRET_POS, MAX_TURRET_POS, -1, 1));
-//        double limit_resistance_i = 1 + near_limit_resistance_factor_p * Math.abs(Range.scale(currentPosition, MIN_TURRET_POS, MAX_TURRET_POS, -1, 1));
-//        turretAimPID.setPID(P_TURRET * limit_resistance_p, I_TURRET * limit_resistance_i, D_TURRET);
         turretAimPID.setPID(P_TURRET, I_TURRET, D_TURRET);
         double ff = 0;
-
-//        telemetry.addData("limit resistance: ", limit_resistance_p);
-//        telemetry.addData("resisting p: ", P_TURRET * limit_resistance_p);
-//        telemetry.addData("resisting i: ", I_TURRET * limit_resistance_i);
+        double ffRot = 0;
 
         switch (currentState) {
             case HOLDING:
@@ -130,7 +124,9 @@ public class Turret implements DataLoggable {
                 ff = Range.clip(Range.scale(currentPosition, -90, -30, F_TURRET_MAX, F_TURRET_MIN), F_TURRET_MIN, F_TURRET_MAX);
                 ff *= ((seekingPower >= 0) ? 1 : -1);
 
-                setHardwarePower(seekingPower + ff);
+                ffRot = robotPoseVelocity.angVel * KV_ROT;
+
+                setHardwarePower(seekingPower + ff + ffRot);
                 break;
 
             case SEEKING_ANGLE:
@@ -138,7 +134,9 @@ public class Turret implements DataLoggable {
                 ff = Range.clip(Range.scale(currentPosition, -90, -30, F_TURRET_MAX, F_TURRET_MIN), F_TURRET_MIN, F_TURRET_MAX);
                 ff *= ((seekingPower >= 0) ? 1 : -1);
 
-                setHardwarePower(seekingPower + ff);
+                ffRot = robotPoseVelocity.angVel * KV_ROT;
+
+                setHardwarePower(seekingPower + ff + ffRot);
                 if (isAtTarget()) {
                     this.currentState = State.HOLDING;
                 }
@@ -180,8 +178,7 @@ public class Turret implements DataLoggable {
 
     private void updateCurrentPosition() {
         this.currentPosition = turret.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK + startingAngle;
-        //this.currentPosition = turretEnc.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK - offsetAngle;
-        //telemetry.addData("tc", turretEnc.getCurrentPosition());
+
     }
     public void zeroTurret() {
         turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
