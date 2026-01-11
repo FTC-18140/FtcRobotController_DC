@@ -25,11 +25,12 @@ public class Flywheel {
     // Hardware and Utilities
     private DcMotorEx launcher, launcher2;
     private PIDController rpmController;
-    private MovingAverageFilter rpmFilter = new MovingAverageFilter(2);
+    public static int FILTER_SIZE = 2;
+    private MovingAverageFilter rpmFilter = new MovingAverageFilter(FILTER_SIZE);
     private Telemetry telemetry;
 
     // Tunable constants from your original file
-    public static double P = 0.023, I = 0.01, D = 0.005;
+    public static double P = 0.1, I = 0.0, D = 0.0001;
     public static double F_MAX = 0.45, F_MIN = 0.35;
     public static double F_MAX_ADJUST = F_MAX, F_MIN_ADJUST = F_MIN;
     public static double F_STEP = .03;
@@ -40,7 +41,7 @@ public class Flywheel {
     public static double MAX_SHOOTER_RPM = 2300;
     public static double MIN_SHOOTER_RPM = 1000;
     public static double SHOOTER_RADIUS = 0.096 / 2.0;
-    public static double SPIN_EFFICIENCY = 0.62;
+    public static double SPIN_EFFICIENCY = 0.6;
 
 
     private double targetRpm = 0;
@@ -115,8 +116,7 @@ public class Flywheel {
     public void update(double distanceToGoal) {
 
         rpmController.setPID(P, I, D);
-        //this.currentRpm = rpmFilter.addValue(-launcher.getVelocity());
-        this.currentRpm = getRPM();
+        this.currentRpm = rpmFilter.addValue(getRPM());
 
         //telemetry.addData("launchervel",launcher.getVelocity());
 
@@ -137,7 +137,7 @@ public class Flywheel {
 
                 // --- Step 2: Calculate the PID correction ---
                 double pidOutput = rpmController.calculate(currentRpm, targetRpm);
-                double clippedPidOutput = Range.clip(pidOutput, -0.1, 1);
+                double clippedPidOutput = Range.clip(pidOutput, -1, 1);
 
                 // --- Step 3: Combine and Set the Final Power ---
                 double finalPower = feedforward + clippedPidOutput;

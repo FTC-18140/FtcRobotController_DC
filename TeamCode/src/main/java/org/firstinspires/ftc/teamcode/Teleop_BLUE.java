@@ -76,8 +76,8 @@ public class Teleop_BLUE extends OpMode {
         if(Math.abs(theGamepad2.getRightX()) > 0.01){
             robot.launcher.setTurretManualPower(theGamepad2.getRightX() * 0.5);
         } else if(Math.abs(theGamepad1.getRightX()) > 0.01){
-            robot.launcher.augmentedAim(-theGamepad1.getRightX() * speed);
-//            robot.launcher.aim();
+//            robot.launcher.augmentedAim(-theGamepad1.getRightX() * speed);
+            robot.launcher.aim();
         } else {
             robot.launcher.aim();
         }
