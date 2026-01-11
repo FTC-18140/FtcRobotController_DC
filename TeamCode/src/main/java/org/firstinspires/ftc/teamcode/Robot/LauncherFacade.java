@@ -196,10 +196,23 @@ public class LauncherFacade implements DataLoggable {
             telemetry.addData("Aiming Mode", "ODOMETRY");
             usingLimelight = false;
             Vector2d targetDirection = targetPos.minus(fusedPose.position);
-            //double robotRelativeAngle = -robotPose.heading.toDouble() + (turret.getCurrentPosition()) * (Math.PI/2);
-            double robotRelativeAngle = Math.toDegrees(-fusedPose.heading.toDouble()) + turret.getCurrentPosition();
-            difference = Math.toDegrees(-targetDirection.angleCast().toDouble()) - robotRelativeAngle;
-        } else {
+
+            // Target angle in world space (Degrees)
+            double worldTargetAngle = Math.toDegrees(-targetDirection.angleCast().toDouble());
+
+            // Current Turret "World" Angle (Robot Heading + Turret relative position)
+            double robotHeadingDeg = Math.toDegrees(fusedPose.heading.toDouble());
+            double currentTurretWorldAngle = -robotHeadingDeg + turret.getCurrentPosition();
+
+            // Calculate the raw difference
+            difference = worldTargetAngle - currentTurretWorldAngle;
+
+            // --- NORMALIZE THE DIFFERENCE ---
+            // This ensures the turret takes the shortest path across the 180/-180 line
+            while (difference > 180)  difference -= 360;
+            while (difference < -180) difference += 360;
+        }
+        else {
             telemetry.addData("Aiming Mode", "NO TARGET");
         }
         //return turret.getCurrentPosition() + difference / (Math.PI);
