@@ -429,6 +429,10 @@ public class IndexerFacade {
             telemetry.addData("Sequence Step", sequenceIndex + " / " + shotSequence.size());
         }
     }
+
+    public boolean inSequence(){
+        return sequenceStarted || shotSequence != null;
+    }
     
     public boolean isDone() {
         // The facade is "done" if it's idle or if it's ready for a manual flip.

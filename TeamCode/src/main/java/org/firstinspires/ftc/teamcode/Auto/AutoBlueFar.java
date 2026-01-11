@@ -29,6 +29,7 @@ public class AutoBlueFar extends LinearOpMode{
         blackboard.put("ENDING_ANGLE_INDEXER", (double) 0);
 
         robot.init(hardwareMap, telemetry, start);
+        robot.setColor(ThunderBot2025.Alliance_Color.BLUE);
 
 
         // This is the equivalent of init_loop()
@@ -42,7 +43,7 @@ public class AutoBlueFar extends LinearOpMode{
 
         waitForStart();
 
-        robot.setColor(ThunderBot2025.Alliance_Color.BLUE);
+        robot.launcher.setPipeline(1);
 
         try {
             Actions.runBlocking(
@@ -60,9 +61,8 @@ public class AutoBlueFar extends LinearOpMode{
                                                              // Plan the first shot sequence while driving.
                                                     ),
                                                     // Launch Preloads
-                                                    new SequentialAction(
-
-                                                    ),
+                                                    robot.startSequenceAction(),
+                                                    robot.waitForSequenceEndAction(),
                                                     robot.intakeStartAction(),
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(launchPos)
@@ -86,7 +86,7 @@ public class AutoBlueFar extends LinearOpMode{
                                                     ),
                                                     robot.intake.intakeStopAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
-
+                                                    robot.intakeStartAction(),
                                                     // Drive to launch spot
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, 49), Math.toRadians(90)))
@@ -97,11 +97,9 @@ public class AutoBlueFar extends LinearOpMode{
         //                                        robot.planSequenceAction()
                                                     ),
                                                     // Launch 2nd set of Artifacts
-                                                    new SequentialAction(
-                                                            robot.launchAction(),
-                                                            robot.launchAction(),
-                                                            robot.launchAction()
-                                                    ),
+                                                    robot.planSequenceAction(),
+                                                    robot.startSequenceAction(),
+                                                    robot.waitForSequenceEndAction(),
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new ParallelAction(
@@ -136,16 +134,16 @@ public class AutoBlueFar extends LinearOpMode{
         //                                            robot.planSequenceAction()
                                                     ),
                                                     // Launch 2nd set of Artifacts
-                                                    new SequentialAction(
-                                                            robot.launchAction(),
-                                                            robot.launchAction(),
-                                                            robot.launchAction()
-                                                    )
+
+                                                    robot.planSequenceAction(),
+                                                    robot.startSequenceAction(),
+                                                    robot.waitForSequenceEndAction()
 
                                             ),
                                             new SleepAction(27)
                                     ),
                                 // Park
+                                robot.cancelSequenceAction(),
                                 robot.intake.intakeStopAction(),
                                 robot.drive.actionBuilder(launchPos)
                                         .strafeToSplineHeading(new Vector2d(-12, 12), Math.toRadians(0))

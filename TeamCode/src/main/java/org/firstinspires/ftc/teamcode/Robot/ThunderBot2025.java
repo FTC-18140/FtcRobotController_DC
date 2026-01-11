@@ -314,6 +314,23 @@ public class ThunderBot2025 implements DataLoggable
                 }
         );
     }
+    public Action cancelSequenceAction(){
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                indexer.cancelSequence();
+                return false;
+            }
+        };
+    }
+    public Action waitForSequenceEndAction(){
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                return indexer.inSequence();
+            }
+        };
+    }
     
     public Action waitForBallAndCycleAction() {
         return new Action() {
@@ -398,7 +415,7 @@ public class ThunderBot2025 implements DataLoggable
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                registerObeliskID();
+                indexer.planShotSequence(latchedObeliskId);
                 return false; // This is a one-shot action.
             }
         };
