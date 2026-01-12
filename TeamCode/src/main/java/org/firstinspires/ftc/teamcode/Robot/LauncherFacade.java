@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
+import com.acmerobotics.roadrunner.Rotation2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -35,7 +36,10 @@ public class LauncherFacade implements DataLoggable {
     public static double TURRET_OFFSET_X = 3.5;
     public static double TURRET_OFFSET_Y = -4;
     public Vector2d turret_pos = fusedPose.position;
-    // -------------------------------
+
+    private double smoothedTurretAngle = 0;
+    private boolean firstAimRun = true;
+    public static double LPF_BETA = 0.45; // Higher value = more responsive
 
     // Target and alliance properties
     private Vector2d targetPos;
@@ -99,7 +103,6 @@ public class LauncherFacade implements DataLoggable {
 
         if (visionPose != null) {
             // Determine trust based on distance (heuristic)
-//            double distToTag = Math.hypot(visionPose.position.x, visionPose.position.y);
             double distToTag = limelight.getDistanceToTarget();
             if ( distToTag < 0)
             {
@@ -128,28 +131,17 @@ public class LauncherFacade implements DataLoggable {
         //this.fusedPose = poseEstimator.getFusedPose();
 
         // ------------- HOTFIX for AIMING
-        double target_shift = turret.getTargetPos() - turret.getCurrentPosition();
-        if (target_shift  > 180 ) {
-            Pose2d fixedPose = new Pose2d(fusedPose.position.x, fusedPose.position.y, fusedPose.heading.toDouble() - 2*Math.PI);
-            this.fusedPose = fixedPose;
-        }
-        else if (target_shift  < -180 ) {
-            Pose2d fixedPose = new Pose2d(fusedPose.position.x, fusedPose.position.y, fusedPose.heading.toDouble() + 2*Math.PI);
-            this.fusedPose = fixedPose;
-        } else {
-            this.fusedPose = currentOdoPose;
-        }
+        fusedPose = currentOdoPose;
         // ------------- End HOTFIX for AIMING
 
         // --- 5. RUN SUBSYSTEMS ---
         // Use fusedPose for distance calculation
         double distanceToGoal = getGoalDistance();
 
-        turret.update(currentOdoVelocity);
+        turret.update(fusedPose, currentOdoVelocity, targetPos);
         flywheel.update(distanceToGoal);
 
         telemetry.addData("Using Limelight: ", usingLimelight);
-        telemetry.addData("Amount Moved: ", target_shift);
     }
 
     public void updateVision() { limelight.update(Math.toDegrees(fusedPose.heading.toDouble()) - getTurretAngle()); }
@@ -160,64 +152,160 @@ public class LauncherFacade implements DataLoggable {
 
     public void aim() { augmentedAim(0.0); }
 
+    /**
+     * Updates the turret target using a blended approach of vision and odometry,
+     * while allowing for real-time driver correction.
+     *
+     * <p>This method implements an Exponential Moving Average (EMA) filter to smooth
+     * transitions when switching between sensor sources and handles the circular
+     * shortest-path logic to ensure the turret reacts optimally to fast robot spins.</p>
+     *
+     * @param joystickAugmentation A normalized input (-1.0 to 1.0) from the driver
+     *                             to manually offset the automated aim.
+     */
     public void augmentedAim(double joystickAugmentation) {
-        // 1. Get the auto-aim angle based on FUSED POSE
-        double baseAutoAimAngle = getAutoAimAngle();
+        // 1. Get the raw "Instant" target from the best available sensor source.
+        // This value is field-relative but normalized to be near the turret's current position.
+        double instantTarget = getAutoAimAngle();
 
-        // 2. Calculate the manual offset
-        double manualOffset = joystickAugmentation * JOYSTICK_SENSITIVITY;
+        if (firstAimRun) {
+            // Initialize memory on the first loop to prevent the turret from
+            // slowly "crawling" from 0 degrees at the start of the match.
+            smoothedTurretAngle = instantTarget;
+            firstAimRun = false;
+        } else {
+            // --- FILTER SHORT-PATH LOGIC ---
+            // Calculate the delta between where we are and where we want to be.
+            // We must normalize this delta to [-180, 180] so the filter always
+            // moves the turret the shortest distance around the circle.
+            double delta = instantTarget - smoothedTurretAngle;
+            while (delta > 180) delta -= 360;
+            while (delta <= -180) delta += 360;
 
-        // 3. Final target
-        double finalTargetAngle = baseAutoAimAngle + manualOffset;
+            // Apply the Low-Pass Filter (Complementary Filter)
+            // smoothed = (OldValue) + (ShortestDelta * Beta)
+            smoothedTurretAngle += (delta * LPF_BETA);
+        }
 
-        // 4. Send to Turret
+        // --- HARDWARE CONSTRAINTS ---
+        // Apply mechanical limits (-90 to 225) to the smoothed target.
+        // This ensures the turret never tries to rotate through the "Dead Zone."
+        double baseAngle = applyHardwareConstraints(smoothedTurretAngle);
+
+        // --- FINAL COMMAND ---
+        // Combine the automated smoothed target with the manual joystick offset.
+        double finalTargetAngle = baseAngle + (joystickAugmentation * JOYSTICK_SENSITIVITY);
+
+        // Command the turret subsystem to the calculated angle.
         turret.seekToAngle(finalTargetAngle);
 
-        // Telemetry for debugging
-        telemetry.addData("Fused X", fusedPose.position.x);
-        telemetry.addData("Fused Y", fusedPose.position.y);
-        telemetry.addData("Aim Angle", finalTargetAngle);
+        // Diagnostic Telemetry
+        telemetry.addData("Turret Current", turret.getCurrentPosition());
+        telemetry.addData("Turret Target", finalTargetAngle);
     }
 
     /**
-     * Calculates pure geometric angle from Fused Robot Pose to Goal
+     * Calculates the theoretical target turret angle in degrees relative to the robot's front.
+     * This method acts as the "Instantaneous Target" provider for the aiming system.
+     *
+     * <p>It provides a raw -180 to 180 degree target based on Limelight or Odometry,
+     * and "unwraps" the result to be as close to the current turret position as possible
+     * to support the turret's continuous linear encoder.</p>
+     *
+     * @return The raw target angle before smoothing or hardware clamping.
      */
     private double getAutoAimAngle() {
-        double difference = 0;
+        double targetTurretAngle;
+
+        // --- 1. SENSOR PRIORITY: LIMELIGHT ---
+        // If the Limelight sees the target, we use the vision error (limelight.getX())
+        // which represents the degrees the turret must turn from its CURRENT position
+        // to center the goal in the camera frame.
         if (limelight.hasTarget()) {
-            telemetry.addData("Aiming Mode", "LIMELIGHT");
             usingLimelight = true;
-            double limelightXDegrees = limelight.getX();
-            //difference = limelightXDegrees * Turret.TURN_SPEED * Turret.TURRET_DEGREES_PER_ENCODER_TICK;
-            //difference = limelightXDegrees * Turret.TURRET_DEGREES_PER_ENCODER_TICK;
-            difference = limelightXDegrees;
 
-        } else if (fusedPose != null) {
-            telemetry.addData("Aiming Mode", "ODOMETRY");
+            // Add the vision offset to the current physical encoder position.
+            targetTurretAngle = turret.getCurrentPosition() + limelight.getX();
+
+            telemetry.addData("Aiming Mode LIMELIGHT -- target: %.3f: ", targetTurretAngle);
+        }
+
+        // --- 2. SENSOR PRIORITY: ODOMETRY ---
+        // Fallback to Odometry if the Limelight is blocked or target is out of view.
+        // We calculate the vector from our fused robot position to the field goal position.
+        else if (fusedPose != null && targetPos != null) {
             usingLimelight = false;
-            Vector2d targetDirection = targetPos.minus(fusedPose.position);
 
-            // Target angle in world space (Degrees)
-            double worldTargetAngle = Math.toDegrees(-targetDirection.angleCast().toDouble());
+            // Calculate the vector (x, y) pointing from the robot to the goal
+            Vector2d delta = targetPos.minus(fusedPose.position);
 
-            // Current Turret "World" Angle (Robot Heading + Turret relative position)
-            double robotHeadingDeg = Math.toDegrees(fusedPose.heading.toDouble());
-            double currentTurretWorldAngle = -robotHeadingDeg + turret.getCurrentPosition();
+            // Calculate the absolute field-centric angle to the goal (Radians)
+            double fieldAngleToGoal = Math.atan2(delta.y, delta.x);
 
-            // Calculate the raw difference
-            difference = worldTargetAngle - currentTurretWorldAngle;
+            // HANDLE IMU WRAPPING:
+            // We turn the raw angle into a Rotation2d and subtract our robot heading.
+            // This yields the shortest relative distance from robot-front to goal,
+            // automatically handling the jump across the +/- 180 degree line.
+            double relativeAngleRad = Rotation2d.exp(fieldAngleToGoal).minus(fusedPose.heading);
 
-            // --- NORMALIZE THE DIFFERENCE ---
-            // This ensures the turret takes the shortest path across the 180/-180 line
-            while (difference > 180)  difference -= 360;
-            while (difference < -180) difference += 360;
+            // Convert result to Degrees for the Turret Subsystem
+            targetTurretAngle = Math.toDegrees(relativeAngleRad);
+
+            // --- NORMALIZATION LOGIC ---
+            // Since the turret can go up to 225, a result of -170 (from the RR math)
+            // is the same as 190. If the turret is currently at 180, we want to
+            // go to 190, NOT -170.
+            double currentTurret = turret.getCurrentPosition();
+            while (targetTurretAngle - currentTurret > 180)  targetTurretAngle -= 360;
+            while (targetTurretAngle - currentTurret <= -180) targetTurretAngle += 360;
+
+            telemetry.addData("Aiming Mode ODOMETRY -- target:  %.3f", targetTurretAngle);
         }
+
+        // --- 3. FALLBACK: IDLE ---
+        // If no pose or target is available, hold current position to prevent erratic movement.
         else {
-            telemetry.addData("Aiming Mode", "NO TARGET");
+            telemetry.addData("Aiming Mode", "IDLE (No Target Found)");
+            return turret.getCurrentPosition();
         }
-        //return turret.getCurrentPosition() + difference / (Math.PI);
-        return turret.getCurrentPosition() + difference;
+        return targetTurretAngle;
+    }
 
+    /**
+     * Enforces mechanical rotation limits and manages the "Dead Zone" traversal.
+     *
+     * <p>This method ensures the turret stays within its physical bounds (-90° to 225°).
+     * If a target is outside these bounds, it calculates if the target is reachable
+     * by rotating "the long way" around the circle. If the target is in the unreachable
+     * 135° gap, the turret clamps to the nearest hard stop.</p>
+     *
+     * @param angle The desired theoretical angle in degrees.
+     * @return The physically possible angle in degrees, constrained to [-90, 225].
+     */
+    private double applyHardwareConstraints(double angle) {
+        double finalAngle = angle;
+
+        // If target is below the right-side limit (-90)
+        if (finalAngle < -90) {
+            // Check if rotating 360 degrees the other way puts us within the left limit (225)
+            double altPath = finalAngle + 360;
+            if (altPath <= 225) {
+                finalAngle = altPath;
+            } else {
+                finalAngle = -90; // Goal is in the dead zone behind the robot
+            }
+        }
+        // If target is above the left-side limit (225)
+        else if (finalAngle > 225) {
+            // Check if rotating 360 degrees the other way puts us within the right limit (-90)
+            double altPath = finalAngle - 360;
+            if (altPath >= -90) {
+                finalAngle = altPath;
+            } else {
+                finalAngle = 225; // Goal is in the dead zone behind the robot
+            }
+        }
+        return finalAngle;
     }
 
     private double getAutoAimAngleFUSION() {

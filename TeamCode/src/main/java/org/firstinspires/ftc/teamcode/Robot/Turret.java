@@ -3,7 +3,9 @@ package org.firstinspires.ftc.teamcode.Robot;
 import static com.qualcomm.robotcore.eventloop.opmode.OpMode.blackboard;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
@@ -39,8 +41,8 @@ public class Turret implements DataLoggable {
     public static double MIN_TURRET_POS = -90;
     public static double TURRET_ANGLE_TOLERANCE = 2.5;
 
-    public static double KV_ROT = 0.12;
-
+    public static double KV_ROT = 0.12; // Tunable: Gain for robot rotation
+    public static double KV_TRANS = 0.15; // Tunable: Gain for translational apparent rotation
     public static boolean TELEM = true;
 
     public static double MAX_POWER = 0.8;
@@ -105,59 +107,103 @@ public class Turret implements DataLoggable {
         this.currentState = State.HOLDING;
     }
 
-    // --- Main Update Method ---
+    /**
+     * Main control loop for the turret. Calculates PID and multiple feedforward terms
+     * to maintain a lock on the field-centric goal while the robot is in motion.
+     *
+     * <p>The control law combines:</p>
+     * <ul>
+     *     <li><b>PID:</b> Corrects positional error between current encoder position and target.</li>
+     *     <li><b>Static FF:</b> Counteracts friction and wire harness pull based on position.</li>
+     *     <li><b>Rotational FF (KV_ROT):</b> Cancels out the robot's own angular velocity.</li>
+     *     <li><b>Translational FF (KV_TRANS):</b> Compensates for the apparent rotation of the
+     *     target caused by the robot driving/strafing past it.</li>
+     * </ul>
+     *
+     * @param robotPose Current field-centric pose from odometry.
+     * @param robotVel  Current velocity from odometry (assumed robot-relative linear).
+     * @param targetPos Field-centric coordinates of the high goal.
+     */
+    public void update(Pose2d robotPose,
+                       PoseVelocity2d robotVel,
+                       Vector2d targetPos) {
 
-    public void update(PoseVelocity2d robotPoseVelocity) {
-        if ( TELEM ) {
-            telemetry.addLine(" ------------- TURRET TELEM -------------");
-        }
-
-        updateCurrentPosition(); // Always read the sensor
-
+        updateCurrentPosition();
         turretAimPID.setPID(P_TURRET, I_TURRET, D_TURRET);
-        double ff = 0;
-        double ffRot = 0;
+
+        // 1. Static Feedforward (Wires/Friction)
+        double ffStatic = Range.clip(Range.scale(currentPosition, -90, -30, F_TURRET_MAX, F_TURRET_MIN), F_TURRET_MIN, F_TURRET_MAX);
+
+        // 2. Robot Rotation Feedforward
+        double ffRobotRot = robotVel.angVel * KV_ROT;
+
+        // 3. Robot Translation Feedforward
+        double ffTrans = calculateTranslationalFF(robotPose, robotVel, targetPos);
+
+        seekingPower = turretAimPID.calculate(currentPosition, targetAngle);
+
+        // Combine all terms
+        double totalPower = seekingPower + (ffStatic * Math.signum(seekingPower)) + ffRobotRot + ffTrans;
 
         switch (currentState) {
             case HOLDING:
-                seekingPower = turretAimPID.calculate(currentPosition, targetAngle);
-                ff = Range.clip(Range.scale(currentPosition, -90, -30, F_TURRET_MAX, F_TURRET_MIN), F_TURRET_MIN, F_TURRET_MAX);
-                ff *= ((seekingPower >= 0) ? 1 : -1);
-
-                ffRot = robotPoseVelocity.angVel * KV_ROT;
-
-                setHardwarePower(seekingPower + ff + ffRot);
-                break;
-
             case SEEKING_ANGLE:
-                seekingPower = turretAimPID.calculate(currentPosition, targetAngle);
-                ff = Range.clip(Range.scale(currentPosition, -90, -30, F_TURRET_MAX, F_TURRET_MIN), F_TURRET_MIN, F_TURRET_MAX);
-                ff *= ((seekingPower >= 0) ? 1 : -1);
-
-                ffRot = robotPoseVelocity.angVel * KV_ROT;
-
-                setHardwarePower(seekingPower + ff + ffRot);
-                if (isAtTarget()) {
+                setHardwarePower(totalPower);
+                if (currentState == State.SEEKING_ANGLE && isAtTarget()) {
                     this.currentState = State.HOLDING;
                 }
                 break;
 
             case MANUAL_CONTROL:
                 setHardwarePower(manualPower);
-                if (Math.abs(manualPower) < 0.05) {
-                    holdPosition();
-                }
+                if (Math.abs(manualPower) < 0.05) holdPosition();
                 break;
         }
 
         if ( TELEM ) {
+            telemetry.addLine(" ------------- TURRET TELEM -------------");
             telemetry.addData("Turret Starting Angle: ", startingAngle);
             telemetry.addData("Turret Position: ", currentPosition);
             telemetry.addData("Turret Target: ", targetAngle);
-            telemetry.addData("Turret Power: ", seekingPower + ff);
+            telemetry.addData("Turret Power: ", totalPower);
             telemetry.addData("Turret State: ", currentState);
         }
 
+    }
+    /**
+     * Calculates the apparent rotational rate (rad/s) of a fixed field target relative
+     * to the robot due to translational movement.
+     *
+     * <p>As the robot drives past a point, that point appears to "orbit" the robot.
+     * This method uses the cross product of the relative position vector and the
+     * velocity vector, divided by distance squared, to determine the angular velocity
+     * required to maintain a lock without relying on PID error.</p>
+     *
+     * @param robotPose Current field-centric pose (used for world-frame conversion).
+     * @param robotVel  Current robot-frame velocity.
+     * @param targetPos The field-centric location of the goal.
+     * @return The angular rate in rad/s, scaled by {@code KV_TRANS}.
+     */
+    private double calculateTranslationalFF(Pose2d robotPose,
+                                            PoseVelocity2d robotVel,
+                                            Vector2d targetPos) {
+
+        double dx = targetPos.x - robotPose.position.x;
+        double dy = targetPos.y - robotPose.position.y;
+        double rSquared = dx * dx + dy * dy;
+
+        if (rSquared < 1e-6) return 0.0;
+
+        // We need the world-frame velocity.
+        // RoadRunner 1.0 PoseVelocity2d usually contains robot-relative v.
+        // Convert to world-frame v for this calculation:
+        double vxWorld = robotVel.linearVel.x * Math.cos(robotPose.heading.toDouble()) - robotVel.linearVel.y * Math.sin(robotPose.heading.toDouble());
+        double vyWorld = robotVel.linearVel.x * Math.sin(robotPose.heading.toDouble()) + robotVel.linearVel.y * Math.cos(robotPose.heading.toDouble());
+
+        // Cross product: (dx * vy - dy * vx) / r^2
+        double translationalRate = (dx * vyWorld - dy * vxWorld) / rSquared;
+
+        return translationalRate * KV_TRANS;
     }
 
     private void  setHardwarePower(double power) {
