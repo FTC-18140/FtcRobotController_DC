@@ -67,7 +67,7 @@ public class AutoBlueFar extends LinearOpMode{
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(launchPos)
                                                                     .splineToSplineHeading(intakePos, Math.toRadians(90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x, 52), Math.toRadians(90), new TranslationalVelConstraint(5))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x, 49), Math.toRadians(90), new TranslationalVelConstraint(7))
                                                                     .build(),
                                                             new RaceAction(
                                                                     robot.holdTurretAction(),
@@ -85,8 +85,6 @@ public class AutoBlueFar extends LinearOpMode{
                                                             )
                                                     ),
                                                     robot.intake.intakeStopAction(),
-                                                    // Grab next 3 artifacts using intelligent, sensor-based actions
-                                                    robot.intakeStartAction(),
                                                     // Drive to launch spot
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, 49), Math.toRadians(90)))
@@ -105,7 +103,7 @@ public class AutoBlueFar extends LinearOpMode{
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(launchPos)
                                                                     .splineToSplineHeading(intakePos2, Math.toRadians(90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos2.position.x, 49), Math.toRadians(90), new TranslationalVelConstraint(5))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos2.position.x, 49), Math.toRadians(90), new TranslationalVelConstraint(7))
                                                                     .build(),
                                                             new RaceAction(
                                                                     robot.holdTurretAction(),
@@ -149,12 +147,16 @@ public class AutoBlueFar extends LinearOpMode{
                                         .strafeToSplineHeading(new Vector2d(-12, 12), Math.toRadians(0))
                                         .build(),
                                 robot.launcher.pointToAction(0),
-                                robot.launcher.stopAction()
+                                new ParallelAction(
+                                        robot.holdTurretAction(),
+                                        robot.launcher.stopAction()
+                                )
                             )
                 )
             );
         } finally {
             // This block will always run, even if the opmode is stopped prematurely.
+            robot.drive.updatePoseEstimate();
             blackboard.put("ENDING_POSITION_AUTO", robot.drive.localizer.getPose());
             blackboard.put("TURRET_ENDING_ANGLE_AUTO", robot.launcher.getTurretAngle());
 //            ThunderBot2025.starting_position = robot.drive.localizer.getPose();

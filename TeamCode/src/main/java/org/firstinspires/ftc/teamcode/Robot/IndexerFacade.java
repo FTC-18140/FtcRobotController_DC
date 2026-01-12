@@ -292,7 +292,9 @@ public class IndexerFacade {
     public State getState() { return currentState; }
     public void setState(State state) { this.currentState = state; }
     public BallState getBallState(int slot) {
-        updateBallSensors();
+        ballSensors[slot*2].update();
+        ballSensors[slot*2+1].update();
+        updated = true;
         updateBallStates();
         return (slot >= 0 && slot < 3) ? ballSlots[slot] : BallState.VACANT;
     }

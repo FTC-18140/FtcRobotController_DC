@@ -45,6 +45,7 @@ public class Teleop_BLUE extends OpMode {
     public void start() {
         robot.runtime.reset();
         robot.setColor(alliance);
+        robot.launcher.setPipeline(1);
     }
 
     @Override

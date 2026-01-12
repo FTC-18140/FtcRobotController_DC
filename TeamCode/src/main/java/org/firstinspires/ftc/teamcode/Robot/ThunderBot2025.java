@@ -304,14 +304,7 @@ public class ThunderBot2025 implements DataLoggable
 
     public Action startSequenceAction(){
         return new SequentialAction(
-                indexer.runCurrentSequenceAction(),
-                launchReadyAction(),
-                new Action() {
-                    @Override
-                    public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                        return false;
-                    }
-                }
+                indexer.runCurrentSequenceAction()
         );
     }
     public Action cancelSequenceAction(){
