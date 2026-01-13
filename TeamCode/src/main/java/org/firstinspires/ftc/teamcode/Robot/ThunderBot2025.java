@@ -51,6 +51,8 @@ public class ThunderBot2025 implements DataLoggable
 
     public void init(HardwareMap hwMap, Telemetry telem, @Nullable Pose2d pose)
     {
+        telemetry = new MultipleTelemetry(telem, FtcDashboard.getInstance().getTelemetry());
+
         starting_position = (Pose2d) blackboard.getOrDefault(STARTING_POSITION, null);
         if(pose == null){
             if(starting_position == null) {
@@ -62,20 +64,19 @@ public class ThunderBot2025 implements DataLoggable
         drive = new MecanumDrive(hwMap, pose);
 
         intake = new Intake();
-        intake.init(hwMap, telem);
+        intake.init(hwMap, telemetry);
 
         indexer = new IndexerFacade();
-        indexer.init(hwMap, telem);
+        indexer.init(hwMap, telemetry);
 
         launcher = new LauncherFacade();
-        launcher.init(hwMap, telem, pose);
+        launcher.init(hwMap, telemetry, pose);
 
         led = new LED();
-        led.init(hwMap, telem);
+        led.init(hwMap, telemetry);
 
         runtime.reset();
 
-        telemetry = new MultipleTelemetry(telem, FtcDashboard.getInstance().getTelemetry());
     }
 
 

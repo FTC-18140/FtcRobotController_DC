@@ -227,7 +227,7 @@ public class LauncherFacade implements DataLoggable {
             // Add the vision offset to the current physical encoder position.
             targetTurretAngle = turret.getCurrentPosition() + limelight.getX();
 
-            telemetry.addData("Aiming Mode LIMELIGHT -- target: %.3f: ", targetTurretAngle);
+            telemetry.addData("Aiming Mode LIMELIGHT -- target: ","%.3f ", targetTurretAngle);
         }
 
         // --- 2. SENSOR PRIORITY: ODOMETRY ---
@@ -259,7 +259,7 @@ public class LauncherFacade implements DataLoggable {
             while (targetTurretAngle - currentTurret > 180)  targetTurretAngle -= 360;
             while (targetTurretAngle - currentTurret <= -180) targetTurretAngle += 360;
 
-            telemetry.addData("Aiming Mode ODOMETRY -- target:  %.3f", targetTurretAngle);
+            telemetry.addData("Aiming Mode ODOMETRY -- target: "," %.3f", targetTurretAngle);
         }
 
         // --- 3. FALLBACK: IDLE ---
