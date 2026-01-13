@@ -63,7 +63,7 @@ public class AutoBlueDepot extends LinearOpMode{
                                                     robot.waitForSequenceEndAction(),
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
-                                                    new ParallelAction(
+                                                    new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
                                                                     .splineToSplineHeading(intakePos, Math.toRadians(90))
                                                                     .splineToConstantHeading(new Vector2d(intakePos.position.x, 49), Math.toRadians(90), new TranslationalVelConstraint(7))
@@ -71,7 +71,7 @@ public class AutoBlueDepot extends LinearOpMode{
                                                             new RaceAction(
                                                                     robot.holdTurretAction(),
                                                                     new SequentialAction(
-                                                                            robot.seekToSlotAction(0), // Move to the first intake slot
+                                                                            new SleepAction(0.5),
 //                                                                            robot.indexerIsAtTargetAction(),
                                                                             robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
 //                                                                            robot.indexerIsAtTargetAction(),
@@ -104,7 +104,6 @@ public class AutoBlueDepot extends LinearOpMode{
                                                             new RaceAction(
                                                                     robot.holdTurretAction(),
                                                                     new SequentialAction(
-                                                                            robot.seekToSlotAction(0), // Move to the first intake slot
 //                                                                            robot.indexerIsAtTargetAction(),
                                                                             robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
 //                                                                            robot.indexerIsAtTargetAction(),

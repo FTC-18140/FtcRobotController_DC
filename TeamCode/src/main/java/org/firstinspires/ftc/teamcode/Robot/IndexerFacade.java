@@ -177,24 +177,45 @@ public class IndexerFacade {
         // Refactored to have a single exit point
         boolean slotFound = false;
         if (currentState == State.IDLE || currentState == State.AWAITING_FLIP) {
-            int startSlot = (currentTargetSlot + 1) % 3;
+            int startSlot = currentTargetSlot;
 
-            if ( ballState == BallState.ALL)
-            {
-                selectSlot(startSlot);
-                slotFound = true;
-            }
-            for (int i = 0; i < 3 && !slotFound; i++) {
+            for (int i = 3; i > 0 && !slotFound; i--) {
                 updateBallSensors();
+                updateBallStates();
                 int slotToCheck = (startSlot + i) % 3;
-                if (ballSlots[slotToCheck] == ballState) {
-                    selectSlot(slotToCheck);
+                if (ballSlots[slotToCheck] == ballState || (ballState == BallState.ALL && ballSlots[slotToCheck] != BallState.VACANT)) {
+
+                    currentTargetSlot = slotToCheck;
+                    turnstile.seekToAngle(SLOT_ANGLES[slotToCheck]);
+                    currentState = State.SELECTING_BALL;
                     slotFound = true;
                 }
             }
         }
         return slotFound;
     }
+    public boolean readyNextIntakeSlot(BallState ballState) {
+        // Refactored to have a single exit point
+        boolean slotFound = false;
+        if (currentState == State.IDLE || currentState == State.AWAITING_FLIP) {
+            int startSlot = 0;
+
+            for (int i = 3; i > 0 && !slotFound; i--) {
+                updateBallSensors();
+                updateBallStates();
+                int slotToCheck = (startSlot + i) % 3;
+                if (ballSlots[slotToCheck] == ballState) {
+
+                    currentTargetSlot = (currentTargetSlot + (3-i)) % 3;
+                    turnstile.seekToAngle(SLOT_ANGLES[currentTargetSlot]);
+                    currentState = State.SELECTING_BALL;
+                    slotFound = true;
+                }
+            }
+        }
+        return slotFound;
+    }
+
 
     /**
      * Commands the turnstile to rotate to a specific slot.

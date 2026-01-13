@@ -36,16 +36,17 @@ public class Turret implements DataLoggable {
     private Telemetry telemetry;
 
     // Tunable constants from your original file
-    public static double P_TURRET = 0.015, I_TURRET = 0.011, D_TURRET = 0.0001, F_TURRET_MIN = 0.05, F_TURRET_MAX = 0.08;
+    public static double P_TURRET = 0.005, I_TURRET = 0.02, D_TURRET = 0.0001, F_TURRET_MIN = 0.00, F_TURRET_MAX = 0.07;
     public static double MAX_TURRET_POS = 225;
     public static double MIN_TURRET_POS = -90;
     public static double TURRET_ANGLE_TOLERANCE = 2.5;
 
-    public static double KV_ROT = 0.18; // Tunable: Gain for robot rotation
+    public static double KV_ROT = 0.12; // Tunable: Gain for robot rotation
     public static double KV_TRANS = 0.15; // Tunable: Gain for translational apparent rotation
     public static boolean TELEM = true;
 
     public static double MAX_POWER = 0.8;
+    public static double MIN_POWER = 0.045;
 
     public static double TURN_SPEED = 208.3; // From original lockOn
     public static double TURRET_DEGREES_PER_ENCODER_TICK = (double) 1 /8192 * 360 * 24.24/190.5;
@@ -219,6 +220,11 @@ public class Turret implements DataLoggable {
             turret.setPower(0);
         } else {
             power = Range.clip(power, -MAX_POWER, MAX_POWER);
+            if(power < 0){
+                power = Range.scale(power, -MAX_POWER, 0, -MAX_POWER, -MIN_POWER);
+            }else{
+                power = Range.scale(power, 0, MAX_POWER, MIN_POWER, MAX_POWER);
+            }
             telemetry.addData("Turret Power sent to hardware", power);
             turret.setPower(power);
         }
