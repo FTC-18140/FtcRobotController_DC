@@ -32,6 +32,7 @@ public class LauncherFacade implements DataLoggable {
     private KalmanPoseEstimator poseEstimator;
     private Pose2d fusedPose = new Pose2d(0, 0, 0); // This is the "Truth" we aim with
     private Pose2d lastOdoPose = null; // Used to calculate delta
+    private Vector2d lastGoalDist = null; // Used to calculate delta
     public static double TURRET_OFFSET_X = 3.5;
     public static double TURRET_OFFSET_Y = -4;
     public Vector2d turret_pos = fusedPose.position;
@@ -75,6 +76,10 @@ public class LauncherFacade implements DataLoggable {
         if (lastOdoPose == null)  {
             lastOdoPose = currentOdoPose;
             poseEstimator = new KalmanPoseEstimator(currentOdoPose);
+            return;
+        }
+        if (lastGoalDist == null)  {
+            lastGoalDist = targetPos.minus(currentOdoPose.position);
             return;
         }
 
@@ -145,11 +150,20 @@ public class LauncherFacade implements DataLoggable {
         // Use fusedPose for distance calculation
         double distanceToGoal = getGoalDistance();
 
-        turret.update(currentOdoVelocity);
+        Vector2d current_dist = targetPos.minus(currentOdoPose.position);
+        double dt_distance_x = current_dist.x - lastGoalDist.x;
+        double dt_distance_y = current_dist.y - lastGoalDist.y;
+
+        double angle_change = Math.atan(current_dist.y/(current_dist.x != 0 ? current_dist.x : 0.01)) - Math.atan(lastGoalDist.y/ (lastGoalDist.x != 0 ? lastGoalDist.x : 0.01));
+
+        turret.update(currentOdoVelocity, angle_change);
         flywheel.update(distanceToGoal);
 
-        telemetry.addData("Using Limelight: ", usingLimelight);
-        telemetry.addData("Amount Moved: ", target_shift);
+        lastGoalDist = current_dist;
+
+//        telemetry.addData("Using Limelight: ", usingLimelight);
+        telemetry.addData("Turret Amount Moved: ", target_shift);
+        telemetry.addData("Chassis to Target Angle change: ", angle_change);
     }
 
     public void updateVision() { limelight.update(Math.toDegrees(fusedPose.heading.toDouble()) - getTurretAngle()); }

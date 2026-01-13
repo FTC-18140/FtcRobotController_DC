@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Auto;
 
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.RaceAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
@@ -29,15 +30,19 @@ public class AutoTest extends LinearOpMode {
         Actions.runBlocking(
                 new ParallelAction(
                         robot.updateAction(),
-                        robot.aimAction(),
-                        robot.launcher.prepShotAction()
-//                        new SequentialAction(
-////                                robot.intake.intakeStartAction(),
-//                                robot.seekToSlotAction(0), // Move to the first intake slot
-//                                robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-//                                robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-//                                robot.waitForBallAndCycleAction()
-//                        )
+//                        robot.aimAction(),
+                        new SequentialAction(
+                            new RaceAction(
+                                new SequentialAction(
+                                        robot.intakeStartAction(), // Move to the first intake slot
+                                        robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
+                                        robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
+                                        robot.waitForBallAndCycleAction()
+                                )
+//                                robot.indexerFullAction()
+                            ),
+                                robot.intake.intakeStopAction()
+                        )
                 )
         );
 

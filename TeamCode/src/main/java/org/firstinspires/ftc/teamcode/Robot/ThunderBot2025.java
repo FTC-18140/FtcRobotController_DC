@@ -339,8 +339,8 @@ public class ThunderBot2025 implements DataLoggable
 
                 indexer.updateBallSensors();
                 // Condition to exit: if the slot we were watching is no longer vacant.
-                if (indexer.getBallState(slotToWatch) != IndexerFacade.BallState.VACANT) {
-                    return !indexer.selectNextSlot(IndexerFacade.BallState.ALL); // End this action, the cycle command has been sent.
+                if (indexer.getBallState(slotToWatch) != IndexerFacade.BallState.VACANT && indexer.isAtTarget() && indexer.getState() != IndexerFacade.State.SELECTING_BALL) {
+                    return !indexer.readyNextIntakeSlot(IndexerFacade.BallState.VACANT); // End this action, the cycle command has been sent.
                 }
                 return true; // Continue waiting for a ball.
             }
