@@ -83,13 +83,13 @@ public class AutoBlueDepot extends LinearOpMode{
                                                                     robot.indexerFullAction()
                                                             )
                                                     ),
-                                                    robot.intake.intakeStopAction(),
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, 49), Math.toRadians(90)))
                                                                     .strafeToSplineHeading(launchPos.position, Math.toRadians(23))
                                                                     .build(),
                                                             robot.launcher.pointToAction(0)
                                                     ),
+                                                    robot.intake.intakeStopAction(),
                                                     // Launch Preloads
                                                     robot.planSequenceAction(),
                                                     robot.startSequenceAction(),
@@ -115,7 +115,6 @@ public class AutoBlueDepot extends LinearOpMode{
                                                                     robot.indexerFullAction()
                                                             )
                                                     ),
-                                                    robot.intake.intakeStopAction(),
                                                     // Drive to launch spot
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos2.position.x, 49), Math.toRadians(90)))
@@ -125,6 +124,7 @@ public class AutoBlueDepot extends LinearOpMode{
 //                                                            // Re-plan the shot sequence with the newly loaded balls
 //                                                            robot.planSequenceAction()
                                                     ),
+                                                    robot.intake.intakeStopAction(),
                                                     // Launch 2nd set of Artifacts
                                                     robot.planSequenceAction(),
                                                     robot.startSequenceAction(),

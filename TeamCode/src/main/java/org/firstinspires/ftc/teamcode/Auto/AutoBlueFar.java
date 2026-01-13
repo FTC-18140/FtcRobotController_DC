@@ -72,7 +72,7 @@ public class AutoBlueFar extends LinearOpMode{
                                                             new RaceAction(
                                                                     robot.holdTurretAction(),
                                                                     new SequentialAction(
-                                                                            robot.seekToSlotAction(0), // Move to the first intake slot
+//                                                                            robot.seekToSlotAction(0), // Move to the first intake slot
                                                                             //robot.indexerIsAtTargetAction(),
                                                                             robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
                                                                             //robot.indexerIsAtTargetAction(),
@@ -84,7 +84,7 @@ public class AutoBlueFar extends LinearOpMode{
                                                                     robot.indexerFullAction()
                                                             )
                                                     ),
-                                                    robot.intake.intakeStopAction(),
+
                                                     // Drive to launch spot
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, 49), Math.toRadians(90)))
@@ -94,6 +94,8 @@ public class AutoBlueFar extends LinearOpMode{
         //                                        // Re-plan the shot sequence with the newly loaded balls
         //                                        robot.planSequenceAction()
                                                     ),
+
+                                                    robot.intake.intakeStopAction(),
                                                     // Launch 2nd set of Artifacts
                                                     robot.planSequenceAction(),
                                                     robot.startSequenceAction(),
@@ -108,7 +110,7 @@ public class AutoBlueFar extends LinearOpMode{
                                                             new RaceAction(
                                                                     robot.holdTurretAction(),
                                                                     new SequentialAction(
-                                                                            robot.seekToSlotAction(0), // Move to the first intake slot
+//                                                                            robot.seekToSlotAction(0), // Move to the first intake slot
                                                                             //robot.indexerIsAtTargetAction(),
                                                                             robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
         //                                                                    robot.indexerIsAtTargetAction(),
@@ -120,7 +122,6 @@ public class AutoBlueFar extends LinearOpMode{
                                                                     robot.indexerFullAction()
                                                             )
                                                     ),
-                                                    robot.intake.intakeStopAction(),
 
                                                     // Drive to launch spot
                                                     new ParallelAction(
@@ -131,6 +132,8 @@ public class AutoBlueFar extends LinearOpMode{
         //                                            // Re-plan the shot sequence with the newly loaded balls
         //                                            robot.planSequenceAction()
                                                     ),
+
+                                                    robot.intake.intakeStopAction(),
                                                     // Launch 2nd set of Artifacts
 
                                                     robot.planSequenceAction(),

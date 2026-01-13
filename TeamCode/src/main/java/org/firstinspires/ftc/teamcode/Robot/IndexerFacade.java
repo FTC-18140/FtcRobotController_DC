@@ -25,6 +25,7 @@ public class IndexerFacade {
     private Flipper flipper;
     private Turnstile turnstile;
     private BallSensor[] ballSensors = new BallSensor[6];
+    private BeamBreaker beamBreak = new BeamBreaker();
     private Telemetry telemetry;
     private ElapsedTime flipTimer = new ElapsedTime();
 
@@ -76,6 +77,8 @@ public class IndexerFacade {
         for (int i = 0; i < 3; i++) {
             ballSlots[i] = BallState.VACANT;
         }
+
+        beamBreak.init(hwMap, telem);
 
         updateBallSensors();
         updateBallStates();
@@ -154,7 +157,7 @@ public class IndexerFacade {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
 
-                return !executeNextInSequence();
+                return !executeNextInSequence() && inSequence();
             }
         };
     }
@@ -307,6 +310,7 @@ public class IndexerFacade {
         return selectSlot(nextSlot);
 
     }
+    public boolean ballInIntake(){return beamBreak.ballDetected();}
     public boolean isAtTarget(){
         return turnstile.isAtTarget();
     }
@@ -344,6 +348,7 @@ public class IndexerFacade {
     public void update(boolean isAtRpm) {
         flipper.update();
         turnstile.update();
+        beamBreak.update();
 
         updated = false;
 

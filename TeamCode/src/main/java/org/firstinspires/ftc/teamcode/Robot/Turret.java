@@ -36,17 +36,18 @@ public class Turret implements DataLoggable {
     private Telemetry telemetry;
 
     // Tunable constants from your original file
-    public static double P_TURRET = 0.005, I_TURRET = 0.02, D_TURRET = 0.0001, F_TURRET_MIN = 0.00, F_TURRET_MAX = 0.07;
+    public static double P_TURRET = 0.0055, I_TURRET = 0.085, D_TURRET = 0.00035, F_TURRET_MIN = 0.0, F_TURRET_MAX = 0.05;
     public static double MAX_TURRET_POS = 225;
     public static double MIN_TURRET_POS = -90;
     public static double TURRET_ANGLE_TOLERANCE = 2.5;
 
-    public static double KV_ROT = 0.12; // Tunable: Gain for robot rotation
-    public static double KV_TRANS = 0.15; // Tunable: Gain for translational apparent rotation
+    public static double KV_ROT = 0.09; // Tunable: Gain for robot rotation
+    public static double KV_TRANS = 0.16; // Tunable: Gain for translational apparent rotation
     public static boolean TELEM = true;
 
     public static double MAX_POWER = 0.8;
-    public static double MIN_POWER = 0.045;
+    public static double MIN_POWER_POSITIVE = 0.03;
+    public static double MIN_POWER_NEGATIVE = -0.075;
 
     public static double TURN_SPEED = 208.3; // From original lockOn
     public static double TURRET_DEGREES_PER_ENCODER_TICK = (double) 1 /8192 * 360 * 24.24/190.5;
@@ -58,6 +59,7 @@ public class Turret implements DataLoggable {
     private double currentPosition = 0;
     //private double offsetAngle = 0;
     private double seekingPower = 0; // Member variable to be accessible for logging
+    private double lastSeekingPower = 0;
     public static String STARTING_ANGLE = "TURRET_ENDING_ANGLE_AUTO";
     double startingAngle = (double) blackboard.getOrDefault(STARTING_ANGLE, (double) 0);
     public void init(HardwareMap hwMap, Telemetry telem) {
@@ -128,12 +130,11 @@ public class Turret implements DataLoggable {
     public void update(Pose2d robotPose,
                        PoseVelocity2d robotVel,
                        Vector2d targetPos) {
-
         updateCurrentPosition();
         turretAimPID.setPID(P_TURRET, I_TURRET, D_TURRET);
 
         // 1. Static Feedforward (Wires/Friction)
-        double ffStatic = Range.clip(Range.scale(currentPosition, -90, -30, F_TURRET_MAX, F_TURRET_MIN), F_TURRET_MIN, F_TURRET_MAX);
+        double ffStatic = Range.clip(Range.scale(currentPosition, -90, -15, F_TURRET_MAX, F_TURRET_MIN), F_TURRET_MIN, F_TURRET_MAX);
 
         // 2. Robot Rotation Feedforward
         double ffRobotRot = robotVel.angVel * KV_ROT;
@@ -220,14 +221,19 @@ public class Turret implements DataLoggable {
             turret.setPower(0);
         } else {
             power = Range.clip(power, -MAX_POWER, MAX_POWER);
-            if(power < 0){
-                power = Range.scale(power, -MAX_POWER, 0, -MAX_POWER, -MIN_POWER);
+            if (Math.signum(power) != Math.signum(lastSeekingPower)){
+                turretAimPID.reset();
+            }
+            else if(power < 0){
+                power = Range.scale(power, -MAX_POWER, 0, -MAX_POWER, MIN_POWER_NEGATIVE);
             }else{
-                power = Range.scale(power, 0, MAX_POWER, MIN_POWER, MAX_POWER);
+                power = Range.scale(power, 0, MAX_POWER, MIN_POWER_POSITIVE, MAX_POWER);
             }
             telemetry.addData("Turret Power sent to hardware", power);
             turret.setPower(power);
         }
+
+        lastSeekingPower = power;
     }
 
     private void updateCurrentPosition() {

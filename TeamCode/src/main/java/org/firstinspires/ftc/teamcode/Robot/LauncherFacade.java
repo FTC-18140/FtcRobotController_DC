@@ -10,6 +10,8 @@ import com.acmerobotics.roadrunner.Rotation2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.Range;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Utilities.DataLoggable;
 import org.firstinspires.ftc.teamcode.Utilities.DataLogger;
@@ -221,19 +223,19 @@ public class LauncherFacade implements DataLoggable {
         // If the Limelight sees the target, we use the vision error (limelight.getX())
         // which represents the degrees the turret must turn from its CURRENT position
         // to center the goal in the camera frame.
-        if (limelight.hasTarget()) {
-            usingLimelight = true;
-
-            // Add the vision offset to the current physical encoder position.
-            targetTurretAngle = turret.getCurrentPosition() + limelight.getX();
-
-            telemetry.addData("Aiming Mode LIMELIGHT -- target: ","%.3f ", targetTurretAngle);
-        }
+//        if (limelight.hasTarget()) {
+//            usingLimelight = true;
+//
+//            // Add the vision offset to the current physical encoder position.
+//            targetTurretAngle = turret.getCurrentPosition() + limelight.getX();
+//
+//            telemetry.addData("Aiming Mode LIMELIGHT -- target: ","%.3f ", targetTurretAngle);
+//        }
 
         // --- 2. SENSOR PRIORITY: ODOMETRY ---
         // Fallback to Odometry if the Limelight is blocked or target is out of view.
         // We calculate the vector from our fused robot position to the field goal position.
-        else if (fusedPose != null && targetPos != null) {
+        if (fusedPose != null && targetPos != null) {
             usingLimelight = false;
 
             // Calculate the vector (x, y) pointing from the robot to the goal
@@ -249,7 +251,7 @@ public class LauncherFacade implements DataLoggable {
             double relativeAngleRad = Rotation2d.exp(fieldAngleToGoal).minus(fusedPose.heading);
 
             // Convert result to Degrees for the Turret Subsystem
-            targetTurretAngle = Math.toDegrees(relativeAngleRad);
+            targetTurretAngle = -Math.toDegrees(relativeAngleRad);
 
             // --- NORMALIZATION LOGIC ---
             // Since the turret can go up to 225, a result of -170 (from the RR math)
@@ -283,7 +285,7 @@ public class LauncherFacade implements DataLoggable {
      * @return The physically possible angle in degrees, constrained to [-90, 225].
      */
     private double applyHardwareConstraints(double angle) {
-        double finalAngle = angle;
+        double finalAngle = angle % 360;
 
         // If target is below the right-side limit (-90)
         if (finalAngle < -90) {
@@ -299,7 +301,7 @@ public class LauncherFacade implements DataLoggable {
         else if (finalAngle > 225) {
             // Check if rotating 360 degrees the other way puts us within the right limit (-90)
             double altPath = finalAngle - 360;
-            if (altPath >= -90) {
+            if (altPath >= -90 && altPath <= 225) {
                 finalAngle = altPath;
             } else {
                 finalAngle = 225; // Goal is in the dead zone behind the robot
