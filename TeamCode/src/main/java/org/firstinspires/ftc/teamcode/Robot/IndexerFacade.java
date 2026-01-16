@@ -31,7 +31,7 @@ public class IndexerFacade {
 
     // --- Constants ---
     public static final double[] SLOT_ANGLES = {120, 240, 0}; // Angles for slots 0, 1, and 2
-    private static final double FLIP_TIME_SECONDS = 0.25; // Time for the flipper to extend and retract
+    private static final double FLIP_TIME_SECONDS = 0.2; // Time for the flipper to extend and retract
     private static final double CYCLE_TIME_SECONDS = 0.5; // Time for the flipper to extend and retract
 
     public static boolean TELEM = true;
@@ -204,12 +204,12 @@ public class IndexerFacade {
             int startSlot = 0;
 
             for (int i = 3; i > 0 && !slotFound; i--) {
-                updateBallSensors();
-                updateBallStates();
-                int slotToCheck = (startSlot + i) % 3;
-                if (ballSlots[slotToCheck] == ballState) {
 
-                    currentTargetSlot = (currentTargetSlot + (3-i)) % 3;
+                int slotToCheck = (startSlot + i) % 3;
+
+                if (getBallState(slotToCheck) == ballState) {
+
+                    currentTargetSlot = (currentTargetSlot + (3-slotToCheck)) % 3;
                     turnstile.seekToAngle(SLOT_ANGLES[currentTargetSlot]);
                     currentState = State.SELECTING_BALL;
                     slotFound = true;
@@ -229,7 +229,7 @@ public class IndexerFacade {
      * @param slot The index of the target slot (0, 1, or 2).
      */
     public boolean selectSlot(int slot) {
-        if ((currentState == State.IDLE || currentState == State.AWAITING_FLIP || currentState == State.SELECTING_BALL || currentState == State.FLIP_TO_CYCLE || currentState == State.RETRACTING_FLIPPER) && slot >= 0 && slot < 3) {
+        if (flipper.isRetracted() && (currentState == State.IDLE || currentState == State.AWAITING_FLIP || currentState == State.SELECTING_BALL || currentState == State.FLIP_TO_CYCLE || currentState == State.RETRACTING_FLIPPER) && slot >= 0 && slot < 3) {
             currentTargetSlot = slot;
             turnstile.seekToAngle(SLOT_ANGLES[currentTargetSlot]);
             currentState = State.SELECTING_BALL;
@@ -306,9 +306,8 @@ public class IndexerFacade {
     public boolean cycle(int direction) {
         // Corrected: This now cycles to the next adjacent slot.
         int startSlot = (currentTargetSlot != -1) ? currentTargetSlot : 0;
-        int nextSlot = (startSlot + direction +3) % 3; // Handles positive/negative direction and wrap-around
+        int nextSlot = (startSlot + direction + 3) % 3; // Handles positive/negative direction and wrap-around
         return selectSlot(nextSlot);
-
     }
     public boolean ballInIntake(){return beamBreak.ballDetected();}
     public boolean isAtTarget(){
@@ -425,29 +424,30 @@ public class IndexerFacade {
             // Get the detected colors from the sensor pairs (0,1), (2,3), (4,5)
             BallSensor sensorA = ballSensors[i * 2];
             BallSensor sensorB = ballSensors[i * 2 + 1];
-            BallSensor.BallColor colorA = ballSensors[i * 2].getDetectedColor();
-            BallSensor.BallColor colorB = ballSensors[i * 2 + 1].getDetectedColor();
+            BallSensor.BallColor colorA = sensorA.getDetectedColor();
+            BallSensor.BallColor colorB = sensorB.getDetectedColor();
 
-            BallSensor V3 = (sensorA.isV2 ? sensorB : sensorA);
+//            BallSensor V3 = (sensorA.isV2 ? sensorB : sensorA);
 
-            if (V3.isBallPresent() && (colorA == BallSensor.BallColor.PURPLE || colorB == BallSensor.BallColor.PURPLE)) {
+            if (colorA == BallSensor.BallColor.PURPLE || colorB == BallSensor.BallColor.PURPLE) {
                 // Priority 1: Either is Purple
                 ballSlots[i] = BallState.PURPLE;
-            } else if (V3.isBallPresent() && (colorA == BallSensor.BallColor.GREEN || colorB == BallSensor.BallColor.GREEN)) {
+            } else if (colorA == BallSensor.BallColor.GREEN || colorB == BallSensor.BallColor.GREEN) {
                 // Priority 2: Both must be Green
                 ballSlots[i] = BallState.GREEN;
             } else {
                 // Default: Both NONE or mixed Green/None
                 ballSlots[i] = BallState.VACANT;
             }
-            ballSensors[i*2].addTelemetry();
-            ballSensors[i*2 + 1].addTelemetry();
+            sensorA.addTelemetry();
+            sensorB.addTelemetry();
         }
     }
 
     private void addTelemetry() {
         if ( !TELEM ) return;
         telemetry.addData("Indexer Facade State", currentState.name());
+        telemetry.addData("Beam Break detection: ", ballInIntake());
         telemetry.addLine(String.format("Slots: [0]: %s, [1]: %s, [2]: %s",
                 ballSlots[0], ballSlots[1], ballSlots[2]));
         telemetry.addData("in Sequence: ", sequenceStarted);

@@ -24,7 +24,7 @@ public class BeamBreaker {
 
     public void update() {
         if(beamBreakSensor != null) {
-            detected = beamBreakSensor.getState();
+            detected = !beamBreakSensor.getState();
             if (TELEM) {
                 telemetry.addData("Beam Break sensor triggered: ", detected);
             }

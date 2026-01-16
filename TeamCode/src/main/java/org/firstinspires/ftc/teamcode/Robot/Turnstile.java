@@ -26,7 +26,7 @@ public class Turnstile {
     public static boolean TELEM = true;
 
     // --- Tunable Constants via FTC Dashboard ---
-    public static double P = 0.004, I = 0.001, D = 0.0001;
+    public static double P = 0.00245, I = 0.0, D = 0.00001;
     public static double HOMING_POWER = -0.05;
     public static double ANGLE_TOLERANCE = 5;// In degrees
     public static double BACKWARD_TOLERANCE = 30;
@@ -214,7 +214,7 @@ public class Turnstile {
                     // Find the nearest ideal slot angle (0, 120, 240) to our current position.
                     double nearestSlotAngle = Math.round(currentAngle / 120.0) * 120.0;
                     // Snap our PID target to that perfect, calibrated angle.
-                    targetAngle = nearestSlotAngle;
+//                    targetAngle = nearestSlotAngle;
                 }
 
                 angleController.setPID(P, I, D); // Re-apply PID gains from Dashboard
