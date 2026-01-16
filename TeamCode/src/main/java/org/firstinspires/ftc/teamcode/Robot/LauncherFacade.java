@@ -66,7 +66,7 @@ public class LauncherFacade implements DataLoggable {
     }
 
     public boolean isUsingLimelight() { return usingLimelight; }
-    public double getLimelightX(){ return limelight.getX(); }
+    public double getLimelightX(){ return limelight.getXLowpass(); }
     public void setPipeline(int pipeline) {
         limelight.setPipeline(pipeline);
     }
