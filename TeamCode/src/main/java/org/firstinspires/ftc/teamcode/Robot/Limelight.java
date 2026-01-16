@@ -29,7 +29,7 @@ public class Limelight implements DataLoggable {
     int id = -1; // The ID number of the fiducial. Set to -1 to indicate no target.
     double x = 0; // Where it is (left-right)
     double filteredX = 0;
-    public static double alpha = 0;
+    public static double alpha = 1;
     double y = 0; // Where it is (up-down)
     double distance = -1;
     int index = 1;
