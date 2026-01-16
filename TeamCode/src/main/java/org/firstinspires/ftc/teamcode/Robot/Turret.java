@@ -248,7 +248,7 @@ public class Turret implements DataLoggable {
         return this.currentPosition;
     }
     public double getCurrentPositionRaw() {
-        return this.currentPosition - startingAngle;
+        return this.currentPosition - this.startingAngle;
     }
 
 
