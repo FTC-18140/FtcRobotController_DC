@@ -48,7 +48,10 @@ public class BallSensor {
     public static int PURPLE_HUE_MIN_V2 = 210;
     public static int PURPLE_HUE_MAX_V2 = 295;
     public static double PRESENCE_DISTANCE_CM = 5;
-    public static double PRESENCE_ALPHA = 0.004;
+    public static double PRESENCE_ALPHA = 0.45;
+
+    public static double[] presenceDistances = {5.2, 5.4, 7.25, 7.5, 5, 8.6} ;
+    int id;
 
     public static float GAIN = 2.0f;
     float[] hsv = new float[3];
@@ -58,9 +61,10 @@ public class BallSensor {
     private BallColor detectedColor = BallColor.NONE;
     boolean isV2 = false;
 
-    public void init(HardwareMap hwMap, Telemetry telem, String sensorName) {
+    public void init(HardwareMap hwMap, Telemetry telem, String sensorName, int id) {
         this.telemetry = telem;
         this.sensorName = sensorName;
+        this.id = id;
         try {
             colorSensor = hwMap.get(NormalizedColorSensor.class, sensorName);
             colorSensor.setGain(GAIN);
@@ -120,7 +124,7 @@ public class BallSensor {
     // --- Internal Helper Methods ---
 
     private boolean isBallPresentInternal() {
-        return distanceCm < PRESENCE_DISTANCE_CM && colors.alpha > PRESENCE_ALPHA;
+        return distanceCm < presenceDistances[id];
     }
 
 //    private boolean isGreenRGB() {
@@ -205,7 +209,7 @@ public class BallSensor {
         if ( !TELEM ) return;
         telemetry.addLine(String.format("--- Sensor: %s ---", sensorName));
 //        telemetry.addData("Device Info", String.format("(Name: %1s, Version: %2s)", colorSensor.getDeviceName(), colorSensor.getVersion()));
-        telemetry.addData("Detected", String.format("%s (Dist: %.2f cm, Hue: %.4f)", detectedColor, distanceCm, hsv[0]));
+        telemetry.addData("Detected", String.format("%s (Dist: %.2f cm, Hue: %.4f, Saturation: %.4f, Value: %.4f, Alpha: %.4f)", detectedColor, distanceCm, hsv[0],hsv[1],hsv[2], colors.alpha));
         //telemetry.addData("R | G | B", String.format("%.3f | %.3f | %.3f", colors.red, colors.green, colors.blue));
         //telemetry.addData("H | S | V", String.format("%.3f | %.3f | %.3f", hsv[0], hsv[1],hsv[2]));
         //telemetry.addData("Tunable Gain", GAIN);

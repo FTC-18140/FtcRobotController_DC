@@ -35,6 +35,8 @@ public class AutoRedDepot extends LinearOpMode{
         while (opModeInInit()) {
             // Code here runs repeatedly during init phase.  Need to be looking at ObeliskID
             robot.launcher.updateVision();
+            robot.indexer.updateBallSensors();
+            robot.indexer.updateBallStates();
             robot.registerObeliskID();
             telemetry.addData("Status", "Waiting for start");
             telemetry.update();

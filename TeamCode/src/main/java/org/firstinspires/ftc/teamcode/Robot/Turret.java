@@ -211,18 +211,18 @@ public class Turret implements DataLoggable {
     }
 
     private void  setHardwarePower(double power) {
-        if (power < 0 && currentPosition + power*45 <= MIN_TURRET_POS) {
+        if (power < 0 && currentPosition + power * 45 <= MIN_TURRET_POS) {
             telemetry.addData("Turret position power override value: ", currentPosition + power*45);
             telemetry.addData("Turret Power sent to hardware: ", 0);
             turret.setPower(0);
-        } else if (power > 0 && currentPosition + power*45 >= MAX_TURRET_POS) {
+        } else if (power > 0 && currentPosition + power * 45 >= MAX_TURRET_POS) {
             telemetry.addData("Turret position power override value: ", currentPosition + power*45);
             telemetry.addData("Turret Power sent to hardware: ", 0);
             turret.setPower(0);
         } else {
             power = Range.clip(power, -MAX_POWER, MAX_POWER);
             if (Math.signum(power) != Math.signum(lastSeekingPower)){
-                turretAimPID.reset();
+//                turretAimPID.reset();
             }
             else if(power < 0){
                 power = Range.scale(power, -MAX_POWER, 0, -MAX_POWER, MIN_POWER_NEGATIVE);

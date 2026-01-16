@@ -66,7 +66,7 @@ public class LauncherFacade implements DataLoggable {
     }
 
     public boolean isUsingLimelight() { return usingLimelight; }
-    public double getLimelightX(){ return limelight.getXLowpass(); }
+    public double getLimelightX(){ return limelight.getX(); }
     public void setPipeline(int pipeline) {
         limelight.setPipeline(pipeline);
     }
@@ -251,8 +251,8 @@ public class LauncherFacade implements DataLoggable {
 
             if (limelight.hasTarget()) {
                 usingLimelight = true;
-                double limelightAngle = turret.getCurrentPosition() + limelight.getXLowpass();
-                trust = .5;
+                double limelightAngle = turret.getCurrentPosition() + limelight.getX();
+                trust = .9;
 
                 // Add the vision offset to the current physical encoder position.
                 targetTurretAngle = targetTurretAngle + trust * (limelightAngle - targetTurretAngle);

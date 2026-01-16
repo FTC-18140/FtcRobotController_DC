@@ -85,7 +85,7 @@ public class Limelight implements DataLoggable {
                 LLResultTypes.FiducialResult fiducial = fiducials.get(0);
                 id = fiducial.getFiducialId(); // The ID number of the fiducial
                 x = fiducial.getTargetXDegrees(); // Where it is (left-right)
-                filteredX = alpha * filteredX + (1-alpha) * x;
+
                 y = fiducial.getTargetYDegrees(); // Where it is (up-down)
                 distance = fiducial.getCameraPoseTargetSpace().getPosition().z * INCHES_PER_METER;
             }
@@ -112,10 +112,7 @@ public class Limelight implements DataLoggable {
     public double getX(){
         return x;
     }
-    public double getXLowpass() {
-        return filteredX;
 
-    }
 
     /**
      * Returns the id of the apriltag the limelight sees

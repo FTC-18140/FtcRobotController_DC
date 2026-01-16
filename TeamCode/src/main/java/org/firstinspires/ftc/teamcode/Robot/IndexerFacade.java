@@ -72,7 +72,7 @@ public class IndexerFacade {
 
         for (int i = 0; i < 6; i++) {
             ballSensors[i] = new BallSensor();
-            ballSensors[i].init(hwMap, telem, "color" + i);
+            ballSensors[i].init(hwMap, telem, "color" + i, i);
         }
         for (int i = 0; i < 3; i++) {
             ballSlots[i] = BallState.VACANT;
@@ -203,14 +203,17 @@ public class IndexerFacade {
         if (currentState == State.IDLE || currentState == State.AWAITING_FLIP) {
             int startSlot = 0;
 
+            updateBallSensors();
+            updateBallStates();
             for (int i = 3; i > 0 && !slotFound; i--) {
 
                 int slotToCheck = (startSlot + i) % 3;
 
-                if (getBallState(slotToCheck) == ballState) {
+                if (ballSlots[slotToCheck] == ballState) {
 
-                    currentTargetSlot = (currentTargetSlot + (3-slotToCheck)) % 3;
-                    turnstile.seekToAngle(SLOT_ANGLES[currentTargetSlot]);
+                    int slot = (currentTargetSlot + (3-slotToCheck)) % 3;
+                    currentTargetSlot = slot;
+                    turnstile.seekToAngle(SLOT_ANGLES[slot]);
                     currentState = State.SELECTING_BALL;
                     slotFound = true;
                 }
@@ -419,7 +422,7 @@ public class IndexerFacade {
         addTelemetry();
     }
 
-    private void updateBallStates() {
+    public void updateBallStates() {
         for (int i = 0; i < 3; i++) {
             // Get the detected colors from the sensor pairs (0,1), (2,3), (4,5)
             BallSensor sensorA = ballSensors[i * 2];
