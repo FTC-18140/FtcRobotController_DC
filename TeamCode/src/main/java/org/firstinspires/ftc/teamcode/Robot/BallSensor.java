@@ -30,7 +30,7 @@ public class BallSensor {
     private Telemetry telemetry;
     private String sensorName;
 
-    public static boolean TELEM = false;
+    public static boolean TELEM = true;
 
     // --- Tunable Constants via FTC Dashboard ---
 
@@ -94,14 +94,6 @@ public class BallSensor {
                     detectedColor = BallColor.PURPLE;
                 } else{
                     detectedColor = BallColor.GREEN;
-                }
-            } else if(isV2){
-                if(isBallColorHSV_V2(BallColor.PURPLE)){
-                    detectedColor = BallColor.PURPLE;
-                } else if(isBallColorHSV_V2(BallColor.GREEN)){
-                    detectedColor = BallColor.GREEN;
-                } else {
-                    detectedColor = BallColor.NONE;
                 }
             } else {
                 detectedColor = BallColor.NONE;

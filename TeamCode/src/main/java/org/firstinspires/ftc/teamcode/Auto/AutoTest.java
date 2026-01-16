@@ -32,12 +32,14 @@ public class AutoTest extends LinearOpMode {
                         robot.updateAction(),
 //                        robot.aimAction(),
                         new SequentialAction(
+                                robot.intakeStartAction(), // Move to the first intake slot
                             new RaceAction(
                                 new SequentialAction(
-                                        robot.intakeStartAction(), // Move to the first intake slot
                                         robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
+                                        robot.indexerIsAtTargetAction(),
                                         robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-                                        robot.waitForBallAndCycleAction()
+                                        robot.indexerIsAtTargetAction(),
+                                        robot.waitForBallAction()
                                 )
 //                                robot.indexerFullAction()
                             ),

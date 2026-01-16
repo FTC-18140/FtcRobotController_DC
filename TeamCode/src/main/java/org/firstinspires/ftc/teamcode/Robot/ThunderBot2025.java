@@ -182,6 +182,10 @@ public class ThunderBot2025 implements DataLoggable
         launcher.update(drive.localizer.getPose(), robotPoseVel);
         indexer.update(launcher.isAtTargetRpm());
         led.update(launcher.getFlywheelRpm(), launcher.getFlywheelTargetRpm(), runtime.seconds(), indexer.getLastBallState(2), indexer.indexerIsFull());
+
+        if(intake.getIntakePower() > 0 && indexer.ballInIntake() && !indexer.indexerIsFull()) {
+            indexer.readyNextIntakeSlot(IndexerFacade.BallState.VACANT);
+        }
     }
 
     public void intake() {
@@ -333,15 +337,13 @@ public class ThunderBot2025 implements DataLoggable
 
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
-                if (!hasStarted) {
-                    slotToWatch = 0;
-                    hasStarted = true;
-                }
+                slotToWatch = 0;
 
-                indexer.updateBallSensors();
                 // Condition to exit: if the slot we were watching is no longer vacant.
-                if (indexer.getBallState(slotToWatch) != IndexerFacade.BallState.VACANT && indexer.isAtTarget() && indexer.getState() != IndexerFacade.State.SELECTING_BALL) {
-                    return !indexer.readyNextIntakeSlot(IndexerFacade.BallState.VACANT); // End this action, the cycle command has been sent.
+                if (indexer.ballInIntake() && indexer.isAtTarget() && !hasStarted) {
+                    hasStarted = !indexer.readyNextIntakeSlot(IndexerFacade.BallState.VACANT); // End this action, the cycle command has been sent.
+                } else if(hasStarted){
+                    return !(indexer.getState() == IndexerFacade.State.SELECTING_BALL);
                 }
                 return true; // Continue waiting for a ball.
             }
@@ -351,7 +353,7 @@ public class ThunderBot2025 implements DataLoggable
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                return indexer.getBallState(0) == IndexerFacade.BallState.VACANT;
+                return indexer.ballInIntake();
             }
         };
     }

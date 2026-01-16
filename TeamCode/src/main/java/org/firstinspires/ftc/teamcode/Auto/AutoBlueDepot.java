@@ -71,12 +71,11 @@ public class AutoBlueDepot extends LinearOpMode{
                                                             new RaceAction(
                                                                     robot.holdTurretAction(),
                                                                     new SequentialAction(
-                                                                            new SleepAction(0.5),
 //                                                                            robot.indexerIsAtTargetAction(),
                                                                             robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-//                                                                            robot.indexerIsAtTargetAction(),
+                                                                            robot.indexerIsAtTargetAction(),
                                                                             robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-//                                                                            robot.indexerIsAtTargetAction(),
+                                                                            robot.indexerIsAtTargetAction(),
                                                                             robot.waitForBallAction()
                                                                             // The third ball will be loaded but we won't cycle away from it
                                                                     ),
@@ -106,9 +105,9 @@ public class AutoBlueDepot extends LinearOpMode{
                                                                     new SequentialAction(
 //                                                                            robot.indexerIsAtTargetAction(),
                                                                             robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-//                                                                            robot.indexerIsAtTargetAction(),
+                                                                            robot.indexerIsAtTargetAction(),
                                                                             robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-//                                                                            robot.indexerIsAtTargetAction(),
+                                                                            robot.indexerIsAtTargetAction(),
                                                                             robot.waitForBallAction()
                                                                             // The third ball will be loaded but we won't cycle away from it
                                                                     ),
@@ -135,7 +134,7 @@ public class AutoBlueDepot extends LinearOpMode{
                                     robot.cancelSequenceAction(),
                                     robot.intake.intakeStopAction(),
                                     robot.drive.actionBuilder(launchPos)
-                                            .strafeToSplineHeading(new Vector2d(-12, 12), Math.toRadians(0))
+                                            .strafeToSplineHeading(new Vector2d(38, 12), Math.toRadians(0))
                                             .build(),
                                     robot.launcher.pointToAction(0),
                                     new ParallelAction(

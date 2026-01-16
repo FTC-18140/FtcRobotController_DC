@@ -38,10 +38,10 @@ public class Flywheel {
     public double feedforward;
 
     public static boolean TELEM = true;
-    public static double MAX_SHOOTER_RPM = 2200;
+    public static double MAX_SHOOTER_RPM = 2250;
     public static double MIN_SHOOTER_RPM = 1600;
     public static double SHOOTER_RADIUS = 0.096 / 2.0;
-    public static double SPIN_EFFICIENCY = 0.61;
+    public static double SPIN_EFFICIENCY = 0.615;
 
 
     private double targetRpm = 0;
