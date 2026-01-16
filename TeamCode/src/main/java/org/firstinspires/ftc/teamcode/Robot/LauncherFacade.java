@@ -149,6 +149,7 @@ public class LauncherFacade implements DataLoggable {
     public void updateVision() { limelight.update(Math.toDegrees(fusedPose.heading.toDouble()) - getTurretAngle()); }
     public int getDetectedAprilTagId() { return limelight.id(); }
     public double getTurretAngle() { return turret.getCurrentPosition(); }
+    public double getTurretAngleRaw() { return turret.getCurrentPositionRaw(); }
     public double getFlywheelRpm() { return flywheel.getCurrentRpm(); }
     public double getFlywheelTargetRpm() { return flywheel.getTargetRpm(); }
 
