@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
@@ -17,7 +18,7 @@ import org.firstinspires.ftc.teamcode.Utilities.DataLogger;
 
 import java.util.List;
 
-
+@Config
 public class Limelight implements DataLoggable {
 
     public static final double INCHES_PER_METER = 39.3701;
@@ -27,6 +28,8 @@ public class Limelight implements DataLoggable {
     Telemetry telemetry;
     int id = -1; // The ID number of the fiducial. Set to -1 to indicate no target.
     double x = 0; // Where it is (left-right)
+    double filteredX = 0;
+    public static double alpha = 1;
     double y = 0; // Where it is (up-down)
     double distance = -1;
     int index = 1;
@@ -82,6 +85,7 @@ public class Limelight implements DataLoggable {
                 LLResultTypes.FiducialResult fiducial = fiducials.get(0);
                 id = fiducial.getFiducialId(); // The ID number of the fiducial
                 x = fiducial.getTargetXDegrees(); // Where it is (left-right)
+                filteredX = alpha * filteredX + (1-alpha) * x;
                 y = fiducial.getTargetYDegrees(); // Where it is (up-down)
                 distance = fiducial.getCameraPoseTargetSpace().getPosition().z * INCHES_PER_METER;
             }
@@ -107,6 +111,10 @@ public class Limelight implements DataLoggable {
      */
     public double getX(){
         return x;
+    }
+    public double getXLowpass() {
+        return filteredX;
+
     }
 
     /**

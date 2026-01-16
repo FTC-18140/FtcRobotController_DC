@@ -38,6 +38,7 @@ public class LauncherFacade implements DataLoggable {
     public static double TURRET_OFFSET_X = 3.5;
     public static double TURRET_OFFSET_Y = -4;
     public Vector2d turret_pos = fusedPose.position;
+    public static double trust = .5;
 
     private double smoothedTurretAngle = 0;
     private boolean firstAimRun = true;
@@ -65,7 +66,7 @@ public class LauncherFacade implements DataLoggable {
     }
 
     public boolean isUsingLimelight() { return usingLimelight; }
-    public double getLimelightX(){ return limelight.getX(); }
+    public double getLimelightX(){ return limelight.getXLowpass(); }
     public void setPipeline(int pipeline) {
         limelight.setPipeline(pipeline);
     }
@@ -220,19 +221,6 @@ public class LauncherFacade implements DataLoggable {
     private double getAutoAimAngle() {
         double targetTurretAngle;
 
-        // --- 1. SENSOR PRIORITY: LIMELIGHT ---
-        // If the Limelight sees the target, we use the vision error (limelight.getX())
-        // which represents the degrees the turret must turn from its CURRENT position
-        // to center the goal in the camera frame.
-//        if (limelight.hasTarget()) {
-//            usingLimelight = true;
-//
-//            // Add the vision offset to the current physical encoder position.
-//            targetTurretAngle = turret.getCurrentPosition() + limelight.getX();
-//
-//            telemetry.addData("Aiming Mode LIMELIGHT -- target: ","%.3f ", targetTurretAngle);
-//        }
-
         // --- 2. SENSOR PRIORITY: ODOMETRY ---
         // Fallback to Odometry if the Limelight is blocked or target is out of view.
         // We calculate the vector from our fused robot position to the field goal position.
@@ -259,10 +247,23 @@ public class LauncherFacade implements DataLoggable {
             // is the same as 190. If the turret is currently at 180, we want to
             // go to 190, NOT -170.
             double currentTurret = turret.getCurrentPosition();
-            while (targetTurretAngle - currentTurret > 180)  targetTurretAngle -= 360;
-            while (targetTurretAngle - currentTurret <= -180) targetTurretAngle += 360;
+
+
+            if (limelight.hasTarget()) {
+                usingLimelight = true;
+                double limelightAngle = turret.getCurrentPosition() + limelight.getXLowpass();
+                trust = .5;
+
+                // Add the vision offset to the current physical encoder position.
+                targetTurretAngle = targetTurretAngle + trust * (limelightAngle - targetTurretAngle);
+
+                telemetry.addData("Aiming Mode LIMELIGHT -- target: ","%.3f ", targetTurretAngle);
+            }
 
             telemetry.addData("Aiming Mode ODOMETRY -- target: "," %.3f", targetTurretAngle);
+
+            while (targetTurretAngle - currentTurret > 180)  targetTurretAngle -= 360;
+            while (targetTurretAngle - currentTurret <= -180) targetTurretAngle += 360;
         }
 
         // --- 3. FALLBACK: IDLE ---
