@@ -247,6 +247,10 @@ public class Turret implements DataLoggable {
     public double getCurrentPosition() {
         return this.currentPosition;
     }
+    public double getCurrentPositionRaw() {
+        return this.currentPosition - startingAngle;
+    }
+
 
     public boolean isAtTarget() {
         return Math.abs(this.currentPosition - targetAngle) < TURRET_ANGLE_TOLERANCE;
