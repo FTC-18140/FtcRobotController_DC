@@ -46,8 +46,8 @@ public class Turret implements DataLoggable {
     public static boolean TELEM = true;
 
     public static double MAX_POWER = 0.8;
-    public static double MIN_POWER_POSITIVE = 0.033;
-    public static double MIN_POWER_NEGATIVE = -0.078;
+    public static double MIN_POWER_POSITIVE = 0.032;
+    public static double MIN_POWER_NEGATIVE = -0.077;
 
     public static double TURN_SPEED = 208.3; // From original lockOn
     public static double TURRET_DEGREES_PER_ENCODER_TICK = (double) 1 /8192 * 360 * 24.24/190.5;

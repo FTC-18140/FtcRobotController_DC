@@ -35,7 +35,7 @@ public class LauncherFacade implements DataLoggable {
     private KalmanPoseEstimator poseEstimator;
     private Pose2d fusedPose = new Pose2d(0, 0, 0); // This is the "Truth" we aim with
     private Pose2d lastOdoPose = null; // Used to calculate delta
-    public static double TURRET_OFFSET_X = 3.5;
+    public static double TURRET_OFFSET_X = -3.5;
     public static double TURRET_OFFSET_Y = -4;
     public Vector2d turret_pos = fusedPose.position;
     public static double trust = .5;
@@ -246,14 +246,24 @@ public class LauncherFacade implements DataLoggable {
         // --- 2. SENSOR PRIORITY: ODOMETRY ---
         // Fallback to Odometry if the Limelight is blocked or target is out of view.
         // We calculate the vector from our fused robot position to the field goal position.
-        if (fusedPose != null && targetPos != null) {
+        if (turret_pos != null && targetPos != null) {
             usingLimelight = false;
 
-            // Calculate the vector (x, y) pointing from the robot to the goal
-            Vector2d delta = targetPos.minus(fusedPose.position);
+
+            // Robot Heading (from fused pose)
+            double robotHeading = this.fusedPose.heading.toDouble();
+
+            //Offset Turret center of rotation
+            Vector2d offsetPos = new Vector2d(
+                    TURRET_OFFSET_Y * Math.cos(-robotHeading) - (-TURRET_OFFSET_X) * Math.sin(-robotHeading),
+                    TURRET_OFFSET_Y * Math.sin(-robotHeading) + (-TURRET_OFFSET_X) * Math.cos(-robotHeading)
+            );
+
+            // Vector from Robot to Goal
+            this.turret_pos = targetPos.minus(this.fusedPose.position.minus(offsetPos));
 
             // Calculate the absolute field-centric angle to the goal (Radians)
-            double fieldAngleToGoal = Math.atan2(delta.y, delta.x);
+            double fieldAngleToGoal = Math.atan2(turret_pos.y, turret_pos.x);
 
             // HANDLE IMU WRAPPING:
             // We turn the raw angle into a Rotation2d and subtract our robot heading.
@@ -376,7 +386,7 @@ public class LauncherFacade implements DataLoggable {
     public void prepShot() {
         double distanceInches = getGoalDistance();
         double distanceMeters = distanceInches * 0.0254;
-        double targetVelocity = flywheel.calculateBallVelocity(distanceMeters, 0.86, 48);
+        double targetVelocity = flywheel.calculateBallVelocity(distanceMeters, 0.68, 48);
         double targetRpm = flywheel.calculateWheelRPM(targetVelocity);
 
         telemetry.addData("Distance Meters: ", distanceMeters);
@@ -459,9 +469,9 @@ public class LauncherFacade implements DataLoggable {
         return targetPos.minus(turret_pos).norm();
     }
     private double getGoalDistance() {
-        if (fusedPose == null || targetPos == null) return 0;
+        if (turret_pos == null || targetPos == null) return 0;
         // Use FUSED pose for distance calculation
-        double distance = targetPos.minus(fusedPose.position).norm();
+        double distance = turret_pos.norm();
         telemetry.addData("distance: ", distance);
         return distance;
     }

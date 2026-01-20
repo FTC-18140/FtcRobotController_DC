@@ -50,7 +50,7 @@ public class BallSensor {
     public static double PRESENCE_DISTANCE_CM = 5;
     public static double PRESENCE_ALPHA = 0.45;
 
-    public static double[] presenceDistances = {5.2, 5.4, 7.25, 7.5, 5, 8.6} ;
+    public static double[] presenceDistances = {4.2, 5.4, 4.2, 7.5, 4.1, 7.5} ;
     int id;
 
     public static float GAIN = 2.0f;

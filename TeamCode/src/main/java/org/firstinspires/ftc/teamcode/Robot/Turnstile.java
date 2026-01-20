@@ -28,7 +28,7 @@ public class Turnstile {
     // --- Tunable Constants via FTC Dashboard ---
     public static double P = 0.0037 , I = 0.001, D = 0.000055;
     public static double HOMING_POWER = -0.05;
-    public static double ANGLE_TOLERANCE = 5;// In degrees
+    public static double ANGLE_TOLERANCE = 6.5;// In degrees
     public static double BACKWARD_TOLERANCE = 30;
     public static double HOMING_OFFSET = 15;
     private double current_offset = 0; // --- Non-tunable Constants ---
@@ -182,18 +182,19 @@ public class Turnstile {
                 break;
 
             case SEEKING_POSITION:
+
+                // If not at target, continue seeking.
+                angleController.setPID(P, I, D); // Re-apply PID gains from Dashboard
+                power = angleController.calculate(currentAngle, targetAngle + current_offset);
+                indexerServo1.setPower(power);
+                indexerServo2.setPower(power);
+
                 if (isAtTarget()) {
                     currentState = State.HOLDING_POSITION;
                     // We have arrived. Stop the motor for this one cycle to prevent a "kick".
                     // The next loop will execute the HOLDING_POSITION logic.
-                    indexerServo1.setPower(0);
-                    indexerServo2.setPower(0);
-                } else {
-                    // If not at target, continue seeking.
-                    angleController.setPID(P, I, D); // Re-apply PID gains from Dashboard
-                    power = angleController.calculate(currentAngle, targetAngle + current_offset);
-                    indexerServo1.setPower(power);
-                    indexerServo2.setPower(power);
+//                    indexerServo1.setPower(0);
+//                    indexerServo2.setPower(0);
                 }
                 break;
 

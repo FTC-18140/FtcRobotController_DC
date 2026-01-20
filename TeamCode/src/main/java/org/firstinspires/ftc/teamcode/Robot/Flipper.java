@@ -13,7 +13,7 @@ public class Flipper {
     private double currentServoPosition;
 
     // --- Tunable Constants via FTC Dashboard ---
-    public static double EXTENDED_POSITION = 0.45;
+    public static double EXTENDED_POSITION = 0.25;
     public static double RETRACTED_POSITION = 0.045;
     public static boolean TELEM = false;
 
