@@ -183,6 +183,11 @@ public class ThunderBot2025 implements DataLoggable
         indexer.update(launcher.isAtTargetRpm());
         led.update(launcher.getFlywheelRpm(), launcher.getFlywheelTargetRpm(), runtime.seconds(), indexer.getLastBallState(2), indexer.indexerIsFull());
 
+        if(indexer.getState() == IndexerFacade.State.HOMING) {
+            led.setRPMLedToColor("blue");
+            led.setLauncherLedToColor("blue");
+        }
+
         if(intake.getIntakePower() > 0 && indexer.ballInIntake() && !indexer.indexerIsFull()) {
             indexer.readyNextIntakeSlot(IndexerFacade.BallState.VACANT);
         }
