@@ -155,6 +155,28 @@ public class LauncherFacade implements DataLoggable {
     public double getFlywheelTargetRpm() { return flywheel.getTargetRpm(); }
 
     public void aim() { augmentedAim(0.0); }
+    public boolean pointTurretTo(double angle){
+        turret.seekToAngle(angle);
+        return turret.isAtTarget();
+    }
+    public void setTurretOffset(){
+        double targetTurretAngle;
+        // Calculate the vector (x, y) pointing from the robot to the goal
+        Vector2d delta = targetPos.minus(fusedPose.position);
+
+        // Calculate the absolute field-centric angle to the goal (Radians)
+        double fieldAngleToGoal = Math.atan2(delta.y, delta.x);
+
+        // HANDLE IMU WRAPPING:
+        // We turn the raw angle into a Rotation2d and subtract our robot heading.
+        // This yields the shortest relative distance from robot-front to goal,
+        // automatically handling the jump across the +/- 180 degree line.
+        double relativeAngleRad = Rotation2d.exp(fieldAngleToGoal).minus(fusedPose.heading);
+
+        // Convert result to Degrees for the Turret Subsystem
+        targetTurretAngle = -Math.toDegrees(relativeAngleRad);
+        turret.setOffset(getTurretAngleRaw() - targetTurretAngle);
+    }
 
     /**
      * Updates the turret target using a blended approach of vision and odometry,

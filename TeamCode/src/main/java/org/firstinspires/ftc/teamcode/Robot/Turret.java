@@ -36,18 +36,18 @@ public class Turret implements DataLoggable {
     private Telemetry telemetry;
 
     // Tunable constants from your original file
-    public static double P_TURRET = 0.0055, I_TURRET = 0.05, D_TURRET = 0.00044, F_TURRET_MIN = 0.0, F_TURRET_MAX = 0.05;
+    public static double P_TURRET = 0.0063, I_TURRET = 0.032, D_TURRET = 0.00045, F_TURRET_MIN = 0.0, F_TURRET_MAX = 0.1;
     public static double MAX_TURRET_POS = 225;
     public static double MIN_TURRET_POS = -90;
     public static double TURRET_ANGLE_TOLERANCE = 2.5;
 
-    public static double KV_ROT = 0.0723; // Tunable: Gain for robot rotation
-    public static double KV_TRANS = 0.16; // Tunable: Gain for translational apparent rotation
+    public static double KV_ROT = 0.1; // Tunable: Gain for robot rotation
+    public static double KV_TRANS = 0.18; // Tunable: Gain for translational apparent rotation
     public static boolean TELEM = true;
 
     public static double MAX_POWER = 0.8;
-    public static double MIN_POWER_POSITIVE = 0.035;
-    public static double MIN_POWER_NEGATIVE = -0.075;
+    public static double MIN_POWER_POSITIVE = 0.033;
+    public static double MIN_POWER_NEGATIVE = -0.078;
 
     public static double TURN_SPEED = 208.3; // From original lockOn
     public static double TURRET_DEGREES_PER_ENCODER_TICK = (double) 1 /8192 * 360 * 24.24/190.5;
@@ -57,7 +57,7 @@ public class Turret implements DataLoggable {
     private double targetAngle = 0;
     private double manualPower = 0;
     private double currentPosition = 0;
-    //private double offsetAngle = 0;
+    private double offsetAngle = 0;
     private double seekingPower = 0; // Member variable to be accessible for logging
     private double lastSeekingPower = 0;
     public static String STARTING_ANGLE = "TURRET_ENDING_ANGLE_AUTO";
@@ -81,6 +81,10 @@ public class Turret implements DataLoggable {
 
     public double getTargetPos(){
         return targetAngle;
+    }
+
+    public void setOffset(double offset){
+        this.offsetAngle = offset;
     }
 
     // --- High-Level Commands to Change State ---
@@ -237,7 +241,7 @@ public class Turret implements DataLoggable {
     }
 
     private void updateCurrentPosition() {
-        this.currentPosition = turret.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK + startingAngle;
+        this.currentPosition = turret.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK + startingAngle - offsetAngle;
 
     }
     public void zeroTurret() {
@@ -248,7 +252,7 @@ public class Turret implements DataLoggable {
         return this.currentPosition;
     }
     public double getCurrentPositionRaw() {
-        return this.currentPosition - this.startingAngle;
+        return this.currentPosition + this.offsetAngle;
     }
 
 

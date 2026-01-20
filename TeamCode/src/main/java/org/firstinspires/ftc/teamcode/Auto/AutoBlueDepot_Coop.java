@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
 @Autonomous
-public class AutoBlueDepot extends LinearOpMode{
+public class AutoBlueDepot_Coop extends LinearOpMode{
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -22,6 +22,7 @@ public class AutoBlueDepot extends LinearOpMode{
         Pose2d launchPos = new Pose2d(AutoPositions.Positions.CLOSE_LAUNCH_ZONE_BLUE.position, Math.toRadians(23));
         Pose2d intakePos = new Pose2d(AutoPositions.Positions.ARTIFACT_GATE_BLUE.position, Math.toRadians(90));
         Pose2d intakePos2 = new Pose2d(AutoPositions.Positions.ARTIFACT_CENTER_BLUE.position, Math.toRadians(90));
+        Pose2d gatePos = new Pose2d(AutoPositions.Positions.GATE_BLUE.position, Math.toRadians(90));
 
         ThunderBot2025 robot = new ThunderBot2025();
         blackboard.put("TURRET_ENDING_ANGLE_AUTO", (double) 0);
@@ -84,13 +85,20 @@ public class AutoBlueDepot extends LinearOpMode{
                                                                     robot.indexerFullAction()
                                                             )
                                                     ),
-                                                    new ParallelAction(
-                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, 49), Math.toRadians(90)))
-                                                                    .strafeToSplineHeading(launchPos.position, Math.toRadians(23))
-                                                                    .build(),
-                                                            robot.launcher.pointToAction(0)
-                                                    ),
                                                     robot.intake.intakeStopAction(),
+                                                    new RaceAction(
+                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, 49), Math.toRadians(90)))
+                                                                    .setTangent(Math.toRadians(-90))
+                                                                    .splineToConstantHeading(gatePos.position, Math.toRadians(90))
+                                                                    .build(),
+                                                            robot.holdTurretAction()
+                                                    ),
+                                                    new ParallelAction(
+                                                            robot.drive.actionBuilder(new Pose2d(gatePos.position, Math.toRadians(90)))
+                                                                    .setTangent(Math.toRadians(-90))
+                                                                    .splineToSplineHeading(launchPos, 0, robot.drive.defaultVelConstraint)
+                                                                    .build()
+                                                    ),
                                                     // Launch Preloads
                                                     robot.planSequenceAction(),
                                                     robot.startSequenceAction(),
@@ -116,6 +124,7 @@ public class AutoBlueDepot extends LinearOpMode{
                                                                     robot.indexerFullAction()
                                                             )
                                                     ),
+                                                    robot.intake.intakeStopAction(),
                                                     // Drive to launch spot
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos2.position.x, 49), Math.toRadians(90)))
@@ -125,7 +134,6 @@ public class AutoBlueDepot extends LinearOpMode{
 //                                                            // Re-plan the shot sequence with the newly loaded balls
 //                                                            robot.planSequenceAction()
                                                     ),
-                                                    robot.intake.intakeStopAction(),
                                                     // Launch 2nd set of Artifacts
                                                     robot.planSequenceAction(),
                                                     robot.startSequenceAction(),

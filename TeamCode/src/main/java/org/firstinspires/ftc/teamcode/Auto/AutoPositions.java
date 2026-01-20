@@ -21,8 +21,8 @@ public class AutoPositions {
         ARTIFACT_CENTER_RED(new Vector2d(-10, -32)),
         ARTIFACT_GATE_BLUE(new Vector2d(13.5, 32)),
         ARTIFACT_GATE_RED(new Vector2d(13.5, -32)),
-        SAMPLE_2_LEFT(new Vector2d(-59.5, -42)),
-        SAMPLE_3_LEFT(new Vector2d(-58, -42)),
+        GATE_RED(new Vector2d(2, -52.5)),
+        GATE_BLUE(new Vector2d(2, 52.5)),
         ASCENT_ZONE(new Vector2d(-28,-9.5)),
         OBSERVATION_ZONE(new Vector2d(58,-59));
         public final Vector2d position;
