@@ -304,7 +304,9 @@ public class IndexerFacade {
 
     // --- Compatibility Shims for TeleOp (Corrected) ---
     public void unflip() { /* The new state machine handles this automatically */ }
-    public void adjustToThird() { turnstile.home(); } // Corrected: This is now a manual homing trigger.
+    public void adjustToThird() {
+        setState(State.HOMING);
+    } // Corrected: This is now a manual homing trigger.
     public void spin(double power) { turnstile.spin(power); }
     public boolean cycle(int direction) {
         // Corrected: This now cycles to the next adjacent slot.
@@ -358,6 +360,7 @@ public class IndexerFacade {
 
         switch (currentState) {
             case HOMING:
+                turnstile.home();
                 if (turnstile.isHomed()) {
                     updateBallSensors();
                     currentState = State.IDLE;

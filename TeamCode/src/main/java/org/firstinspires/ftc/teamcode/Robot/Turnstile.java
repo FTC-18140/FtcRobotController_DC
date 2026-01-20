@@ -30,7 +30,7 @@ public class Turnstile {
     public static double HOMING_POWER = -0.05;
     public static double ANGLE_TOLERANCE = 6.5;// In degrees
     public static double BACKWARD_TOLERANCE = 30;
-    public static double HOMING_OFFSET = 15;
+    public static double HOMING_OFFSET = 0;
     private double current_offset = 0; // --- Non-tunable Constants ---
     private static final double COUNTS_PER_REVOLUTION = 8192;
     private static final double GEAR_RATIO = 1.0;
@@ -77,9 +77,8 @@ public class Turnstile {
     // --- High-Level Commands ---
 
     public void home() {
-        if (!isHomed) {
-            currentState = State.HOMING;
-        }
+        currentState = State.HOMING;
+
     }
 
     public void seekToAngle(double angle) {
@@ -163,10 +162,10 @@ public class Turnstile {
                     targetAngle = 0;
                     current_offset = HOMING_OFFSET;
                     currentState = State.HOLDING_POSITION;
-                    isHomed = false;
                 } else {
                     indexerServo1.setPower(HOMING_POWER);
                     indexerServo2.setPower(HOMING_POWER);
+                    isHomed = false;
                 }
                 break;
 
