@@ -11,7 +11,7 @@ public class AutoPositions {
         START_BLUE_DEPOT(new Vector2d(58,46)),
         START_RED_FAR(new Vector2d(-63,-16)),
         START_RED_DEPOT(new Vector2d(58,-46)),
-        FAR_LAUNCH_ZONE_BLUE(new Vector2d(-52, 12)),
+        FAR_LAUNCH_ZONE_BLUE(new Vector2d(-56, 16)),
         FAR_LAUNCH_ZONE_RED(new Vector2d(-52, -12)),
         CLOSE_LAUNCH_ZONE_BLUE(new Vector2d(24, 24)),
         CLOSE_LAUNCH_ZONE_RED(new Vector2d(24, -24)),
