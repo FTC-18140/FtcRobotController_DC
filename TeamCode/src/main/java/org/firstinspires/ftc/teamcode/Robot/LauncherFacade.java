@@ -102,6 +102,7 @@ public class LauncherFacade implements DataLoggable {
         telemetry.addData("Megatag2 Angle",Math.toDegrees(currentOdoPose.heading.toDouble()) - getTurretAngle());
         limelight.update(Math.toDegrees(currentOdoPose.heading.toDouble()) - getTurretAngle(), getTurretOffsetPosInRobotSpace());
         Vector2d visionPose = limelight.getMegaTagPose();
+        telemetry.addData("MT2 calculated Pose", visionPose);
 
         if (visionPose != null) {
             // Determine trust based on distance (heuristic)
@@ -350,8 +351,8 @@ public class LauncherFacade implements DataLoggable {
 
         //Offset Turret center of rotation
         Vector2d offsetPos = new Vector2d(
-                TURRET_OFFSET_Y * Math.cos(-robotHeading) - (-TURRET_OFFSET_X) * Math.sin(-robotHeading),
-                TURRET_OFFSET_Y * Math.sin(-robotHeading) + (-TURRET_OFFSET_X) * Math.cos(-robotHeading)
+                TURRET_OFFSET_Y * Math.cos(-robotHeading) - (TURRET_OFFSET_X) * Math.sin(-robotHeading),
+                TURRET_OFFSET_Y * Math.sin(-robotHeading) + (TURRET_OFFSET_X) * Math.cos(-robotHeading)
         );
 
         // Vector from Robot to Goal
