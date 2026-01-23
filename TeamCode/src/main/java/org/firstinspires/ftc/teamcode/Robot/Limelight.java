@@ -1,16 +1,14 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.Utilities.DataLoggable;
@@ -33,8 +31,9 @@ public class Limelight implements DataLoggable {
     double y = 0; // Where it is (up-down)
     double distance = -1;
     int index = 1;
+    double turretOffsetAngle;
     YawPitchRollAngles robotOrientation;
-    Pose2d visionPose;
+    Vector2d visionPose;
 
 
     private static final double MINIMUM_TARGET_AREA = 10.0; // Example value, adjust as needed
@@ -55,7 +54,7 @@ public class Limelight implements DataLoggable {
             throw new RuntimeException(e);
         }
         this.telemetry = telemetry;
-        visionPose = new Pose2d(0,0,0);
+        visionPose = new Vector2d(0,0);
     }
 
     /**
@@ -70,7 +69,7 @@ public class Limelight implements DataLoggable {
     /**
      * Updates the values associated with the apriltags the limelight sees
      */
-    public void update(double limelightAngle) {
+    public void update(double limelightAngle, Vector2d turretOffset) {
         id = -1; // Reset ID to -1 at the start of every loop.
         distance = -1;
         visionPose = null;
@@ -95,9 +94,8 @@ public class Limelight implements DataLoggable {
             if (result != null && result.isValid()) {
                 Pose3D botpose_mt2 = result.getBotpose_MT2();
                 if (botpose_mt2 != null) {
-                    double x = botpose_mt2.getPosition().x;
-                    double y = botpose_mt2.getPosition().y;
-                    telemetry.addData("MT2 Location:", "(" + x + ", " + y + ")");
+                    Vector2d botPose2d = new Vector2d(botpose_mt2.getPosition().x, botpose_mt2.getPosition().y);
+                    visionPose = botPose2d.minus(turretOffset);
                 }
             }
 
@@ -155,7 +153,7 @@ public class Limelight implements DataLoggable {
         logger.addField(this.x);
     }
 
-    public Pose2d getMegaTagPose() {
+    public Vector2d getMegaTagPose() {
         return visionPose;
     }
 
