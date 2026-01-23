@@ -70,7 +70,7 @@ public class AutoRedFar extends LinearOpMode{
                                                             robot.drive.actionBuilder(launchPos)
                                                                     .setTangent(0)
                                                                     .splineToSplineHeading(intakePos, Math.toRadians(-90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x, -49), Math.toRadians(-90), new TranslationalVelConstraint(7))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x, -49), Math.toRadians(-90), new TranslationalVelConstraint(12))
                                                                     .build(),
                                                             new RaceAction(
                                                                     robot.holdTurretAction(),
@@ -110,7 +110,7 @@ public class AutoRedFar extends LinearOpMode{
                                                             robot.drive.actionBuilder(launchPos)
                                                                     .setTangent(0)
                                                                     .splineToSplineHeading(intakePos2, Math.toRadians(-90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos2.position.x, -49), Math.toRadians(-90), new TranslationalVelConstraint(7))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos2.position.x, -49), Math.toRadians(-90), new TranslationalVelConstraint(12))
                                                                     .build(),
                                                             new RaceAction(
                                                                     robot.holdTurretAction(),
