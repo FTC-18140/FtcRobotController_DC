@@ -14,14 +14,15 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
 @Autonomous
-public class AutoBlueDepot extends LinearOpMode{
+public class AutoBlueDepot_12 extends LinearOpMode{
 
     @Override
     public void runOpMode() throws InterruptedException {
         Pose2d start = new Pose2d(AutoPositions.Positions.START_BLUE_DEPOT.position, Math.toRadians(-45));
-        Pose2d launchPos = new Pose2d(AutoPositions.Positions.CLOSE_LAUNCH_ZONE_BLUE.position, Math.toRadians(23));
+        Pose2d launchPos = new Pose2d(AutoPositions.Positions.CLOSE_LAUNCH_ZONE_BLUE.position, Math.toRadians(90));
         Pose2d intakePos = new Pose2d(AutoPositions.Positions.ARTIFACT_GATE_BLUE.position, Math.toRadians(90));
         Pose2d intakePos2 = new Pose2d(AutoPositions.Positions.ARTIFACT_CENTER_BLUE.position, Math.toRadians(90));
+        Pose2d intakePos3 = new Pose2d(AutoPositions.Positions.ARTIFACT_BASE_BLUE.position, Math.toRadians(90));
 
         ThunderBot2025 robot = new ThunderBot2025();
         blackboard.put("TURRET_ENDING_ANGLE_AUTO", (double) 0);
@@ -57,7 +58,7 @@ public class AutoBlueDepot extends LinearOpMode{
                                             new SequentialAction(
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(start)
-                                                                    .strafeToSplineHeading(launchPos.position, Math.toRadians(23))
+                                                                    .strafeToSplineHeading(launchPos.position, Math.toRadians(90))
                                                                     .build()
                                                     ),
                                                     // Launch Preloads
@@ -86,7 +87,7 @@ public class AutoBlueDepot extends LinearOpMode{
                                                     ),
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, 49), Math.toRadians(90)))
-                                                                    .strafeToSplineHeading(launchPos.position, Math.toRadians(23))
+                                                                    .strafeToSplineHeading(launchPos.position, Math.toRadians(90))
                                                                     .build(),
                                                             robot.launcher.pointToAction(0)
                                                     ),
@@ -119,7 +120,7 @@ public class AutoBlueDepot extends LinearOpMode{
                                                     // Drive to launch spot
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos2.position.x, 49), Math.toRadians(90)))
-                                                                    .strafeToSplineHeading(launchPos.position, Math.toRadians(23))
+                                                                    .strafeToSplineHeading(launchPos.position, Math.toRadians(90))
                                                                     .build()
 //                                                            ,
 //                                                            // Re-plan the shot sequence with the newly loaded balls
@@ -129,7 +130,43 @@ public class AutoBlueDepot extends LinearOpMode{
                                                     // Launch 2nd set of Artifacts
                                                     robot.planSequenceAction(),
                                                     robot.startSequenceAction(),
-                                                    robot.waitForSequenceEndAction()
+                                                    robot.waitForSequenceEndAction(),
+
+                                                    robot.waitForSequenceEndAction(),
+                                                    robot.intakeStartAction(),
+                                                    // Grab next 3 artifacts using intelligent, sensor-based actions
+                                                    new ParallelAction(
+                                                            robot.drive.actionBuilder(launchPos)
+                                                                    .splineToSplineHeading(intakePos3, Math.toRadians(90))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos3.position.x, 49), Math.toRadians(90), new TranslationalVelConstraint(12))
+                                                                    .build(),
+                                                            new RaceAction(
+                                                                    robot.holdTurretAction(),
+                                                                    new SequentialAction(
+//                                                                            robot.indexerIsAtTargetAction(),
+                                                                            robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
+                                                                            robot.indexerIsAtTargetAction(),
+                                                                            robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
+                                                                            robot.indexerIsAtTargetAction(),
+                                                                            robot.waitForBallAction()
+                                                                            // The third ball will be loaded but we won't cycle away from it
+                                                                    ),
+                                                                    robot.indexerFullAction()
+                                                            )
+                                                    ),
+                                                    // Drive to launch spot
+                                                    new ParallelAction(
+                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos3.position.x, 49), Math.toRadians(90)))
+                                                                    .strafeToSplineHeading(launchPos.position, Math.toRadians(90))
+                                                                    .build()
+//                                                            ,
+//                                                            // Re-plan the shot sequence with the newly loaded balls
+//                                                            robot.planSequenceAction()
+                                                    ),
+                                                    robot.intake.intakeStopAction(),
+                                                    // Launch 2nd set of Artifacts
+                                                    robot.planSequenceAction(),
+                                                    robot.startSequenceAction()
                                             ),
                                             new SleepAction(27)
                                     ),

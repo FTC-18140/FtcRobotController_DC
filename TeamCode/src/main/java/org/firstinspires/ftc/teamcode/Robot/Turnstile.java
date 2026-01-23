@@ -26,7 +26,7 @@ public class Turnstile {
     public static boolean TELEM = true;
 
     // --- Tunable Constants via FTC Dashboard ---
-    public static double P = 0.0037 , I = 0.001, D = 0.000055;
+    public static double P = 0.0033 , I = 0.01, D = 0.000033;
     public static double HOMING_POWER = -0.05;
     public static double ANGLE_TOLERANCE = 6.5;// In degrees
     public static double BACKWARD_TOLERANCE = 30;
@@ -62,7 +62,7 @@ public class Turnstile {
             indexerServo1.setDirection(DcMotorSimple.Direction.REVERSE);
             indexerServo2.setDirection(DcMotorSimple.Direction.REVERSE);
 
-            indexMotor = hwMap.get(DcMotorEx.class, "launcher2");
+            indexMotor = hwMap.get(DcMotorEx.class, "rightFront");
             limitSwitch = hwMap.get(TouchSensor.class, "indexerLimit");
 
 
