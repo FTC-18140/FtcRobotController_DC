@@ -20,7 +20,7 @@ public class AutoRedFar extends LinearOpMode{
     @Override
     public void runOpMode() throws InterruptedException {
         Pose2d start = new Pose2d(AutoPositions.Positions.START_RED_FAR.position, Math.toRadians(0));
-        Pose2d launchPos = new Pose2d(AutoPositions.Positions.FAR_LAUNCH_ZONE_RED.position, Math.toRadians(-23));
+        Pose2d launchPos = new Pose2d(AutoPositions.Positions.FAR_LAUNCH_ZONE_RED.position, Math.toRadians(0));
         Pose2d intakePos = new Pose2d(AutoPositions.Positions.ARTIFACT_BASE_RED.position, Math.toRadians(-90));
         Pose2d intakePos2 = new Pose2d(AutoPositions.Positions.ARTIFACT_CENTER_RED.position, Math.toRadians(-90));
 
@@ -58,7 +58,7 @@ public class AutoRedFar extends LinearOpMode{
                                             new SequentialAction(
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(start)
-                                                                    .splineToSplineHeading(launchPos, 0)
+                                                                    .splineTo(launchPos.position, 0)
                                                                     .build()
                                                             // Plan the first shot sequence while driving.
                                                     ),
@@ -68,12 +68,10 @@ public class AutoRedFar extends LinearOpMode{
                                                     robot.intakeStartAction(),
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
-                                                                    .setTangent(0)
-                                                                    .splineToSplineHeading(intakePos, Math.toRadians(-90))
+                                                                    .splineTo(intakePos.position, Math.toRadians(-90))
                                                                     .splineToConstantHeading(new Vector2d(intakePos.position.x, -49), Math.toRadians(-90), new TranslationalVelConstraint(12))
                                                                     .build(),
                                                             new RaceAction(
-                                                                    robot.holdTurretAction(),
                                                                     new SequentialAction(
 //                                                                            robot.seekToSlotAction(0), // Move to the first intake slot
                                                                             //robot.indexerIsAtTargetAction(),
@@ -92,7 +90,7 @@ public class AutoRedFar extends LinearOpMode{
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, -49), Math.toRadians(-90)))
                                                                     .setTangent(Math.toRadians(90))
-                                                                    .splineToSplineHeading(launchPos, Math.toRadians(157), robot.drive.defaultVelConstraint)
+                                                                    .splineTo(launchPos.position, Math.toRadians(180))
                                                                     .build()
                                                             //                                        ,
                                                             //                                        // Re-plan the shot sequence with the newly loaded balls
@@ -108,12 +106,10 @@ public class AutoRedFar extends LinearOpMode{
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
-                                                                    .setTangent(0)
-                                                                    .splineToSplineHeading(intakePos2, Math.toRadians(-90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos2.position.x, -49), Math.toRadians(-90), new TranslationalVelConstraint(12))
+                                                                    .splineTo(intakePos2.position, Math.toRadians(-90))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos2.position.x, -49), Math.toRadians(-90), new TranslationalVelConstraint(20))
                                                                     .build(),
                                                             new RaceAction(
-                                                                    robot.holdTurretAction(),
                                                                     new SequentialAction(
 //                                                                            robot.seekToSlotAction(0), // Move to the first intake slot
                                                                             //robot.indexerIsAtTargetAction(),
@@ -132,7 +128,7 @@ public class AutoRedFar extends LinearOpMode{
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos2.position.x, -49), Math.toRadians(-90)))
                                                                     .setTangent(Math.toRadians(90))
-                                                                    .splineToSplineHeading(launchPos, Math.toRadians(157), robot.drive.defaultVelConstraint)
+                                                                    .splineTo(launchPos.position, Math.toRadians(180))
                                                                     .build()
                                                             //                                            ,
                                                             //                                            // Re-plan the shot sequence with the newly loaded balls
@@ -153,7 +149,7 @@ public class AutoRedFar extends LinearOpMode{
                                     robot.cancelSequenceAction(),
                                     robot.intake.intakeStopAction(),
                                     robot.drive.actionBuilder(launchPos)
-                                            .strafeToSplineHeading(new Vector2d(-12, -12), Math.toRadians(0))
+                                            .splineTo(new Vector2d(-12, -12), Math.toRadians(0))
                                             .build(),
                                     robot.launcher.pointToAction(0),
                                     new ParallelAction(
