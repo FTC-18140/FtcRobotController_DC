@@ -16,6 +16,7 @@ public class MeepMeepTesting {
         Pose2d intakePos = new Pose2d(new Vector2d(13.5, 32), Math.toRadians(90));
         Pose2d intakePos2 = new Pose2d(new Vector2d(-10, 32), Math.toRadians(90));
         Pose2d intakePos3 = new Pose2d(new Vector2d(-34.5, 32), Math.toRadians(90));
+        Pose2d gatePos = new Pose2d(new Vector2d(2, 52.5), Math.toRadians(90));
 
         RoadRunnerBotEntity myBot = new DefaultBotBuilder(meepMeep)
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
@@ -32,7 +33,8 @@ public class MeepMeepTesting {
                         .splineTo(intakePos.position, Math.toRadians(90))
                         .splineToConstantHeading(new Vector2d(intakePos.position.x, 49), Math.toRadians(90), new TranslationalVelConstraint(12))
 
-
+                        .setTangent(Math.toRadians(-90))
+                        .splineToConstantHeading(gatePos.position, Math.toRadians(90))
 
                         .waitSeconds(0.5)
                         .setTangent(Math.toRadians(-90))
@@ -44,16 +46,6 @@ public class MeepMeepTesting {
                         .waitSeconds(0.5)
                         .splineTo(intakePos2.position, Math.toRadians(90))
                         .splineToConstantHeading(new Vector2d(intakePos2.position.x, 49), Math.toRadians(90), new TranslationalVelConstraint(12))
-
-
-                        .waitSeconds(0.5)
-
-                        .setTangent(Math.toRadians(-90))
-                        .splineTo(launchPos.position, Math.toRadians(-90))
-
-                        .waitSeconds(0.5)
-                        .splineTo(intakePos3.position, Math.toRadians(90))
-                        .splineToConstantHeading(new Vector2d(intakePos3.position.x, 49), Math.toRadians(90), new TranslationalVelConstraint(12))
 
 
                         .waitSeconds(0.5)

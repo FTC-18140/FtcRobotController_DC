@@ -162,7 +162,7 @@ public class LauncherFacade implements DataLoggable {
     public void setTurretOffset(){
         double targetTurretAngle;
         // Calculate the vector (x, y) pointing from the robot to the goal
-        Vector2d delta = targetPos.minus(fusedPose.position);
+        Vector2d delta = turret_pos;
 
         // Calculate the absolute field-centric angle to the goal (Radians)
         double fieldAngleToGoal = Math.atan2(delta.y, delta.x);
@@ -175,7 +175,7 @@ public class LauncherFacade implements DataLoggable {
 
         // Convert result to Degrees for the Turret Subsystem
         targetTurretAngle = -Math.toDegrees(relativeAngleRad);
-        turret.setOffset(getTurretAngleRaw() - targetTurretAngle);
+        turret.setOffset(getAutoAimAngle() - targetTurretAngle);
     }
 
     /**
