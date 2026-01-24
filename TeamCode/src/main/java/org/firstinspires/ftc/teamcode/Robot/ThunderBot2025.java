@@ -235,6 +235,16 @@ public class ThunderBot2025 implements DataLoggable
         return 0;
     }
 
+    public void resetHeadingAndTurret() {
+        drive.localizer.setPose(new Pose2d(drive.localizer.getPose().position, 0));
+        if(launcher.isAtTarget()){
+            led.setRPMLedToColor("green");
+            launcher.setTurretOffset();
+        } else {
+            led.setRPMLedToColor("red");
+        }
+    }
+
     public Action chargeAction(Pose2d pose, double duration){
         return new Action() {
             ElapsedTime chargeTimer = new ElapsedTime();
