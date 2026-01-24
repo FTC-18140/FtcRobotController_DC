@@ -58,8 +58,8 @@ public class AutoBlueDepot_Coop extends LinearOpMode{
                                             new SequentialAction(
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(start)
-                                                                    .setReversed(true)
-                                                                    .splineTo(launchPos.position, Math.toRadians(-90))
+                                                                    .setTangent(Math.toRadians(-135))
+                                                                    .splineToSplineHeading(launchPos, Math.toRadians(-90))
                                                                     .build()
                                                     ),
                                                     // Launch Preloads
@@ -97,6 +97,7 @@ public class AutoBlueDepot_Coop extends LinearOpMode{
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(gatePos.position, Math.toRadians(90)))
                                                                     .setTangent(Math.toRadians(-90))
+                                                                    .splineTo(new Vector2d(gatePos.position.x, gatePos.position.y - 8), Math.toRadians(-90))
                                                                     .splineTo(launchPos.position, Math.toRadians(-90))
                                                                     .build()
                                                     ),

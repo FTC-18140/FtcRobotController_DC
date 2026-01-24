@@ -25,7 +25,7 @@ public class Flipper {
         this.telemetry = telem;
         try {
             flipperServo = hwMap.servo.get("flipper");
-            flipperServo.setDirection(Servo.Direction.REVERSE);
+//            flipperServo.setDirection(Servo.Direction.REVERSE);
         } catch (Exception e) {
             telemetry.addData("Servo \"flipper\" not found", 0);
         }
