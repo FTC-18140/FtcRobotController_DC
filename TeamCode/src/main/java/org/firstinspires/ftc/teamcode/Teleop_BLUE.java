@@ -68,13 +68,7 @@ public class Teleop_BLUE extends OpMode {
 
         // Note: The driver's 'Y' button is used for resetting pose.
         if(theGamepad1.getButton(TBDGamepad.Button.Y)){
-            robot.drive.localizer.setPose(new Pose2d(robot.drive.localizer.getPose().position, 0));
-            if(robot.launcher.isAtTarget()){
-                robot.led.setRPMLedToColor("green");
-                robot.launcher.setTurretOffset();
-            } else {
-                robot.led.setRPMLedToColor("red");
-            }
+            robot.resetHeadingAndTurret();
         }
 
         robot.drive(forward, strafe, turn * 0.7, speed, p);
