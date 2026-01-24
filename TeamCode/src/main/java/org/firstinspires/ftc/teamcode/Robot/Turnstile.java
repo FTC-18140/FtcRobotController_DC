@@ -30,6 +30,7 @@ public class Turnstile {
     public static double HOMING_POWER = 0.05;
     public static double ANGLE_TOLERANCE = 6.5;// In degrees
     public static double BACKWARD_TOLERANCE = 30;
+    public static double INTAKE_TOLERANCE = 10;
     public static double HOMING_OFFSET = 0;
     private double current_offset = 0; // --- Non-tunable Constants ---
     private static final double COUNTS_PER_REVOLUTION = 8192;
@@ -130,6 +131,11 @@ public class Turnstile {
 
     public boolean isAtTarget() {
         return Math.abs(currentAngle - (targetAngle + current_offset)) < ANGLE_TOLERANCE;
+    }
+
+    public boolean isOverSlot(){
+        double inter_pos = currentAngle % 120;
+        return inter_pos < INTAKE_TOLERANCE || inter_pos > 120 - INTAKE_TOLERANCE;
     }
 
     public boolean isHomed() {

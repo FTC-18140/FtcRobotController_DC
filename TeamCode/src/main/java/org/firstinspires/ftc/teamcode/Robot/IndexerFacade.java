@@ -48,8 +48,9 @@ public class IndexerFacade {
 
 
     // --- State Management ---
-    public enum State { IDLE, HOMING, SELECTING_BALL, AWAITING_FLIP, FLIPPING, FLIP_TO_CYCLE, RETRACTING_FLIPPER }
+    public enum State { IDLE, HOMING, SELECTING_BALL, INTAKE, AWAITING_FLIP, FLIPPING, FLIP_TO_CYCLE, RETRACTING_FLIPPER }
     private State currentState = State.IDLE;
+    private boolean intaking = false;
 
     /** The facade's internal model of what is in each slot. */
     public enum BallState { GREEN, PURPLE, VACANT, ALL }
@@ -126,6 +127,7 @@ public class IndexerFacade {
                 ballFound = true;
                 int slot = (currentTargetSlot + (2-i)) % 3;
                 telemetry.addData("selected Sequence Slot: ", slot);
+                rotateBallStates(2-i);
                 currentTargetSlot = slot;
                 turnstile.seekToAngle(SLOT_ANGLES[slot]);
                 currentState = State.SELECTING_BALL;
@@ -171,6 +173,15 @@ public class IndexerFacade {
         }
     }
 
+    public void rotateBallStates(int interations){
+        for (int i = 0; i < interations; i++){
+            BallState temp = ballSlots[2];
+            ballSlots[2] = ballSlots[1];
+            ballSlots[1] = ballSlots[0];
+            ballSlots[0] = temp;
+        }
+    }
+
     /**
      * Indexes a color i
      * @param ballState the color we want to select
@@ -200,7 +211,7 @@ public class IndexerFacade {
     public boolean readyNextIntakeSlot(BallState ballState) {
         // Refactored to have a single exit point
         boolean slotFound = false;
-        if (currentState == State.IDLE || currentState == State.AWAITING_FLIP) {
+        if (currentState == State.IDLE || currentState == State.AWAITING_FLIP || intaking) {
             int startSlot = 0;
 
             updateBallSensors();
@@ -212,6 +223,7 @@ public class IndexerFacade {
                 if (ballSlots[slotToCheck] == ballState) {
 
                     int slot = (currentTargetSlot + (3-slotToCheck)) % 3;
+                    rotateBallStates(3-slotToCheck);
                     currentTargetSlot = slot;
                     turnstile.seekToAngle(SLOT_ANGLES[slot]);
                     currentState = State.SELECTING_BALL;
@@ -233,6 +245,7 @@ public class IndexerFacade {
      */
     public boolean selectSlot(int slot) {
         if (flipper.isRetracted() && (currentState == State.IDLE || currentState == State.AWAITING_FLIP || currentState == State.SELECTING_BALL || currentState == State.FLIP_TO_CYCLE || currentState == State.RETRACTING_FLIPPER) && slot >= 0 && slot < 3) {
+            rotateBallStates((slot - currentTargetSlot + 3) % 3);
             currentTargetSlot = slot;
             turnstile.seekToAngle(SLOT_ANGLES[currentTargetSlot]);
             currentState = State.SELECTING_BALL;
@@ -320,6 +333,8 @@ public class IndexerFacade {
     }
     public State getState() { return currentState; }
     public void setState(State state) { this.currentState = state; }
+    public void intake(){ intaking = true;}
+    public void intakeStop(){ intaking = false;}
     public BallState getBallState(int slot) {
         ballSensors[slot*2].update();
         ballSensors[slot*2+1].update();
@@ -356,64 +371,66 @@ public class IndexerFacade {
 
         updated = false;
 
-
+        if(intaking && turnstile.isAtTarget() && !indexerIsFull() && ballInIntake()){
+            readyNextIntakeSlot(BallState.VACANT);
+        }
 
         switch (currentState) {
-            case HOMING:
-                turnstile.home();
-                if (turnstile.isHomed()) {
+        case HOMING:
+            turnstile.home();
+            if (turnstile.isHomed()) {
+                updateBallSensors();
+                currentState = State.IDLE;
+            }
+            break;
+        case IDLE: // Waiting for a command
+            break;
+        case SELECTING_BALL:
+            if (turnstile.isAtTarget()) {
+                updateBallSensors();
+                currentState = State.AWAITING_FLIP;
+            }
+            break;
+        case AWAITING_FLIP: // In position, ready to receive a flip() command from an external source.
+            // Do nothing. The system will wait here until flip() is called.
+            if(shotSequence != null && turnstile.isAtTarget() && sequenceStarted && isAtRpm){
+                flip();
+                sequenceStarted = false;
+            }
+            break;
+        case FLIPPING:
+            if (flipTimer.seconds() > FLIP_TIME_SECONDS) {
+                flipper.retract();
+                currentState = State.RETRACTING_FLIPPER;
+            }
+            break;
+        case FLIP_TO_CYCLE:
+            if (flipTimer.seconds() > FLIP_TIME_SECONDS) {
+                flipper.retract();
+                if(flipper.isRetracted()) {
+                    if (cycle(1)) {
+                        currentState = State.RETRACTING_FLIPPER;
+                    }
+                }
+            }
+            break;
+        case RETRACTING_FLIPPER:
+            if (flipper.isRetracted()) {
+                // If we were in a sequence, advance to the next step.
+                if (shotSequence != null) {
+                    sequenceIndex++;
+                    if (sequenceIndex < shotSequence.size()) {
+                        executeNextInSequence();
+                    } else {
+                        cancelSequence(); // Sequence complete
+                    }
+                } else {
+                    // Otherwise, just go back to idle.
                     updateBallSensors();
                     currentState = State.IDLE;
                 }
-                break;
-            case IDLE: // Waiting for a command
-                break;
-            case SELECTING_BALL:
-                if (turnstile.isAtTarget()) {
-                    updateBallSensors();
-                    currentState = State.AWAITING_FLIP;
-                }
-                break;
-            case AWAITING_FLIP: // In position, ready to receive a flip() command from an external source.
-                // Do nothing. The system will wait here until flip() is called.
-                if(shotSequence != null && turnstile.isAtTarget() && sequenceStarted && isAtRpm){
-                    flip();
-                    sequenceStarted = false;
-                }
-                break;
-            case FLIPPING:
-                if (flipTimer.seconds() > FLIP_TIME_SECONDS) {
-                    flipper.retract();
-                    currentState = State.RETRACTING_FLIPPER;
-                }
-                break;
-            case FLIP_TO_CYCLE:
-                if (flipTimer.seconds() > FLIP_TIME_SECONDS) {
-                    flipper.retract();
-                    if(flipper.isRetracted()) {
-                        if (cycle(1)) {
-                            currentState = State.RETRACTING_FLIPPER;
-                        }
-                    }
-                }
-                break;
-            case RETRACTING_FLIPPER:
-                if (flipper.isRetracted()) {
-                    // If we were in a sequence, advance to the next step.
-                    if (shotSequence != null) {
-                        sequenceIndex++;
-                        if (sequenceIndex < shotSequence.size()) {
-                            executeNextInSequence();
-                        } else {
-                            cancelSequence(); // Sequence complete
-                        }
-                    } else {
-                        // Otherwise, just go back to idle.
-                        updateBallSensors();
-                        currentState = State.IDLE;
-                    }
-                }
-                break;
+            }
+            break;
         }
 
         // Only update ball states from sensors if we are NOT in an active auto-sequence
