@@ -13,8 +13,8 @@ public class Flipper {
     private double currentServoPosition;
 
     // --- Tunable Constants via FTC Dashboard ---
-    public static double EXTENDED_POSITION = 0.09;
-    public static double RETRACTED_POSITION = 0.015;
+    public static double EXTENDED_POSITION = 0.03;
+    public static double RETRACTED_POSITION = 0.1;
     public static boolean TELEM = false;
 
     // --- State Management ---
@@ -25,6 +25,7 @@ public class Flipper {
         this.telemetry = telem;
         try {
             flipperServo = hwMap.servo.get("flipper");
+            flipperServo.setDirection(Servo.Direction.REVERSE);
         } catch (Exception e) {
             telemetry.addData("Servo \"flipper\" not found", 0);
         }
