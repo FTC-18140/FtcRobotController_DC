@@ -30,6 +30,7 @@ public class ThunderBot2025 implements DataLoggable
     public IndexerFacade indexer;
     public LauncherFacade launcher;
     public LED led;
+    public Kickstand kickstand;
 
     // --- AprilTag and Sequence Management ---
     private int latchedObeliskId = -1; // -1 indicates no ID has been officially latched yet.
@@ -74,6 +75,9 @@ public class ThunderBot2025 implements DataLoggable
 
         led = new LED();
         led.init(hwMap, telemetry);
+
+        kickstand = new Kickstand();
+        kickstand.init(hwMap, telemetry);
 
         runtime.reset();
 
@@ -181,12 +185,8 @@ public class ThunderBot2025 implements DataLoggable
         PoseVelocity2d robotPoseVel = drive.updatePoseEstimate();
         launcher.update(drive.localizer.getPose(), robotPoseVel);
         indexer.update(launcher.isAtTargetRpm());
-        led.update(launcher.getFlywheelRpm(), launcher.getFlywheelTargetRpm(), runtime.seconds(), indexer.getLastBallState(2), indexer.indexerIsFull());
-
-        if(indexer.getState() == IndexerFacade.State.HOMING) {
-            led.setRPMLedToColor("blue");
-            led.setLauncherLedToColor("blue");
-        }
+        led.update(launcher.getFlywheelRpm(), launcher.getFlywheelTargetRpm(), runtime.seconds(), indexer.getLastBallState(2), indexer.indexerIsFull(), indexer.getState());
+        kickstand.update();
 
         if(intake.getIntakePower() > 0 && indexer.ballInIntake() && !indexer.indexerIsFull()) {
             indexer.readyNextIntakeSlot(IndexerFacade.BallState.VACANT);
