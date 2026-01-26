@@ -104,7 +104,7 @@ public class BallSensor {
             }
 
             // 3. Telemetry (optional, for tuning)
-            addTelemetry(); // Good to have this on during tuning sessions
+            //addTelemetry(); // Good to have this on during tuning sessions
         } else {
             telemetry.addData(sensorName + " Not initialized", 0);
         }
