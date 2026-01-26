@@ -19,7 +19,7 @@ import java.util.List;
 @Config
 public class Limelight implements DataLoggable {
 
-    public static final double INCHES_PER_METER = 39.3701;
+    public static final double INCHES_PER_METER = 39.37008;
     Limelight3A limelight = null;
     IMU imu = null;
     HardwareMap hardwareMap;
@@ -90,12 +90,14 @@ public class Limelight implements DataLoggable {
             }
 
 
-            limelight.updateRobotOrientation(limelightAngle);
+            limelight.updateRobotOrientation((limelightAngle + 360) % 360);
             if (result != null && result.isValid()) {
                 Pose3D botpose_mt2 = result.getBotpose_MT2();
                 if (botpose_mt2 != null) {
-                    Vector2d botPose2d = new Vector2d(botpose_mt2.getPosition().x, botpose_mt2.getPosition().y);
-                    visionPose = botPose2d.minus(turretOffset);
+                    Vector2d botPose2d = new Vector2d(botpose_mt2.getPosition().x * INCHES_PER_METER, botpose_mt2.getPosition().y * INCHES_PER_METER);
+                    telemetry.addData("Botpose", botPose2d);
+                    telemetry.addData("Plus Offset", botPose2d.plus(turretOffset));
+                    visionPose = botPose2d.plus(turretOffset);
                 }
             }
 
