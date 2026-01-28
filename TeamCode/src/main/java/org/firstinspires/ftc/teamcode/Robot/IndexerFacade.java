@@ -31,7 +31,7 @@ public class IndexerFacade {
 
     // --- Constants ---
     public static final double[] SLOT_ANGLES = {120, 240, 0}; // Angles for slots 0, 1, and 2
-    private static final double FLIP_TIME_SECONDS = 0.08; // Time for the flipper to extend and retract
+    private static final double FLIP_TIME_SECONDS = 0.1; // Time for the flipper to extend and retract
     private static final double CYCLE_TIME_SECONDS = 0.5; // Time for the flipper to extend and retract
 
     public static boolean TELEM = true;
@@ -371,7 +371,7 @@ public class IndexerFacade {
 
         updated = false;
 
-        if(intaking && turnstile.isAtTarget() && !indexerIsFull() && ballInIntake()){
+        if(intaking && turnstile.isOverSlot() && !indexerIsFull() && ballInIntake()){
             readyNextIntakeSlot(BallState.VACANT);
         }
 
