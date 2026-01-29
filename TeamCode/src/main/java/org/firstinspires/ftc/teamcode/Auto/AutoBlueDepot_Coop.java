@@ -76,7 +76,7 @@ public class AutoBlueDepot_Coop extends LinearOpMode{
                                                             robot.drive.actionBuilder(launchPos)
                                                                     .setTangent(180)
                                                                     .splineToConstantHeading(intakePos.position, Math.toRadians(90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x, 51), Math.toRadians(90), new TranslationalVelConstraint(14))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x, 51), Math.toRadians(90), new TranslationalVelConstraint(13))
                                                                     .build(),
                                                             new RaceAction(
                                                                     robot.holdTurretAction(),
@@ -92,7 +92,7 @@ public class AutoBlueDepot_Coop extends LinearOpMode{
                                                                     robot.indexerFullAction()
                                                             )
                                                     ),
-                                                    new SleepAction(4),
+                                                    new SleepAction(3),
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, 51), Math.toRadians(90)))
                                                                     .setTangent(Math.toRadians(-135))
@@ -100,6 +100,7 @@ public class AutoBlueDepot_Coop extends LinearOpMode{
                                                                     .build(),
                                                             robot.holdTurretAction()
                                                     ),
+                                                    new SleepAction(1),
                                                     robot.intake.intakeStopAction(),
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(gatePos.position, Math.toRadians(90)))
