@@ -121,7 +121,7 @@ public class IndexerFacade {
                 // Mark this ball as "used" by changing its state in our software model to VACANT.
                 // This prevents the system from re-selecting this same physical ball for a
                 // later step in the sequence (e.g., if the sequence requires two PURPLE balls).
-//                ballSlots[i] = BallState.VACANT;
+                ballSlots[i] = BallState.VACANT;
 
                 // Command the turnstile to rotate this slot into the firing position.
                 ballFound = true;
