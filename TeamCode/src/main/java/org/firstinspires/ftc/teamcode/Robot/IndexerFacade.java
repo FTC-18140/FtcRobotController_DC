@@ -131,7 +131,7 @@ public class IndexerFacade {
                 currentTargetSlot = slot;
                 turnstile.seekToAngle(SLOT_ANGLES[slot]);
                 currentState = State.SELECTING_BALL;
-            }
+            } 
         }
 
         // If no ball of the required color could be found, something is wrong.
