@@ -35,9 +35,9 @@ public class LauncherFacade implements DataLoggable {
     private Pose2d fusedPose = new Pose2d(0, 0, 0); // This is the "Truth" we aim with
     private Pose2d lastOdoPose = null; // Used to calculate delta
     public static double TURRET_OFFSET_X = -2.62074;
-    public static double TURRET_OFFSET_Y = 3.22805;
+    public static double TURRET_OFFSET_Y = -3.22805;
     public Vector2d trueTargetVector = fusedPose.position;
-    public static double trust = .5;
+    public static double trust = .3;
 
     private double smoothedTurretAngle = 0;
     private boolean firstAimRun = true;
@@ -45,8 +45,8 @@ public class LauncherFacade implements DataLoggable {
 
     // Target and alliance properties
     private Vector2d targetPos;
-    private final Vector2d targetPosBlue = new Vector2d(66, 66.5);
-    private final Vector2d targetPosRed = new Vector2d(66, -66.5);
+    private final Vector2d targetPosBlue = new Vector2d(68, 68);
+    private final Vector2d targetPosRed = new Vector2d(68, -68);
     private ThunderBot2025.Alliance_Color allianceColor = ThunderBot2025.Alliance_Color.BLUE;
 
     public void init(HardwareMap hwMap, Telemetry telem, Pose2d startPose) {
@@ -162,20 +162,23 @@ public class LauncherFacade implements DataLoggable {
     public void setTurretOffset(){
         double targetTurretAngle;
         // Calculate the vector (x, y) pointing from the robot to the goal
-        Vector2d delta = trueTargetVector;
+        getAutoAimAngle();
+        if(usingLimelight) {
+            Vector2d delta = trueTargetVector;
 
-        // Calculate the absolute field-centric angle to the goal (Radians)
-        double fieldAngleToGoal = Math.atan2(delta.y, delta.x);
+            // Calculate the absolute field-centric angle to the goal (Radians)
+            double fieldAngleToGoal = Math.atan2(delta.y, delta.x);
 
-        // HANDLE IMU WRAPPING:
-        // We turn the raw angle into a Rotation2d and subtract our robot heading.
-        // This yields the shortest relative distance from robot-front to goal,
-        // automatically handling the jump across the +/- 180 degree line.
-        double relativeAngleRad = Rotation2d.exp(fieldAngleToGoal).minus(fusedPose.heading);
+            // HANDLE IMU WRAPPING:
+            // We turn the raw angle into a Rotation2d and subtract our robot heading.
+            // This yields the shortest relative distance from robot-front to goal,
+            // automatically handling the jump across the +/- 180 degree line.
+            double relativeAngleRad = Rotation2d.exp(fieldAngleToGoal).minus(fusedPose.heading);
 
-        // Convert result to Degrees for the Turret Subsystem
-        targetTurretAngle = -Math.toDegrees(relativeAngleRad);
-        turret.setOffset(getAutoAimAngle() - targetTurretAngle);
+            // Convert result to Degrees for the Turret Subsystem
+            targetTurretAngle = -Math.toDegrees(relativeAngleRad);
+            turret.setOffset(getLimelightAimAngle() - targetTurretAngle);
+        }
     }
 
     /**
@@ -229,13 +232,68 @@ public class LauncherFacade implements DataLoggable {
         telemetry.addData("Turret Current", turret.getCurrentPosition());
         telemetry.addData("Turret Target", finalTargetAngle);
     }
+    public void augmentedAimLimelight(double joystickAugmentation) {
+        // 1. Get the raw "Instant" target from the best available sensor source.
+        // This value is field-relative but normalized to be near the turret's current position.
+        double instantTarget = getLimelightAimAngle();
+
+        if (firstAimRun) {
+            // Initialize memory on the first loop to prevent the turret from
+            // slowly "crawling" from 0 degrees at the start of the match.
+            smoothedTurretAngle = instantTarget;
+            firstAimRun = false;
+        } else {
+            // --- FILTER SHORT-PATH LOGIC ---
+            // Calculate the delta between where we are and where we want to be.
+            // We must normalize this delta to [-180, 180] so the filter always
+            // moves the turret the shortest distance around the circle.
+            double delta = instantTarget - smoothedTurretAngle;
+            while (delta > 180) delta -= 360;
+            while (delta <= -180) delta += 360;
+
+            // Apply the Low-Pass Filter (Complementary Filter)
+            // smoothed = (OldValue) + (ShortestDelta * Beta)
+            smoothedTurretAngle += (delta * LPF_BETA);
+        }
+
+        // --- HARDWARE CONSTRAINTS ---
+        // Apply mechanical limits (-90 to 225) to the smoothed target.
+        // This ensures the turret never tries to rotate through the "Dead Zone."
+        double baseAngle = applyHardwareConstraints(smoothedTurretAngle);
+
+        // --- FINAL COMMAND ---
+        // Combine the automated smoothed target with the manual joystick offset.
+        double finalTargetAngle = baseAngle + (joystickAugmentation * JOYSTICK_SENSITIVITY);
+
+        // Command the turret subsystem to the calculated angle.
+        turret.seekToAngle(finalTargetAngle);
+
+        // Diagnostic Telemetry
+        telemetry.addData("Turret Current", turret.getCurrentPosition());
+        telemetry.addData("Turret Target", finalTargetAngle);
+    }
     public Vector2d getTurretOffsetPosInRobotSpace() {
         double robotHeading = this.fusedPose.heading.toDouble();
         Vector2d offsetPos = new Vector2d(
-                TURRET_OFFSET_Y * Math.cos(-robotHeading) - (TURRET_OFFSET_X) * Math.sin(-robotHeading),
-                TURRET_OFFSET_Y * Math.sin(-robotHeading) + (TURRET_OFFSET_X) * Math.cos(-robotHeading)
+                TURRET_OFFSET_Y * Math.sin(-robotHeading) + (TURRET_OFFSET_X) * Math.cos(-robotHeading),
+                TURRET_OFFSET_Y * Math.cos(-robotHeading) - (TURRET_OFFSET_X) * Math.sin(-robotHeading)
         );
         return offsetPos;
+    }
+    public double getLimelightAimAngle() {
+        double targetTurretAngle = getTurretAngle();
+        if (limelight.hasTarget()) {
+            usingLimelight = true;
+            double limelightAngle = getTurretAngleRaw() + limelight.getX() * trust;
+
+            // Add the vision offset to the current physical encoder position.
+            targetTurretAngle = limelightAngle;
+
+            telemetry.addData("Aiming Mode LIMELIGHT -- target: ","%.3f ", targetTurretAngle);
+        } else {
+            usingLimelight = false;
+        }
+        return targetTurretAngle;
     }
 
     /**
@@ -259,7 +317,7 @@ public class LauncherFacade implements DataLoggable {
 
 
             // Vector from Turret offset pos to Goal
-            this.trueTargetVector = targetPos.minus(this.fusedPose.position.minus(getTurretOffsetPosInRobotSpace()));
+            this.trueTargetVector = targetPos.minus(this.fusedPose.position.plus(getTurretOffsetPosInRobotSpace()));
 
             // Calculate the absolute field-centric angle to the goal (Radians)
             double fieldAngleToGoal = Math.atan2(trueTargetVector.y, trueTargetVector.x);
@@ -280,18 +338,17 @@ public class LauncherFacade implements DataLoggable {
             double currentTurret = turret.getCurrentPosition();
 
 
+
+            telemetry.addData("Aiming Mode ODOMETRY -- target: "," %.3f", targetTurretAngle);
             if (limelight.hasTarget()) {
                 usingLimelight = true;
                 double limelightAngle = turret.getCurrentPosition() + limelight.getX();
-                trust = .9;
 
                 // Add the vision offset to the current physical encoder position.
                 targetTurretAngle = targetTurretAngle + trust * (limelightAngle - targetTurretAngle);
 
                 telemetry.addData("Aiming Mode LIMELIGHT -- target: ","%.3f ", targetTurretAngle);
             }
-
-            telemetry.addData("Aiming Mode ODOMETRY -- target: "," %.3f", targetTurretAngle);
 
             while (targetTurretAngle - currentTurret > 180)  targetTurretAngle -= 360;
             while (targetTurretAngle - currentTurret <= -180) targetTurretAngle += 360;
