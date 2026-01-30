@@ -23,27 +23,26 @@ public class AutoTest extends LinearOpMode {
         blackboard.put("ENDING_ANGLE_INDEXER", (double) 0);
 
         robot.init(hardwareMap, telemetry, start);
+        robot.setColor(ThunderBot2025.Alliance_Color.RED);
+        while (opModeInInit()) {
+            // Code here runs repeatedly during init phase.  Need to be looking at ObeliskID
+            robot.launcher.updateVision();
+            robot.registerObeliskID();
+            telemetry.addData("Status", "Waiting for start");
+            telemetry.update();
+        }
         waitForStart();
 
-        robot.setColor(ThunderBot2025.Alliance_Color.RED);
+        robot.launcher.setPipeline(2);
 
         Actions.runBlocking(
                 new ParallelAction(
                         robot.updateAction(),
-//                        robot.aimAction(),
+                        robot.aimAction(),
+                        robot.launcher.prepShotAction(),
                         new SequentialAction(
-                                robot.intakeStartAction(), // Move to the first intake slot
-                            new RaceAction(
-                                new SequentialAction(
-                                        robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-                                        robot.indexerIsAtTargetAction(),
-                                        robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-                                        robot.indexerIsAtTargetAction(),
-                                        robot.waitForBallAction()
-                                )
-//                                robot.indexerFullAction()
-                            ),
-                                robot.intake.intakeStopAction()
+                                robot.startSequenceAction(),
+                                robot.waitForSequenceEndAction()
                         )
                 )
         );

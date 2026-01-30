@@ -190,6 +190,15 @@ public class ThunderBot2025 implements DataLoggable
         
     }
 
+    public Action waitForTime(double time) {
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                return runtime.seconds() < time;
+            }
+        };
+    }
+
     public void intakeStart() {
         intake.intake();
         indexer.intake();
@@ -203,7 +212,16 @@ public class ThunderBot2025 implements DataLoggable
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                intake.intake();
+                intakeStart();
+                return false;
+            }
+        };
+    }
+    public Action intakeStopAction(){
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                intakeStop();
                 return false;
             }
         };
@@ -244,7 +262,7 @@ public class ThunderBot2025 implements DataLoggable
 
     public void resetHeadingAndTurret() {
         drive.localizer.setPose(new Pose2d(drive.localizer.getPose().position, 0));
-        if(launcher.isAtTarget()){
+        if(launcher.isAtTarget() && launcher.isUsingLimelight()){
             led.setRPMLedToColor("green");
             launcher.setTurretOffset();
         } else {
@@ -357,7 +375,7 @@ public class ThunderBot2025 implements DataLoggable
                 slotToWatch = 0;
 
                 // Condition to exit: if the slot we were watching is no longer vacant.
-                if (indexer.ballInIntake() && indexer.isAtTarget() && !hasStarted && indexer.getState() != IndexerFacade.State.SELECTING_BALL) {
+                if (indexer.ballInIntake() && indexer.isAtTarget() && !hasStarted) {
                     hasStarted = !indexer.readyNextIntakeSlot(IndexerFacade.BallState.VACANT); // End this action, the cycle command has been sent.
                 } else if(hasStarted){
                     return !(indexer.getState() == IndexerFacade.State.SELECTING_BALL);

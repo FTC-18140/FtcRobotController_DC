@@ -19,10 +19,13 @@ public class AutoRedDepot_Coop extends LinearOpMode{
     @Override
     public void runOpMode() throws InterruptedException {
         Pose2d start = new Pose2d(AutoPositions.Positions.START_RED_DEPOT.position, Math.toRadians(45));
-        Pose2d launchPos = new Pose2d(AutoPositions.Positions.CLOSE_LAUNCH_ZONE_RED.position, Math.toRadians(-23));
+        Pose2d launchPos1 = new Pose2d(AutoPositions.Positions.CLOSE_LAUNCH_ZONE_RED.position, Math.toRadians(-90));
+        Pose2d launchPos2 = new Pose2d(AutoPositions.Positions.CENTER_LAUNCH_ZONE_RED.position, Math.toRadians(-90));
+        Pose2d launchPos3 = new Pose2d(AutoPositions.Positions.PARKING_LAUNCH_ZONE_RED.position, Math.toRadians(-90));
         Pose2d intakePos = new Pose2d(AutoPositions.Positions.ARTIFACT_GATE_RED.position, Math.toRadians(-90));
         Pose2d intakePos2 = new Pose2d(AutoPositions.Positions.ARTIFACT_CENTER_RED.position, Math.toRadians(-90));
         Pose2d gatePos = new Pose2d(AutoPositions.Positions.GATE_RED.position, Math.toRadians(-90));
+
 
         ThunderBot2025 robot = new ThunderBot2025();
         blackboard.put("TURRET_ENDING_ANGLE_AUTO", (double) -45);
@@ -44,6 +47,7 @@ public class AutoRedDepot_Coop extends LinearOpMode{
         }
 
         waitForStart();
+        robot.runtime.reset();
 
         robot.launcher.setPipeline(2);
 
@@ -58,7 +62,7 @@ public class AutoRedDepot_Coop extends LinearOpMode{
                                             new SequentialAction(
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(start)
-                                                                    .strafeToSplineHeading(launchPos.position, Math.toRadians(-23))
+                                                                    .strafeToSplineHeading(launchPos1.position, Math.toRadians(-90))
                                                                     .build()
                                                     ),
                                                     // Launch Preloads
@@ -67,68 +71,50 @@ public class AutoRedDepot_Coop extends LinearOpMode{
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
-                                                            robot.drive.actionBuilder(launchPos)
-                                                                    .splineToSplineHeading(intakePos, Math.toRadians(-90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x, -49), Math.toRadians(-90), new TranslationalVelConstraint(7))
+                                                            robot.drive.actionBuilder(launchPos1)
+                                                                    .setTangent(90)
+                                                                    .splineToConstantHeading(intakePos.position, Math.toRadians(-90))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x, -51), Math.toRadians(-90), new TranslationalVelConstraint(20))
+                                                                    .waitSeconds(1)
                                                                     .build(),
-                                                            new RaceAction(
-                                                                    robot.holdTurretAction(),
-                                                                    new SequentialAction(
-//                                                                            robot.indexerIsAtTargetAction(),
-                                                                            robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-                                                                            robot.indexerIsAtTargetAction(),
-                                                                            robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-                                                                            robot.indexerIsAtTargetAction(),
-                                                                            robot.waitForBallAction()
-                                                                            // The third ball will be loaded but we won't cycle away from it
-                                                                    ),
-                                                                    robot.indexerFullAction()
-                                                            )
+                                                            robot.indexerFullAction()
                                                     ),
-                                                    robot.intake.intakeStopAction(),
+                                                    robot.waitForTime(13),
+                                                    robot.intakeStopAction(),
                                                     new RaceAction(
-                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, -49), Math.toRadians(-90)))
-                                                                    .setTangent(Math.toRadians(90))
+                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, -51), Math.toRadians(-90)))
+                                                                    .setTangent(Math.toRadians(135))
                                                                     .splineToConstantHeading(gatePos.position, Math.toRadians(-90))
-                                                                    .build(),
-                                                            robot.holdTurretAction()
+                                                                    .build()
                                                     ),
+                                                    new SleepAction(1),
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(gatePos.position, Math.toRadians(-90)))
-                                                                    .setTangent(Math.toRadians(90))
-                                                                    .splineToSplineHeading(launchPos, 0, robot.drive.defaultVelConstraint)
-                                                                    .build()
+                                                                    .setReversed(true)
+                                                                    .splineTo(launchPos2.position, Math.toRadians(90))
+                                                                    .build(),
+                                                            robot.planSequenceAction()
                                                     ),
                                                     // Launch Preloads
-                                                    robot.planSequenceAction(),
                                                     robot.startSequenceAction(),
                                                     robot.waitForSequenceEndAction(),
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
-                                                    new ParallelAction(
-                                                            robot.drive.actionBuilder(launchPos)
-                                                                    .splineToSplineHeading(intakePos2, Math.toRadians(-90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos2.position.x, -49), Math.toRadians(-90), new TranslationalVelConstraint(7))
+                                                    new RaceAction(
+                                                            robot.drive.actionBuilder(launchPos2)
+                                                                    .setTangent(Math.toRadians(180))
+                                                                    .splineToConstantHeading(intakePos2.position, Math.toRadians(-90), new TranslationalVelConstraint(70))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos2.position.x, -58.5), Math.toRadians(-90), new TranslationalVelConstraint(22))
+                                                                    .waitSeconds(1.5)
                                                                     .build(),
-                                                            new RaceAction(
-                                                                    robot.holdTurretAction(),
-                                                                    new SequentialAction(
-//                                                                            robot.indexerIsAtTargetAction(),
-                                                                            robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-                                                                            robot.indexerIsAtTargetAction(),
-                                                                            robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-                                                                            robot.indexerIsAtTargetAction(),
-                                                                            robot.waitForBallAction()
-                                                                            // The third ball will be loaded but we won't cycle away from it
-                                                                    ),
-                                                                    robot.indexerFullAction()
-                                                            )
+                                                            robot.indexerFullAction()
                                                     ),
-                                                    robot.intake.intakeStopAction(),
+                                                    robot.intakeStopAction(),
                                                     // Drive to launch spot
                                                     new ParallelAction(
-                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos2.position.x, -49), Math.toRadians(-90)))
-                                                                    .strafeToSplineHeading(launchPos.position, Math.toRadians(-23))
+                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos2.position.x, -58.5), Math.toRadians(-90)))
+                                                                    .setReversed(true)
+                                                                    .splineTo(launchPos3.position, Math.toRadians(90))
                                                                     .build()
 //                                                            ,
 //                                                            // Re-plan the shot sequence with the newly loaded balls
@@ -139,13 +125,10 @@ public class AutoRedDepot_Coop extends LinearOpMode{
                                                     robot.startSequenceAction(),
                                                     robot.waitForSequenceEndAction()
                                             ),
-                                            new SleepAction(27)
+                                            new SleepAction(29)
                                     ),
                                     robot.cancelSequenceAction(),
-                                    robot.intake.intakeStopAction(),
-                                    robot.drive.actionBuilder(launchPos)
-                                            .strafeToSplineHeading(new Vector2d(38, -12), Math.toRadians(0))
-                                            .build(),
+                                    robot.intakeStopAction(),
                                     robot.launcher.pointToAction(0),
                                     new ParallelAction(
                                             robot.holdTurretAction(),

@@ -37,7 +37,7 @@ public class Flywheel {
     public boolean AdjustedFF = false;
     public double feedforward;
 
-    public static boolean TELEM = true;
+    public static boolean TELEM = false;
     public static double MAX_SHOOTER_RPM = 2250;
     public static double MIN_SHOOTER_RPM = 1600;
     public static double SHOOTER_RADIUS = 0.096 / 2.0;
