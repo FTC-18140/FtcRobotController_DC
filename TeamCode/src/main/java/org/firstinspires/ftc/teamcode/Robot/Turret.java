@@ -43,7 +43,7 @@ public class Turret implements DataLoggable {
 
     public static double KV_ROT = 0.1; // Tunable: Gain for robot rotation
     public static double KV_TRANS = 0.18; // Tunable: Gain for translational apparent rotation
-    public static boolean TELEM = true;
+    public static boolean TELEM = false;
 
     public static double MAX_POWER = 0.8;
     public static double MIN_POWER_POSITIVE = 0.025;
@@ -252,7 +252,7 @@ public class Turret implements DataLoggable {
         return this.currentPosition;
     }
     public double getCurrentPositionRaw() {
-        return this.currentPosition + this.offsetAngle;
+        return this.currentPosition - this.offsetAngle;
     }
 
 

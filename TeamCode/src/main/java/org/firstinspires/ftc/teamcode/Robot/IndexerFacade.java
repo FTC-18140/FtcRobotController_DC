@@ -61,6 +61,7 @@ public class IndexerFacade {
     private List<BallState> shotSequence = null;
     private boolean sequenceStarted = false;
     private int sequenceIndex = -1;
+    private boolean[] slots_fired = new boolean[3];
 
     public void init(HardwareMap hwMap, Telemetry telem) {
         this.telemetry = telem;
@@ -77,6 +78,9 @@ public class IndexerFacade {
         }
         for (int i = 0; i < 3; i++) {
             ballSlots[i] = BallState.VACANT;
+        }
+        for (int i = 0; i < 3; i++) {
+            slots_fired[i] = false;
         }
 
         beamBreak.init(hwMap, telem);
@@ -122,6 +126,7 @@ public class IndexerFacade {
                 // This prevents the system from re-selecting this same physical ball for a
                 // later step in the sequence (e.g., if the sequence requires two PURPLE balls).
                 ballSlots[i] = BallState.VACANT;
+                slots_fired[i] = true;
 
                 // Command the turnstile to rotate this slot into the firing position.
                 ballFound = true;
@@ -137,12 +142,63 @@ public class IndexerFacade {
         // If no ball of the required color could be found, something is wrong.
         // To prevent getting stuck, we cancel the entire autonomous sequence.
         if (!ballFound) {
-            cancelSequence();
+            return launchBackup();
         } else if (currentState == State.SELECTING_BALL){
             return true;
         }
         return false;
     }
+
+    private boolean launchBackup() {
+        // Safety check: Do nothing if the sequence is not active.
+//        if (shotSequence == null || sequenceIndex < 0 || sequenceIndex >= shotSequence.size()) return false;
+
+//        sequenceStarted = true;
+
+        // Determine which color we need for this step of the sequence.
+        BallState requiredColor = shotSequence.get(sequenceIndex);
+        boolean ballFound = false;
+        updateBallSensors();
+        updateBallStates();
+
+        // Search all physical slots for a ball that matches the required color.
+        if(sequenceIndex < 2){
+            requiredColor = shotSequence.get(sequenceIndex + 1);
+        } else {
+            requiredColor = BallState.ALL;
+        }
+        for (int i = 2; i > -1 && !ballFound; i--) {
+            if (!slots_fired[i]) {
+                // --- Critical Step ---
+                // Mark this ball as "used" by changing its state in our software model to VACANT.
+                // This prevents the system from re-selecting this same physical ball for a
+                // later step in the sequence (e.g., if the sequence requires two PURPLE balls).
+                ballSlots[i] = BallState.VACANT;
+                slots_fired[i] = true;
+
+                // Command the turnstile to rotate this slot into the firing position.
+                ballFound = true;
+                int slot = (currentTargetSlot + (2-i)) % 3;
+                telemetry.addData("selected Sequence Slot: ", slot);
+                rotateBallStates(2-i);
+                currentTargetSlot = slot;
+                turnstile.seekToAngle(SLOT_ANGLES[slot]);
+                currentState = State.SELECTING_BALL;
+            }
+        }
+
+        // If no ball of the required color could be found, something is wrong.
+        // To prevent getting stuck, we cancel the entire autonomous sequence.
+        if (!ballFound) {
+            currentState = State.SELECTING_BALL;
+            return true;
+        } else if (currentState == State.SELECTING_BALL){
+            return true;
+        }
+        return false;
+    }
+
+
 
     public void launchAllInIndexer(){
         if (currentState != State.IDLE && currentState != State.AWAITING_FLIP) return;
@@ -158,6 +214,9 @@ public class IndexerFacade {
             boolean started = false;
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                for (int i = 0; i < 3; i++) {
+                    slots_fired[i] = false;
+                }
 
                 return !executeNextInSequence() && inSequence();
             }
@@ -168,6 +227,9 @@ public class IndexerFacade {
         sequenceStarted = false;
         shotSequence = null;
         sequenceIndex = -1;
+        for (int i = 0; i < 3; i++) {
+            slots_fired[i] = false;
+        }
         if (currentState != State.IDLE) {
             currentState = State.IDLE;
         }
@@ -179,6 +241,12 @@ public class IndexerFacade {
             ballSlots[2] = ballSlots[1];
             ballSlots[1] = ballSlots[0];
             ballSlots[0] = temp;
+
+
+            boolean slots = slots_fired[2];
+            slots_fired[2] = slots_fired[1];
+            slots_fired[1] = slots_fired[0];
+            slots_fired[0] = slots;
         }
     }
 
@@ -473,6 +541,8 @@ public class IndexerFacade {
         telemetry.addData("Beam Break detection: ", ballInIntake());
         telemetry.addLine(String.format("Slots: [0]: %s, [1]: %s, [2]: %s",
                 ballSlots[0], ballSlots[1], ballSlots[2]));
+        telemetry.addLine(String.format("Fired: [0]: %s, [1]: %s, [2]: %s",
+                slots_fired[0], slots_fired[1], slots_fired[2]));
         telemetry.addData("in Sequence: ", sequenceStarted);
         if (shotSequence != null) {
             telemetry.addData("Target Slot: ", getCurrentTargetSlot());

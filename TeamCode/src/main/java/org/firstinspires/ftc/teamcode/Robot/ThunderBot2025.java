@@ -262,7 +262,7 @@ public class ThunderBot2025 implements DataLoggable
 
     public void resetHeadingAndTurret() {
         drive.localizer.setPose(new Pose2d(drive.localizer.getPose().position, 0));
-        if(launcher.isAtTarget()){
+        if(launcher.isAtTarget() && launcher.isUsingLimelight()){
             led.setRPMLedToColor("green");
             launcher.setTurretOffset();
         } else {

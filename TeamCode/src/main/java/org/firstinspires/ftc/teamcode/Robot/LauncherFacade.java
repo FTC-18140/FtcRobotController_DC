@@ -45,8 +45,8 @@ public class LauncherFacade implements DataLoggable {
 
     // Target and alliance properties
     private Vector2d targetPos;
-    private final Vector2d targetPosBlue = new Vector2d(66, 67);
-    private final Vector2d targetPosRed = new Vector2d(66, -67);
+    private final Vector2d targetPosBlue = new Vector2d(66, 66.5);
+    private final Vector2d targetPosRed = new Vector2d(66, -66.5);
     private ThunderBot2025.Alliance_Color allianceColor = ThunderBot2025.Alliance_Color.BLUE;
 
     public void init(HardwareMap hwMap, Telemetry telem, Pose2d startPose) {
@@ -125,9 +125,9 @@ public class LauncherFacade implements DataLoggable {
             double trustFactor = 1.0 + Math.pow(distToTag / 48.0, 2);
 
             //poseEstimator.update(visionPose, trustFactor);
-            usingLimelight = true;
+//            usingLimelight = true;
         } else {
-            usingLimelight = false;
+//            usingLimelight = false;
         }
 
         // --- 4. UPDATE FUSED POSE ---

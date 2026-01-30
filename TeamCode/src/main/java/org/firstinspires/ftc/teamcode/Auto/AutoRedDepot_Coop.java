@@ -125,7 +125,7 @@ public class AutoRedDepot_Coop extends LinearOpMode{
                                                     robot.startSequenceAction(),
                                                     robot.waitForSequenceEndAction()
                                             ),
-                                            new SleepAction(28.5)
+                                            new SleepAction(29)
                                     ),
                                     robot.cancelSequenceAction(),
                                     robot.intakeStopAction(),
