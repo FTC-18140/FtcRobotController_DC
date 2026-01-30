@@ -71,19 +71,7 @@ public class AutoBlueFar extends LinearOpMode{
                                                                     .splineTo(intakePos.position, Math.toRadians(90))
                                                                     .splineToConstantHeading(new Vector2d(intakePos.position.x, 49), Math.toRadians(90), new TranslationalVelConstraint(12))
                                                                     .build(),
-                                                            new RaceAction(
-                                                                    new SequentialAction(
-//                                                                            robot.seekToSlotAction(0), // Move to the first intake slot
-                                                                            //robot.indexerIsAtTargetAction(),
-                                                                            robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-                                                                            robot.indexerIsAtTargetAction(),
-                                                                            robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-                                                                            robot.indexerIsAtTargetAction(),
-                                                                            robot.waitForBallAction()
-                                                                            // The third ball will be loaded but we won't cycle away from it
-                                                                    ),
-                                                                    robot.indexerFullAction()
-                                                            )
+                                                            robot.indexerFullAction()
                                                     ),
 
                                                     // Drive to launch spot
@@ -97,7 +85,7 @@ public class AutoBlueFar extends LinearOpMode{
         //                                        robot.planSequenceAction()
                                                     ),
 
-                                                    robot.intake.intakeStopAction(),
+                                                    robot.intakeStopAction(),
                                                     // Launch 2nd set of Artifacts
                                                     robot.planSequenceAction(),
                                                     robot.startSequenceAction(),
@@ -109,19 +97,7 @@ public class AutoBlueFar extends LinearOpMode{
                                                                     .splineTo(intakePos2.position, Math.toRadians(90))
                                                                     .splineToConstantHeading(new Vector2d(intakePos2.position.x, 49), Math.toRadians(90), new TranslationalVelConstraint(20))
                                                                     .build(),
-                                                            new RaceAction(
-                                                                    new SequentialAction(
-//                                                                            robot.seekToSlotAction(0), // Move to the first intake slot
-                                                                            //robot.indexerIsAtTargetAction(),
-                                                                            robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-                                                                            robot.indexerIsAtTargetAction(),
-                                                                            robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-                                                                            robot.indexerIsAtTargetAction(),
-                                                                            robot.waitForBallAction()
-                                                                            // The third ball will be loaded but we won't cycle away from it
-                                                                    ),
-                                                                    robot.indexerFullAction()
-                                                            )
+                                                            robot.indexerFullAction()
                                                     ),
 
                                                     // Drive to launch spot
@@ -135,7 +111,7 @@ public class AutoBlueFar extends LinearOpMode{
         //                                            robot.planSequenceAction()
                                                     ),
 
-                                                    robot.intake.intakeStopAction(),
+                                                    robot.intakeStopAction(),
                                                     // Launch 2nd set of Artifacts
 
                                                     robot.planSequenceAction(),

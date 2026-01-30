@@ -36,14 +36,14 @@ public class Turret implements DataLoggable {
     private Telemetry telemetry;
 
     // Tunable constants from your original file
-    public static double P_TURRET = 0.0069, I_TURRET = 0.03, D_TURRET = 0.00047, F_TURRET_MIN = 0.0, F_TURRET_MAX = 0.0;
+    public static double P_TURRET = 0.0069, I_TURRET = 0.045, D_TURRET = 0.00047, F_TURRET_MIN = 0.0, F_TURRET_MAX = 0.0;
     public static double MAX_TURRET_POS = 225;
     public static double MIN_TURRET_POS = -90;
     public static double TURRET_ANGLE_TOLERANCE = 2.5;
 
-    public static double KV_ROT = 0.1; // Tunable: Gain for robot rotation
-    public static double KV_TRANS = 0.18; // Tunable: Gain for translational apparent rotation
-    public static boolean TELEM = false;
+    public static double KV_ROT = 0.11; // Tunable: Gain for robot rotation
+    public static double KV_TRANS = 0.185; // Tunable: Gain for translational apparent rotation
+    public static boolean TELEM = true;
 
     public static double MAX_POWER = 0.8;
     public static double MIN_POWER_POSITIVE = 0.025;
@@ -162,13 +162,14 @@ public class Turret implements DataLoggable {
 
             case MANUAL_CONTROL:
                 setHardwarePower(manualPower);
-                if (Math.abs(manualPower) < 0.05) holdPosition();
+                if (Math.abs(manualPower) < 0.01) currentState = State.HOLDING;
                 break;
         }
 
         if ( TELEM ) {
             telemetry.addLine(" ------------- TURRET TELEM -------------");
             telemetry.addData("Turret Starting Angle: ", startingAngle);
+            telemetry.addData("Turret Offset Angle: ", offsetAngle);
             telemetry.addData("Turret Position", "%.2f", currentPosition);
             telemetry.addData("Turret Target", "%.2f", targetAngle);
             // Add these lines to see the "Blend" of control:
@@ -241,7 +242,7 @@ public class Turret implements DataLoggable {
     }
 
     private void updateCurrentPosition() {
-        this.currentPosition = turret.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK + startingAngle + offsetAngle;
+        this.currentPosition = turret.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK + startingAngle - offsetAngle;
 
     }
     public void zeroTurret() {
@@ -252,7 +253,7 @@ public class Turret implements DataLoggable {
         return this.currentPosition;
     }
     public double getCurrentPositionRaw() {
-        return this.currentPosition - this.offsetAngle;
+        return this.currentPosition + this.offsetAngle;
     }
 
 

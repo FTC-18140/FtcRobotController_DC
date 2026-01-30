@@ -70,19 +70,7 @@ public class AutoRedDepot extends LinearOpMode{
                                                                     .splineToSplineHeading(intakePos, Math.toRadians(-90))
                                                                     .splineToConstantHeading(new Vector2d(intakePos.position.x, -49), Math.toRadians(-90), new TranslationalVelConstraint(12))
                                                                     .build(),
-                                                            new RaceAction(
-                                                                    robot.holdTurretAction(),
-                                                                    new SequentialAction(
-//                                                                            robot.indexerIsAtTargetAction(),
-                                                                            robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-                                                                            robot.indexerIsAtTargetAction(),
-                                                                            robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-                                                                            robot.indexerIsAtTargetAction(),
-                                                                            robot.waitForBallAction()
-                                                                            // The third ball will be loaded but we won't cycle away from it
-                                                                    ),
-                                                                    robot.indexerFullAction()
-                                                            )
+                                                            robot.indexerFullAction()
                                                     ),
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, -49), Math.toRadians(-90)))
@@ -90,7 +78,7 @@ public class AutoRedDepot extends LinearOpMode{
                                                                     .build(),
                                                             robot.launcher.pointToAction(0)
                                                     ),
-                                                    robot.intake.intakeStopAction(),
+                                                    robot.intakeStopAction(),
                                                     // Launch Preloads
                                                     robot.planSequenceAction(),
                                                     robot.startSequenceAction(),
@@ -102,19 +90,7 @@ public class AutoRedDepot extends LinearOpMode{
                                                                     .splineToSplineHeading(intakePos2, Math.toRadians(-90))
                                                                     .splineToConstantHeading(new Vector2d(intakePos2.position.x, -49), Math.toRadians(-90), new TranslationalVelConstraint(12))
                                                                     .build(),
-                                                            new RaceAction(
-                                                                    robot.holdTurretAction(),
-                                                                    new SequentialAction(
-//                                                                            robot.indexerIsAtTargetAction(),
-                                                                            robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-                                                                            robot.indexerIsAtTargetAction(),
-                                                                            robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-                                                                            robot.indexerIsAtTargetAction(),
-                                                                            robot.waitForBallAction()
-                                                                            // The third ball will be loaded but we won't cycle away from it
-                                                                    ),
-                                                                    robot.indexerFullAction()
-                                                            )
+                                                            robot.indexerFullAction()
                                                     ),
                                                     // Drive to launch spot
                                                     new ParallelAction(
@@ -125,7 +101,7 @@ public class AutoRedDepot extends LinearOpMode{
 //                                                            // Re-plan the shot sequence with the newly loaded balls
 //                                                            robot.planSequenceAction()
                                                     ),
-                                                    robot.intake.intakeStopAction(),
+                                                    robot.intakeStopAction(),
                                                     // Launch 2nd set of Artifacts
                                                     robot.planSequenceAction(),
                                                     robot.startSequenceAction(),
@@ -134,7 +110,7 @@ public class AutoRedDepot extends LinearOpMode{
                                             new SleepAction(27)
                                     ),
                                     robot.cancelSequenceAction(),
-                                    robot.intake.intakeStopAction(),
+                                    robot.intakeStopAction(),
                                     robot.drive.actionBuilder(launchPos)
                                             .strafeToSplineHeading(new Vector2d(38, -12), Math.toRadians(0))
                                             .build(),

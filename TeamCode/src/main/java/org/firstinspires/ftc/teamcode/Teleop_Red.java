@@ -66,9 +66,6 @@ public class Teleop_Red extends OpMode {
         }
 
         // Note: The driver's 'Y' button is used for resetting pose.
-        if(theGamepad1.getButton(TBDGamepad.Button.DPAD_UP)){
-            robot.resetHeadingAndTurret();
-        }
 
         robot.drive(forward, strafe, turn * 0.7, speed, p);
 
@@ -77,10 +74,12 @@ public class Teleop_Red extends OpMode {
         }
 
         // --- Launcher Controls ---
-        if(Math.abs(theGamepad2.getRightX()) > 0.01){
+        // Note: The driver's 'Y' button is used for resetting pose.
+        if(theGamepad1.getButton(TBDGamepad.Button.DPAD_UP)){
+            robot.launcher.augmentedAimLimelight(theGamepad2.getRightX());
+            robot.resetHeadingAndTurret();
+        } else if(Math.abs(theGamepad2.getRightX()) > 0.01){
             robot.launcher.setTurretManualPower(theGamepad2.getRightX() * 0.5);
-        } else if(Math.abs(theGamepad1.getRightX()) > 0.01){
-            robot.launcher.augmentedAim(-theGamepad1.getRightX() * speed);
         } else {
             robot.launcher.aim();
         }
