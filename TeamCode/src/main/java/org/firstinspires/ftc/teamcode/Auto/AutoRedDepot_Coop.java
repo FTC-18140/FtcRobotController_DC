@@ -28,10 +28,11 @@ public class AutoRedDepot_Coop extends LinearOpMode{
 
 
         ThunderBot2025 robot = new ThunderBot2025();
-        blackboard.put("TURRET_ENDING_ANGLE_AUTO", (double) -45);
+        blackboard.put("TURRET_ENDING_ANGLE_AUTO", (double) 0);
         blackboard.put("ENDING_ANGLE_INDEXER", (double) 0);
 
         robot.init(hardwareMap, telemetry, start);
+        robot.launcher.setTurretStart(-45);
         robot.setColor(ThunderBot2025.Alliance_Color.RED);
 
 
@@ -79,7 +80,7 @@ public class AutoRedDepot_Coop extends LinearOpMode{
                                                                     .build(),
                                                             robot.indexerFullAction()
                                                     ),
-                                                    robot.waitForTime(13),
+                                                    robot.waitForTime(12),
                                                     robot.intakeStopAction(),
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, -51), Math.toRadians(-90)))
@@ -125,7 +126,7 @@ public class AutoRedDepot_Coop extends LinearOpMode{
                                                     robot.startSequenceAction(),
                                                     robot.waitForSequenceEndAction()
                                             ),
-                                            new SleepAction(29)
+                                            new SleepAction(28)
                                     ),
                                     robot.cancelSequenceAction(),
                                     robot.intakeStopAction(),

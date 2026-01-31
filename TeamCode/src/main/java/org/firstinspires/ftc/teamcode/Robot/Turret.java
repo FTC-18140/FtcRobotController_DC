@@ -61,11 +61,11 @@ public class Turret implements DataLoggable {
     private double seekingPower = 0; // Member variable to be accessible for logging
     private double lastSeekingPower = 0;
     public static String STARTING_ANGLE = "TURRET_ENDING_ANGLE_AUTO";
-    double startingAngle = (double) blackboard.getOrDefault(STARTING_ANGLE, (double) 0);
+    double startingAngle;
     public void init(HardwareMap hwMap, Telemetry telem) {
 
+        startingAngle = (double) blackboard.getOrDefault(STARTING_ANGLE, (double) 0);
 
-        currentPosition = startingAngle;
         this.telemetry = telem;
         turretAimPID = new PIDController(P_TURRET, I_TURRET, D_TURRET);
         try{
@@ -77,6 +77,9 @@ public class Turret implements DataLoggable {
             telemetry.addData("Motor\"turret\" not found", 0);
         }
 
+    }
+    public void setStartAngle(double angle){
+        this.offsetAngle = -angle;
     }
 
     public double getTargetPos(){
