@@ -37,7 +37,7 @@ public class LauncherFacade implements DataLoggable {
     public static double TURRET_OFFSET_X = -2.62074;
     public static double TURRET_OFFSET_Y = -3.22805;
     public Vector2d trueTargetVector = fusedPose.position;
-    public static double trust = .3;
+    public static double trust = 0.5;
 
     private double smoothedTurretAngle = 0;
     private boolean firstAimRun = true;

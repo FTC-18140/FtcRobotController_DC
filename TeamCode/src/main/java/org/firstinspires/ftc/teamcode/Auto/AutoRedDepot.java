@@ -51,10 +51,11 @@ public class AutoRedDepot extends LinearOpMode{
             Actions.runBlocking(
                     new ParallelAction(
                             robot.updateAction(),
-                            robot.aimAction(),
                             robot.launcher.prepShotAction(),
                             new SequentialAction(
                                     new RaceAction(
+                                            robot.aimAction(),
+
                                             new SequentialAction(
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(start)

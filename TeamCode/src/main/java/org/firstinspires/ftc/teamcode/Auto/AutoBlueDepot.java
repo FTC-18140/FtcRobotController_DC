@@ -87,7 +87,7 @@ public class AutoBlueDepot extends LinearOpMode{
                                                     robot.waitForSequenceEndAction(),
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
-                                                    new ParallelAction(
+                                                    new RaceAction(
                                                             robot.drive.actionBuilder(launchPos2)
                                                                     .setTangent(Math.toRadians(180))
                                                                     .splineTo(intakePos2.position, Math.toRadians(90))
