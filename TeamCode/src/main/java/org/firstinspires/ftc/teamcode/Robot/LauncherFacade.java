@@ -30,6 +30,9 @@ public class LauncherFacade implements DataLoggable {
 
     private boolean usingLimelight = false;
 
+    public enum AimingMode {MAIN, ODOMETRY, LIMELIGHT, MANUAL}
+    private AimingMode aimingMode = AimingMode.MAIN;
+
     // --- SENSOR FUSION VARIABLES ---
     private KalmanPoseEstimator poseEstimator;
     private Pose2d fusedPose = new Pose2d(0, 0, 0); // This is the "Truth" we aim with
@@ -149,6 +152,8 @@ public class LauncherFacade implements DataLoggable {
 
         telemetry.addData("Using Limelight: ", usingLimelight);
     }
+    public void setAimingMode(AimingMode mode){this.aimingMode = mode;}
+    public AimingMode getAimingMode() {return aimingMode;}
 
     public void updateVision() { limelight.update(Math.toDegrees(fusedPose.heading.toDouble()) - getTurretAngle(), getTurretOffsetPosInRobotSpace()); }
     public int getDetectedAprilTagId() { return limelight.id(); }

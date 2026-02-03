@@ -153,6 +153,9 @@ public class Turnstile {
 
         // --- 2. Run State Machine ---
         double power;
+        angleController.setPID(P, I, D); // Re-apply PID gains from Dashboard
+        power = angleController.calculate(currentAngle, targetAngle + current_offset);
+
         switch (currentState) {
             case IDLE:
                 indexerServo1.setPower(0);
@@ -163,6 +166,7 @@ public class Turnstile {
                 if (limitSwitchPressed) {
                     indexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                     indexMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    currentAngle = 0;
                     isHomed = true;
                     targetAngle = 0;
                     current_offset = HOMING_OFFSET;
@@ -191,8 +195,6 @@ public class Turnstile {
             case SEEKING_POSITION:
 
                 // If not at target, continue seeking.
-                angleController.setPID(P, I, D); // Re-apply PID gains from Dashboard
-                power = angleController.calculate(currentAngle, targetAngle + current_offset);
                 indexerServo1.setPower(power);
                 indexerServo2.setPower(power);
 
@@ -225,8 +227,6 @@ public class Turnstile {
 //                    targetAngle = nearestSlotAngle;
                 }
 
-                angleController.setPID(P, I, D); // Re-apply PID gains from Dashboard
-                power = angleController.calculate(currentAngle, targetAngle + current_offset);
                 indexerServo1.setPower(power);
                 indexerServo2.setPower(power);
                 break;

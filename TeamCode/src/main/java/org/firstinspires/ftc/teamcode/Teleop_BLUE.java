@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Robot.IndexerFacade;
+import org.firstinspires.ftc.teamcode.Robot.LauncherFacade;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 import org.firstinspires.ftc.teamcode.Utilities.TBDGamepad;
 
@@ -77,11 +78,18 @@ public class Teleop_BLUE extends OpMode {
         }
 
         // --- Launcher Controls ---
-        if(Math.abs(theGamepad2.getRightX()) > 0.01){
+        if(theGamepad2.getButtonPressed(TBDGamepad.Button.RIGHT_STICK_BUTTON)){
+            if(robot.launcher.getAimingMode() != LauncherFacade.AimingMode.MANUAL) {
+                robot.launcher.setAimingMode(LauncherFacade.AimingMode.MANUAL);
+            } else {
+                robot.launcher.setAimingMode(LauncherFacade.AimingMode.MAIN);
+            }
+        }
+
+        if(robot.launcher.getAimingMode() == LauncherFacade.AimingMode.MANUAL){
+            robot.launcher.setTurretManualPower(theGamepad2.getRightX() * 0.4);
+        } else if(Math.abs(theGamepad2.getRightX()) > 0.01){
             robot.launcher.setTurretManualPower(theGamepad2.getRightX() * 0.5);
-        } else if(Math.abs(theGamepad1.getRightX()) > 0.01){
-//            robot.launcher.augmentedAim(-theGamepad1.getRightX() * speed);
-            robot.launcher.aim();
         } else {
             robot.launcher.aim();
         }
@@ -103,9 +111,9 @@ public class Teleop_BLUE extends OpMode {
             robot.launcher.flywheel.resetFF();
         }
 
-        if (theGamepad2.getButtonPressed(TBDGamepad.Button.RIGHT_STICK_BUTTON)) {
+        if (theGamepad2.getButtonPressed(TBDGamepad.Button.Y)) {
             robot.flipperUp();
-        } else if ( theGamepad2.getButtonReleased(TBDGamepad.Button.RIGHT_STICK_BUTTON)) {
+        } else if ( theGamepad2.getButtonReleased(TBDGamepad.Button.Y)) {
             robot.flipperDown();
         }
 
@@ -121,14 +129,14 @@ public class Teleop_BLUE extends OpMode {
 
         // --- Indexer Mode Selection & Logic ---
         // 'Y' on Gamepad 2 toggles auto-loading mode.
-        if (theGamepad2.getButtonPressed(TBDGamepad.Button.Y)) {
-            isAutoLoading = !isAutoLoading;
-            // When we enter the mode, find the first target slot.
-            if (isAutoLoading) {
-                robot.indexer.selectNextSlot(IndexerFacade.BallState.VACANT);
-                slotToWatch = robot.indexer.getCurrentTargetSlot();
-            }
-        }
+//        if (theGamepad2.getButtonPressed(TBDGamepad.Button.Y)) {
+//            isAutoLoading = !isAutoLoading;
+//            // When we enter the mode, find the first target slot.
+//            if (isAutoLoading) {
+//                robot.indexer.selectNextSlot(IndexerFacade.BallState.VACANT);
+//                slotToWatch = robot.indexer.getCurrentTargetSlot();
+//            }
+//        }
 
         // --- Manual Overrides to CANCEL Auto-Loading ---
         // Driver can cancel by spitting.
