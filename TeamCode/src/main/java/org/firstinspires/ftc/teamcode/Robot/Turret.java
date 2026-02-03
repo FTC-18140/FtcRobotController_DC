@@ -36,18 +36,18 @@ public class Turret implements DataLoggable {
     private Telemetry telemetry;
 
     // Tunable constants from your original file
-    public static double P_TURRET = 0.0069, I_TURRET = 0.045, D_TURRET = 0.00047, F_TURRET_MIN = 0.0, F_TURRET_MAX = 0.0;
+    public static double P_TURRET = 0.0056, I_TURRET = 0.04, D_TURRET = 0.00032, F_TURRET_MIN = 0.0, F_TURRET_MAX = 0.0;
     public static double MAX_TURRET_POS = 225;
     public static double MIN_TURRET_POS = -90;
     public static double TURRET_ANGLE_TOLERANCE = 2.5;
 
-    public static double KV_ROT = 0.11; // Tunable: Gain for robot rotation
-    public static double KV_TRANS = 0.185; // Tunable: Gain for translational apparent rotation
+    public static double KV_ROT = 0.1; // Tunable: Gain for robot rotation
+    public static double KV_TRANS = 0.17; // Tunable: Gain for translational apparent rotation
     public static boolean TELEM = true;
 
     public static double MAX_POWER = 0.8;
-    public static double MIN_POWER_POSITIVE = 0.025;
-    public static double MIN_POWER_NEGATIVE = -0.085;
+    public static double MIN_POWER_POSITIVE = 0.045;
+    public static double MIN_POWER_NEGATIVE = -0.045;
 
     public static double TURN_SPEED = 208.3; // From original lockOn
     public static double TURRET_DEGREES_PER_ENCODER_TICK = (double) 1 /8192 * 360 * 24.24/190.5;
@@ -61,11 +61,11 @@ public class Turret implements DataLoggable {
     private double seekingPower = 0; // Member variable to be accessible for logging
     private double lastSeekingPower = 0;
     public static String STARTING_ANGLE = "TURRET_ENDING_ANGLE_AUTO";
-    double startingAngle = (double) blackboard.getOrDefault(STARTING_ANGLE, (double) 0);
+    double startingAngle;
     public void init(HardwareMap hwMap, Telemetry telem) {
 
+        startingAngle = (double) blackboard.getOrDefault(STARTING_ANGLE, (double) 0);
 
-        currentPosition = startingAngle;
         this.telemetry = telem;
         turretAimPID = new PIDController(P_TURRET, I_TURRET, D_TURRET);
         try{
@@ -77,6 +77,9 @@ public class Turret implements DataLoggable {
             telemetry.addData("Motor\"turret\" not found", 0);
         }
 
+    }
+    public void setStartAngle(double angle){
+        this.offsetAngle = -angle;
     }
 
     public double getTargetPos(){
@@ -156,13 +159,16 @@ public class Turret implements DataLoggable {
             case SEEKING_ANGLE:
                 setHardwarePower(totalPower);
                 if (currentState == State.SEEKING_ANGLE && isAtTarget()) {
-                    this.currentState = State.HOLDING;
+//                    this.currentState = State.HOLDING;
                 }
                 break;
 
             case MANUAL_CONTROL:
                 setHardwarePower(manualPower);
-                if (Math.abs(manualPower) < 0.01) currentState = State.HOLDING;
+                if (Math.abs(manualPower) < 0.01) {
+                    currentState = State.HOLDING;
+                    setHardwarePower(0);
+                };
                 break;
         }
 

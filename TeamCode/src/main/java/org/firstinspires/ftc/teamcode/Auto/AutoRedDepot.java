@@ -24,10 +24,11 @@ public class AutoRedDepot extends LinearOpMode{
         Pose2d intakePos2 = new Pose2d(AutoPositions.Positions.ARTIFACT_CENTER_RED.position, Math.toRadians(-90));
 
         ThunderBot2025 robot = new ThunderBot2025();
-        blackboard.put("TURRET_ENDING_ANGLE_AUTO", (double) -45);
+        blackboard.put("TURRET_ENDING_ANGLE_AUTO", (double) 0);
         blackboard.put("ENDING_ANGLE_INDEXER", (double) 0);
 
         robot.init(hardwareMap, telemetry, start);
+        robot.launcher.setTurretStart(-45);
         robot.setColor(ThunderBot2025.Alliance_Color.RED);
 
 
@@ -50,10 +51,11 @@ public class AutoRedDepot extends LinearOpMode{
             Actions.runBlocking(
                     new ParallelAction(
                             robot.updateAction(),
-                            robot.aimAction(),
                             robot.launcher.prepShotAction(),
                             new SequentialAction(
                                     new RaceAction(
+                                            robot.aimAction(),
+
                                             new SequentialAction(
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(start)

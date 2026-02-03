@@ -30,14 +30,17 @@ public class LauncherFacade implements DataLoggable {
 
     private boolean usingLimelight = false;
 
+    public enum AimingMode {MAIN, ODOMETRY, LIMELIGHT, MANUAL}
+    private AimingMode aimingMode = AimingMode.MAIN;
+
     // --- SENSOR FUSION VARIABLES ---
-    private KalmanPoseEstimator poseEstimator;
+//    private KalmanPoseEstimator poseEstimator;
     private Pose2d fusedPose = new Pose2d(0, 0, 0); // This is the "Truth" we aim with
     private Pose2d lastOdoPose = null; // Used to calculate delta
     public static double TURRET_OFFSET_X = -2.62074;
     public static double TURRET_OFFSET_Y = -3.22805;
     public Vector2d trueTargetVector = fusedPose.position;
-    public static double trust = .3;
+    public static double trust = 0.5;
 
     private double smoothedTurretAngle = 0;
     private boolean firstAimRun = true;
@@ -59,9 +62,12 @@ public class LauncherFacade implements DataLoggable {
         limelight.init(hwMap, telem);
 
         // Initialize Kalman Filter at (0,0,0) or load from file/auto transition
-        poseEstimator = new KalmanPoseEstimator(startPose);
+//        poseEstimator = new KalmanPoseEstimator(startPose);
         fusedPose = startPose;
         lastOdoPose = startPose;
+    }
+    public void setTurretStart(double angle){
+        turret.setStartAngle(angle);
     }
 
     public boolean isUsingLimelight() { return usingLimelight; }
@@ -80,7 +86,7 @@ public class LauncherFacade implements DataLoggable {
         // --- 1. Calculate Odometry Delta ---
         if (lastOdoPose == null)  {
             lastOdoPose = currentOdoPose;
-            poseEstimator = new KalmanPoseEstimator(currentOdoPose);
+//            poseEstimator = new KalmanPoseEstimator(currentOdoPose);
             return;
         }
 
@@ -95,7 +101,7 @@ public class LauncherFacade implements DataLoggable {
         Pose2d globalDelta = new Pose2d(dt_x, dt_y, dt_h);
 
         // Update Filter with the GLOBAL change
-        poseEstimator.predict(globalDelta);
+//        poseEstimator.predict(globalDelta);
         lastOdoPose = currentOdoPose;
 
         // --- 3. MEASURE: Check Vision ---
@@ -146,6 +152,8 @@ public class LauncherFacade implements DataLoggable {
 
         telemetry.addData("Using Limelight: ", usingLimelight);
     }
+    public void setAimingMode(AimingMode mode){this.aimingMode = mode;}
+    public AimingMode getAimingMode() {return aimingMode;}
 
     public void updateVision() { limelight.update(Math.toDegrees(fusedPose.heading.toDouble()) - getTurretAngle(), getTurretOffsetPosInRobotSpace()); }
     public int getDetectedAprilTagId() { return limelight.id(); }
@@ -281,10 +289,10 @@ public class LauncherFacade implements DataLoggable {
         return offsetPos;
     }
     public double getLimelightAimAngle() {
-        double targetTurretAngle = getTurretAngle();
+        double targetTurretAngle = getTurretAngleRaw();
         if (limelight.hasTarget()) {
             usingLimelight = true;
-            double limelightAngle = getTurretAngleRaw() + limelight.getX() * trust;
+            double limelightAngle = getTurretAngleRaw() + limelight.getX();
 
             // Add the vision offset to the current physical encoder position.
             targetTurretAngle = limelightAngle;
