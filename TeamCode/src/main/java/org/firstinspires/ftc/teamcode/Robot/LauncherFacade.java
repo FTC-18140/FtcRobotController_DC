@@ -34,7 +34,7 @@ public class LauncherFacade implements DataLoggable {
     private AimingMode aimingMode = AimingMode.MAIN;
 
     // --- SENSOR FUSION VARIABLES ---
-    private KalmanPoseEstimator poseEstimator;
+//    private KalmanPoseEstimator poseEstimator;
     private Pose2d fusedPose = new Pose2d(0, 0, 0); // This is the "Truth" we aim with
     private Pose2d lastOdoPose = null; // Used to calculate delta
     public static double TURRET_OFFSET_X = -2.62074;
@@ -62,7 +62,7 @@ public class LauncherFacade implements DataLoggable {
         limelight.init(hwMap, telem);
 
         // Initialize Kalman Filter at (0,0,0) or load from file/auto transition
-        poseEstimator = new KalmanPoseEstimator(startPose);
+//        poseEstimator = new KalmanPoseEstimator(startPose);
         fusedPose = startPose;
         lastOdoPose = startPose;
     }
@@ -86,7 +86,7 @@ public class LauncherFacade implements DataLoggable {
         // --- 1. Calculate Odometry Delta ---
         if (lastOdoPose == null)  {
             lastOdoPose = currentOdoPose;
-            poseEstimator = new KalmanPoseEstimator(currentOdoPose);
+//            poseEstimator = new KalmanPoseEstimator(currentOdoPose);
             return;
         }
 
@@ -101,7 +101,7 @@ public class LauncherFacade implements DataLoggable {
         Pose2d globalDelta = new Pose2d(dt_x, dt_y, dt_h);
 
         // Update Filter with the GLOBAL change
-        poseEstimator.predict(globalDelta);
+//        poseEstimator.predict(globalDelta);
         lastOdoPose = currentOdoPose;
 
         // --- 3. MEASURE: Check Vision ---
