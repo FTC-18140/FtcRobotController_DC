@@ -150,34 +150,19 @@ public class IndexerFacade {
     }
 
     private boolean launchBackup() {
-        // Safety check: Do nothing if the sequence is not active.
-//        if (shotSequence == null || sequenceIndex < 0 || sequenceIndex >= shotSequence.size()) return false;
-
-//        sequenceStarted = true;
-
-        // Determine which color we need for this step of the sequence.
-        BallState requiredColor = shotSequence.get(sequenceIndex);
         boolean ballFound = false;
         updateBallSensors();
         updateBallStates();
 
-        // Search all physical slots for a ball that matches the required color.
-        if(sequenceIndex < 2){
-            requiredColor = shotSequence.get(sequenceIndex + 1);
-        } else {
-            requiredColor = BallState.ALL;
-        }
         for (int i = 2; i > -1 && !ballFound; i--) {
-            if (!slots_fired[i]) {
-                // --- Critical Step ---
-                // Mark this ball as "used" by changing its state in our software model to VACANT.
-                // This prevents the system from re-selecting this same physical ball for a
-                // later step in the sequence (e.g., if the sequence requires two PURPLE balls).
+            if (!slots_fired[i] && !usedLaterInSequence(ballSlots[i])) {
+
                 ballSlots[i] = BallState.VACANT;
                 slots_fired[i] = true;
 
                 // Command the turnstile to rotate this slot into the firing position.
                 ballFound = true;
+
                 int slot = (currentTargetSlot + (2-i)) % 3;
                 telemetry.addData("selected Sequence Slot: ", slot);
                 rotateBallStates(2-i);
@@ -194,6 +179,14 @@ public class IndexerFacade {
             return true;
         } else if (currentState == State.SELECTING_BALL){
             return true;
+        }
+        return false;
+    }
+    public boolean usedLaterInSequence(BallState ballState){
+        for(int i = sequenceIndex + 1; i < 3; i++){
+            if (ballState == shotSequence.get(i)){
+                return true;
+            }
         }
         return false;
     }
