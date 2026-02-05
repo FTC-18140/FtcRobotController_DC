@@ -37,25 +37,17 @@ public class IndexerFacade {
     public static boolean TELEM = true;
     private boolean updated = false;
 
-    public void flipOverride( boolean up ) {
-        if (up) {
-            flipper.extend();
-        }
-        else {
-            flipper.retract();
-        }
-    }
-
-
     // --- State Management ---
     public enum State { IDLE, HOMING, SELECTING_BALL, INTAKE, AWAITING_FLIP, FLIPPING, FLIP_TO_CYCLE, RETRACTING_FLIPPER }
     private State currentState = State.IDLE;
     private boolean intaking = false;
 
+
     /** The facade's internal model of what is in each slot. */
     public enum BallState { GREEN, PURPLE, VACANT, ALL }
     private BallState[] ballSlots = new BallState[3];
     private int currentTargetSlot = 2;
+    private int ballNumber = 0;
 
     // --- Auto-Sequence Management ---
     private List<BallState> shotSequence = null;
@@ -87,8 +79,23 @@ public class IndexerFacade {
 
         updateBallSensors();
         updateBallStates();
+        for (int i = 0; i < 3; i++){
+            if (ballSlots[i] == BallState.GREEN || ballSlots[i] == BallState.PURPLE) {
+                ballNumber++;
+            }
+        }
+
         currentState = State.IDLE;
         //turnstile.home();
+    }
+
+    public void flipOverride( boolean up ) {
+        if (up) {
+            flipper.extend();
+        }
+        else {
+            flipper.retract();
+        }
     }
 
     public void setInitialBallStates(BallState[] initialStates) {
@@ -425,6 +432,7 @@ public class IndexerFacade {
         }
     }
 
+
     public void update(boolean isAtRpm) {
         flipper.update();
         turnstile.update();
@@ -433,6 +441,7 @@ public class IndexerFacade {
         updated = false;
 
         if(intaking && turnstile.isOverSlot() && !indexerIsFull() && ballInIntake()){
+            ballNumber++;
             readyNextIntakeSlot(BallState.VACANT);
         }
 
@@ -456,6 +465,9 @@ public class IndexerFacade {
             // Do nothing. The system will wait here until flip() is called.
             if(shotSequence != null && turnstile.isAtTarget() && sequenceStarted && isAtRpm){
                 flip();
+                ballNumber--;
+                if(ballNumber < 0) ballNumber = 0;
+
                 sequenceStarted = false;
             }
             break;
