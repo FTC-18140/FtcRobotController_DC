@@ -46,8 +46,11 @@ public class IndexerFacade {
     /** The facade's internal model of what is in each slot. */
     public enum BallState { GREEN, PURPLE, VACANT, ALL }
     private BallState[] ballSlots = new BallState[3];
+    private BallState[] positedBallStates = new BallState[3];
     private int currentTargetSlot = 2;
     private int ballNumber = 0;
+    private BallState previousBallStateIntake = BallState.VACANT;
+
 
     // --- Auto-Sequence Management ---
     private List<BallState> shotSequence = null;
@@ -80,6 +83,7 @@ public class IndexerFacade {
         updateBallSensors();
         updateBallStates();
         for (int i = 0; i < 3; i++){
+            positedBallStates[i] = ballSlots[i];
             if (ballSlots[i] == BallState.GREEN || ballSlots[i] == BallState.PURPLE) {
                 ballNumber++;
             }
@@ -89,11 +93,10 @@ public class IndexerFacade {
         //turnstile.home();
     }
 
-    public void flipOverride( boolean up ) {
+    public void flipOverride(boolean up) {
         if (up) {
             flipper.extend();
-        }
-        else {
+        } else {
             flipper.retract();
         }
     }
@@ -235,18 +238,22 @@ public class IndexerFacade {
         }
     }
 
-    public void rotateBallStates(int interations){
-        for (int i = 0; i < interations; i++){
+    public void rotateBallStates(int iterations){
+        for (int i = 0; i < iterations; i++){
             BallState temp = ballSlots[2];
             ballSlots[2] = ballSlots[1];
             ballSlots[1] = ballSlots[0];
             ballSlots[0] = temp;
 
-
             boolean slots = slots_fired[2];
             slots_fired[2] = slots_fired[1];
             slots_fired[1] = slots_fired[0];
             slots_fired[0] = slots;
+
+            BallState temp1 = positedBallStates[2];
+            positedBallStates[2] = positedBallStates[1];
+            positedBallStates[1] = positedBallStates[0];
+            positedBallStates[0] = temp1;
         }
     }
 
@@ -431,18 +438,33 @@ public class IndexerFacade {
                 updated = true;
         }
     }
-
+    public void updateIntakePosited() {
+        positedBallStates[2] = ballSlots[2];
+    }
 
     public void update(boolean isAtRpm) {
+
+
         flipper.update();
         turnstile.update();
         beamBreak.update();
 
         updated = false;
 
+
         if(intaking && turnstile.isOverSlot() && !indexerIsFull() && ballInIntake()){
-            ballNumber++;
+            if (previousBallStateIntake == BallState.VACANT && ballSlots[0] != BallState.VACANT) {
+                ballNumber++;
+            }
+
+
             readyNextIntakeSlot(BallState.VACANT);
+        }
+         if(turnstile.isOverSlot() && !indexerIsFull() && ballInIntake()){
+            if (previousBallStateIntake == BallState.VACANT && ballSlots[0] != BallState.VACANT) {
+                ballNumber++;
+            }
+
         }
 
         switch (currentState) {
@@ -458,6 +480,7 @@ public class IndexerFacade {
         case SELECTING_BALL:
             if (turnstile.isAtTarget()) {
                 updateBallSensors();
+                updateIntakePosited();
                 currentState = State.AWAITING_FLIP;
             }
             break;
@@ -466,6 +489,7 @@ public class IndexerFacade {
             if(shotSequence != null && turnstile.isAtTarget() && sequenceStarted && isAtRpm){
                 flip();
                 ballNumber--;
+                positedBallStates[2] = BallState.VACANT;
                 if(ballNumber < 0) ballNumber = 0;
 
                 sequenceStarted = false;
@@ -511,6 +535,7 @@ public class IndexerFacade {
         if (shotSequence == null) {
             updateBallStates();
         }
+        previousBallStateIntake = ballSlots[0];
 
         addTelemetry();
     }
@@ -546,13 +571,19 @@ public class IndexerFacade {
         telemetry.addData("Beam Break detection: ", ballInIntake());
         telemetry.addLine(String.format("Slots: [0]: %s, [1]: %s, [2]: %s",
                 ballSlots[0], ballSlots[1], ballSlots[2]));
+        telemetry.addLine(String.format("Slots: [0]: %s, [1]: %s, [2]: %s",
+                positedBallStates[0], positedBallStates[1], positedBallStates[2]));
         telemetry.addLine(String.format("Fired: [0]: %s, [1]: %s, [2]: %s",
                 slots_fired[0], slots_fired[1], slots_fired[2]));
+        telemetry.addData("Ball Number", ballNumber);
+        telemetry.addData("Intake Previous", previousBallStateIntake);
         telemetry.addData("in Sequence: ", sequenceStarted);
+
         if (shotSequence != null) {
             telemetry.addData("Target Slot: ", getCurrentTargetSlot());
             telemetry.addData("Sequence: ", shotSequence);
             telemetry.addData("Sequence Step", sequenceIndex + " / " + shotSequence.size());
+
         }
     }
 

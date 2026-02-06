@@ -112,7 +112,7 @@ public class LauncherFacade implements DataLoggable {
 
         if (visionPose != null) {
             // Determine trust based on distance (heuristic)
-            double distToTag = limelight.getDistanceToTarget();
+            double distToTag = limelight.getDistance();
             if ( distToTag < 0)
             {
                 // Negative distToTag from the limelight method means it did not
