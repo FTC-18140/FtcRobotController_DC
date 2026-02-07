@@ -18,6 +18,8 @@ public class Intake {
     public static double INTAKE_SPEED = 1.0;
     DcMotor intakeMotor = null;
 
+    public static boolean TELEM = true;
+
     public void init(HardwareMap hwMap, Telemetry telem) {
         hardwareMap = hwMap;
         telemetry = telem;
@@ -26,7 +28,7 @@ public class Intake {
             intakeMotor = hardwareMap.get(DcMotor.class, "intake");
             intakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         } catch (Exception e) {
-            telemetry.addData("DC Motor \"intake\" not found", 0);
+            addTelemetry("DC Motor \"intake\" not found", 0);
         }
     }
 
@@ -35,7 +37,7 @@ public class Intake {
      */
     public void intake(){
         intakeMotor.setPower(INTAKE_SPEED);
-        telemetry.addData("Intaking", 0);
+        addTelemetry("Intaking", 0);
     }
 
 
@@ -56,7 +58,7 @@ public class Intake {
      */
     public void spit(){
         intakeMotor.setPower(-INTAKE_SPEED);
-        telemetry.addData("Spitting", 0);
+        addTelemetry("Spitting", 0);
     }
 
     /**
@@ -64,5 +66,26 @@ public class Intake {
      */
     public void stop() {
         intakeMotor.setPower(0.0);
+    }
+
+    public void addTelemetry(String name, Object value) {
+        if (TELEM) {
+            // this.getClass().getSimpleName() returns "Limelight"
+            telemetry.addData("[" + this.getClass().getSimpleName() + "] " + name, value);
+        }
+    }
+    /**     * Overloaded method to format doubles to 2 decimal places automatically
+     */
+    public void addTelemetry(String name, double value) {
+        if (TELEM) {
+            telemetry.addData("[" + this.getClass().getSimpleName() + "] " + name, String.format("%.2f", value));
+        }
+    }
+
+    public void addTelemetry(String line)
+    {
+        if (TELEM) {
+            telemetry.addLine(line);
+        }
     }
 }

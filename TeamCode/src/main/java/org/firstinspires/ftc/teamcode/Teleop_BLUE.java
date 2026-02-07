@@ -31,6 +31,8 @@ public class Teleop_BLUE extends OpMode {
     ThunderBot2025 robot = new ThunderBot2025();
     public static double INDEXER_SPEED = 0.8;
 
+    public static boolean TELEM = true;
+
     @Override
     public void init() {
         robot.init(hardwareMap, telemetry, null);
@@ -183,13 +185,34 @@ public class Teleop_BLUE extends OpMode {
         }
 
         robot.drive.localizer.update();
-        telemetry.addData("Indexer Mode", isAutoLoading ? "AUTO-LOADING" : "MANUAL");
-        telemetry.addData("position X: ", robot.drive.localizer.getPose().position.x);
-        telemetry.addData("position Y: ", robot.drive.localizer.getPose().position.y);
-        telemetry.addData("heading: ", Math.toDegrees(robot.drive.localizer.getPose().heading.toDouble()));
-        telemetry.addData("Time since start", robot.runtime.seconds());
-        telemetry.addData("Flywheel RPM ", robot.launcher.getFlywheelRpm());
-        telemetry.addData("Flywheel Target ", robot.launcher.getFlywheelTargetRpm());
+        addTelemetry("Indexer Mode", isAutoLoading ? "AUTO-LOADING" : "MANUAL");
+        addTelemetry("position X: ", robot.drive.localizer.getPose().position.x);
+        addTelemetry("position Y: ", robot.drive.localizer.getPose().position.y);
+        addTelemetry("heading: ", Math.toDegrees(robot.drive.localizer.getPose().heading.toDouble()));
+        addTelemetry("Time since start", robot.runtime.seconds());
+        addTelemetry("Flywheel RPM ", robot.launcher.getFlywheelRpm());
+        addTelemetry("Flywheel Target ", robot.launcher.getFlywheelTargetRpm());
         dashboard.sendTelemetryPacket(p);
+    }
+
+    public void addTelemetry(String name, Object value) {
+        if (TELEM) {
+            // this.getClass().getSimpleName() returns "Limelight"
+            telemetry.addData("[" + this.getClass().getSimpleName() + "] " + name, value);
+        }
+    }
+    /**     * Overloaded method to format doubles to 2 decimal places automatically
+     */
+    public void addTelemetry(String name, double value) {
+        if (TELEM) {
+            telemetry.addData("[" + this.getClass().getSimpleName() + "] " + name, String.format("%.2f", value));
+        }
+    }
+
+    public void addTelemetry(String line)
+    {
+        if (TELEM) {
+            telemetry.addLine(line);
+        }
     }
 }

@@ -21,6 +21,8 @@ public class LED {
     public double orange = 0.32;
     public double purple = 0.72;
     public double white = 1;
+
+    public static boolean TELEM = true;
     public double theColor = white;
     public void init(HardwareMap hwMap, Telemetry telem){
         telemetry = telem;
@@ -28,13 +30,13 @@ public class LED {
             rpmLed = hwMap.servo.get("led");
             rpmLed.setPosition(red);
         }catch (Exception e){
-            telemetry.addData("led not found in configuration", 0);
+            addTelemetry("led not found in configuration", 0);
         }
         try{
             launcherLed = hwMap.servo.get("led2");
             launcherLed.setPosition(red);
         }catch (Exception e){
-            telemetry.addData("led2 not found in configuration", 0);
+            addTelemetry("led2 not found in configuration", 0);
         }
     }
 
@@ -161,5 +163,25 @@ public class LED {
             }
         }
         return theColor;
+    }
+    public void addTelemetry(String name, Object value) {
+        if (TELEM) {
+            // this.getClass().getSimpleName() returns "Limelight"
+            telemetry.addData("[" + this.getClass().getSimpleName() + "] " + name, value);
+        }
+    }
+    /**     * Overloaded method to format doubles to 2 decimal places automatically
+     */
+    public void addTelemetry(String name, double value) {
+        if (TELEM) {
+            telemetry.addData("[" + this.getClass().getSimpleName() + "] " + name, String.format("%.2f", value));
+        }
+    }
+
+    public void addTelemetry(String line)
+    {
+        if (TELEM) {
+            telemetry.addLine(line);
+        }
     }
 }

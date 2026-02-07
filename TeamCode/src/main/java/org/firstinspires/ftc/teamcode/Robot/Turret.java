@@ -74,7 +74,7 @@ public class Turret implements DataLoggable {
             turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             turret.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         } catch (Exception e) {
-            telemetry.addData("Motor\"turret\" not found", 0);
+            addTelemetry("Motor\"turret\" not found", 0);
         }
 
     }
@@ -173,15 +173,15 @@ public class Turret implements DataLoggable {
         }
 
         if ( TELEM ) {
-            telemetry.addLine(" ------------- TURRET TELEM -------------");
-            telemetry.addData("Turret Starting Angle: ", startingAngle);
-            telemetry.addData("Turret Offset Angle: ", offsetAngle);
-            telemetry.addData("Turret Position", "%.2f", currentPosition);
-            telemetry.addData("Turret Target", "%.2f", targetAngle);
+            telemetry.addLine("[Turret] ------------- TURRET TELEM -------------");
+            addTelemetry("Turret Starting Angle: ", startingAngle);
+            addTelemetry("Turret Offset Angle: ", offsetAngle);
+            addTelemetry("Turret Position", currentPosition);
+            addTelemetry("Turret Target", targetAngle);
             // Add these lines to see the "Blend" of control:
-            telemetry.addData("PID Power", "%.3f", seekingPower);
-            telemetry.addData("FF Total", "%.3f", (ffStatic * Math.signum(seekingPower)) + ffRobotRot + ffTrans);
-            telemetry.addData("Turret State", currentState);
+            addTelemetry("PID Power",  seekingPower);
+            addTelemetry("FF Total",  (ffStatic * Math.signum(seekingPower)) + ffRobotRot + ffTrans);
+            addTelemetry("Turret State", currentState);
         }
 
     }
@@ -223,24 +223,21 @@ public class Turret implements DataLoggable {
 
     private void setHardwarePower(double power) {
         if (power < 0 && currentPosition + power * 45 <= MIN_TURRET_POS) {
-            telemetry.addData("Turret position power override value: ", currentPosition + power * 45);
-            telemetry.addData("Turret Power sent to hardware: ", 0);
+            addTelemetry("Turret position power override value: ", currentPosition + power * 45);
+            addTelemetry("Turret Power sent to hardware: ", 0);
             turret.setPower(0);
         } else if (power > 0 && currentPosition + power * 45 >= MAX_TURRET_POS) {
-            telemetry.addData("Turret position power override value: ", currentPosition + power * 45);
-            telemetry.addData("Turret Power sent to hardware: ", 0);
+            addTelemetry("Turret position power override value: ", currentPosition + power * 45);
+            addTelemetry("Turret Power sent to hardware: ", 0);
             turret.setPower(0);
         } else {
             power = Range.clip(power, -MAX_POWER, MAX_POWER);
-//            if (Math.signum(power) != Math.signum(lastSeekingPower)){
-////                turretAimPID.reset();
-//            }
             if(power < 0){
                 power = Range.scale(power, -MAX_POWER, 0, -MAX_POWER, MIN_POWER_NEGATIVE);
             } else {
                 power = Range.scale(power, 0, MAX_POWER, MIN_POWER_POSITIVE, MAX_POWER);
             }
-            telemetry.addData("Turret Power sent to hardware", power);
+            addTelemetry("Turret Power sent to hardware", power);
             turret.setPower(power);
         }
 
@@ -267,6 +264,33 @@ public class Turret implements DataLoggable {
         return Math.abs(this.currentPosition - targetAngle) < TURRET_ANGLE_TOLERANCE;
     }
 
+    /**
+     * Generic method for Objects
+     */
+    public void addTelemetry(String name, Object value) {
+        if (TELEM) {
+            // [TAG   ] (6 chars) + Name (15 chars)
+            // %-6.6s  -> Exactly 6 chars, Left Aligned
+            // %-15.15s -> Exactly 10 chars, Left Aligned
+            String tag = String.format("[%-6.6s]", this.getClass().getSimpleName().toUpperCase());
+            String label = String.format("%-10.10s", name);
+
+            telemetry.addData(tag + " " + label, value);
+        }
+    }
+
+    /**
+     * Overloaded method for Doubles (fixed precision + fixed label width)
+     */
+    public void addTelemetry(String name, double value) {
+        if (TELEM) {
+            String tag = String.format("[%-6.6s]", this.getClass().getSimpleName().toUpperCase());
+            String label = String.format("%-10.10s", name);
+
+            // %10.4f ensures the number itself doesn't jitter
+            telemetry.addData(tag + " " + label, String.format("%10.4f", value));
+        }
+    }
     @Override
     public void logData(DataLogger logger) {
         logger.addField(this.targetAngle);

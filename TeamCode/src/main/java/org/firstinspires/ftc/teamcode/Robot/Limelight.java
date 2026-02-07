@@ -1,11 +1,14 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
+import android.util.Log;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
@@ -28,17 +31,19 @@ public class Limelight implements DataLoggable {
 
     private double lastGoodX = 0;
     private double smoothedX = 0;
-    private long lastUpdateTimeNs = 0;
-    private long lastGoodTargetTimeNs = 0;
     private boolean firstReading = true;
 
+    private double latestDeltaFrameTime = 0;
+    private ElapsedTime frameTimer = new ElapsedTime( ElapsedTime.Resolution.MILLISECONDS);
+
+    public static boolean TELEM = true;
 
     public static double alpha = 0.4; // 0.3–0.5 good
 
     // Milliseconds we will continue trusting a target after it disappears
     public static long TARGET_TRUST_WINDOW_MS = 150;
 
-    public static double MINIMUM_TARGET_AREA = 10.0; // Example value, adjust as needed
+    public static double MINIMUM_TARGET_AREA = 0.0; // Example value, adjust as needed
 
     public void init(HardwareMap hwMap, Telemetry telemetry) {
         hardwareMap = hwMap;
@@ -56,6 +61,8 @@ public class Limelight implements DataLoggable {
         }
         this.telemetry = telemetry;
         visionPose = null;
+        frameTimer.reset();
+
     }
 
     /**
@@ -84,9 +91,6 @@ public class Limelight implements DataLoggable {
             return;
         }
 
-        long nowNs = System.nanoTime();
-        lastUpdateTimeNs = nowNs;
-
         // Single tag expected due to pipeline ID filter
         List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
         if (!fiducials.isEmpty()) {
@@ -104,7 +108,8 @@ public class Limelight implements DataLoggable {
                     smoothedX = alpha * x + (1 - alpha) * smoothedX;
                 }
                 distance = f.getCameraPoseTargetSpace().getPosition().z * INCHES_PER_METER;
-                lastGoodTargetTimeNs = nowNs;
+                latestDeltaFrameTime = frameTimer.milliseconds();
+                frameTimer.reset();
             }
         }
 
@@ -121,16 +126,17 @@ public class Limelight implements DataLoggable {
                 visionPose = botPoseInches.plus(turretOffset);
             }
             // Keep your telemetry if you like
-            telemetry.addData("Botpose", botPoseInches);
-            telemetry.addData("Plus Offset", visionPose);
+            addTelemetry("Botpose", botPoseInches);
+            addTelemetry("Plus Offset", visionPose);
         }
     // Reset smoothing after extended loss (check regardless of fiducial presence)
         if (msSinceLastGoodTarget() > TARGET_TRUST_WINDOW_MS * 5) {
             firstReading = true;
         }
+        addTelemetry("msSinceLastGoodTarget: ", msSinceLastGoodTarget());
         // Optional extra telemetry (keep or remove based on your debugging needs)
-        telemetry.addData("Target Fresh?", hasTarget());
-        telemetry.addData("id: ", id);
+        addTelemetry("Target Fresh?", hasTarget());
+        addTelemetry("id: ", id);
     }
 
     /**
@@ -157,7 +163,6 @@ public class Limelight implements DataLoggable {
     @Override
     public void logData(DataLogger logger) {
         logger.addField(this.smoothedX);
-        logger.addField(this.lastUpdateTimeNs);
     }
 
     public Vector2d getMegaTagPose() {
@@ -172,13 +177,50 @@ public class Limelight implements DataLoggable {
     }
 
     // Returns the elapsed time since the last reliable AprilTag detection.
-    public long msSinceLastGoodTarget() {
-        if (lastGoodTargetTimeNs == 0) return Long.MAX_VALUE;
-        return (System.nanoTime() - lastGoodTargetTimeNs) / 1_000_000;
+    public double msSinceLastGoodTarget() {
+        if (latestDeltaFrameTime == 0)
+        {
+            return Long.MAX_VALUE;
+        }
+        return latestDeltaFrameTime;
     }
 
     // Determines whether a reliable target has been observed within the specified age window.
-    public boolean targetIsFresh(long maxAgeMs) {
-        return msSinceLastGoodTarget() < maxAgeMs;
+    public boolean targetIsFresh(double maxAgeMs) {
+        boolean fresh = msSinceLastGoodTarget() < maxAgeMs;
+
+        // Corrected logic: Alert when NOT fresh and we used to have a target
+        if (!fresh && latestDeltaFrameTime != 0 && TELEM) {
+            telemetry.addLine("[Limelight] -------------- LIMELIGHT LOST --------------");
+        }
+        return fresh;
+    }
+
+    /**
+     * Generic method for Objects
+     */
+    public void addTelemetry(String name, Object value) {
+        if (TELEM) {
+            // [TAG   ] (6 chars) + Name (15 chars)
+            // %-6.6s  -> Exactly 6 chars, Left Aligned
+            // %-15.15s -> Exactly 10 chars, Left Aligned
+            String tag = String.format("[%-6.6s]", this.getClass().getSimpleName().toUpperCase());
+            String label = String.format("%-10.10s", name);
+
+            telemetry.addData(tag + " " + label, value);
+        }
+    }
+
+    /**
+     * Overloaded method for Doubles (fixed precision + fixed label width)
+     */
+    public void addTelemetry(String name, double value) {
+        if (TELEM) {
+            String tag = String.format("[%-6.6s]", this.getClass().getSimpleName().toUpperCase());
+            String label = String.format("%-10.10s", name);
+
+            // %10.4f ensures the number itself doesn't jitter
+            telemetry.addData(tag + " " + label, String.format("%10.4f", value));
+        }
     }
 }

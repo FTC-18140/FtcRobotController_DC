@@ -47,6 +47,8 @@ public class ThunderBot2025 implements DataLoggable
     public static Pose2d starting_position;
     public static String STARTING_POSITION = "ENDING_POSITION_AUTO";
     public ElapsedTime runtime = new ElapsedTime();
+
+    public static boolean TELEM = true;
     Pose2d TELEOP_START_RED = new Pose2d(-12, -12, 0);
     Pose2d TELEOP_START_BLUE = new Pose2d(-12, 12, 0);
 
@@ -111,14 +113,14 @@ public class ThunderBot2025 implements DataLoggable
         int currentId = launcher.getDetectedAprilTagId();
         if (currentId != -1) {
             latchedObeliskId = currentId;
-            telemetry.addData("Obelisk ID Latched: ", latchedObeliskId);
+            addTelemetry("Obelisk ID Latched: ", latchedObeliskId);
         }
 
 
         // Step 2: Plan the sequence using the latched ID.
         // This will only proceed if an ID has been successfully latched.
         if (latchedObeliskId != -1) {
-            telemetry.addData("Sequence Planned:", indexer.planShotSequence(latchedObeliskId));
+            addTelemetry("Sequence Planned:", indexer.planShotSequence(latchedObeliskId));
             return true;
         }
         return false;
@@ -163,8 +165,8 @@ public class ThunderBot2025 implements DataLoggable
     {
         PoseVelocity2d thePose = new PoseVelocity2d(new Vector2d(forward, -right).times(speed), -clockwise);
         drive.setDrivePowers(thePose);
-        //telemetry.addData("Odometry X: ", drive.localizer.getPose().position.x);
-        //telemetry.addData("Odometry Y: ", drive.localizer.getPose().position.y);
+        //addTelemetry("Odometry X: ", drive.localizer.getPose().position.x);
+        //addTelemetry("Odometry Y: ", drive.localizer.getPose().position.y);
     }
 
     private void fieldCentricDrive(double north, double east, double clockwise, double speed, TelemetryPacket p)
@@ -281,7 +283,7 @@ public class ThunderBot2025 implements DataLoggable
                     started = true;
                 }
                 launcher.prepShot();
-                telemetry.addData("time: ", chargeTimer.seconds());
+                addTelemetry("time: ", chargeTimer.seconds());
 
                 if (chargeTimer.seconds() > duration){
                     launcher.stop();
@@ -316,7 +318,7 @@ public class ThunderBot2025 implements DataLoggable
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                telemetry.addData("Current Action: launchReadyAction()", 0);
+                addTelemetry("Current Action: launchReadyAction()", 0);
                 return !(launcher.isAtTarget()
                         && launcher.isAtTargetRpm()
                         && indexer.isAtTarget()
@@ -422,12 +424,12 @@ public class ThunderBot2025 implements DataLoggable
                     private boolean hasStarted = false;
                     @Override
                     public boolean run(@NonNull TelemetryPacket packet) {
-                        telemetry.addData("Current Action: launchAction()", 0);
+                        addTelemetry("Current Action: launchAction()", 0);
                         if (!hasStarted) {
                            hasStarted = indexer.flip();
-                           telemetry.addData("launchAction() just called indexer.flip()", indexer.getState());
+                           addTelemetry("launchAction() just called indexer.flip()", indexer.getState());
                         } else {
-                            telemetry.addData("launchAction() just called indexer.cycle(1)", 0);
+                            addTelemetry("launchAction() just called indexer.cycle(1)", 0);
                             return !indexer.cycle(1);
                         }
                         return true;
@@ -452,6 +454,19 @@ public class ThunderBot2025 implements DataLoggable
         };
     }
 
+    public void addTelemetry(String name, Object value) {
+        if (TELEM) {
+            // this.getClass().getSimpleName() returns "Limelight"
+            telemetry.addData("[" + this.getClass().getSimpleName() + "] " + name, value);
+        }
+    }
+    /**     * Overloaded method to format doubles to 2 decimal places automatically
+     */
+    public void addTelemetry(String name, double value) {
+        if (TELEM) {
+            telemetry.addData("[" + this.getClass().getSimpleName() + "] " + name, String.format("%.2f", value));
+        }
+    }
     @Override
     public void logData(DataLogger logger) {
         launcher.logData(logger);

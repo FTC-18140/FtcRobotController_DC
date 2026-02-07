@@ -233,11 +233,30 @@ public class Turnstile {
         }
 
         // --- 3. Telemetry ---
-        if (TELEM ) {
 //        telemetry.addData("Turnstile State", currentState.name());
-            telemetry.addData("Turnstile Angle", currentAngle);
-            telemetry.addData("Turnstile Target", targetAngle + current_offset);
-            telemetry.addData("Limit Switch Pressed", limitSwitchPressed);
+        addTelemetry("Turnstile Angle", currentAngle);
+        addTelemetry("Turnstile Target", targetAngle + current_offset);
+        addTelemetry("Limit Switch Pressed", limitSwitchPressed);
+
+    }
+    public void addTelemetry(String name, Object value) {
+        if (TELEM) {
+            // this.getClass().getSimpleName() returns "Limelight"
+            telemetry.addData("[" + this.getClass().getSimpleName() + "] " + name, value);
+        }
+    }
+    /**     * Overloaded method to format doubles to 2 decimal places automatically
+     */
+    public void addTelemetry(String name, double value) {
+        if (TELEM) {
+            telemetry.addData("[" + this.getClass().getSimpleName() + "] " + name, String.format("%.2f", value));
+        }
+    }
+
+    public void addTelemetry(String line)
+    {
+        if (TELEM) {
+            telemetry.addLine(line);
         }
     }
 }

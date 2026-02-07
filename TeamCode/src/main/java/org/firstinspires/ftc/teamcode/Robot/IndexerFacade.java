@@ -34,7 +34,7 @@ public class IndexerFacade {
     private static final double FLIP_TIME_SECONDS = 0.1; // Time for the flipper to extend and retract
     private static final double CYCLE_TIME_SECONDS = 0.5; // Time for the flipper to extend and retract
 
-    public static boolean TELEM = true;
+    public static boolean TELEM = false;
     private boolean updated = false;
 
     public void flipOverride( boolean up ) {
@@ -530,17 +530,43 @@ public class IndexerFacade {
 
     private void addTelemetry() {
         if ( !TELEM ) return;
-        telemetry.addData("Indexer Facade State", currentState.name());
-        telemetry.addData("Beam Break detection: ", ballInIntake());
+        addTelemetry("Indexer Facade State", currentState.name());
+        addTelemetry("Beam Break detection: ", ballInIntake());
         telemetry.addLine(String.format("Slots: [0]: %s, [1]: %s, [2]: %s",
                 ballSlots[0], ballSlots[1], ballSlots[2]));
         telemetry.addLine(String.format("Fired: [0]: %s, [1]: %s, [2]: %s",
                 slots_fired[0], slots_fired[1], slots_fired[2]));
-        telemetry.addData("in Sequence: ", sequenceStarted);
+        addTelemetry("in Sequence: ", sequenceStarted);
         if (shotSequence != null) {
-            telemetry.addData("Target Slot: ", getCurrentTargetSlot());
-            telemetry.addData("Sequence: ", shotSequence);
-            telemetry.addData("Sequence Step", sequenceIndex + " / " + shotSequence.size());
+            addTelemetry("Target Slot: ", getCurrentTargetSlot());
+            addTelemetry("Sequence: ", shotSequence);
+            addTelemetry("Sequence Step", sequenceIndex + " / " + shotSequence.size());
+        }
+    }
+
+    /**
+     * Generic method for Objects
+     */
+    public void addTelemetry(String name, Object value) {
+        if (TELEM) {
+            // [TAG   ] (6 chars) + Name (15 chars)
+            // %-6.6s  -> Exactly 6 chars, Left Aligned
+            // %-15.15s -> Exactly 10 chars, Left Aligned
+            String tag = String.format("[%-6.6s]", this.getClass().getSimpleName().toUpperCase());
+
+            telemetry.addData(tag + " " + name, value);
+        }
+    }
+
+    /**
+     * Overloaded method for Doubles (fixed precision + fixed label width)
+     */
+    public void addTelemetry(String name, double value) {
+        if (TELEM) {
+            String tag = String.format("[%-6.6s]", this.getClass().getSimpleName().toUpperCase());
+
+            // %10.4f ensures the number itself doesn't jitter
+            telemetry.addData(tag + " " + name, String.format("%10.4f", value));
         }
     }
 

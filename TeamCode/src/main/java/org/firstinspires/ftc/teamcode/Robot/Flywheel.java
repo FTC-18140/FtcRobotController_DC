@@ -37,7 +37,7 @@ public class Flywheel {
     public boolean AdjustedFF = false;
     public double feedforward;
 
-    public static boolean TELEM = false;
+    public static boolean TELEM = true;
     public static double MAX_SHOOTER_RPM = 2250;
     public static double MIN_SHOOTER_RPM = 1600;
     public static double SHOOTER_RADIUS = 0.096 / 2.0;
@@ -147,11 +147,11 @@ public class Flywheel {
 
                 // --- Telemetry for Debugging ---
                 if ( TELEM ) {
-                    telemetry.addData("Target RPM", targetRpm);
-                    telemetry.addData("Current RPM", currentRpm);
-                    telemetry.addData("Feedforward", feedforward);
-                    telemetry.addData("PID Output", clippedPidOutput);
-                    telemetry.addData("Final Power", finalPower);
+                    addTelemetry("Target RPM", targetRpm);
+                    addTelemetry("Current RPM", currentRpm);
+                    addTelemetry("Feedforward", feedforward);
+                    addTelemetry("PID Output", clippedPidOutput);
+                    addTelemetry("Final Power", finalPower);
                 }
                 break;
         }
@@ -180,11 +180,38 @@ public class Flywheel {
 
         denom = Math.max(denom, 0.4);
 
-        telemetry.addData("Denominator: ", denom);
+        addTelemetry("Denominator: ", denom);
         return Math.sqrt(numer / denom);
     }
 
     public double calculateWheelRPM(double ballVelocity) {
         return (60.0 * ballVelocity) / (2.0 * Math.PI * SHOOTER_RADIUS * SPIN_EFFICIENCY);
+    }
+    /**
+     * Generic method for Objects
+     */
+    public void addTelemetry(String name, Object value) {
+        if (TELEM) {
+            // [TAG   ] (6 chars) + Name (15 chars)
+            // %-6.6s  -> Exactly 6 chars, Left Aligned
+            // %-15.15s -> Exactly 10 chars, Left Aligned
+            String tag = String.format("[%-6.6s]", this.getClass().getSimpleName().toUpperCase());
+            String label = String.format("%-10.10s", name);
+
+            telemetry.addData(tag + " " + label, value);
+        }
+    }
+
+    /**
+     * Overloaded method for Doubles (fixed precision + fixed label width)
+     */
+    public void addTelemetry(String name, double value) {
+        if (TELEM) {
+            String tag = String.format("[%-6.6s]", this.getClass().getSimpleName().toUpperCase());
+            String label = String.format("%-10.10s", name);
+
+            // %10.4f ensures the number itself doesn't jitter
+            telemetry.addData(tag + " " + label, String.format("%10.4f", value));
+        }
     }
 }

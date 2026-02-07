@@ -33,8 +33,6 @@ public class LauncherFacade implements DataLoggable {
     public enum AimingMode {MAIN, ODOMETRY, LIMELIGHT, MANUAL}
     private AimingMode aimingMode = AimingMode.MAIN;
 
-    // --- SENSOR FUSION VARIABLES ---
-//    private KalmanPoseEstimator poseEstimator;
     private Pose2d fusedPose = new Pose2d(0, 0, 0); // This is the "Truth" we aim with
     private Pose2d lastOdoPose = null; // Used to calculate delta
     public static double TURRET_OFFSET_X = -2.62074;
@@ -45,6 +43,8 @@ public class LauncherFacade implements DataLoggable {
     private double smoothedTurretAngle = 0;
     private boolean firstAimRun = true;
     public static double LPF_BETA = 1.0; // Higher value = more responsive
+
+    public static boolean TELEM = true;
 
     // Target and alliance properties
     private Vector2d targetPos;
@@ -83,74 +83,18 @@ public class LauncherFacade implements DataLoggable {
      * @param currentOdoVelocity
      */
     public void update(Pose2d currentOdoPose, PoseVelocity2d currentOdoVelocity) {
-        // --- 1. Calculate Odometry Delta ---
-        if (lastOdoPose == null)  {
-            lastOdoPose = currentOdoPose;
-//            poseEstimator = new KalmanPoseEstimator(currentOdoPose);
-            return;
-        }
 
-        // --- 2. PREDICT: Calculate GLOBAL difference ---
-        // We use global subtraction here because the Kalman Filter state vector
-        // tracks global X/Y.
-        double dt_x = currentOdoPose.position.x - lastOdoPose.position.x;
-        double dt_y = currentOdoPose.position.y - lastOdoPose.position.y;
-
-        // Handle heading wrap for the difference
-        double dt_h = currentOdoPose.heading.minus(lastOdoPose.heading);
-        Pose2d globalDelta = new Pose2d(dt_x, dt_y, dt_h);
-
-        // Update Filter with the GLOBAL change
-//        poseEstimator.predict(globalDelta);
         lastOdoPose = currentOdoPose;
-
-        // --- 3. MEASURE: Check Vision ---
-        telemetry.addData("Megatag2 Angle",Math.toDegrees(currentOdoPose.heading.toDouble()) - getTurretAngle());
         limelight.update(Math.toDegrees(currentOdoPose.heading.toDouble()) - getTurretAngle(), getTurretOffsetPosInRobotSpace());
-        Vector2d visionPose = limelight.getMegaTagPose();
-        telemetry.addData("MT2 calculated Pose", visionPose);
-
-        if (visionPose != null) {
-            // Determine trust based on distance (heuristic)
-            double distToTag = limelight.getDistanceToTarget();
-            if ( distToTag < 0)
-            {
-                // Negative distToTag from the limelight method means it did not
-                // see a valid AprilTag to use for the distance calculation.
-                // Fallback to using the visionPose to calculate the distance.
-                if (targetPos != null) {
-                    distToTag = targetPos.minus(visionPose).norm();
-                } else {
-                    // Emergency fallback if we don't know alliance color yet
-                    distToTag = 96.0; // Assume far away -> High uncertainty
-                }
-            }
-
-            // Tuning: If > 48 inches away, start trusting vision significantly less
-            // because depth accuracy drops off.
-            double trustFactor = 1.0 + Math.pow(distToTag / 48.0, 2);
-
-            //poseEstimator.update(visionPose, trustFactor);
-//            usingLimelight = true;
-        } else {
-//            usingLimelight = false;
-        }
-
-        // --- 4. UPDATE FUSED POSE ---
-        //this.fusedPose = poseEstimator.getFusedPose();
-
-        // ------------- HOTFIX for AIMING
         fusedPose = currentOdoPose;
-        // ------------- End HOTFIX for AIMING
 
-        // --- 5. RUN SUBSYSTEMS ---
         // Use fusedPose for distance calculation
         double distanceToGoal = getGoalDistance();
 
         turret.update(fusedPose, currentOdoVelocity, targetPos);
         flywheel.update(distanceToGoal);
 
-        telemetry.addData("Using Limelight: ", usingLimelight);
+        addTelemetry("Using Limelight: ", usingLimelight);
     }
     public void setAimingMode(AimingMode mode){this.aimingMode = mode;}
     public AimingMode getAimingMode() {return aimingMode;}
@@ -237,8 +181,8 @@ public class LauncherFacade implements DataLoggable {
         turret.seekToAngle(finalTargetAngle);
 
         // Diagnostic Telemetry
-        telemetry.addData("Turret Current", turret.getCurrentPosition());
-        telemetry.addData("Turret Target", finalTargetAngle);
+        addTelemetry("Turret Current", turret.getCurrentPosition());
+        addTelemetry("Turret Target", finalTargetAngle);
     }
     public void augmentedAimLimelight(double joystickAugmentation) {
         // 1. Get the raw "Instant" target from the best available sensor source.
@@ -277,8 +221,8 @@ public class LauncherFacade implements DataLoggable {
         turret.seekToAngle(finalTargetAngle);
 
         // Diagnostic Telemetry
-        telemetry.addData("Turret Current", turret.getCurrentPosition());
-        telemetry.addData("Turret Target", finalTargetAngle);
+        addTelemetry("Turret Current", turret.getCurrentPosition());
+        addTelemetry("Turret Target", finalTargetAngle);
     }
     public Vector2d getTurretOffsetPosInRobotSpace() {
         double robotHeading = this.fusedPose.heading.toDouble();
@@ -297,8 +241,9 @@ public class LauncherFacade implements DataLoggable {
             // Add the vision offset to the current physical encoder position.
             targetTurretAngle = limelightAngle;
 
-            telemetry.addData("Aiming Mode LIMELIGHT -- target: ","%.3f ", targetTurretAngle);
+            addTelemetry("Aiming Mode LIMELIGHT -- target: ", targetTurretAngle);
         } else {
+            addTelemetry("----- LIMELIGHT STALE -----");
             usingLimelight = false;
         }
         return targetTurretAngle;
@@ -323,7 +268,6 @@ public class LauncherFacade implements DataLoggable {
         if (trueTargetVector != null && targetPos != null) {
             usingLimelight = false;
 
-
             // Vector from Turret offset pos to Goal
             this.trueTargetVector = targetPos.minus(this.fusedPose.position.plus(getTurretOffsetPosInRobotSpace()));
 
@@ -345,17 +289,30 @@ public class LauncherFacade implements DataLoggable {
             // go to 190, NOT -170.
             double currentTurret = turret.getCurrentPosition();
 
-
-
-            telemetry.addData("Aiming Mode ODOMETRY -- target: "," %.3f", targetTurretAngle);
+            addTelemetry("Aiming Mode ODOMETRY -- target: ", targetTurretAngle);
             if (limelight.hasTarget()) {
                 usingLimelight = true;
                 double limelightAngle = turret.getCurrentPosition() + limelight.getX();
 
+                // --- DRIFT DETECTION LOGIC ---
+                // Compare where Odometry thinks the goal is vs where Limelight sees it
+                double driftError = Math.abs(limelightAngle - targetTurretAngle);
+
+                // Normalize drift error to handle the -180/180 wrap
+                while (driftError > 180) driftError -= 360;
+                while (driftError <= -180) driftError += 360;
+                driftError = Math.abs(driftError);
+
+                // If the difference is more than 5 degrees, we have significant drift
+                if (driftError > 3.0) {
+                    addTelemetry("!!! WARNING: IMU DRIFT DETECTED !!!");
+                    addTelemetry("Drift Magnitude", driftError);
+                }
+                // -----------------------------
                 // Add the vision offset to the current physical encoder position.
                 targetTurretAngle = targetTurretAngle + trust * (limelightAngle - targetTurretAngle);
 
-                telemetry.addData("Aiming Mode LIMELIGHT -- target: ","%.3f ", targetTurretAngle);
+                addTelemetry("Aiming Mode LIMELIGHT + ODOMETRY -- target: ",targetTurretAngle);
             }
 
             while (targetTurretAngle - currentTurret > 180)  targetTurretAngle -= 360;
@@ -365,7 +322,7 @@ public class LauncherFacade implements DataLoggable {
         // --- 3. FALLBACK: IDLE ---
         // If no pose or target is available, hold current position to prevent erratic movement.
         else {
-            telemetry.addData("Aiming Mode", "IDLE (No Target Found)");
+            addTelemetry("Aiming Mode", "IDLE (No Target Found)");
             return turret.getCurrentPosition();
         }
         return targetTurretAngle;
@@ -408,41 +365,6 @@ public class LauncherFacade implements DataLoggable {
         return finalAngle;
     }
 
-    private double getAutoAimAngleFUSION() {
-        if (targetPos == null) return turret.getCurrentPosition();
-
-        // Robot Heading (from fused pose)
-        double robotHeading = this.fusedPose.heading.toDouble();
-
-        //Offset Turret center of rotation
-        Vector2d offsetPos = new Vector2d(
-                TURRET_OFFSET_Y * Math.cos(-robotHeading) - (TURRET_OFFSET_X) * Math.sin(-robotHeading),
-                TURRET_OFFSET_Y * Math.sin(-robotHeading) + (TURRET_OFFSET_X) * Math.cos(-robotHeading)
-        );
-
-        // Vector from Robot to Goal
-        this.trueTargetVector = targetPos.minus(this.fusedPose.position.minus(offsetPos));
-
-        // Absolute Field Angle to Goal (atan2 returns -PI to PI)
-        double fieldAngleToGoal = Math.atan2(trueTargetVector.y, trueTargetVector.x);
-
-        // Relative Angle = FieldAngle - RobotHeading
-        double relativeAngleRad = robotHeading - fieldAngleToGoal;
-
-        // Convert to degrees
-        double relativeAngleDeg = Math.toDegrees(relativeAngleRad);
-
-//        // Normalize to Turret's range so the turret takes shortest path
-//        while (relativeAngleDeg > Turret.MAX_TURRET_POS) relativeAngleDeg -= 360;
-//        while (relativeAngleDeg < Turret.MIN_TURRET_POS) relativeAngleDeg += 360;
-
-        // Note: You might need to add turret.getCurrentPosition() offset here depending
-        // on if your turret acts in absolute mode or relative mode.
-        // Based on previous code: "seekToAngle" seemed to take a relative target?
-        // If seekToAngle expects -90 to 90 relative to ROBOT FRONT, return relativeAngleDeg.
-
-        return relativeAngleDeg;
-    }
     public void holdTurretPosition() {
         turret.holdPosition();
     }
@@ -453,8 +375,8 @@ public class LauncherFacade implements DataLoggable {
         double targetVelocity = flywheel.calculateBallVelocity(distanceMeters, 0.645, 48);
         double targetRpm = flywheel.calculateWheelRPM(targetVelocity);
 
-        telemetry.addData("Distance Meters: ", distanceMeters);
-        telemetry.addData("Target Velocity: ", targetVelocity);
+        addTelemetry("Distance Meters: ", distanceMeters);
+        addTelemetry("Target Velocity: ", targetVelocity);
         flywheel.setTargetRpm(targetRpm);
     }
 
@@ -463,8 +385,8 @@ public class LauncherFacade implements DataLoggable {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 prepShot();
-                telemetry.addData("Flywheel Target RPM", flywheel.getTargetRpm());
-                telemetry.addData("Flywheel RPM", flywheel.getCurrentRpm());
+                addTelemetry("Flywheel Target RPM", flywheel.getTargetRpm());
+                addTelemetry("Flywheel RPM", flywheel.getCurrentRpm());
 
                 return false;
             }
@@ -529,14 +451,14 @@ public class LauncherFacade implements DataLoggable {
     private double getGoalDistanceFUSION() {
         if (trueTargetVector == null || targetPos == null) return 0;
         // Use FUSED pose for distance calculation
-        telemetry.addData("distance: ", targetPos.minus(trueTargetVector).norm());
+        addTelemetry("distance: ", targetPos.minus(trueTargetVector).norm());
         return targetPos.minus(trueTargetVector).norm();
     }
     private double getGoalDistance() {
         if (trueTargetVector == null || targetPos == null) return 0;
         // Use FUSED pose for distance calculation
         double distance = trueTargetVector.norm();
-        telemetry.addData("distance: ", distance);
+        addTelemetry("distance: ", distance);
         return distance;
     }
 
@@ -544,6 +466,40 @@ public class LauncherFacade implements DataLoggable {
         return turret.isAtTarget();
     }
 
+    /**
+     * Generic method for Objects
+     */
+    public void addTelemetry(String name, Object value) {
+        if (TELEM) {
+            // [TAG   ] (6 chars) + Name (15 chars)
+            // %-6.6s  -> Exactly 6 chars, Left Aligned
+            // %-15.15s -> Exactly 10 chars, Left Aligned
+            String tag = String.format("[%-6.6s]", this.getClass().getSimpleName().toUpperCase());
+            String label = String.format("%-10.10s", name);
+
+            telemetry.addData(tag + " " + label, value);
+        }
+    }
+
+    /**
+     * Overloaded method for Doubles (fixed precision + fixed label width)
+     */
+    public void addTelemetry(String name, double value) {
+        if (TELEM) {
+            String tag = String.format("[%-6.6s]", this.getClass().getSimpleName().toUpperCase());
+            String label = String.format("%-10.10s", name);
+
+            // %10.4f ensures the number itself doesn't jitter
+            telemetry.addData(tag + " " + label, String.format("%10.4f", value));
+        }
+    }
+
+    public void addTelemetry(String line)
+    {
+        if (TELEM) {
+            telemetry.addLine(line);
+        }
+    }
     @Override
     public void logData(DataLogger logger) {
         limelight.logData(logger);
