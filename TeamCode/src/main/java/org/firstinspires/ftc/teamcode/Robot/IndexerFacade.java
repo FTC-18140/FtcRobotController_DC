@@ -388,7 +388,8 @@ public class IndexerFacade {
         int nextSlot = (startSlot + direction + 3) % 3; // Handles positive/negative direction and wrap-around
         return selectSlot(nextSlot);
     }
-    public boolean ballInIntake(){return beamBreak.ballDetected();}
+    public boolean ballInIntake(){return beamBreak.ballDetectedInIntake();}
+    public boolean ballInIndexer(){return beamBreak.ballDetectedInIndexer();}
     public boolean isAtTarget(){
         return turnstile.isAtTarget();
     }
@@ -432,7 +433,7 @@ public class IndexerFacade {
 
         updated = false;
 
-        if(intaking && turnstile.isOverSlot() && !indexerIsFull() && ballInIntake()){
+        if(intaking && turnstile.isOverSlot() && !indexerIsFull() && ballInIndexer()){
             readyNextIntakeSlot(BallState.VACANT);
         }
 

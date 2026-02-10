@@ -9,27 +9,43 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 @Config
 public class BeamBreaker {
     private Telemetry telemetry;
-    private boolean detected = false;
-    DigitalChannel beamBreakSensor = null;
+    private boolean inIntake = false;
+    private boolean inIndexer = false;
+    DigitalChannel beamBreakIndexer = null;
+    DigitalChannel beamBreakIntake = null;
     public static boolean TELEM = true;
 
     public void init(HardwareMap hwMap, Telemetry telem) {
         telemetry = telem;
         try {
-            beamBreakSensor = hwMap.digitalChannel.get("beamBreak");
+            beamBreakIntake = hwMap.digitalChannel.get("beamBreak");
         } catch (Exception e) {
             telemetry.addData("Error", "Could not find digital channel 'beamBreak'");
+        }
+
+        try {
+            beamBreakIndexer = hwMap.digitalChannel.get("beamBreakIndexer");
+        } catch (Exception e) {
+            telemetry.addData("Error", "Could not find digital channel 'beamBreakIndexer'");
         }
     }
 
     public void update() {
-        if(beamBreakSensor != null) {
-            detected = !beamBreakSensor.getState();
+        if(beamBreakIndexer != null) {
+            inIndexer = !beamBreakIndexer.getState();
             if (TELEM) {
-                telemetry.addData("Beam Break sensor triggered: ", detected);
+                telemetry.addData("Indexer Beam Break sensor triggered: ", inIndexer);
+            }
+        }
+
+        if(beamBreakIntake != null) {
+            inIntake = !beamBreakIntake.getState();
+            if (TELEM) {
+                telemetry.addData("Intake Beam Break sensor triggered: ", inIntake);
             }
         }
     }
 
-    public boolean ballDetected(){return detected;}
+    public boolean ballDetectedInIndexer(){return inIndexer;}
+    public boolean ballDetectedInIntake(){return inIntake;}
 }
