@@ -28,6 +28,8 @@ public class IndexerFacade {
     private BeamBreaker beamBreak = new BeamBreaker();
     private Telemetry telemetry;
     private ElapsedTime flipTimer = new ElapsedTime();
+    private IndexerModel ballModel = new IndexerModel();
+
 
     // --- Constants ---
     public static final double[] SLOT_ANGLES = {120, 240, 0}; // Angles for slots 0, 1, and 2
@@ -53,7 +55,7 @@ public class IndexerFacade {
     private boolean intaking = false;
 
     /** The facade's internal model of what is in each slot. */
-    public enum BallState { GREEN, PURPLE, VACANT, ALL }
+    public enum BallState { GREEN, PURPLE, VACANT, ALL, UNKNOWN }
     private BallState[] ballSlots = new BallState[3];
     private int currentTargetSlot = 2;
 
@@ -87,6 +89,10 @@ public class IndexerFacade {
 
         updateBallSensors();
         updateBallStates();
+
+        for (int i = 0; i < 3; i++) {
+            ballModel.setSlot(i, ballSlots[i]);
+        }
         currentState = State.IDLE;
         //turnstile.home();
     }
@@ -135,6 +141,7 @@ public class IndexerFacade {
                 rotateBallStates(2-i);
                 currentTargetSlot = slot;
                 turnstile.seekToAngle(SLOT_ANGLES[slot]);
+                ballModel.rotateCCW();
                 currentState = State.SELECTING_BALL;
             } 
         }
@@ -168,6 +175,7 @@ public class IndexerFacade {
                 rotateBallStates(2-i);
                 currentTargetSlot = slot;
                 turnstile.seekToAngle(SLOT_ANGLES[slot]);
+                ballModel.rotateCCW();
                 currentState = State.SELECTING_BALL;
             }
         }
@@ -262,6 +270,7 @@ public class IndexerFacade {
 
                     currentTargetSlot = slotToCheck;
                     turnstile.seekToAngle(SLOT_ANGLES[slotToCheck]);
+                    ballModel.rotateCCW();
                     currentState = State.SELECTING_BALL;
                     slotFound = true;
                 }
@@ -287,6 +296,7 @@ public class IndexerFacade {
                     rotateBallStates(3-slotToCheck);
                     currentTargetSlot = slot;
                     turnstile.seekToAngle(SLOT_ANGLES[slot]);
+                    ballModel.rotateCCW();
                     currentState = State.SELECTING_BALL;
                     slotFound = true;
                 }
@@ -309,6 +319,7 @@ public class IndexerFacade {
             rotateBallStates((slot - currentTargetSlot + 3) % 3);
             currentTargetSlot = slot;
             turnstile.seekToAngle(SLOT_ANGLES[currentTargetSlot]);
+            ballModel.rotateCCW();
             currentState = State.SELECTING_BALL;
             return true;
         }
