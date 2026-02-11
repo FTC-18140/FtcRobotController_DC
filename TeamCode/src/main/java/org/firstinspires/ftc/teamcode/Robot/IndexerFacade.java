@@ -402,7 +402,8 @@ public class IndexerFacade {
         int nextSlot = (startSlot + direction + 3) % 3; // Handles positive/negative direction and wrap-around
         return selectSlot(nextSlot);
     }
-    public boolean ballInIntake(){return beamBreak.ballDetected();}
+    public boolean ballInIndexer(){return beamBreak.ballDetectedInIndexer();}
+    public boolean ballInIntake(){return beamBreak.ballDetectedInIntake();}
     public boolean isAtTarget(){
         return turnstile.isAtTarget();
     }
@@ -452,7 +453,7 @@ public class IndexerFacade {
         updated = false;
 
 
-        if(intaking && turnstile.isOverSlot() && !indexerIsFull() && ballInIntake()){
+        if(intaking && turnstile.isOverSlot() && !indexerIsFull() && ballInIndexer()){
             if (previousBallStateIntake == BallState.VACANT && ballSlots[0] != BallState.VACANT) {
                 ballNumber++;
             }
@@ -460,7 +461,7 @@ public class IndexerFacade {
 
             readyNextIntakeSlot(BallState.VACANT);
         }
-         if(turnstile.isOverSlot() && !indexerIsFull() && ballInIntake()){
+         if(turnstile.isOverSlot() && !indexerIsFull() && ballInIndexer()){
             if (previousBallStateIntake == BallState.VACANT && ballSlots[0] != BallState.VACANT) {
                 ballNumber++;
             }
@@ -568,7 +569,7 @@ public class IndexerFacade {
     private void addTelemetry() {
         if ( !TELEM ) return;
         telemetry.addData("Indexer Facade State", currentState.name());
-        telemetry.addData("Beam Break detection: ", ballInIntake());
+        telemetry.addData("Beam Break detection: ", ballInIndexer());
         telemetry.addLine(String.format("Slots: [0]: %s, [1]: %s, [2]: %s",
                 ballSlots[0], ballSlots[1], ballSlots[2]));
         telemetry.addLine(String.format("Slots: [0]: %s, [1]: %s, [2]: %s",

@@ -9,12 +9,8 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 @Config
 public class BeamBreaker {
     private Telemetry telemetry;
-<<<<<<< HEAD
     private boolean inIntake = false;
     private boolean inIndexer = false;
-=======
-    private boolean detected = false;
->>>>>>> origin/River_Sandbox
     DigitalChannel beamBreakIndexer = null;
     DigitalChannel beamBreakIntake = null;
     public static boolean TELEM = true;
@@ -22,11 +18,7 @@ public class BeamBreaker {
     public void init(HardwareMap hwMap, Telemetry telem) {
         telemetry = telem;
         try {
-<<<<<<< HEAD
             beamBreakIntake = hwMap.digitalChannel.get("beamBreak");
-=======
-            beamBreakIndexer = hwMap.digitalChannel.get("beamBreak");
->>>>>>> origin/River_Sandbox
         } catch (Exception e) {
             telemetry.addData("Error", "Could not find digital channel 'beamBreak'");
         }
@@ -40,11 +32,7 @@ public class BeamBreaker {
 
     public void update() {
         if(beamBreakIndexer != null) {
-<<<<<<< HEAD
             inIndexer = !beamBreakIndexer.getState();
-=======
-            detected = !beamBreakIndexer.getState();
->>>>>>> origin/River_Sandbox
             if (TELEM) {
                 telemetry.addData("Indexer Beam Break sensor triggered: ", inIndexer);
             }
