@@ -437,7 +437,7 @@ public class IndexerFacade {
         return (slot >= 0 && slot < 3) ? ballSlots[slot] : BallState.VACANT;
     }
     public boolean indexerIsFull(){
-        return !((ballSlots[0] == BallState.VACANT || ballSlots[1] == BallState.VACANT || ballSlots[2] == BallState.VACANT) || currentState == State.SELECTING_BALL);
+        return !((ballSlots[0] == BallState.VACANT || ballSlots[1] == BallState.VACANT || ballSlots[2] == BallState.VACANT) || currentState == State.SELECTING_BALL) || ballNumber >= 3;
     }
     public int getCurrentTargetSlot() { return currentTargetSlot; }
     public double getIndexerAngle(){
@@ -454,6 +454,16 @@ public class IndexerFacade {
                 updated = true;
         }
     }
+    public void updateBallCount(){
+        ballNumber = 0;
+        for (int i = 0; i < ballSlots.length; i++){
+            if(ballSlots[i] == BallState.GREEN || ballSlots[i] == BallState.PURPLE || (i == 0 && ballInIndexer())){
+                ballNumber++;
+            }
+        }
+        if(ballInIntake()) ballNumber++;
+    }
+    public int getBallNumber(){return ballNumber;}
     public void updateIntakePosited() {
         positedBallStates[2] = ballSlots[2];
     }
@@ -470,9 +480,9 @@ public class IndexerFacade {
         if(!ballInIndexer()) cycleTimer.reset();
 
         if(intaking && turnstile.isOverSlot() && !indexerIsFull() && ballInIndexer() && cycleTimer.seconds() >= CYCLE_TIME_SECONDS){
-            if (previousBallStateIntake == BallState.VACANT && ballSlots[0] != BallState.VACANT) {
-                ballNumber++;
-            }
+//            if (previousBallStateIntake == BallState.VACANT && ballSlots[0] != BallState.VACANT) {
+//                ballNumber++;
+//            }
 
             cycleTimer.reset();
             readyNextIntakeSlot(BallState.VACANT);
@@ -547,6 +557,7 @@ public class IndexerFacade {
         if (shotSequence == null) {
             updateBallStates();
         }
+        updateBallCount();
         previousBallStateIntake = ballSlots[0];
 
         addTelemetry();

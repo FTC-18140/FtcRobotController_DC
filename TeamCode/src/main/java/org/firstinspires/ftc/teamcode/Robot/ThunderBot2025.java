@@ -191,6 +191,9 @@ public class ThunderBot2025 implements DataLoggable
 
         if(intake.getIntakePower() > 0 && !indexer.isNearSlot()){
             intake.slow();
+        } else if(indexer.getBallNumber() > 3) {
+            intake.unslow();
+            intake.spit();
         } else {
             intake.unslow();
         }
