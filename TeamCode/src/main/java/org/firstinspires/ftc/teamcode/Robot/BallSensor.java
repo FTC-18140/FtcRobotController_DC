@@ -43,14 +43,14 @@ public class BallSensor {
 
     public static int GREEN_HUE_MIN = 110;
     public static int GREEN_HUE_MAX = 160;
-    public static int PURPLE_HUE_MIN = 205;
+    public static int PURPLE_HUE_MIN = 185;
     public static int PURPLE_HUE_MAX = 245;
 //    public static int PURPLE_HUE_MIN_V2 = 210;
 //    public static int PURPLE_HUE_MAX_V2 = 295;
     public static double PRESENCE_DISTANCE_CM = 5;
     public static double PRESENCE_ALPHA = 0.45;
 
-    public static double[] presenceDistances = {4.2, 2.3, 4.2, 7.5, 5.0, 5.0} ;
+    public static double[] presenceDistances = {4.2, 1.8, 4.2, 7.5, 5.0, 5.0} ;
     int id;
 
     public static float GAIN = 2.0f;
