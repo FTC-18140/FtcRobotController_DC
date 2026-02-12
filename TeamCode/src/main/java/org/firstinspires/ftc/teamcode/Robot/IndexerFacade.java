@@ -402,7 +402,7 @@ public class IndexerFacade {
         int nextSlot = (startSlot + direction + 3) % 3; // Handles positive/negative direction and wrap-around
         return selectSlot(nextSlot);
     }
-    public boolean ballInIntake(){return beamBreak.ballDetected();}
+    public boolean ballInIntake(){return beamBreak.ballDetectedInIntake();}
     public boolean isAtTarget(){
         return turnstile.isAtTarget();
     }
@@ -453,11 +453,14 @@ public class IndexerFacade {
 
 
         if(intaking && turnstile.isOverSlot() && !indexerIsFull() && ballInIntake()){
-            
+            if (previousBallStateIntake == BallState.VACANT && ballSlots[0] != BallState.VACANT) {
+                ballNumber++;
+            }
+
 
             readyNextIntakeSlot(BallState.VACANT);
         }
-         if(turnstile.isOverSlot() && !indexerIsFull() && intaking){
+         if(turnstile.isOverSlot() && !indexerIsFull() && ballInIntake()){
             if (previousBallStateIntake == BallState.VACANT && ballSlots[0] != BallState.VACANT) {
                 ballNumber++;
             }
@@ -485,7 +488,7 @@ public class IndexerFacade {
             // Do nothing. The system will wait here until flip() is called.
             if(shotSequence != null && turnstile.isAtTarget() && sequenceStarted && isAtRpm){
                 flip();
-
+                ballNumber--;
                 positedBallStates[2] = BallState.VACANT;
                 if(ballNumber < 0) ballNumber = 0;
 

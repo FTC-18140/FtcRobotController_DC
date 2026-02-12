@@ -18,6 +18,7 @@ public class Turret implements DataLoggable {
 
     // Define the states as an enum
     private enum State {
+        STOP,
         HOLDING,
         SEEKING_ANGLE,
         MANUAL_CONTROL
@@ -36,7 +37,7 @@ public class Turret implements DataLoggable {
     private Telemetry telemetry;
 
     // Tunable constants from your original file
-    public static double P_TURRET = 0.006, I_TURRET = 0.025, D_TURRET = 0.00038, F_TURRET_MIN = 0.0, F_TURRET_MAX = 0.0;
+    public static double P_TURRET = 0.021, I_TURRET = 0.005, D_TURRET = 0.0005, F_TURRET_MIN = 0.0, F_TURRET_MAX = 0.0;
     public static double MAX_TURRET_POS = 225;
     public static double MIN_TURRET_POS = -90;
     public static double TURRET_ANGLE_TOLERANCE = 2.5;
@@ -46,8 +47,8 @@ public class Turret implements DataLoggable {
     public static boolean TELEM = true;
 
     public static double MAX_POWER = 0.8;
-    public static double MIN_POWER_POSITIVE = 0.063;
-    public static double MIN_POWER_NEGATIVE = -0.063;
+    public static double MIN_POWER_POSITIVE = 0.035;
+    public static double MIN_POWER_NEGATIVE = -0.035;
 
     public static double TURN_SPEED = 208.3; // From original lockOn
     public static double TURRET_DEGREES_PER_ENCODER_TICK = (double) 1 /8192 * 360 * 24.24/190.5;
@@ -114,7 +115,7 @@ public class Turret implements DataLoggable {
 
     public void holdPosition() {
         this.targetAngle = this.currentPosition; // Hold where we are
-        this.currentState = State.HOLDING;
+        this.currentState = State.STOP;
     }
 
     /**
@@ -169,6 +170,9 @@ public class Turret implements DataLoggable {
                     currentState = State.HOLDING;
                     setHardwarePower(0);
                 };
+                break;
+            case STOP:
+                setHardwarePower(0);
                 break;
         }
 

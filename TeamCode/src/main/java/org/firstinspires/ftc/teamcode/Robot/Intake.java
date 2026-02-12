@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Robot;
 
 import androidx.annotation.NonNull;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -11,12 +12,17 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+@Config
 public class Intake {
     Telemetry telemetry;
     HardwareMap hardwareMap;
 
     public static double INTAKE_SPEED = 1.0;
     DcMotor intakeMotor = null;
+
+    private double current_speed = 0;
+    private double slow = 1;
+    public static double SLOWED_SPEED = 0.75;
 
     public void init(HardwareMap hwMap, Telemetry telem) {
         hardwareMap = hwMap;
@@ -30,12 +36,24 @@ public class Intake {
         }
     }
 
+    public void update(){
+        intakeMotor.setPower(current_speed * slow);
+    }
+
     /**
      * sets the intake motor to the preset intake speed
      */
     public void intake(){
-        intakeMotor.setPower(INTAKE_SPEED);
+        current_speed = INTAKE_SPEED;
         telemetry.addData("Intaking", 0);
+    }
+
+    public void slow(){
+        slow = SLOWED_SPEED;
+//        telemetry.addData("Intaking", 0);
+    }
+    public void unslow(){
+        slow = 1;
     }
 
 
@@ -55,7 +73,7 @@ public class Intake {
      * Sets the intake motor to the opposite of the preset intake speed
      */
     public void spit(){
-        intakeMotor.setPower(-INTAKE_SPEED);
+        current_speed = -INTAKE_SPEED;
         telemetry.addData("Spitting", 0);
     }
 
@@ -63,6 +81,6 @@ public class Intake {
      * Stops the intake motor
      */
     public void stop() {
-        intakeMotor.setPower(0.0);
+        current_speed = 0;
     }
 }

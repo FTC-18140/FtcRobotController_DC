@@ -185,8 +185,15 @@ public class ThunderBot2025 implements DataLoggable
         PoseVelocity2d robotPoseVel = drive.updatePoseEstimate();
         launcher.update(drive.localizer.getPose(), robotPoseVel);
         indexer.update(launcher.isAtTargetRpm());
+        intake.update();
         led.update(launcher.getFlywheelRpm(), launcher.getFlywheelTargetRpm(), runtime.seconds(), indexer.getLastBallState(2), indexer.indexerIsFull(), indexer.getState());
         kickstand.update();
+
+        if(intake.getIntakePower() > 0 && !indexer.isNearSlot()){
+            intake.slow();
+        } else {
+            intake.unslow();
+        }
         
     }
 
@@ -375,7 +382,7 @@ public class ThunderBot2025 implements DataLoggable
                 slotToWatch = 0;
 
                 // Condition to exit: if the slot we were watching is no longer vacant.
-                if (indexer.ballInIntake() && indexer.isAtTarget() && !hasStarted) {
+                if (indexer.ballInIndexer() && indexer.isAtTarget() && !hasStarted) {
                     hasStarted = !indexer.readyNextIntakeSlot(IndexerFacade.BallState.VACANT); // End this action, the cycle command has been sent.
                 } else if(hasStarted){
                     return !(indexer.getState() == IndexerFacade.State.SELECTING_BALL);
@@ -388,7 +395,7 @@ public class ThunderBot2025 implements DataLoggable
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                return indexer.ballInIntake();
+                return indexer.ballInIndexer();
             }
         };
     }

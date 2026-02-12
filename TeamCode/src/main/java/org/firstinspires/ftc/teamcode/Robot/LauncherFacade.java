@@ -145,6 +145,7 @@ public class LauncherFacade implements DataLoggable {
 
         // --- 5. RUN SUBSYSTEMS ---
         // Use fusedPose for distance calculation
+        getAutoAimAngle();
         double distanceToGoal = getGoalDistance();
 
         turret.update(fusedPose, currentOdoVelocity, targetPos);
@@ -466,7 +467,7 @@ public class LauncherFacade implements DataLoggable {
                 telemetry.addData("Flywheel Target RPM", flywheel.getTargetRpm());
                 telemetry.addData("Flywheel RPM", flywheel.getCurrentRpm());
 
-                return false;
+                return true;
             }
         };
     }

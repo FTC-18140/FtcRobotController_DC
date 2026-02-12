@@ -26,7 +26,7 @@ public class Turnstile {
     public static boolean TELEM = false;
 
     // --- Tunable Constants via FTC Dashboard ---
-    public static double P = 0.005 , I = 0.01, D = 0.00011;
+    public static double P = 0.0037 , I = 0.01, D = 0.00009;
     public static double HOMING_POWER = 0.15;
     public static double ANGLE_TOLERANCE = 6.5;// In degrees
     public static double BACKWARD_TOLERANCE = 30;
@@ -130,7 +130,7 @@ public class Turnstile {
     // --- State Inquiry ---
 
     public boolean isAtTarget() {
-        return Math.abs(currentAngle - (targetAngle + current_offset)) < ANGLE_TOLERANCE;
+        return (Math.abs(currentAngle - (targetAngle + current_offset)) < ANGLE_TOLERANCE) || (isOverSlot() && limitSwitchPressed);
     }
 
     public boolean isOverSlot(){
