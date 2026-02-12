@@ -32,7 +32,9 @@ public class IndexerFacade {
     // --- Constants ---
     public static final double[] SLOT_ANGLES = {120, 240, 0}; // Angles for slots 0, 1, and 2
     private static final double FLIP_TIME_SECONDS = 0.1; // Time for the flipper to extend and retract
-    private static final double CYCLE_TIME_SECONDS = 0.5; // Time for the flipper to extend and retract
+
+    private ElapsedTime cycleTimer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
+    public static double CYCLE_TIME_SECONDS = 0.0; // Time between initial detection and auto-indexing
 
     public static boolean TELEM = true;
     private boolean updated = false;
@@ -80,6 +82,7 @@ public class IndexerFacade {
 
         beamBreak.init(hwMap, telem);
 
+        cycleTimer.reset();
         updateBallSensors();
         updateBallStates();
         for (int i = 0; i < 3; i++){
@@ -222,6 +225,15 @@ public class IndexerFacade {
                 }
 
                 return !executeNextInSequence() && inSequence();
+            }
+        };
+    }
+    public Action homeAction(){
+        return  new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                adjustToThird();
+                return !turnstile.isHomed();
             }
         };
     }
@@ -407,6 +419,9 @@ public class IndexerFacade {
     public boolean isAtTarget(){
         return turnstile.isAtTarget();
     }
+    public boolean isNearSlot(){
+        return turnstile.isOverSlot();
+    }
     public State getState() { return currentState; }
     public void setState(State state) { this.currentState = state; }
     public void intake(){ intaking = true;}
@@ -452,21 +467,17 @@ public class IndexerFacade {
 
         updated = false;
 
+        if(!ballInIndexer()) cycleTimer.reset();
 
-        if(intaking && turnstile.isOverSlot() && !indexerIsFull() && ballInIndexer()){
+        if(intaking && turnstile.isOverSlot() && !indexerIsFull() && ballInIndexer() && cycleTimer.seconds() >= CYCLE_TIME_SECONDS){
             if (previousBallStateIntake == BallState.VACANT && ballSlots[0] != BallState.VACANT) {
                 ballNumber++;
             }
 
-
+            cycleTimer.reset();
             readyNextIntakeSlot(BallState.VACANT);
         }
-         if(turnstile.isOverSlot() && !indexerIsFull() && ballInIndexer()){
-            if (previousBallStateIntake == BallState.VACANT && ballSlots[0] != BallState.VACANT) {
-                ballNumber++;
-            }
 
-        }
 
         switch (currentState) {
         case HOMING:

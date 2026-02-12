@@ -185,8 +185,15 @@ public class ThunderBot2025 implements DataLoggable
         PoseVelocity2d robotPoseVel = drive.updatePoseEstimate();
         launcher.update(drive.localizer.getPose(), robotPoseVel);
         indexer.update(launcher.isAtTargetRpm());
+        intake.update();
         led.update(launcher.getFlywheelRpm(), launcher.getFlywheelTargetRpm(), runtime.seconds(), indexer.getLastBallState(2), indexer.indexerIsFull(), indexer.getState());
         kickstand.update();
+
+        if(intake.getIntakePower() > 0 && !indexer.isNearSlot()){
+            intake.slow();
+        } else {
+            intake.unslow();
+        }
         
     }
 

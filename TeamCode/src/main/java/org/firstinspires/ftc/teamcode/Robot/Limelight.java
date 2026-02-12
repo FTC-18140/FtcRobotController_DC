@@ -38,7 +38,7 @@ public class Limelight implements DataLoggable {
     // Milliseconds we will continue trusting a target after it disappears
     public static long TARGET_TRUST_WINDOW_MS = 150;
 
-    public static double MINIMUM_TARGET_AREA = 10.0; // Example value, adjust as needed
+    public static double MINIMUM_TARGET_AREA = 0.0; // Example value, adjust as needed
 
     public void init(HardwareMap hwMap, Telemetry telemetry) {
         hardwareMap = hwMap;
