@@ -66,7 +66,16 @@ public class Teleop_Red extends OpMode {
             speed = ThunderBot2025.MAX_SPEED;
         }
 
+        if (robot.runtime.seconds() >= 115 && robot.runtime.seconds() < 125){
+            if(Math.ceil(robot.runtime.seconds() * 2) % 2 == 1){
+                theGamepad1.blipDriver();
+                theGamepad2.blipDriver();
+            }
+        }
         // Note: The driver's 'Y' button is used for resetting pose.
+        if(theGamepad1.getButton(TBDGamepad.Button.DPAD_UP)){
+            robot.resetHeadingAndTurret();
+        }
 
         robot.drive(forward, strafe, turn * 0.7, speed, p);
 
