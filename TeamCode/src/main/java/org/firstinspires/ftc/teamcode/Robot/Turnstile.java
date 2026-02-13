@@ -114,10 +114,10 @@ public class Turnstile {
 
         if (Math.abs(power) == 0 && currentState != State.SEEKING_POSITION && currentState != State.HOLDING_POSITION) {
             // When driver lets go, find the nearest physical slot and seek to it.
-            double nearestSlotAngle = ((int) Math.round(currentAngle / 120.0)) * 120.0;
+            double nearestSlotAngle = ((int)Math.round(currentAngle / 120.0)) * 120.0;
             this.seekToAngle(nearestSlotAngle);
             this.currentState = State.SEEKING_POSITION;
-        } else if(Math.abs(power) > 0) {
+        } else if(Math.abs(power) > 0){
             this.manualPower = power;
             this.currentState = State.MANUAL_SPIN;
         } else {
