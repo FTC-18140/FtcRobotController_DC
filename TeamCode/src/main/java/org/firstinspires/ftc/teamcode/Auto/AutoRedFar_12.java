@@ -148,7 +148,7 @@ public class AutoRedFar_12 extends LinearOpMode{
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos2)
-                                                                    .splineTo(intakePos3.position, Math.toRadians(-90))
+                                                                    .splineToSplineHeading(intakePos3, Math.toRadians(-90))
                                                                     .splineToConstantHeading(new Vector2d(intakePos3.position.x, -53), Math.toRadians(-90), new TranslationalVelConstraint(20))
                                                                     .build(),
                                                             new RaceAction(
@@ -169,8 +169,8 @@ public class AutoRedFar_12 extends LinearOpMode{
                                                     // Drive to launch spot
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos3.position.x, -53), Math.toRadians(-90)))
-                                                                    .setTangent(Math.toRadians(90))
-                                                                    .splineToSplineHeading(launchPos2, 0)
+                                                                    .setReversed(true)
+                                                                    .splineToSplineHeading(launchPos2, Math.toRadians(0))
                                                                     .build()
                                                             //                                            ,
                                                             //                                            // Re-plan the shot sequence with the newly loaded balls

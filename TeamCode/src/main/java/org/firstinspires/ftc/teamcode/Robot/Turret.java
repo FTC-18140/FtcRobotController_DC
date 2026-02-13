@@ -165,11 +165,12 @@ public class Turret implements DataLoggable {
                 break;
 
             case MANUAL_CONTROL:
-                setHardwarePower(manualPower);
                 if (Math.abs(manualPower) < 0.01) {
                     currentState = State.HOLDING;
                     setHardwarePower(0);
-                };
+                } else {
+                    setHardwarePower(manualPower);
+                }
                 break;
             case STOP:
                 setHardwarePower(0);
@@ -241,7 +242,7 @@ public class Turret implements DataLoggable {
 //            }
             if(power < 0){
                 power = Range.scale(power, -MAX_POWER, 0, -MAX_POWER, MIN_POWER_NEGATIVE);
-            } else {
+            } else if (power > 0){
                 power = Range.scale(power, 0, MAX_POWER, MIN_POWER_POSITIVE, MAX_POWER);
             }
             telemetry.addData("Turret Power sent to hardware", power);
