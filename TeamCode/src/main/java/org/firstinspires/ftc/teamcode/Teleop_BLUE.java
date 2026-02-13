@@ -103,13 +103,13 @@ public class Teleop_BLUE extends OpMode {
         if(theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.RIGHT_TRIGGER)){
             robot.flip();
         }
-        if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_UP)){
-            robot.launcher.flywheel.adjustFF(1);
-        } else if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_DOWN)) {
-            robot.launcher.flywheel.adjustFF(-1);
-        } else if (theGamepad2.getButtonPressed(TBDGamepad.Button.Y)) {
-            robot.launcher.flywheel.resetFF();
-        }
+//        if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_UP)){
+//            robot.launcher.flywheel.adjustFF(1);
+//        } else if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_DOWN)) {
+//            robot.launcher.flywheel.adjustFF(-1);
+//        } else if (theGamepad2.getButtonPressed(TBDGamepad.Button.Y)) {
+//            robot.launcher.flywheel.resetFF();
+//        }
 
         if (theGamepad2.getButtonPressed(TBDGamepad.Button.Y)) {
             robot.flipperUp();

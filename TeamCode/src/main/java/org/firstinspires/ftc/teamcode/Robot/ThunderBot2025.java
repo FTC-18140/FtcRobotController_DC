@@ -457,7 +457,7 @@ public class ThunderBot2025 implements DataLoggable
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 indexer.planShotSequence(latchedObeliskId);
-                return false; // This is a one-shot action.
+                return !indexer.inSequence(); // This is a one-shot action.
             }
         };
     }

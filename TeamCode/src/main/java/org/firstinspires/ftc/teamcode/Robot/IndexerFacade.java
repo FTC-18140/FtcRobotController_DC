@@ -155,20 +155,53 @@ public class IndexerFacade {
         // If no ball of the required color could be found, something is wrong.
         // To prevent getting stuck, we cancel the entire autonomous sequence.
         if (!ballFound) {
-            return launchBackup();
+            return launchSafeBackup();
         } else if (currentState == State.SELECTING_BALL){
             return true;
         }
         return false;
     }
 
-    private boolean launchBackup() {
+    private boolean launchSafeBackup() {
         boolean ballFound = false;
         updateBallSensors();
         updateBallStates();
 
         for (int i = 2; i > -1 && !ballFound; i--) {
             if (!slots_fired[i] && !usedLaterInSequence(ballSlots[i])) {
+
+                ballSlots[i] = BallState.VACANT;
+                slots_fired[i] = true;
+
+                // Command the turnstile to rotate this slot into the firing position.
+                ballFound = true;
+
+                int slot = (currentTargetSlot + (2-i)) % 3;
+                telemetry.addData("selected Sequence Slot: ", slot);
+                rotateBallStates(2-i);
+                currentTargetSlot = slot;
+                turnstile.seekToAngle(SLOT_ANGLES[slot]);
+                currentState = State.SELECTING_BALL;
+            }
+        }
+
+        // If no ball of the required color could be found, something is wrong.
+        // To prevent getting stuck, we cancel the entire autonomous sequence.
+        if (!ballFound) {
+            return launchAnyBackup();
+        } else if (currentState == State.SELECTING_BALL){
+            return true;
+        }
+        return false;
+    }
+
+    private boolean launchAnyBackup() {
+        boolean ballFound = false;
+        updateBallSensors();
+        updateBallStates();
+
+        for (int i = 2; i > -1 && !ballFound; i--) {
+            if (!slots_fired[i]) {
 
                 ballSlots[i] = BallState.VACANT;
                 slots_fired[i] = true;
@@ -195,6 +228,7 @@ public class IndexerFacade {
         }
         return false;
     }
+
     public boolean usedLaterInSequence(BallState ballState){
         for(int i = sequenceIndex + 1; i < 3; i++){
             if (ballState == shotSequence.get(i)){
@@ -220,8 +254,11 @@ public class IndexerFacade {
             boolean started = false;
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                for (int i = 0; i < 3; i++) {
-                    slots_fired[i] = false;
+                if(!started) {
+                    for (int i = 0; i < 3; i++) {
+                        slots_fired[i] = false;
+                    }
+                    started = true;
                 }
 
                 return !executeNextInSequence() && inSequence();
