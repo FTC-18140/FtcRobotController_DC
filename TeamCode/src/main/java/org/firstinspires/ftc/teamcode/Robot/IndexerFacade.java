@@ -502,11 +502,10 @@ public class IndexerFacade {
     }
     public int getBallNumber(){return ballNumber;}
     public void updateIntakePosited() {
-        positedBallStates[2] = ballSlots[2];
+        positedBallStates[0] = ballSlots[0];
     }
 
     public void update(boolean isAtRpm) {
-
 
         flipper.update();
         turnstile.update();

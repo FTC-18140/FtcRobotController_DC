@@ -198,6 +198,8 @@ public class Turret implements DataLoggable {
                     this.currentState = State.HOLDING;
                 }
                 break;
+
+<<<<<<< HEAD
             case MANUAL_CONTROL:
                 if (Math.abs(manualPower) < 0.01) {
                     currentState = State.HOLDING;
@@ -206,6 +208,7 @@ public class Turret implements DataLoggable {
                     setHardwarePower(manualPower);
                 }
                 break;
+=======
 //            case MANUAL_CONTROL:
 //                setHardwarePower(manualPower);
 //                if (Math.abs(manualPower) < 0.01) {
@@ -213,6 +216,7 @@ public class Turret implements DataLoggable {
 //                    setHardwarePower(0);
 //                };
 //                break;
+>>>>>>> Nathan_Sandbox
             case STOP:
                 setHardwarePower(0);
                 break;

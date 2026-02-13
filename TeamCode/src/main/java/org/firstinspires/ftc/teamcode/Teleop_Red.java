@@ -77,6 +77,7 @@ public class Teleop_Red extends OpMode {
             robot.resetHeadingAndTurret();
         }
 
+        // Note: The driver's 'Y' button is used for resetting pose.
         robot.drive(forward, strafe, turn * 0.7, speed, p);
 
         if (theGamepad1.getButtonPressed(TBDGamepad.Button.DPAD_DOWN)) {
@@ -93,9 +94,13 @@ public class Teleop_Red extends OpMode {
         }
 
         if(robot.launcher.getAimingMode() == LauncherFacade.AimingMode.MANUAL){
-            robot.launcher.setTurretManualPower(theGamepad2.getRightX() * 0.4);
-        } else if(Math.abs(theGamepad2.getRightX()) > 0.01){
-            robot.launcher.setTurretManualPower(theGamepad2.getRightX() * 0.5);
+            if(Math.abs(Math.sqrt(Math.pow(theGamepad2.getRightX(), 2) + Math.pow(theGamepad2.getRightY(), 2))) > 0.01) {
+                robot.launcher.aimToAngleInFieldSpace(180 + Math.toDegrees(Math.atan2(theGamepad2.getRightY(), theGamepad2.getRightX())));
+            } else {
+                robot.launcher.holdTurretPosition();
+            }
+        } else if(Math.abs(Math.sqrt(Math.pow(theGamepad2.getRightX(), 2) + Math.pow(theGamepad2.getRightY(), 2))) > 0.01){
+            robot.launcher.aimToAngleInFieldSpace(180 + Math.toDegrees(Math.atan2(theGamepad2.getRightY(),theGamepad2.getRightX())));
         } else {
             robot.launcher.aim();
         }
@@ -109,13 +114,6 @@ public class Teleop_Red extends OpMode {
         if(theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.RIGHT_TRIGGER)){
             robot.flip();
         }
-//        if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_UP)){
-//            robot.launcher.flywheel.adjustFF(1);
-//        } else if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_DOWN)) {
-//            robot.launcher.flywheel.adjustFF(-1);
-//        } else if (theGamepad2.getButtonPressed(TBDGamepad.Button.Y)) {
-//            robot.launcher.flywheel.resetFF();
-//        }
 
         if (theGamepad2.getButtonPressed(TBDGamepad.Button.Y)) {
             robot.flipperUp();
