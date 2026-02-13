@@ -99,6 +99,8 @@ public class Turret implements DataLoggable {
      * @param angle in degrees
      */
     public void seekToAngle(double angle) {
+
+
         this.targetAngle = Range.clip(angle, MIN_TURRET_POS, MAX_TURRET_POS);
         this.currentState = State.SEEKING_ANGLE;
     }
@@ -276,7 +278,7 @@ public class Turret implements DataLoggable {
 //            }
             if(power < 0){
                 power = Range.scale(power, -MAX_POWER, 0, -MAX_POWER, MIN_POWER_NEGATIVE);
-            } else {
+            } else if (power > 0){
                 power = Range.scale(power, 0, MAX_POWER, MIN_POWER_POSITIVE, MAX_POWER);
             }
             telemetry.addData("Turret Power sent to hardware", power);

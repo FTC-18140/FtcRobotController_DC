@@ -47,8 +47,8 @@ public class ThunderBot2025 implements DataLoggable
     public static Pose2d starting_position;
     public static String STARTING_POSITION = "ENDING_POSITION_AUTO";
     public ElapsedTime runtime = new ElapsedTime();
-    Pose2d TELEOP_START_RED = new Pose2d(-12, -12, 0);
-    Pose2d TELEOP_START_BLUE = new Pose2d(-12, 12, 0);
+    Pose2d TELEOP_CORNER_RED = new Pose2d(-63, 60, 0);
+    Pose2d TELEOP_CORNER_BLUE = new Pose2d(-63, -60, 0);
 
     public void init(HardwareMap hwMap, Telemetry telem, @Nullable Pose2d pose)
     {
@@ -271,10 +271,11 @@ public class ThunderBot2025 implements DataLoggable
     }
 
     public void resetHeadingAndTurret() {
-        drive.localizer.setPose(new Pose2d(drive.localizer.getPose().position, 0));
+
+        drive.localizer.setPose((color == Alliance_Color.RED) ? TELEOP_CORNER_RED : TELEOP_CORNER_BLUE);
         if(launcher.isAtTarget() && launcher.isUsingLimelight()){
             led.setRPMLedToColor("green");
-            launcher.setTurretOffset();
+//            launcher.setTurretOffset();
         } else {
             led.setRPMLedToColor("red");
         }
@@ -457,7 +458,7 @@ public class ThunderBot2025 implements DataLoggable
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 indexer.planShotSequence(latchedObeliskId);
-                return false; // This is a one-shot action.
+                return !indexer.inSequence(); // This is a one-shot action.
             }
         };
     }

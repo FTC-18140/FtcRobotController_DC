@@ -66,6 +66,13 @@ public class Teleop_BLUE extends OpMode {
             speed = ThunderBot2025.MAX_SPEED;
         }
 
+        if (robot.runtime.seconds() >= 115 && robot.runtime.seconds() < 125){
+            if(Math.ceil(robot.runtime.seconds() * 2) % 2 == 1){
+                theGamepad1.blipDriver();
+                theGamepad2.blipDriver();
+            }
+        }
+
         // Note: The driver's 'Y' button is used for resetting pose.
         if(theGamepad1.getButton(TBDGamepad.Button.DPAD_UP)){
             robot.resetHeadingAndTurret();
@@ -108,13 +115,13 @@ public class Teleop_BLUE extends OpMode {
         if(theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.RIGHT_TRIGGER)){
             robot.flip();
         }
-        if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_UP)){
-            robot.launcher.flywheel.adjustFF(1);
-        } else if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_DOWN)) {
-            robot.launcher.flywheel.adjustFF(-1);
-        } else if (theGamepad2.getButtonPressed(TBDGamepad.Button.Y)) {
-            robot.launcher.flywheel.resetFF();
-        }
+//        if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_UP)){
+//            robot.launcher.flywheel.adjustFF(1);
+//        } else if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_DOWN)) {
+//            robot.launcher.flywheel.adjustFF(-1);
+//        } else if (theGamepad2.getButtonPressed(TBDGamepad.Button.Y)) {
+//            robot.launcher.flywheel.resetFF();
+//        }
 
         if (theGamepad2.getButtonPressed(TBDGamepad.Button.Y)) {
             robot.flipperUp();
