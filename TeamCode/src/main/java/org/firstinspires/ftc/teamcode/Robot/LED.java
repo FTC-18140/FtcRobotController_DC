@@ -52,7 +52,13 @@ public class LED {
             setRPMLedToColor("green");
         }
         double alertTime_End = 10;
-        if ((120 - runtime) < alertTime_End) {
+        if ((120 - runtime) < 5) {
+            if (Math.ceil(runtime * 2) % 2 == 1){
+                setRPMLedToColor("off");
+            } else {
+                setRPMLedToColor("red");
+            }
+        } else if ((120 - runtime) < alertTime_End) {
             if (Math.ceil(runtime * 2) % 2 == 1){
                 setRPMLedToColor("off");
             } else {
