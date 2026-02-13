@@ -164,10 +164,10 @@ public class LauncherFacade implements DataLoggable {
     public double getFlywheelTargetRpm() { return flywheel.getTargetRpm(); }
 
     public void aim() { augmentedAim(0.0); }
-    public boolean pointTurretTo(double angle){
-        turret.seekToAngle(angle);
-        return turret.isAtTarget();
-    }
+//    public boolean pointTurretTo(double angle){
+//        turret.seekToAngle(angle);
+//        return turret.isAtTarget();
+//    }
     public void setTurretOffset(){
         double targetTurretAngle;
         // Calculate the vector (x, y) pointing from the robot to the goal
@@ -228,7 +228,7 @@ public class LauncherFacade implements DataLoggable {
         // --- HARDWARE CONSTRAINTS ---
         // Apply mechanical limits (-90 to 225) to the smoothed target.
         // This ensures the turret never tries to rotate through the "Dead Zone."
-        double baseAngle = applyHardwareConstraints(smoothedTurretAngle);
+        double baseAngle = turret.applyHardwareConstraints(smoothedTurretAngle);
 
         // --- FINAL COMMAND ---
         // Combine the automated smoothed target with the manual joystick offset.
@@ -268,7 +268,7 @@ public class LauncherFacade implements DataLoggable {
         // --- HARDWARE CONSTRAINTS ---
         // Apply mechanical limits (-90 to 225) to the smoothed target.
         // This ensures the turret never tries to rotate through the "Dead Zone."
-        double baseAngle = applyHardwareConstraints(smoothedTurretAngle);
+        double baseAngle = turret.applyHardwareConstraints(smoothedTurretAngle);
 
         // --- FINAL COMMAND ---
         // Combine the automated smoothed target with the manual joystick offset.
@@ -280,6 +280,9 @@ public class LauncherFacade implements DataLoggable {
         // Diagnostic Telemetry
         telemetry.addData("Turret Current", turret.getCurrentPosition());
         telemetry.addData("Turret Target", finalTargetAngle);
+    }
+    public void aimToAngleInFieldSpace(double angle) {
+        turret.seekToAngle(turret.applyHardwareConstraints(Math.toDegrees(fusedPose.heading.toDouble()) - angle));
     }
     public Vector2d getTurretOffsetPosInRobotSpace() {
         double robotHeading = this.fusedPose.heading.toDouble();
@@ -372,42 +375,7 @@ public class LauncherFacade implements DataLoggable {
         return targetTurretAngle;
     }
 
-    /**
-     * Enforces mechanical rotation limits and manages the "Dead Zone" traversal.
-     *
-     * <p>This method ensures the turret stays within its physical bounds (-90° to 225°).
-     * If a target is outside these bounds, it calculates if the target is reachable
-     * by rotating "the long way" around the circle. If the target is in the unreachable
-     * 135° gap, the turret clamps to the nearest hard stop.</p>
-     *
-     * @param angle The desired theoretical angle in degrees.
-     * @return The physically possible angle in degrees, constrained to [-90, 225].
-     */
-    private double applyHardwareConstraints(double angle) {
-        double finalAngle = angle % 360;
 
-        // If target is below the right-side limit (-90)
-        if (finalAngle < -90) {
-            // Check if rotating 360 degrees the other way puts us within the left limit (225)
-            double altPath = finalAngle + 360;
-            if (altPath <= 225) {
-                finalAngle = altPath;
-            } else {
-                finalAngle = -90; // Goal is in the dead zone behind the robot
-            }
-        }
-        // If target is above the left-side limit (225)
-        else if (finalAngle > 225) {
-            // Check if rotating 360 degrees the other way puts us within the right limit (-90)
-            double altPath = finalAngle - 360;
-            if (altPath >= -90 && altPath <= 225) {
-                finalAngle = altPath;
-            } else {
-                finalAngle = 225; // Goal is in the dead zone behind the robot
-            }
-        }
-        return finalAngle;
-    }
 
     private double getAutoAimAngleFUSION() {
         if (targetPos == null) return turret.getCurrentPosition();
@@ -503,7 +471,7 @@ public class LauncherFacade implements DataLoggable {
         };
     }
 
-    public Action stopAction(  ){
+    public Action stopAction(){
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
@@ -513,8 +481,12 @@ public class LauncherFacade implements DataLoggable {
         };
     }
 
-    public void setTurretManualPower(double power) {
-        turret.setManualPower(power);
+//    public void setTurretManualPower(double power) {
+//        turret.setManualPower(power);
+//    }
+
+    public void setTurretManualAngle(double angle) {
+        turret.manualAngle = angle;
     }
 
     public void stop() {

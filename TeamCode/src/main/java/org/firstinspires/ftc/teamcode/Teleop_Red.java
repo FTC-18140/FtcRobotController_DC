@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Robot.IndexerFacade;
+import org.firstinspires.ftc.teamcode.Robot.LauncherFacade;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 import org.firstinspires.ftc.teamcode.Utilities.TBDGamepad;
 
@@ -64,9 +65,10 @@ public class Teleop_Red extends OpMode {
         } else if(theGamepad1.getTriggerBoolean(TBDGamepad.Trigger.LEFT_TRIGGER)){
             speed = ThunderBot2025.MAX_SPEED;
         }
-
+        if(theGamepad1.getButton(TBDGamepad.Button.DPAD_UP)){
+            robot.resetHeadingAndTurret();
+        }
         // Note: The driver's 'Y' button is used for resetting pose.
-
         robot.drive(forward, strafe, turn * 0.7, speed, p);
 
         if (theGamepad1.getButtonPressed(TBDGamepad.Button.DPAD_DOWN)) {
@@ -75,11 +77,23 @@ public class Teleop_Red extends OpMode {
 
         // --- Launcher Controls ---
         // Note: The driver's 'Y' button is used for resetting pose.
-        if(theGamepad1.getButton(TBDGamepad.Button.DPAD_UP)){
-            robot.launcher.augmentedAimLimelight(theGamepad2.getRightX());
-            robot.resetHeadingAndTurret();
-        } else if(Math.abs(theGamepad2.getRightX()) > 0.01){
-            robot.launcher.setTurretManualPower(theGamepad2.getRightX() * 0.5);
+        if(theGamepad2.getButtonPressed(TBDGamepad.Button.RIGHT_STICK_BUTTON)){
+            if(robot.launcher.getAimingMode() != LauncherFacade.AimingMode.MANUAL) {
+                robot.launcher.setAimingMode(LauncherFacade.AimingMode.MANUAL);
+            } else {
+                robot.launcher.setAimingMode(LauncherFacade.AimingMode.MAIN);
+            }
+        }
+
+        if(robot.launcher.getAimingMode() == LauncherFacade.AimingMode.MANUAL){
+            if(Math.abs(Math.sqrt(Math.pow(theGamepad2.getRightX(), 2) + Math.pow(theGamepad2.getRightY(), 2))) > 0.01) {
+                robot.launcher.aimToAngleInFieldSpace(180 + Math.toDegrees(Math.atan2(theGamepad2.getRightY(), theGamepad2.getRightX())));
+            } else {
+                robot.launcher.holdTurretPosition();
+            }
+        } else if(Math.abs(Math.sqrt(Math.pow(theGamepad2.getRightX(), 2) + Math.pow(theGamepad2.getRightY(), 2))) > 0.01){
+            robot.launcher.aimToAngleInFieldSpace(180 + Math.toDegrees(Math.atan2(theGamepad2.getRightY(),theGamepad2.getRightX())));
+
         } else {
             robot.launcher.aim();
         }
@@ -89,14 +103,17 @@ public class Teleop_Red extends OpMode {
         } else {
             robot.launcher.stop();
         }
-         
+
         if(theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.RIGHT_TRIGGER)){
             robot.flip();
         }
+
         if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_UP)){
             robot.launcher.flywheel.adjustFF(1);
+
         } else if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_DOWN)) {
             robot.launcher.flywheel.adjustFF(-1);
+
         } else if (theGamepad2.getButtonPressed(TBDGamepad.Button.Y)) {
             robot.launcher.flywheel.resetFF();
         }

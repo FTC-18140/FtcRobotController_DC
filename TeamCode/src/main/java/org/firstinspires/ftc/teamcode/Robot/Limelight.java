@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
+import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -46,9 +47,10 @@ public class Limelight implements DataLoggable {
         {
             limelight = hwMap.get(Limelight3A.class, "limelight");
             limelight.setPollRateHz(100);
-            limelight.pipelineSwitch(4);
+
 
             limelight.start();
+            limelight.pipelineSwitch(4);
         }
         catch (Exception e)
         {
@@ -71,7 +73,7 @@ public class Limelight implements DataLoggable {
      */
     public void update(double limelightAngle, Vector2d turretOffset) {
         // Always update orientation with latest robot heading (critical for MegaTag2 accuracy)
-        limelight.updateRobotOrientation((limelightAngle + 360) % 360);
+
 
         // Reset per-loop state
         id = -1;
@@ -107,7 +109,7 @@ public class Limelight implements DataLoggable {
                 lastGoodTargetTimeNs = nowNs;
             }
         }
-
+        limelight.updateRobotOrientation((limelightAngle + 360) % 360);
         // MegaTag2 bot pose (field-relative, MT2-corrected)
         Pose3D botpose_mt2 = result.getBotpose_MT2();
         if (botpose_mt2 != null) {
@@ -117,9 +119,9 @@ public class Limelight implements DataLoggable {
             );
             // Apply turret offset (assumes it's in robot frame; rotate if turret angle affects it)
             // Don't accept a pose if it's off the field.
-            if (Math.abs(botPoseInches.x) < 72 && Math.abs(botPoseInches.y) < 72) {
+            //if (Math.abs(botPoseInches.x) < 72 && Math.abs(botPoseInches.y) < 72) {
                 visionPose = botPoseInches.plus(turretOffset);
-            }
+            //}
             // Keep your telemetry if you like
             telemetry.addData("Botpose", botPoseInches);
             telemetry.addData("Plus Offset", visionPose);

@@ -57,6 +57,7 @@ public class Turret implements DataLoggable {
     // State-specific variables
     private double targetAngle = 0;
     private double manualPower = 0;
+    public double manualAngle = 0;
     private double currentPosition = 0;
     private double offsetAngle = 0;
     private double seekingPower = 0; // Member variable to be accessible for logging
@@ -98,16 +99,50 @@ public class Turret implements DataLoggable {
      * @param angle in degrees
      */
     public void seekToAngle(double angle) {
-
-
         this.targetAngle = Range.clip(angle, MIN_TURRET_POS, MAX_TURRET_POS);
         this.currentState = State.SEEKING_ANGLE;
     }
+    /**
+     * Enforces mechanical rotation limits and manages the "Dead Zone" traversal.
+     *
+     * <p>This method ensures the turret stays within its physical bounds (-90° to 225°).
+     * If a target is outside these bounds, it calculates if the target is reachable
+     * by rotating "the long way" around the circle. If the target is in the unreachable
+     * 135° gap, the turret clamps to the nearest hard stop.</p>
+     *
+     * @param angle The desired theoretical angle in degrees.
+     * @return The physically possible angle in degrees, constrained to [-90, 225].
+     */
+    public double applyHardwareConstraints(double angle) {
+        double finalAngle = angle % 360;
 
-    public void setManualPower(double power) {
-        this.manualPower = power;
-        this.currentState = State.MANUAL_CONTROL;
+        // If target is below the right-side limit (-90)
+        if (finalAngle < MIN_TURRET_POS) {
+            // Check if rotating 360 degrees the other way puts us within the left limit (225)
+            double altPath = finalAngle + 360;
+            if (altPath <= MAX_TURRET_POS) {
+                finalAngle = altPath;
+            } else {
+                finalAngle = MIN_TURRET_POS; // Goal is in the dead zone behind the robot
+            }
+        }
+        // If target is above the left-side limit (225)
+        else if (finalAngle > MAX_TURRET_POS) {
+            // Check if rotating 360 degrees the other way puts us within the right limit (-90)
+            double altPath = finalAngle - 360;
+            if (altPath >= MIN_TURRET_POS && altPath <= MAX_TURRET_POS) {
+                finalAngle = altPath;
+            } else {
+                finalAngle = MAX_TURRET_POS; // Goal is in the dead zone behind the robot
+            }
+        }
+        return finalAngle;
     }
+
+//    public void setManualPower(double power) {
+//        this.manualPower = power;
+//        this.currentState = State.MANUAL_CONTROL;
+//    }
 
 //    public void setOffsetAngle(double angle) {
 //        offsetAngle = angle;
@@ -164,13 +199,13 @@ public class Turret implements DataLoggable {
                 }
                 break;
 
-            case MANUAL_CONTROL:
-                setHardwarePower(manualPower);
-                if (Math.abs(manualPower) < 0.01) {
-                    currentState = State.HOLDING;
-                    setHardwarePower(0);
-                };
-                break;
+//            case MANUAL_CONTROL:
+//                setHardwarePower(manualPower);
+//                if (Math.abs(manualPower) < 0.01) {
+//                    currentState = State.HOLDING;
+//                    setHardwarePower(0);
+//                };
+//                break;
             case STOP:
                 setHardwarePower(0);
                 break;

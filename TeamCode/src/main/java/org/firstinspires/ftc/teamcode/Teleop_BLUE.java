@@ -87,9 +87,14 @@ public class Teleop_BLUE extends OpMode {
         }
 
         if(robot.launcher.getAimingMode() == LauncherFacade.AimingMode.MANUAL){
-            robot.launcher.setTurretManualPower(theGamepad2.getRightX() * 0.4);
-        } else if(Math.abs(theGamepad2.getRightX()) > 0.01){
-            robot.launcher.setTurretManualPower(theGamepad2.getRightX() * 0.5);
+            if(Math.abs(Math.sqrt(Math.pow(theGamepad2.getRightX(), 2) + Math.pow(theGamepad2.getRightY(), 2))) > 0.01) {
+                robot.launcher.aimToAngleInFieldSpace(Math.toDegrees(Math.atan2(theGamepad2.getRightY(), theGamepad2.getRightX())));
+            } else {
+                robot.launcher.holdTurretPosition();
+            }
+        } else if(Math.abs(Math.sqrt(Math.pow(theGamepad2.getRightX(), 2) + Math.pow(theGamepad2.getRightY(), 2))) > 0.01){
+            robot.launcher.aimToAngleInFieldSpace(Math.toDegrees(Math.atan2(theGamepad2.getRightY(),theGamepad2.getRightX())));
+
         } else {
             robot.launcher.aim();
         }
