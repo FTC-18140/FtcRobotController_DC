@@ -56,6 +56,7 @@ public class AutoBlueDepot_12 extends LinearOpMode{
                             robot.aimAction(),
                             robot.launcher.prepShotAction(),
                             new SequentialAction(
+                                    robot.indexer.homeAction(),
                                     new RaceAction(
                                             new SequentialAction(
                                                     new ParallelAction(
@@ -134,7 +135,6 @@ public class AutoBlueDepot_12 extends LinearOpMode{
                                                     robot.startSequenceAction(),
                                                     robot.waitForSequenceEndAction(),
 
-                                                    robot.waitForSequenceEndAction(),
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new ParallelAction(
@@ -171,15 +171,12 @@ public class AutoBlueDepot_12 extends LinearOpMode{
                                                     robot.startSequenceAction(),
                                                     robot.waitForSequenceEndAction()
                                             ),
-                                            new SleepAction(27)
+                                            new SleepAction(28)
                                     ),
                                     robot.cancelSequenceAction(),
                                     robot.intake.intakeStopAction(),
                                     robot.launcher.pointToAction(0),
                                     new ParallelAction(
-                                            robot.drive.actionBuilder(launchPos3)
-                                                    .strafeToSplineHeading(new Vector2d(38, 12), Math.toRadians(0))
-                                                    .build(),
                                             robot.holdTurretAction(),
                                             robot.launcher.stopAction()
                                     )
