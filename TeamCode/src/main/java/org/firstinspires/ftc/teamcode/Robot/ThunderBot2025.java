@@ -270,14 +270,18 @@ public class ThunderBot2025 implements DataLoggable
         return 0;
     }
 
-    public void resetHeadingAndTurret() {
+    public void resetHeadingAndPosition() {
 
         drive.localizer.setPose((color == Alliance_Color.RED) ? TELEOP_CORNER_RED : TELEOP_CORNER_BLUE);
-        if(launcher.isAtTarget() && launcher.isUsingLimelight()){
-            led.setRPMLedToColor("green");
-//            launcher.setTurretOffset();
-        } else {
-            led.setRPMLedToColor("red");
+
+    }
+    public boolean resetTurret() {
+        if(launcher.setTurretOffset()){
+            led.setLauncherLedToColor("green");
+            return true;
+        }else{
+            led.setLauncherLedToColor("blue");
+            return false;
         }
     }
 

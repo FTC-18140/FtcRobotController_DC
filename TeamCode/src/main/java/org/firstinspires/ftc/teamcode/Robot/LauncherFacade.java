@@ -168,26 +168,16 @@ public class LauncherFacade implements DataLoggable {
 //        turret.seekToAngle(angle);
 //        return turret.isAtTarget();
 //    }
-    public void setTurretOffset(){
+    public boolean setTurretOffset(){
         double targetTurretAngle;
         // Calculate the vector (x, y) pointing from the robot to the goal
-        getAutoAimAngle();
-        if(usingLimelight) {
-            Vector2d delta = trueTargetVector;
-
-            // Calculate the absolute field-centric angle to the goal (Radians)
-            double fieldAngleToGoal = Math.atan2(delta.y, delta.x);
-
-            // HANDLE IMU WRAPPING:
-            // We turn the raw angle into a Rotation2d and subtract our robot heading.
-            // This yields the shortest relative distance from robot-front to goal,
-            // automatically handling the jump across the +/- 180 degree line.
-            double relativeAngleRad = Rotation2d.exp(fieldAngleToGoal).minus(fusedPose.heading);
-
-            // Convert result to Degrees for the Turret Subsystem
-            targetTurretAngle = -Math.toDegrees(relativeAngleRad);
-            turret.setOffset(getLimelightAimAngle() - targetTurretAngle);
+        setAimingMode(AimingMode.MANUAL);
+        if(turret.isHomed()){
+            holdTurretPosition();
+            turret.setOffset(getTurretAngleRaw());
+            return true;
         }
+        return false;
     }
 
     /**

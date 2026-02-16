@@ -4,7 +4,6 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -74,7 +73,10 @@ public class Teleop_Red extends OpMode {
         }
         // Note: The driver's 'Y' button is used for resetting pose.
         if(theGamepad1.getButton(TBDGamepad.Button.DPAD_UP)){
-            robot.resetHeadingAndTurret();
+            robot.resetHeadingAndPosition();
+        }
+        if(theGamepad2.getButton(TBDGamepad.Button.DPAD_UP)){
+            if (robot.resetTurret()) theGamepad2.blipDriver();
         }
 
         // Note: The driver's 'Y' button is used for resetting pose.
