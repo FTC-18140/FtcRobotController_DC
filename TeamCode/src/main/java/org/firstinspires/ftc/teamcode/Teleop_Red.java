@@ -107,13 +107,6 @@ public class Teleop_Red extends OpMode {
             robot.launcher.aim();
         }
 
-        if(theGamepad2.getButtonPressed(TBDGamepad.Button.RIGHT_STICK_BUTTON)){
-            if(robot.launcher.getAimingMode() != LauncherFacade.AimingMode.MANUAL) {
-                robot.launcher.setAimingMode(LauncherFacade.AimingMode.MANUAL);
-            } else {
-                robot.launcher.setAimingMode(LauncherFacade.AimingMode.MAIN);
-            }
-        }
 
         if(theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.LEFT_TRIGGER)){
             robot.charge();

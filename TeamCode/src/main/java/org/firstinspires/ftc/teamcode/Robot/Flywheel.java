@@ -30,8 +30,8 @@ public class Flywheel {
     private Telemetry telemetry;
 
     // Tunable constants from your original file
-    public static double P = 0.0025, I = 0.006, D = 0.000;
-    public static double F_MAX = 0.75, F_MIN = 0.5;
+    public static double P = 0.0026, I = 0.006, D = 0.000;
+    public static double F_MAX = 0.85, F_MIN = 0.54;
     public static double F_MAX_ADJUST = F_MAX, F_MIN_ADJUST = F_MIN;
     public static double F_STEP = .03;
     public boolean AdjustedFF = false;
@@ -45,7 +45,7 @@ public class Flywheel {
 
 
     private double targetRpm = 0;
-    public static double RPM_LOWER_BOUND = 20;
+    public static double RPM_LOWER_BOUND = 15;
     public static double RPM_UPPER_BOUND = 30;
 
     private double currentRpm = 0;
