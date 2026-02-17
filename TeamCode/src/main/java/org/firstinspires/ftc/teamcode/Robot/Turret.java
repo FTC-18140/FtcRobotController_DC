@@ -211,14 +211,7 @@ public class Turret implements DataLoggable {
                     this.currentState = State.HOLDING;
                 }
                 break;
-            case MANUAL_CONTROL:
-                if (Math.abs(manualPower) < 0.01) {
-                    currentState = State.HOLDING;
-                    setHardwarePower(0);
-                } else {
-                    setHardwarePower(manualPower);
-                }
-                break;
+
 //            case MANUAL_CONTROL:
 //                setHardwarePower(manualPower);
 //                if (Math.abs(manualPower) < 0.01) {

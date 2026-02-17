@@ -420,7 +420,7 @@ public class LauncherFacade implements DataLoggable {
     public void prepShot() {
         double distanceInches = getGoalDistance();
         double distanceMeters = distanceInches * 0.0254;
-        double targetVelocity = flywheel.calculateBallVelocity(distanceMeters, 0.645, 48);
+        double targetVelocity = flywheel.calculateBallVelocity(distanceMeters, 0.6096, 48);
         double targetRpm = flywheel.calculateWheelRPM(targetVelocity);
 
         telemetry.addData("Distance Meters: ", distanceMeters);
@@ -497,7 +497,7 @@ public class LauncherFacade implements DataLoggable {
     public void setAlliance(ThunderBot2025.Alliance_Color color) {
         this.allianceColor = color;
         this.targetPos = Objects.equals(this.allianceColor, ThunderBot2025.Alliance_Color.RED) ? targetPosRed : targetPosBlue;
-//        limelight.setPipeline(Objects.equals(this.allianceColor, ThunderBot2025.Alliance_Color.RED) ? 2 : 1);
+        limelight.setPipeline(Objects.equals(this.allianceColor, ThunderBot2025.Alliance_Color.RED) ? 2 : 1);
     }
 
     private double getGoalDistanceFUSION() {
