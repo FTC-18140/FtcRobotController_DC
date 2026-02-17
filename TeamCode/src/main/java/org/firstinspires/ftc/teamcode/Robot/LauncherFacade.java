@@ -346,19 +346,19 @@ public class LauncherFacade implements DataLoggable {
             if (limelight.hasTarget()) {
                 usingLimelight = true;
                 double limeLightDistanceX = limelight.getDistance() * Math.sin(Math.toRadians(limelight.getX()));
-                double limeLightDistanceY = limelight.getDistance() * Math.cos(Math.toRadians(limelight.getX()));
+                double limeLightDistanceY = -limelight.getDistance() * Math.cos(Math.toRadians(limelight.getX())) + LIMELIGHT_FORWARD_POSITION;
 
-                double modifiedLimeLightX = 90 + Math.toDegrees(Math.atan2(limeLightDistanceY + LIMELIGHT_FORWARD_POSITION, (limeLightDistanceX == 0) ? 0.01 : limeLightDistanceX));
+                double modifiedLimeLightX = Math.toDegrees(Math.atan2(limeLightDistanceX, (limeLightDistanceY == 0) ? 0.01 : limeLightDistanceY));
 
-                double limelightAngle = turret.getCurrentPosition() + modifiedLimeLightX;
+                double limelightAngle = turret.getCurrentPosition() - modifiedLimeLightX;
 
                 // Add the vision offset to the current physical encoder position.
                 targetTurretAngle = targetTurretAngle + trust * (limelightAngle - targetTurretAngle);
 
                 telemetry.addData("Aiming Mode LIMELIGHT -- target: ","%.3f ", targetTurretAngle);
                 telemetry.addData("-Limelight Distance X: ","%.3f ", limeLightDistanceX);
-                telemetry.addData("-Limelight Distance Y: ","%.3f ", limeLightDistanceY);
-                telemetry.addData("-Limelight + Turret Distance Y: ","%.3f ", limeLightDistanceY + LIMELIGHT_FORWARD_POSITION);
+                telemetry.addData("-Limelight Distance Y: ","%.3f ", limeLightDistanceY - LIMELIGHT_FORWARD_POSITION);
+                telemetry.addData("-Limelight + Turret Distance Y: ","%.3f ", limeLightDistanceY);
                 telemetry.addData("-Modified Limelight X: ","%.3f ", modifiedLimeLightX);
                 telemetry.addData("-Limelight distance: ","%.3f ", limelight.getDistance());
             }
