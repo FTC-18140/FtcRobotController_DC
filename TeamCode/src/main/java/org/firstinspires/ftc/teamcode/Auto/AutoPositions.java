@@ -13,10 +13,10 @@ public class AutoPositions {
         START_RED_DEPOT(new Vector2d(57.75,-45.75)),
         FAR_LAUNCH_ZONE_BLUE(new Vector2d(-56, 16)),
         FAR_LAUNCH_ZONE_RED(new Vector2d(-56, -16)),
-        CLOSE_LAUNCH_ZONE_BLUE(new Vector2d(36, 34)),
+        CLOSE_LAUNCH_ZONE_BLUE(new Vector2d(32, 30)),
         CENTER_LAUNCH_ZONE_BLUE(new Vector2d(18, 14)),
         PARKING_LAUNCH_ZONE_BLUE(new Vector2d(33, 12)),
-        CLOSE_LAUNCH_ZONE_RED(new Vector2d(36, -34)),
+        CLOSE_LAUNCH_ZONE_RED(new Vector2d(32, -30)),
         CENTER_LAUNCH_ZONE_RED(new Vector2d(18, -16)),
         PARKING_LAUNCH_ZONE_RED(new Vector2d(33, -12)),
         ARTIFACT_BASE_BLUE(new Vector2d(-34.5, 26)),
@@ -27,7 +27,8 @@ public class AutoPositions {
         ARTIFACT_GATE_RED(new Vector2d(13.5, -26)),
         GATE_RED(new Vector2d(5, -54)),
         GATE_BLUE(new Vector2d(5, 54)),
-        LOADING_ZONE_BLUE(new Vector2d(-28,-9.5)),
+        LOADING_ZONE_BLUE(new Vector2d(-63,60)),
+        LOADING_ZONE_RED(new Vector2d(-63,-60)),
         OBSERVATION_ZONE(new Vector2d(58,-59));
         public final Vector2d position;
         Positions(Vector2d pos){

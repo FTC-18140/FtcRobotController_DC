@@ -22,7 +22,7 @@ public class Intake {
 
     private double current_speed = 0;
     private double slow = 1;
-    public static double SLOWED_SPEED = 0.5;
+    public static double SLOWED_SPEED = 0.6;
 
     public void init(HardwareMap hwMap, Telemetry telem) {
         hardwareMap = hwMap;

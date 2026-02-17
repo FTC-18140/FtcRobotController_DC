@@ -49,7 +49,7 @@ public class Turret implements DataLoggable {
     public static double KV_TRANS = 0.17; // Tunable: Gain for translational apparent rotation
     public static boolean TELEM = true;
 
-    public static double MAX_POWER = 0.5;
+    public static double MAX_POWER = 0.55;
     public static double MIN_POWER_POSITIVE = 0.035;
     public static double MIN_POWER_NEGATIVE = -0.035;
 

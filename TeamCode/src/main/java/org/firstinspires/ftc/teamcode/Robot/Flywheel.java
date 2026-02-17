@@ -30,14 +30,14 @@ public class Flywheel {
     private Telemetry telemetry;
 
     // Tunable constants from your original file
-    public static double P = 0.0026, I = 0.006, D = 0.000;
-    public static double F_MAX = 0.85, F_MIN = 0.54;
+    public static double P = 0.002, I = 0.00, D = 0.00013;
+    public static double F_MAX = 0.88, F_MIN = 0.54;
     public static double F_MAX_ADJUST = F_MAX, F_MIN_ADJUST = F_MIN;
     public static double F_STEP = .03;
     public boolean AdjustedFF = false;
     public double feedforward;
 
-    public static boolean TELEM = false;
+    public static boolean TELEM = true;
     public static double MAX_SHOOTER_RPM = 3400;
     public static double MIN_SHOOTER_RPM = 1600;
     public static double SHOOTER_RADIUS = 0.072 / 2.0;
@@ -45,7 +45,7 @@ public class Flywheel {
 
 
     private double targetRpm = 0;
-    public static double RPM_LOWER_BOUND = 15;
+    public static double RPM_LOWER_BOUND = 10;
     public static double RPM_UPPER_BOUND = 30;
 
     private double currentRpm = 0;
@@ -55,8 +55,11 @@ public class Flywheel {
         rpmController = new PIDController(P, I, D);
 
         launcher = hwMap.get(DcMotorEx.class, "launcher");
+        launcher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        launcher.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         launcher.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         launcher2 = hwMap.get(DcMotorEx.class, "launcher2");
+        launcher2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         launcher2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 //        launcher2.setDirection(DcMotorSimple.Direction.REVERSE);
