@@ -56,6 +56,7 @@ public class AutoBlueDepot_12 extends LinearOpMode{
                             robot.aimAction(),
                             robot.launcher.prepShotAction(),
                             new SequentialAction(
+                                    robot.indexer.homeAction(),
                                     new RaceAction(
                                             new SequentialAction(
                                                     new ParallelAction(
@@ -74,18 +75,7 @@ public class AutoBlueDepot_12 extends LinearOpMode{
                                                                     .splineToConstantHeading(intakePos.position, Math.toRadians(90))
                                                                     .splineToConstantHeading(new Vector2d(intakePos.position.x, 51), Math.toRadians(90), new TranslationalVelConstraint(20))
                                                                     .build(),
-                                                            new RaceAction(
-                                                                    new SequentialAction(
-//                                                                            robot.indexerIsAtTargetAction(),
-                                                                            robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-                                                                            robot.indexerIsAtTargetAction(),
-                                                                            robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-                                                                            robot.indexerIsAtTargetAction(),
-                                                                            robot.waitForBallAction()
-                                                                            // The third ball will be loaded but we won't cycle away from it
-                                                                    ),
-                                                                    robot.indexerFullAction()
-                                                            )
+                                                            robot.indexerFullAction()
                                                     ),
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, 49), Math.toRadians(90)))
@@ -93,30 +83,19 @@ public class AutoBlueDepot_12 extends LinearOpMode{
                                                                     .splineTo(launchPos2.position, Math.toRadians(0))
                                                                     .build()
                                                     ),
-                                                    robot.intake.intakeStopAction(),
+                                                    robot.intakeStopAction(),
                                                     // Launch Preloads
                                                     robot.planSequenceAction(),
                                                     robot.startSequenceAction(),
                                                     robot.waitForSequenceEndAction(),
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
-                                                    new ParallelAction(
+                                                    new RaceAction(
                                                             robot.drive.actionBuilder(launchPos2)
                                                                     .splineTo(intakePos2.position, Math.toRadians(90))
                                                                     .splineToConstantHeading(new Vector2d(intakePos2.position.x, 49), Math.toRadians(90), new TranslationalVelConstraint(20))
                                                                     .build(),
-                                                            new RaceAction(
-                                                                    new SequentialAction(
-//                                                                            robot.indexerIsAtTargetAction(),
-                                                                            robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-                                                                            robot.indexerIsAtTargetAction(),
-                                                                            robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-                                                                            robot.indexerIsAtTargetAction(),
-                                                                            robot.waitForBallAction()
-                                                                            // The third ball will be loaded but we won't cycle away from it
-                                                                    ),
-                                                                    robot.indexerFullAction()
-                                                            )
+                                                            robot.indexerFullAction()
                                                     ),
                                                     // Drive to launch spot
                                                     new ParallelAction(
@@ -128,32 +107,20 @@ public class AutoBlueDepot_12 extends LinearOpMode{
 //                                                            // Re-plan the shot sequence with the newly loaded balls
 //                                                            robot.planSequenceAction()
                                                     ),
-                                                    robot.intake.intakeStopAction(),
+                                                    robot.intakeStopAction(),
                                                     // Launch 2nd set of Artifacts
                                                     robot.planSequenceAction(),
                                                     robot.startSequenceAction(),
                                                     robot.waitForSequenceEndAction(),
 
-                                                    robot.waitForSequenceEndAction(),
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
-                                                    new ParallelAction(
+                                                    new RaceAction(
                                                             robot.drive.actionBuilder(launchPos2)
                                                                     .splineTo(intakePos3.position, Math.toRadians(90))
                                                                     .splineToConstantHeading(new Vector2d(intakePos3.position.x, 53), Math.toRadians(90), new TranslationalVelConstraint(20))
                                                                     .build(),
-                                                            new RaceAction(
-                                                                    new SequentialAction(
-//                                                                            robot.indexerIsAtTargetAction(),
-                                                                            robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-                                                                            robot.indexerIsAtTargetAction(),
-                                                                            robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-                                                                            robot.indexerIsAtTargetAction(),
-                                                                            robot.waitForBallAction()
-                                                                            // The third ball will be loaded but we won't cycle away from it
-                                                                    ),
-                                                                    robot.indexerFullAction()
-                                                            )
+                                                            robot.indexerFullAction()
                                                     ),
                                                     // Drive to launch spot
                                                     new ParallelAction(
@@ -165,21 +132,18 @@ public class AutoBlueDepot_12 extends LinearOpMode{
 //                                                            // Re-plan the shot sequence with the newly loaded balls
 //                                                            robot.planSequenceAction()
                                                     ),
-                                                    robot.intake.intakeStopAction(),
+                                                    robot.intakeStopAction(),
                                                     // Launch 2nd set of Artifacts
                                                     robot.planSequenceAction(),
                                                     robot.startSequenceAction(),
                                                     robot.waitForSequenceEndAction()
                                             ),
-                                            new SleepAction(27)
+                                            new SleepAction(28)
                                     ),
                                     robot.cancelSequenceAction(),
-                                    robot.intake.intakeStopAction(),
+                                    robot.intakeStopAction(),
                                     robot.launcher.pointToAction(0),
                                     new ParallelAction(
-                                            robot.drive.actionBuilder(launchPos3)
-                                                    .strafeToSplineHeading(new Vector2d(38, 12), Math.toRadians(0))
-                                                    .build(),
                                             robot.holdTurretAction(),
                                             robot.launcher.stopAction()
                                     )

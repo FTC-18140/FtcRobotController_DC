@@ -39,6 +39,7 @@ public class LauncherFacade implements DataLoggable {
     private Pose2d lastOdoPose = null; // Used to calculate delta
     public static double TURRET_OFFSET_X = -2.62074;
     public static double TURRET_OFFSET_Y = -3.22805;
+    public static double LIMELIGHT_FORWARD_POSITION = 6.175;
     public Vector2d trueTargetVector = fusedPose.position;
     public static double trust = 0.0;
 
@@ -168,26 +169,16 @@ public class LauncherFacade implements DataLoggable {
 //        turret.seekToAngle(angle);
 //        return turret.isAtTarget();
 //    }
-    public void setTurretOffset(){
+    public boolean setTurretOffset(){
         double targetTurretAngle;
         // Calculate the vector (x, y) pointing from the robot to the goal
-        getAutoAimAngle();
-        if(usingLimelight) {
-            Vector2d delta = trueTargetVector;
-
-            // Calculate the absolute field-centric angle to the goal (Radians)
-            double fieldAngleToGoal = Math.atan2(delta.y, delta.x);
-
-            // HANDLE IMU WRAPPING:
-            // We turn the raw angle into a Rotation2d and subtract our robot heading.
-            // This yields the shortest relative distance from robot-front to goal,
-            // automatically handling the jump across the +/- 180 degree line.
-            double relativeAngleRad = Rotation2d.exp(fieldAngleToGoal).minus(fusedPose.heading);
-
-            // Convert result to Degrees for the Turret Subsystem
-            targetTurretAngle = -Math.toDegrees(relativeAngleRad);
-            turret.setOffset(getLimelightAimAngle() - targetTurretAngle);
+        setAimingMode(AimingMode.MANUAL);
+        if(turret.isHomed()){
+            holdTurretPosition();
+            turret.setOffset(getTurretAngleRaw());
+            return true;
         }
+        return false;
     }
 
     /**
@@ -354,12 +345,22 @@ public class LauncherFacade implements DataLoggable {
             telemetry.addData("Aiming Mode ODOMETRY -- target: "," %.3f", targetTurretAngle);
             if (limelight.hasTarget()) {
                 usingLimelight = true;
-                double limelightAngle = turret.getCurrentPosition() + limelight.getX();
+                double limeLightDistanceX = limelight.getDistance() * Math.sin(Math.toRadians(limelight.getX()));
+                double limeLightDistanceY = limelight.getDistance() * Math.cos(Math.toRadians(limelight.getX()));
+
+                double modifiedLimeLightX = 90 + Math.toDegrees(Math.atan2(limeLightDistanceY + LIMELIGHT_FORWARD_POSITION, (limeLightDistanceX == 0) ? 0.01 : limeLightDistanceX));
+
+                double limelightAngle = turret.getCurrentPosition() + modifiedLimeLightX;
 
                 // Add the vision offset to the current physical encoder position.
                 targetTurretAngle = targetTurretAngle + trust * (limelightAngle - targetTurretAngle);
 
                 telemetry.addData("Aiming Mode LIMELIGHT -- target: ","%.3f ", targetTurretAngle);
+                telemetry.addData("-Limelight Distance X: ","%.3f ", limeLightDistanceX);
+                telemetry.addData("-Limelight Distance Y: ","%.3f ", limeLightDistanceY);
+                telemetry.addData("-Limelight + Turret Distance Y: ","%.3f ", limeLightDistanceY + LIMELIGHT_FORWARD_POSITION);
+                telemetry.addData("-Modified Limelight X: ","%.3f ", modifiedLimeLightX);
+                telemetry.addData("-Limelight distance: ","%.3f ", limelight.getDistance());
             }
 
             while (targetTurretAngle - currentTurret > 180)  targetTurretAngle -= 360;

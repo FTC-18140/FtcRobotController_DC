@@ -34,7 +34,7 @@ public class Limelight implements DataLoggable {
     private boolean firstReading = true;
 
 
-    public static double alpha = 0.4; // 0.3–0.5 good
+    public static double alpha = 1.0; // 0.3–0.5 good
 
     // Milliseconds we will continue trusting a target after it disappears
     public static long TARGET_TRUST_WINDOW_MS = 150;

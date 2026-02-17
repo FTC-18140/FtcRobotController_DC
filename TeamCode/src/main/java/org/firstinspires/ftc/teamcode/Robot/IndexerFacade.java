@@ -35,6 +35,7 @@ public class IndexerFacade {
 
     private ElapsedTime cycleTimer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
     public static double CYCLE_TIME_SECONDS = 0.0; // Time between initial detection and auto-indexing
+    public int beamBreakCounter = 0;
 
     public static boolean TELEM = true;
     private boolean updated = false;
@@ -156,10 +157,9 @@ public class IndexerFacade {
         // To prevent getting stuck, we cancel the entire autonomous sequence.
         if (!ballFound) {
             return launchSafeBackup();
-        } else if (currentState == State.SELECTING_BALL){
+        } else {
             return true;
         }
-        return false;
     }
 
     private boolean launchSafeBackup() {
@@ -189,10 +189,9 @@ public class IndexerFacade {
         // To prevent getting stuck, we cancel the entire autonomous sequence.
         if (!ballFound) {
             return launchAnyBackup();
-        } else if (currentState == State.SELECTING_BALL){
+        } else {
             return true;
         }
-        return false;
     }
 
     private boolean launchAnyBackup() {
@@ -223,10 +222,9 @@ public class IndexerFacade {
         if (!ballFound) {
             currentState = State.SELECTING_BALL;
             return true;
-        } else if (currentState == State.SELECTING_BALL){
+        } else {
             return true;
         }
-        return false;
     }
 
     public boolean usedLaterInSequence(BallState ballState){
@@ -451,7 +449,7 @@ public class IndexerFacade {
         int nextSlot = (startSlot + direction + 3) % 3; // Handles positive/negative direction and wrap-around
         return selectSlot(nextSlot);
     }
-    public boolean ballInIndexer(){return beamBreak.ballDetectedInIndexer();}
+    public boolean ballInIndexer(){return beamBreakCounter > 3;}
     public boolean ballInIntake(){return beamBreak.ballDetectedInIntake();}
     public boolean isAtTarget(){
         return turnstile.isAtTarget();
@@ -513,9 +511,14 @@ public class IndexerFacade {
 
         updated = false;
 
-        if(!ballInIndexer()) cycleTimer.reset();
+        if(!beamBreak.ballDetectedInIndexer()){
+            beamBreakCounter = 0;
+        }
+        else {
+            beamBreakCounter++;
+        }
 
-        if(intaking && turnstile.isOverSlot() && !indexerIsFull() && ballInIndexer() && cycleTimer.seconds() >= CYCLE_TIME_SECONDS){
+        if(intaking && turnstile.isOverSlot() && !indexerIsFull() && ballInIndexer()){
 //            if (previousBallStateIntake == BallState.VACANT && ballSlots[0] != BallState.VACANT) {
 //                ballNumber++;
 //            }

@@ -8,6 +8,7 @@ import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Utilities.DataLoggable;
@@ -32,6 +33,8 @@ public class Turret implements DataLoggable {
 
     // Hardware and Utilities
     private DcMotor turret;
+    private TouchSensor turretSwitch;
+    private boolean isHomed;
     //private DcMotor turretEnc;
     private PIDController turretAimPID;
     private Telemetry telemetry;
@@ -66,6 +69,7 @@ public class Turret implements DataLoggable {
     double startingAngle;
     public void init(HardwareMap hwMap, Telemetry telem) {
 
+        // touch sensor: Control hub Digital port 4
         startingAngle = (double) blackboard.getOrDefault(STARTING_ANGLE, (double) 0);
 
         this.telemetry = telem;
@@ -78,6 +82,12 @@ public class Turret implements DataLoggable {
         } catch (Exception e) {
             telemetry.addData("Motor\"turret\" not found", 0);
         }
+        try{
+            turretSwitch = hwMap.touchSensor.get("turretSwitch");
+        } catch (Exception e) {
+            telemetry.addData("Touch Sensor\"turretSwitch\" not found", 0);
+        }
+
 
     }
     public void setStartAngle(double angle){
@@ -153,6 +163,7 @@ public class Turret implements DataLoggable {
         this.currentState = State.STOP;
     }
 
+    public boolean isHomed(){return this.isHomed;}
     /**
      * Main control loop for the turret. Calculates PID and multiple feedforward terms
      * to maintain a lock on the field-centric goal while the robot is in motion.
@@ -175,6 +186,8 @@ public class Turret implements DataLoggable {
                        Vector2d targetPos) {
         updateCurrentPosition();
         turretAimPID.setPID(P_TURRET, I_TURRET, D_TURRET);
+
+        isHomed = turretSwitch.isPressed();
 
         // 1. Static Feedforward (Wires/Friction)
         double ffStatic = Range.clip(Range.scale(currentPosition, -90, -15, F_TURRET_MAX, F_TURRET_MIN), F_TURRET_MIN, F_TURRET_MAX);

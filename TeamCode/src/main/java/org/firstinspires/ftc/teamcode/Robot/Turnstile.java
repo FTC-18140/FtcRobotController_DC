@@ -9,6 +9,8 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.util.Range;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 
@@ -23,10 +25,13 @@ public class Turnstile {
     private PIDController angleController;
     private Telemetry telemetry;
 
-    public static boolean TELEM = false;
+    public static boolean TELEM = true;
 
     // --- Tunable Constants via FTC Dashboard ---
-    public static double P = 0.0024 , I = 0.015, D = 0.000;
+    public static double P = 0.003 , I = 0.009, D = 0.00009;
+    public static double THRESHOLD = 0.00;
+    public static double MIN_POWER_POS = 0.032;
+    public static double MIN_POWER_NEG = 0.015;
     public static double HOMING_POWER = 0.15;
     public static double ANGLE_TOLERANCE = 5.0;// In degrees
     public static double BACKWARD_TOLERANCE = 30;
@@ -156,6 +161,9 @@ public class Turnstile {
         angleController.setPID(P, I, D); // Re-apply PID gains from Dashboard
         power = angleController.calculate(currentAngle, targetAngle + current_offset);
 
+        if (power > THRESHOLD) power = Range.scale(power, THRESHOLD, 1, MIN_POWER_POS, 1);
+        if (power < -THRESHOLD) power = Range.scale(power, -1, -THRESHOLD,  -1, -MIN_POWER_NEG);
+
         switch (currentState) {
             case IDLE:
                 indexerServo1.setPower(0);
@@ -237,6 +245,7 @@ public class Turnstile {
 //        telemetry.addData("Turnstile State", currentState.name());
             telemetry.addData("Turnstile Angle", currentAngle);
             telemetry.addData("Turnstile Target", targetAngle + current_offset);
+            telemetry.addData("Turnstile Power", power);
             telemetry.addData("Limit Switch Pressed", limitSwitchPressed);
         }
     }
