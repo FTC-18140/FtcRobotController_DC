@@ -17,7 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-@TeleOp(name = "Teleop Red with Datalogger")
+@TeleOp(name = "Teleop Red with Datalogger", group = "TeleopTest")
 @Config
 public class Teleop_Red_DataLogger extends OpMode {
 

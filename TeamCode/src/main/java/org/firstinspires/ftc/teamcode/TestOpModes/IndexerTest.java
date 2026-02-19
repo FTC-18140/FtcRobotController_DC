@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 import org.firstinspires.ftc.teamcode.Utilities.TBDGamepad;
 
-@TeleOp
+@TeleOp(group = "TeleopTest")
 public class IndexerTest extends OpMode {
     private TBDGamepad theGamepad1;
     ThunderBot2025 robot = new ThunderBot2025();

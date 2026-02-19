@@ -11,7 +11,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.util.List;
 
-@TeleOp
+@TeleOp(group = "TeleopTest")
 public class LimelightTest extends OpMode {
     Limelight3A limelight = null;
 

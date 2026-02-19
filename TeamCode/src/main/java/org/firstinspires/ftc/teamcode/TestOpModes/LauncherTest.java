@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 import org.firstinspires.ftc.teamcode.Utilities.TBDGamepad;
 
-@TeleOp
+@TeleOp(group = "TeleopTest")
 public class LauncherTest extends OpMode {
     private TBDGamepad theGamepad1;
     ThunderBot2025 robot = new ThunderBot2025();
