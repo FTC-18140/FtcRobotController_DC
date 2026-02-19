@@ -40,7 +40,7 @@ public class Turret implements DataLoggable {
     private Telemetry telemetry;
 
     // Tunable constants from your original file
-    public static double P_TURRET = 0.0225, I_TURRET = 0.005, D_TURRET = 0.00067, F_TURRET_MIN = 0.0, F_TURRET_MAX = 0.02;
+    public static double P_TURRET = 0.022, I_TURRET = 0.005, D_TURRET = 0.00067, F_TURRET_MIN = 0.0, F_TURRET_MAX = 0.02;
     public static double MAX_TURRET_POS = 225;
     public static double MIN_TURRET_POS = -90;
     public static double TURRET_ANGLE_TOLERANCE = 2.0;
