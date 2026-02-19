@@ -25,28 +25,29 @@ public class Flywheel {
     // Hardware and Utilities
     private DcMotorEx launcher, launcher2;
     private PIDController rpmController;
-    public static int FILTER_SIZE = 5;
+    public static int FILTER_SIZE = 2;
     private MovingAverageFilter rpmFilter = new MovingAverageFilter(FILTER_SIZE);
     private Telemetry telemetry;
 
     // Tunable constants from your original file
-    public static double P = 0.002, I = 0.00, D = 0.00013;
-    public static double F_MAX = 0.88, F_MIN = 0.54;
+//    public static double P = 0.0025, I = 0.00, D = 0.00015;
+    public static double P = 0.0015, I = 0.006, D = 0.00011;
+    public static double F_MAX = 0.62, F_MIN = 0.47;
     public static double F_MAX_ADJUST = F_MAX, F_MIN_ADJUST = F_MIN;
     public static double F_STEP = .03;
     public boolean AdjustedFF = false;
     public double feedforward;
 
     public static boolean TELEM = true;
-    public static double MAX_SHOOTER_RPM = 3400;
+    public static double MAX_SHOOTER_RPM = 2300;
     public static double MIN_SHOOTER_RPM = 1600;
-    public static double SHOOTER_RADIUS = 0.072 / 2.0;
-    public static double SPIN_EFFICIENCY = 0.595;
+    public static double SHOOTER_RADIUS = 0.096 / 2.0;
+    public static double SPIN_EFFICIENCY = 0.586;
 
 
     private double targetRpm = 0;
-    public static double RPM_LOWER_BOUND = 10;
-    public static double RPM_UPPER_BOUND = 30;
+    public static double RPM_LOWER_BOUND = 20;
+    public static double RPM_UPPER_BOUND = 20;
 
     private double currentRpm = 0;
     double scaledPower = 0;

@@ -37,8 +37,9 @@ public class LauncherFacade implements DataLoggable {
 //    private KalmanPoseEstimator poseEstimator;
     private Pose2d fusedPose = new Pose2d(0, 0, 0); // This is the "Truth" we aim with
     private Pose2d lastOdoPose = null; // Used to calculate delta
-    public static double TURRET_OFFSET_X = -2.62074;
-    public static double TURRET_OFFSET_Y = -3.22805;
+    public static double TURRET_OFFSET_X = -3.22805;
+    public static double TURRET_OFFSET_Y = -2.62074
+            ;
     public static double LIMELIGHT_FORWARD_POSITION = 6.175;
     public Vector2d trueTargetVector = fusedPose.position;
     public static double trust = 0.0;

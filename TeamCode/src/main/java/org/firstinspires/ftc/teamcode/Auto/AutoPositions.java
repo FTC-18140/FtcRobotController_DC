@@ -7,12 +7,12 @@ import com.acmerobotics.roadrunner.Vector2d;
 public class AutoPositions {
     @Config
     public enum Positions {
-        START_BLUE_FAR(new Vector2d(-63,16)),
+        START_BLUE_FAR(new Vector2d(-63,16.5)),
         START_BLUE_DEPOT(new Vector2d(58,46)),
-        START_RED_FAR(new Vector2d(-63,-16)),
+        START_RED_FAR(new Vector2d(-63,-16.5)),
         START_RED_DEPOT(new Vector2d(57.75,-45.75)),
-        FAR_LAUNCH_ZONE_BLUE(new Vector2d(-56, 16)),
-        FAR_LAUNCH_ZONE_RED(new Vector2d(-56, -16)),
+        FAR_LAUNCH_ZONE_BLUE(new Vector2d(-56, 16.5)),
+        FAR_LAUNCH_ZONE_RED(new Vector2d(-56, -16.5)),
         CLOSE_LAUNCH_ZONE_BLUE(new Vector2d(32, 30)),
         CENTER_LAUNCH_ZONE_BLUE(new Vector2d(18, 14)),
         PARKING_LAUNCH_ZONE_BLUE(new Vector2d(33, 12)),
@@ -27,8 +27,8 @@ public class AutoPositions {
         ARTIFACT_GATE_RED(new Vector2d(13.5, -26)),
         GATE_RED(new Vector2d(5, -54)),
         GATE_BLUE(new Vector2d(5, 54)),
-        LOADING_ZONE_BLUE(new Vector2d(-63,60)),
-        LOADING_ZONE_RED(new Vector2d(-63,-60)),
+        LOADING_ZONE_BLUE(new Vector2d(-60,62)),
+        LOADING_ZONE_RED(new Vector2d(-60,-62)),
         OBSERVATION_ZONE(new Vector2d(58,-59));
         public final Vector2d position;
         Positions(Vector2d pos){
