@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
-@Autonomous
+@Autonomous(group = "AutoBlueFar")
 public class AutoBlueFar_12 extends LinearOpMode{
 
     @Override

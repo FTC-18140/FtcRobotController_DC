@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
 import java.util.Objects;
 
-@Autonomous
+@Autonomous(group = "AutoTest")
 public class ObeliskTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {

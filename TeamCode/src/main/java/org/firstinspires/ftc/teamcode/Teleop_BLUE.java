@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Robot.LauncherFacade;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 import org.firstinspires.ftc.teamcode.Utilities.TBDGamepad;
 
-@TeleOp(name = "Teleop_BLUE", group = "MatchTeleops")
+@TeleOp(group = "MatchTeleops")
 @Config
 public class Teleop_BLUE extends OpMode {
 
