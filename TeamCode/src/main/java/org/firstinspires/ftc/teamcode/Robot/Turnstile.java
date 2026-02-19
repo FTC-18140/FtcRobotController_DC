@@ -25,7 +25,7 @@ public class Turnstile {
     private PIDController angleController;
     private Telemetry telemetry;
 
-    public static boolean TELEM = true;
+    public static boolean TELEM = false;
 
     // --- Tunable Constants via FTC Dashboard ---
     public static double P = 0.003 , I = 0.009, D = 0.00009;
@@ -35,7 +35,7 @@ public class Turnstile {
     public static double HOMING_POWER = 0.15;
     public static double ANGLE_TOLERANCE = 5.0;// In degrees
     public static double BACKWARD_TOLERANCE = 30;
-    public static double INTAKE_TOLERANCE = 5;
+    public static double INTAKE_TOLERANCE = 10;
     public static double HOMING_OFFSET = 0;
     private double current_offset = 0; // --- Non-tunable Constants ---
     private static final double COUNTS_PER_REVOLUTION = 8192;
@@ -134,7 +134,7 @@ public class Turnstile {
     // --- State Inquiry ---
 
     public boolean isAtTarget() {
-        return (Math.abs(currentAngle - (targetAngle + current_offset)) < ANGLE_TOLERANCE) || (isOverSlot() && limitSwitchPressed);
+        return (Math.abs(currentAngle - (targetAngle + current_offset)) < ANGLE_TOLERANCE);
     }
 
     public boolean isOverSlot(){

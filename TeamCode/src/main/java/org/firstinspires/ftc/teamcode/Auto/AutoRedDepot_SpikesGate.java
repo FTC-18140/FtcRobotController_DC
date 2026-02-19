@@ -59,6 +59,7 @@ public class AutoRedDepot_SpikesGate extends LinearOpMode{
                             robot.aimAction(),
                             robot.launcher.prepShotAction(),
                             new SequentialAction(
+                                    robot.indexer.homeAction(),
                                     new RaceAction(
                                             new SequentialAction(
                                                     new ParallelAction(

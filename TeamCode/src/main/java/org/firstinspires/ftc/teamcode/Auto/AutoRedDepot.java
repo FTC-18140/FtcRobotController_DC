@@ -19,7 +19,7 @@ public class AutoRedDepot extends LinearOpMode{
     @Override
     public void runOpMode() throws InterruptedException {
         Pose2d start = new Pose2d(AutoPositions.Positions.START_RED_DEPOT.position, Math.toRadians(45));
-        Pose2d launchPos = new Pose2d(AutoPositions.Positions.CLOSE_LAUNCH_ZONE_RED.position, Math.toRadians(-23));
+        Pose2d launchPos = new Pose2d(AutoPositions.Positions.CENTER_LAUNCH_ZONE_RED.position, Math.toRadians(-90));
         Pose2d intakePos = new Pose2d(AutoPositions.Positions.ARTIFACT_GATE_RED.position, Math.toRadians(-90));
         Pose2d intakePos2 = new Pose2d(AutoPositions.Positions.ARTIFACT_CENTER_RED.position, Math.toRadians(-90));
 
@@ -51,15 +51,16 @@ public class AutoRedDepot extends LinearOpMode{
             Actions.runBlocking(
                     new ParallelAction(
                             robot.updateAction(),
+                            robot.aimAction(),
                             robot.launcher.prepShotAction(),
                             new SequentialAction(
+                                    robot.indexer.homeAction(),
                                     new RaceAction(
-                                            robot.aimAction(),
 
                                             new SequentialAction(
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(start)
-                                                                    .strafeToSplineHeading(launchPos.position, Math.toRadians(-23))
+                                                                    .strafeToSplineHeading(launchPos.position, Math.toRadians(-90))
                                                                     .build()
                                                     ),
                                                     // Launch Preloads
@@ -69,6 +70,7 @@ public class AutoRedDepot extends LinearOpMode{
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
+                                                                    .setTangent(Math.toRadians(90))
                                                                     .splineToSplineHeading(intakePos, Math.toRadians(-90))
                                                                     .splineToConstantHeading(new Vector2d(intakePos.position.x, -49), Math.toRadians(-90), new TranslationalVelConstraint(12))
                                                                     .build(),
@@ -76,9 +78,8 @@ public class AutoRedDepot extends LinearOpMode{
                                                     ),
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, -49), Math.toRadians(-90)))
-                                                                    .strafeToSplineHeading(launchPos.position, Math.toRadians(-23))
-                                                                    .build(),
-                                                            robot.launcher.pointToAction(0)
+                                                                    .strafeToSplineHeading(launchPos.position, Math.toRadians(-90))
+                                                                    .build()
                                                     ),
                                                     robot.intakeStopAction(),
                                                     // Launch Preloads
@@ -89,6 +90,7 @@ public class AutoRedDepot extends LinearOpMode{
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
+                                                                    .setTangent(Math.toRadians(90))
                                                                     .splineToSplineHeading(intakePos2, Math.toRadians(-90))
                                                                     .splineToConstantHeading(new Vector2d(intakePos2.position.x, -49), Math.toRadians(-90), new TranslationalVelConstraint(12))
                                                                     .build(),
@@ -97,7 +99,7 @@ public class AutoRedDepot extends LinearOpMode{
                                                     // Drive to launch spot
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos2.position.x, -49), Math.toRadians(-90)))
-                                                                    .strafeToSplineHeading(launchPos.position, Math.toRadians(-23))
+                                                                    .strafeToSplineHeading(launchPos.position, Math.toRadians(-90))
                                                                     .build()
 //                                                            ,
 //                                                            // Re-plan the shot sequence with the newly loaded balls

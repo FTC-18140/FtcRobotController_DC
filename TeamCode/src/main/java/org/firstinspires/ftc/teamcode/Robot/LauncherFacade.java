@@ -107,10 +107,10 @@ public class LauncherFacade implements DataLoggable {
         lastOdoPose = currentOdoPose;
 
         // --- 3. MEASURE: Check Vision ---
-        telemetry.addData("Megatag2 Angle",Math.toDegrees(currentOdoPose.heading.toDouble()) - getTurretAngle());
+//        telemetry.addData("Megatag2 Angle",Math.toDegrees(currentOdoPose.heading.toDouble()) - getTurretAngle());
         limelight.update(Math.toDegrees(currentOdoPose.heading.toDouble()) - getTurretAngle(), getTurretOffsetPosInRobotSpace());
         Vector2d visionPose = limelight.getMegaTagPose();
-        telemetry.addData("MT2 calculated Pose", visionPose);
+//        telemetry.addData("MT2 calculated Pose", visionPose);
 
         if (visionPose != null) {
             // Determine trust based on distance (heuristic)
@@ -356,12 +356,12 @@ public class LauncherFacade implements DataLoggable {
                 // Add the vision offset to the current physical encoder position.
                 targetTurretAngle = targetTurretAngle + trust * (limelightAngle - targetTurretAngle);
 
-                telemetry.addData("Aiming Mode LIMELIGHT -- target: ","%.3f ", targetTurretAngle);
-                telemetry.addData("-Limelight Distance X: ","%.3f ", limeLightDistanceX);
-                telemetry.addData("-Limelight Distance Y: ","%.3f ", limeLightDistanceY - LIMELIGHT_FORWARD_POSITION);
-                telemetry.addData("-Limelight + Turret Distance Y: ","%.3f ", limeLightDistanceY);
-                telemetry.addData("-Modified Limelight X: ","%.3f ", modifiedLimeLightX);
-                telemetry.addData("-Limelight distance: ","%.3f ", limelight.getDistance());
+//                telemetry.addData("Aiming Mode LIMELIGHT -- target: ","%.3f ", targetTurretAngle);
+//                telemetry.addData("-Limelight Distance X: ","%.3f ", limeLightDistanceX);
+//                telemetry.addData("-Limelight Distance Y: ","%.3f ", limeLightDistanceY - LIMELIGHT_FORWARD_POSITION);
+//                telemetry.addData("-Limelight + Turret Distance Y: ","%.3f ", limeLightDistanceY);
+//                telemetry.addData("-Modified Limelight X: ","%.3f ", modifiedLimeLightX);
+//                telemetry.addData("-Limelight distance: ","%.3f ", limelight.getDistance());
             }
 
             while (targetTurretAngle - currentTurret > 180)  targetTurretAngle -= 360;
@@ -424,8 +424,8 @@ public class LauncherFacade implements DataLoggable {
         double targetVelocity = flywheel.calculateBallVelocity(distanceMeters, 0.6096, 48);
         double targetRpm = flywheel.calculateWheelRPM(targetVelocity);
 
-        telemetry.addData("Distance Meters: ", distanceMeters);
-        telemetry.addData("Target Velocity: ", targetVelocity);
+//        telemetry.addData("Distance Meters: ", distanceMeters);
+//        telemetry.addData("Target Velocity: ", targetVelocity);
         flywheel.setTargetRpm(targetRpm);
     }
 
@@ -511,7 +511,7 @@ public class LauncherFacade implements DataLoggable {
         if (trueTargetVector == null || targetPos == null) return 0;
         // Use FUSED pose for distance calculation
         double distance = trueTargetVector.norm();
-        telemetry.addData("distance: ", distance);
+//        telemetry.addData("distance: ", distance);
         return distance;
     }
 
