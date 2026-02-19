@@ -46,6 +46,7 @@ public class Flywheel {
 
 
     private double targetRpm = 0;
+
     public static double RPM_LOWER_BOUND = 20;
     public static double RPM_UPPER_BOUND = 20;
 
@@ -97,7 +98,7 @@ public class Flywheel {
 
         // Check if the current RPM is within a reasonable tolerance (e.g., 50 RPM) of the target.
         // This tolerance can be tuned.
-        final double RPM_TOLERANCE = 20.0;
+        //final double RPM_TOLERANCE = 20.0;
 
         return currentRpm - targetRpm < RPM_UPPER_BOUND && currentRpm - targetRpm > -RPM_LOWER_BOUND;
     }
@@ -108,6 +109,14 @@ public class Flywheel {
         double rpm = (tps * 60) / 28;
         return rpm;
     }
+    public double getRpmLowerBound() {
+        return RPM_LOWER_BOUND;
+    }
+
+    public double getRpmUpperBound() {
+        return RPM_UPPER_BOUND;
+    }
+
 
     /** Commands the flywheel to stop. */
     public void stop() {

@@ -39,14 +39,12 @@ public class LED {
     }
 
 
-    public void update(double measured_rpm, double target_rpm, double runtime, IndexerFacade.BallState loaded_color, boolean isIndexerFull, IndexerFacade.State IndexerState) {
+    public void update(double measured_rpm, double target_rpm, double lowerBound_rpm, double upperBound_rpm, double runtime, IndexerFacade.BallState loaded_color, boolean isIndexerFull, IndexerFacade.State IndexerState) {
         double difference_tps =  measured_rpm - target_rpm;
-        double acceptable_range_up = 30;
-        double acceptable_range_down = -30;
 
-        if (difference_tps < acceptable_range_down) {
+        if (difference_tps < -lowerBound_rpm) {
             setRPMLedToColor("red");
-        } else if (difference_tps > acceptable_range_up) {
+        } else if (difference_tps > upperBound_rpm) {
             setRPMLedToColor("blue");
         } else {
             setRPMLedToColor("green");
@@ -99,8 +97,6 @@ public class LED {
             setRPMLedToColor("blue");
             setLauncherLedToColor("blue");
         }
-
-
     }
 //    public void update(IndexerFacade.BallState ballcolor, double remainingSeconds) {
 //        if (remainingSeconds < 10) {
