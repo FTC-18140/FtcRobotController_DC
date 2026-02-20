@@ -14,18 +14,15 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
 @Autonomous(group = "AutoBlueDepot")
-public class AutoBlueDepot_Spikes_4_Gate extends LinearOpMode{
+public class AutoBlueDepot_9 extends LinearOpMode{
 
     @Override
     public void runOpMode() throws InterruptedException {
         Pose2d start = new Pose2d(AutoPositions.Positions.START_BLUE_DEPOT.position, Math.toRadians(-45));
-        Pose2d launchPos1 = new Pose2d(AutoPositions.Positions.CLOSE_LAUNCH_ZONE_BLUE.position, Math.toRadians(90));
+        Pose2d launchPos = new Pose2d(AutoPositions.Positions.CLOSE_LAUNCH_ZONE_BLUE.position, Math.toRadians(90));
         Pose2d launchPos2 = new Pose2d(AutoPositions.Positions.CENTER_LAUNCH_ZONE_BLUE.position, Math.toRadians(180));
-        Pose2d launchPos3 = new Pose2d(AutoPositions.Positions.PARKING_LAUNCH_ZONE_BLUE.position, Math.toRadians(180));
         Pose2d intakePos = new Pose2d(AutoPositions.Positions.ARTIFACT_GATE_BLUE.position, Math.toRadians(90));
         Pose2d intakePos2 = new Pose2d(AutoPositions.Positions.ARTIFACT_CENTER_BLUE.position, Math.toRadians(90));
-        Pose2d gatePos = new Pose2d(AutoPositions.Positions.GATE_BLUE.position, Math.toRadians(90));
-
 
         ThunderBot2025 robot = new ThunderBot2025();
         blackboard.put("TURRET_ENDING_ANGLE_AUTO", (double) 0);
@@ -47,7 +44,6 @@ public class AutoBlueDepot_Spikes_4_Gate extends LinearOpMode{
         }
 
         waitForStart();
-        robot.runtime.reset();
 
         robot.launcher.setPipeline(1);
 
@@ -62,7 +58,7 @@ public class AutoBlueDepot_Spikes_4_Gate extends LinearOpMode{
                                             new SequentialAction(
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(start)
-                                                                    .strafeToSplineHeading(launchPos1.position, Math.toRadians(90))
+                                                                    .strafeToSplineHeading(launchPos.position, Math.toRadians(90))
                                                                     .build()
                                                     ),
                                                     // Launch Preloads
@@ -71,58 +67,39 @@ public class AutoBlueDepot_Spikes_4_Gate extends LinearOpMode{
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
-                                                            robot.drive.actionBuilder(launchPos1)
-                                                                    .setTangent(-90)
+                                                            robot.drive.actionBuilder(launchPos)
+                                                                    .setTangent(Math.toRadians(-90))
                                                                     .splineToConstantHeading(intakePos.position, Math.toRadians(90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x, 49), Math.toRadians(90), new TranslationalVelConstraint(20))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x, 49), Math.toRadians(90), new TranslationalVelConstraint(12))
                                                                     .build(),
                                                             robot.indexerFullAction()
                                                     ),
-//                                                    robot.waitForTime(9.5),
-                                                    new RaceAction(
-                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, 49), Math.toRadians(90)))
-                                                                    .setTangent(Math.toRadians(-90))
-                                                                    .splineToConstantHeading(gatePos.position, Math.toRadians(90))
-                                                                    .build()
-                                                    ),
                                                     new ParallelAction(
-                                                            robot.drive.actionBuilder(new Pose2d(gatePos.position, Math.toRadians(90)))
+                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, 49), Math.toRadians(90)))
                                                                     .setReversed(true)
                                                                     .splineTo(launchPos2.position, Math.toRadians(0))
-                                                                    .build(),
-                                                            robot.planSequenceAction()
+                                                                    .build()
                                                     ),
                                                     robot.intakeStopAction(),
                                                     // Launch Preloads
+                                                    robot.planSequenceAction(),
                                                     robot.startSequenceAction(),
                                                     robot.waitForSequenceEndAction(),
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos2)
-                                                                    .splineTo(gatePos.position, Math.toRadians(90))
-                                                                    .build()
-                                                    ),
-                                                    new RaceAction(
-                                                            robot.drive.actionBuilder(gatePos)
-                                                                    .setReversed(true)
-                                                                    .splineToConstantHeading(new Vector2d(gatePos.position.x, intakePos2.position.y), Math.toRadians(-90))
-                                                                    .splineToConstantHeading(intakePos2.position, Math.toRadians(90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos2.position.x, 52), Math.toRadians(90), new TranslationalVelConstraint(20))
+                                                                    .setTangent(Math.toRadians(180))
+                                                                    .splineTo(intakePos2.position, Math.toRadians(90))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos2.position.x, 49), Math.toRadians(90), new TranslationalVelConstraint(12))
                                                                     .build(),
                                                             robot.indexerFullAction()
                                                     ),
-                                                    new RaceAction(
-                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos2.position.x, 52), Math.toRadians(90)))
-                                                                    .setTangent(Math.toRadians(-90))
-                                                                    .splineToConstantHeading(gatePos.position, Math.toRadians(90))
-                                                                    .build()
-                                                    ),
                                                     // Drive to launch spot
                                                     new ParallelAction(
-                                                            robot.drive.actionBuilder(new Pose2d(gatePos.position, Math.toRadians(90)))
+                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos2.position.x, 49), Math.toRadians(90)))
                                                                     .setReversed(true)
-                                                                    .splineTo(launchPos3.position, Math.toRadians(0))
+                                                                    .splineTo(launchPos2.position, Math.toRadians(0))
                                                                     .build()
 //                                                            ,
 //                                                            // Re-plan the shot sequence with the newly loaded balls
@@ -132,25 +109,18 @@ public class AutoBlueDepot_Spikes_4_Gate extends LinearOpMode{
                                                     // Launch 2nd set of Artifacts
                                                     robot.planSequenceAction(),
                                                     robot.startSequenceAction(),
-                                                    robot.waitForSequenceEndAction(),
-                                                    new RaceAction(
-                                                            robot.drive.actionBuilder(launchPos3)
-                                                                    .setTangent(180)
-                                                                    .splineToConstantHeading(gatePos.position, Math.toRadians(90))
-                                                                    .build()
-                                                    )
-
+                                                    robot.waitForSequenceEndAction()
                                             ),
                                             new SleepAction(27)
                                     ),
                                     robot.cancelSequenceAction(),
                                     robot.intakeStopAction(),
+                                    robot.drive.actionBuilder(launchPos2)
+                                            .setReversed(true)
+                                            .splineTo(new Vector2d(38, 12), Math.toRadians(0))
+                                            .build(),
                                     robot.launcher.pointToAction(0),
                                     new ParallelAction(
-                                            robot.drive.actionBuilder(gatePos)
-                                                    .setTangent(-90)
-                                                    .splineToConstantHeading(new Vector2d(12, 36), Math.toRadians(-90))
-                                                    .build(),
                                             robot.holdTurretAction(),
                                             robot.launcher.stopAction()
                                     )

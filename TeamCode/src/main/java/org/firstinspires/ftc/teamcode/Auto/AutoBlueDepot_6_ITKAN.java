@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
 @Autonomous(group = "AutoBlueDepot")
-public class AutoBlueDepot extends LinearOpMode{
+public class AutoBlueDepot_6_ITKAN extends LinearOpMode{
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -83,33 +83,11 @@ public class AutoBlueDepot extends LinearOpMode{
                                                     robot.intakeStopAction(),
                                                     // Launch Preloads
                                                     robot.planSequenceAction(),
+
+                                                    robot.waitForTime(13),
                                                     robot.startSequenceAction(),
                                                     robot.waitForSequenceEndAction(),
-                                                    robot.intakeStartAction(),
-                                                    // Grab next 3 artifacts using intelligent, sensor-based actions
-                                                    new RaceAction(
-                                                            robot.drive.actionBuilder(launchPos2)
-                                                                    .setTangent(Math.toRadians(180))
-                                                                    .splineTo(intakePos2.position, Math.toRadians(90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos2.position.x, 49), Math.toRadians(90), new TranslationalVelConstraint(12))
-                                                                    .build(),
-                                                            robot.indexerFullAction()
-                                                    ),
-                                                    // Drive to launch spot
-                                                    new ParallelAction(
-                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos2.position.x, 49), Math.toRadians(90)))
-                                                                    .setReversed(true)
-                                                                    .splineTo(launchPos2.position, Math.toRadians(0))
-                                                                    .build()
-//                                                            ,
-//                                                            // Re-plan the shot sequence with the newly loaded balls
-//                                                            robot.planSequenceAction()
-                                                    ),
-                                                    robot.intakeStopAction(),
-                                                    // Launch 2nd set of Artifacts
-                                                    robot.planSequenceAction(),
-                                                    robot.startSequenceAction(),
-                                                    robot.waitForSequenceEndAction()
+                                                    robot.intakeStartAction()
                                             ),
                                             new SleepAction(27)
                                     ),
