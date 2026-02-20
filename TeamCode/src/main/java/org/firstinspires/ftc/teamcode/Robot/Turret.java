@@ -40,7 +40,7 @@ public class Turret implements DataLoggable {
     private Telemetry telemetry;
 
     // Tunable constants from your original file
-    public static double P_TURRET = 0.02, I_TURRET = 0.015, D_TURRET = 0.001, F_TURRET_MIN = 0.0, F_TURRET_MAX = 0.0;
+    public static double P_TURRET = 0.027, I_TURRET = 0.02, D_TURRET = 0.0011, F_TURRET_MIN = 0.0, F_TURRET_MAX = 0.021;
     public static double MAX_TURRET_POS = 225;
     public static double MIN_TURRET_POS = -90;
     public static double TURRET_ANGLE_TOLERANCE = 2.0;
@@ -50,8 +50,8 @@ public class Turret implements DataLoggable {
     public static boolean TELEM = false;
 
     public static double MAX_POWER = 0.55;
-    public static double MIN_POWER_POSITIVE = 0.0;
-    public static double MIN_POWER_NEGATIVE = -0.0;
+    public static double MIN_POWER_POSITIVE = 0.01;
+    public static double MIN_POWER_NEGATIVE = -0.01;
 
     public static double TURN_SPEED = 208.3; // From original lockOn
     public static double TURRET_DEGREES_PER_ENCODER_TICK = (double) 1 /8192 * 360 * 24.24/190.5;
@@ -274,15 +274,7 @@ public class Turret implements DataLoggable {
     }
 
     private void setHardwarePower(double power) {
-        if (power < 0 && currentPosition + power * 45 <= MIN_TURRET_POS) {
-            telemetry.addData("Turret position power override value: ", currentPosition + power * 45);
-            telemetry.addData("Turret Power sent to hardware: ", 0);
-            turret.setPower(0);
-        } else if (power > 0 && currentPosition + power * 45 >= MAX_TURRET_POS) {
-            telemetry.addData("Turret position power override value: ", currentPosition + power * 45);
-            telemetry.addData("Turret Power sent to hardware: ", 0);
-            turret.setPower(0);
-        } else {
+
             power = Range.clip(power, -MAX_POWER, MAX_POWER);
 //            if (Math.signum(power) != Math.signum(lastSeekingPower)){
 ////                turretAimPID.reset();
@@ -294,8 +286,6 @@ public class Turret implements DataLoggable {
             }
             telemetry.addData("Turret Power sent to hardware", power);
             turret.setPower(power);
-        }
-
         lastSeekingPower = power;
     }
 
