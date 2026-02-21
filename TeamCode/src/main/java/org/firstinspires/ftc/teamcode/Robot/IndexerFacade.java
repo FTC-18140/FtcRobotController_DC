@@ -31,7 +31,7 @@ public class IndexerFacade {
 
     // --- Constants ---
     public static final double[] SLOT_ANGLES = {120, 240, 0}; // Angles for slots 0, 1, and 2
-    public static double FLIP_TIME_SECONDS = 0.2; // Time for the flipper to extend and retract
+    public static double FLIP_TIME_SECONDS = 0.11; // Time for the flipper to extend and retract
 
     private ElapsedTime cycleTimer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
     public static double CYCLE_TIME_SECONDS = 0.0; // Time between initial detection and auto-indexing
@@ -149,6 +149,7 @@ public class IndexerFacade {
                 rotateBallStates(2-i);
                 currentTargetSlot = slot;
                 turnstile.seekToAngle(SLOT_ANGLES[slot]);
+                beamBreakCounter = 0;
                 currentState = State.SELECTING_BALL;
             } 
         }
@@ -181,6 +182,7 @@ public class IndexerFacade {
                 rotateBallStates(2-i);
                 currentTargetSlot = slot;
                 turnstile.seekToAngle(SLOT_ANGLES[slot]);
+                beamBreakCounter = 0;
                 currentState = State.SELECTING_BALL;
             }
         }
@@ -213,6 +215,7 @@ public class IndexerFacade {
                 rotateBallStates(2-i);
                 currentTargetSlot = slot;
                 turnstile.seekToAngle(SLOT_ANGLES[slot]);
+                beamBreakCounter = 0;
                 currentState = State.SELECTING_BALL;
             }
         }
@@ -220,6 +223,7 @@ public class IndexerFacade {
         // If no ball of the required color could be found, something is wrong.
         // To prevent getting stuck, we cancel the entire autonomous sequence.
         if (!ballFound) {
+            beamBreakCounter = 0;
             currentState = State.SELECTING_BALL;
             return true;
         } else {
@@ -323,6 +327,7 @@ public class IndexerFacade {
 
                     currentTargetSlot = slotToCheck;
                     turnstile.seekToAngle(SLOT_ANGLES[slotToCheck]);
+                    beamBreakCounter = 0;
                     currentState = State.SELECTING_BALL;
                     slotFound = true;
                 }
@@ -348,6 +353,7 @@ public class IndexerFacade {
                     rotateBallStates(3-slotToCheck);
                     currentTargetSlot = slot;
                     turnstile.seekToAngle(SLOT_ANGLES[slot]);
+                    beamBreakCounter = 0;
                     currentState = State.SELECTING_BALL;
                     slotFound = true;
                 }
@@ -370,6 +376,7 @@ public class IndexerFacade {
             rotateBallStates((slot - currentTargetSlot + 3) % 3);
             currentTargetSlot = slot;
             turnstile.seekToAngle(SLOT_ANGLES[currentTargetSlot]);
+            beamBreakCounter = 0;
             currentState = State.SELECTING_BALL;
             return true;
         }
@@ -512,13 +519,15 @@ public class IndexerFacade {
         updated = false;
 
         if(!beamBreak.ballDetectedInIndexer()){
-            beamBreakCounter = 0;
+            beamBreakCounter--;
+            beamBreakCounter = Math.max(beamBreakCounter, 0);
         }
         else {
             beamBreakCounter++;
+            beamBreakCounter = Math.min(beamBreakCounter, 5);
         }
 
-        if(intaking && turnstile.isOverSlot() && !indexerIsFull() && ballInIndexer()){
+        if(intaking && turnstile.isOverSlot() && ballInIndexer()){
 //            if (previousBallStateIntake == BallState.VACANT && ballSlots[0] != BallState.VACANT) {
 //                ballNumber++;
 //            }
@@ -533,6 +542,7 @@ public class IndexerFacade {
             turnstile.home();
             if (turnstile.isHomed()) {
                 updateBallSensors();
+                beamBreakCounter = 0;
                 currentState = State.IDLE;
             }
             break;
@@ -540,6 +550,7 @@ public class IndexerFacade {
             break;
         case SELECTING_BALL:
             if (turnstile.isAtTarget()) {
+                beamBreakCounter = 0;
                 updateBallSensors();
                 updateIntakePosited();
                 currentState = State.AWAITING_FLIP;

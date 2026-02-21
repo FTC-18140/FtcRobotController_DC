@@ -20,10 +20,10 @@ public class AutoBlueFar_Loading extends LinearOpMode{
     public void runOpMode() throws InterruptedException {
         Pose2d start = new Pose2d(AutoPositions.Positions.START_BLUE_FAR.position, Math.toRadians(0));
         Pose2d launchPos = new Pose2d(AutoPositions.Positions.FAR_LAUNCH_ZONE_BLUE.position, Math.toRadians(90));
-        Pose2d intakePos = new Pose2d(AutoPositions.Positions.LOADING_ZONE_BLUE.position, Math.toRadians(90));
+        Pose2d intakePos = new Pose2d(AutoPositions.Positions.LOADING_ZONE_BLUE.position, Math.toRadians(110));
         Pose2d intakePos2 = new Pose2d(AutoPositions.Positions.LOADING_ZONE_BLUE.position, Math.toRadians(110));
         Pose2d preintakePos1 = new Pose2d(new Vector2d(AutoPositions.Positions.LOADING_ZONE_BLUE.position.x, 40), Math.toRadians(90));
-        Pose2d preintakePos2 = new Pose2d(new Vector2d(AutoPositions.Positions.LOADING_ZONE_BLUE.position.x+1, 53), Math.toRadians(90));
+        Pose2d preintakePos2 = new Pose2d(new Vector2d(AutoPositions.Positions.LOADING_ZONE_BLUE.position.x+5, 51), Math.toRadians(90));
 
         ThunderBot2025 robot = new ThunderBot2025();
         blackboard.put("TURRET_ENDING_ANGLE_AUTO", (double) 0);
@@ -71,8 +71,8 @@ public class AutoBlueFar_Loading extends LinearOpMode{
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
                                                                     .splineTo(preintakePos1.position, Math.toRadians(90))
-                                                                    .splineTo(preintakePos2.position, Math.toRadians(90), new TranslationalVelConstraint(20))
-                                                                    .splineTo(intakePos.position, Math.toRadians(90), new TranslationalVelConstraint(14))
+                                                                    .splineToConstantHeading(preintakePos2.position, Math.toRadians(90))
+                                                                    .splineTo(intakePos.position, Math.toRadians(110), new TranslationalVelConstraint(20))
                                                                     .build(),
                                                             robot.indexerFullAction()
                                                     ),
@@ -95,8 +95,8 @@ public class AutoBlueFar_Loading extends LinearOpMode{
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
                                                                     .splineTo(preintakePos1.position, Math.toRadians(90))
-                                                                    .splineTo(preintakePos2.position, Math.toRadians(90), new TranslationalVelConstraint(20))
-                                                                    .splineTo(intakePos2.position, Math.toRadians(110), new TranslationalVelConstraint(14))
+                                                                    .splineToConstantHeading(preintakePos2.position, Math.toRadians(90))
+                                                                    .splineTo(intakePos.position, Math.toRadians(110), new TranslationalVelConstraint(20))
                                                                     .build(),
                                                             robot.indexerFullAction()
                                                     ),
@@ -121,8 +121,8 @@ public class AutoBlueFar_Loading extends LinearOpMode{
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
                                                                     .splineTo(preintakePos1.position, Math.toRadians(90))
-                                                                    .splineTo(preintakePos2.position, Math.toRadians(90), new TranslationalVelConstraint(20))
-                                                                    .splineTo(intakePos.position, Math.toRadians(90), new TranslationalVelConstraint(14))
+                                                                    .splineToConstantHeading(preintakePos2.position, Math.toRadians(90))
+                                                                    .splineTo(intakePos.position, Math.toRadians(110), new TranslationalVelConstraint(20))
                                                                     .build(),
                                                             robot.indexerFullAction()
                                                     ),

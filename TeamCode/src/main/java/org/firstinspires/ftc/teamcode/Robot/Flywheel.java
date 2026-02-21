@@ -31,7 +31,7 @@ public class Flywheel {
 
     // Tunable constants from your original file
 //    public static double P = 0.0025, I = 0.00, D = 0.00015;
-    public static double P = 0.0015, I = 0.006, D = 0.00011;
+    public static double P = 0.0045, I = 0.006, D = 0.00011;
     public static double F_MAX = 0.62, F_MIN = 0.47;
     public static double F_MAX_ADJUST = F_MAX, F_MIN_ADJUST = F_MIN;
     public static double F_STEP = .03;
