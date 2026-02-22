@@ -30,7 +30,7 @@ public class LauncherFacade implements DataLoggable {
 
     private boolean usingLimelight = false;
 
-    public enum AimingMode {MAIN, ODOMETRY, LIMELIGHT, MANUAL}
+    public enum AimingMode {MAIN, ODOMETRY, LIMELIGHT, MANUAL, DIRECTIONAL}
     private AimingMode aimingMode = AimingMode.MAIN;
 
     // --- SENSOR FUSION VARIABLES ---
@@ -173,7 +173,7 @@ public class LauncherFacade implements DataLoggable {
     public boolean setTurretOffset(){
         double targetTurretAngle;
         // Calculate the vector (x, y) pointing from the robot to the goal
-        setAimingMode(AimingMode.MANUAL);
+        setAimingMode(AimingMode.DIRECTIONAL);
         if(turret.isHomed()){
             holdTurretPosition();
             turret.setOffset(getTurretAngleRaw());
@@ -428,6 +428,12 @@ public class LauncherFacade implements DataLoggable {
 //        telemetry.addData("Target Velocity: ", targetVelocity);
         flywheel.setTargetRpm(targetRpm);
     }
+    public void prepShotLow() {
+
+//        telemetry.addData("Distance Meters: ", distanceMeters);
+//        telemetry.addData("Target Velocity: ", targetVelocity);
+        flywheel.setTargetRpm(Flywheel.MIN_SHOOTER_RPM);
+    }
 
     public Action prepShotAction() {
         return new Action() {
@@ -483,9 +489,9 @@ public class LauncherFacade implements DataLoggable {
         };
     }
 
-//    public void setTurretManualPower(double power) {
-//        turret.setManualPower(power);
-//    }
+    public void setTurretManualPower(double power) {
+        turret.setManualPower(power);
+    }
 
     public void setTurretManualAngle(double angle) {
         turret.manualAngle = angle;

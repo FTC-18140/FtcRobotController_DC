@@ -88,10 +88,10 @@ public class Teleop_Red extends OpMode {
 
         // --- Launcher Controls ---
         if(theGamepad2.getButtonPressed(TBDGamepad.Button.RIGHT_STICK_BUTTON)){
-            if(robot.launcher.getAimingMode() != LauncherFacade.AimingMode.MANUAL) {
-                robot.launcher.setAimingMode(LauncherFacade.AimingMode.MANUAL);
-            } else {
+            if(robot.launcher.getAimingMode() != LauncherFacade.AimingMode.MAIN) {
                 robot.launcher.setAimingMode(LauncherFacade.AimingMode.MAIN);
+            } else {
+                robot.launcher.setAimingMode(LauncherFacade.AimingMode.MANUAL);
             }
         }
 
@@ -101,6 +101,8 @@ public class Teleop_Red extends OpMode {
             } else {
                 robot.launcher.holdTurretPosition();
             }
+        } else if (robot.launcher.getAimingMode() == LauncherFacade.AimingMode.DIRECTIONAL) {
+            robot.launcher.setTurretManualPower(theGamepad2.getRightX() * 0.5);
         } else if(Math.abs(Math.sqrt(Math.pow(theGamepad2.getRightX(), 2) + Math.pow(theGamepad2.getRightY(), 2))) > 0.01) {
             robot.launcher.aimToAngleInFieldSpace(180 + Math.toDegrees(Math.atan2(theGamepad2.getRightY(), theGamepad2.getRightX())));
         } else {
@@ -111,7 +113,7 @@ public class Teleop_Red extends OpMode {
         if(theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.LEFT_TRIGGER)){
             robot.charge();
         } else {
-            robot.launcher.stop();
+            robot.chargeLow();
         }
 
         if(theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.RIGHT_TRIGGER)){

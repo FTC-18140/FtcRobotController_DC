@@ -67,7 +67,7 @@ public class AutoRedDepot_6_OPENSOURCE extends LinearOpMode{
                                                     robot.waitForSequenceEndAction(),
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
-                                                    robot.waitForTime(11),
+                                                    robot.waitForTime(10.25),
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
                                                                     .turnTo(Math.toRadians(180))
@@ -93,9 +93,9 @@ public class AutoRedDepot_6_OPENSOURCE extends LinearOpMode{
                                                     robot.intakeStartAction(),
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos2)
-                                                                    .splineTo(new Vector2d(intakePos.position.x, -50), Math.toRadians(-90))
-                                                                    .splineTo(intakePos.position, Math.toRadians(-90), new TranslationalVelConstraint(30))
-                                                                    .build(),
+                                                                .splineTo(new Vector2d(intakePos.position.x, -50), Math.toRadians(-90))
+                                                                .splineTo(intakePos.position, Math.toRadians(-90), new TranslationalVelConstraint(30))
+                                                                .build(),
                                                             robot.indexerFullAction()
                                                     ),
 

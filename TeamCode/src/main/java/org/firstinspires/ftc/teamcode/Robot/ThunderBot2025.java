@@ -107,7 +107,7 @@ public class ThunderBot2025 implements DataLoggable
     public boolean registerObeliskID(){
         // Step 1: Latch the official ID if we haven't already.
 
-        launcher.setPipeline(0);
+        launcher.setPipeline((this.color == Alliance_Color.BLUE) ? 0:3);
         int currentId = launcher.getDetectedAprilTagId();
         if (currentId != -1) {
             latchedObeliskId = currentId;
@@ -238,6 +238,9 @@ public class ThunderBot2025 implements DataLoggable
     }
     public void charge() {
         launcher.prepShot();
+    }
+    public void chargeLow() {
+        launcher.prepShotLow();
     }
 
     public void flip(){

@@ -40,10 +40,10 @@ public class Turret implements DataLoggable {
     private Telemetry telemetry;
 
     // Tunable constants from your original file
-    public static double P_TURRET = 0.027, I_TURRET = 0.02, D_TURRET = 0.0012, F_TURRET_MIN = 0.0, F_TURRET_MAX = 0.023;
+    public static double P_TURRET = 0.0285, I_TURRET = 0.022, D_TURRET = 0.00135, F_TURRET_MIN = 0.0, F_TURRET_MAX = 0.023;
     public static double MAX_TURRET_POS = 225;
     public static double MIN_TURRET_POS = -90;
-    public static double TURRET_ANGLE_TOLERANCE = 2.0;
+    public static double TURRET_ANGLE_TOLERANCE = 2.5;
 
     public static double KV_ROT = 0.09; // Tunable: Gain for robot rotation
     public static double KV_TRANS = 0.17; // Tunable: Gain for translational apparent rotation
@@ -150,10 +150,10 @@ public class Turret implements DataLoggable {
         return finalAngle;
     }
 
-//    public void setManualPower(double power) {
-//        this.manualPower = power;
-//        this.currentState = State.MANUAL_CONTROL;
-//    }
+    public void setManualPower(double power) {
+        this.manualPower = power;
+        this.currentState = State.MANUAL_CONTROL;
+    }
 
 //    public void setOffsetAngle(double angle) {
 //        offsetAngle = angle;
@@ -213,13 +213,13 @@ public class Turret implements DataLoggable {
                 }
                 break;
 
-//            case MANUAL_CONTROL:
-//                setHardwarePower(manualPower);
-//                if (Math.abs(manualPower) < 0.01) {
-//                    currentState = State.HOLDING;
-//                    setHardwarePower(0);
-//                };
-//                break;
+            case MANUAL_CONTROL:
+                setHardwarePower(manualPower);
+                if (Math.abs(manualPower) < 0.01) {
+                    currentState = State.HOLDING;
+                    setHardwarePower(0);
+                };
+                break;
             case STOP:
                 setHardwarePower(0);
                 break;

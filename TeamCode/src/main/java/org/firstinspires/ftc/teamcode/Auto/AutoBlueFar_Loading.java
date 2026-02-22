@@ -143,7 +143,7 @@ public class AutoBlueFar_Loading extends LinearOpMode{
                                                     robot.waitForSequenceEndAction()
 
                                             ),
-                                            new SleepAction(27)
+                                            new SleepAction(26)
                                     ),
                                     // Park
                                     robot.cancelSequenceAction(),
