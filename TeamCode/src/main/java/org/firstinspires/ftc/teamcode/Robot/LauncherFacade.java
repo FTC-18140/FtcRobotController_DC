@@ -14,7 +14,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Utilities.DataLoggable;
 import org.firstinspires.ftc.teamcode.Utilities.DataLogger;
-import org.firstinspires.ftc.teamcode.Utilities.KalmanPoseEstimator;
 
 import java.util.Objects;
 
@@ -151,7 +150,7 @@ public class LauncherFacade implements DataLoggable {
         double distanceToGoal = getGoalDistance();
 
         turret.update(fusedPose, currentOdoVelocity, targetPos);
-        flywheel.update(distanceToGoal);
+        flywheel.update();
 
         telemetry.addData("Using Limelight: ", usingLimelight);
     }

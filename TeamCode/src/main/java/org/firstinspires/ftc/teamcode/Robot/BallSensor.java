@@ -1,11 +1,7 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
-import android.graphics.Color;
-
 import androidx.annotation.Size;
-
 import com.acmerobotics.dashboard.config.Config;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
@@ -34,21 +30,11 @@ public class BallSensor {
 
     // --- Tunable Constants via FTC Dashboard ---
 
-    public static double PRESENCE_SATURATION = .332;
-
-//    public static double GREEN_BALL_MIN_G = 0.1;
-//    public static double GREEN_BALL_MAX_R = 0.1;
-//    public static double PURPLE_BALL_MIN_R = 0.12;
-//    public static double PURPLE_BALL_MIN_B = 0.12;
-
     public static int GREEN_HUE_MIN = 110;
     public static int GREEN_HUE_MAX = 160;
     public static int PURPLE_HUE_MIN = 185;
     public static int PURPLE_HUE_MAX = 245;
-//    public static int PURPLE_HUE_MIN_V2 = 210;
-//    public static int PURPLE_HUE_MAX_V2 = 295;
-    public static double PRESENCE_DISTANCE_CM = 5;
-    public static double PRESENCE_ALPHA = 0.45;
+
 
     public static double[] presenceDistances = {4.0, 4.0, 4.2, 6.7, 5.0, 4.0} ;
     int id;
@@ -127,15 +113,6 @@ public class BallSensor {
         return distanceCm < presenceDistances[id];
     }
 
-//    private boolean isGreenRGB() {
-//        return colors.green > GREEN_BALL_MIN_G && colors.red < GREEN_BALL_MAX_R;
-//    }
-//
-//    private boolean isPurpleRGB() {
-//        return colors.red > PURPLE_BALL_MIN_R && colors.blue > PURPLE_BALL_MIN_B;
-//    }
-
-
     private boolean isBallColorHSV(BallColor ballColor){
         boolean isBallColor = false;
         switch(ballColor){
@@ -153,23 +130,7 @@ public class BallSensor {
         return isBallColor;
 
     }
-//    private boolean isBallColorHSV_V2(BallColor ballColor){
-//        boolean isBallColor = false;
-//        switch(ballColor){
-//            case GREEN:
-//                isBallColor = (GREEN_HUE_MIN <= hsv[0]) && (hsv[0] <= GREEN_HUE_MAX);
-//
-//                break;
-//            case PURPLE:
-//                isBallColor = (PURPLE_HUE_MIN_V2 <= hsv[0]) && (hsv[0] <= PURPLE_HUE_MAX_V2);
-//                break;
-//            case NONE:
-//                isBallColor = !isBallPresentInternal();
-//                break;
-//        }
-//        return isBallColor;
-//
-//    }
+
     private void colorToHSV(double red, double green, double blue, @Size(3) float[] hsv) {
         double colorMax = Math.max(red, Math.max(green, blue));
         double colorMin = Math.min(red, Math.min(green, blue));
@@ -193,12 +154,6 @@ public class BallSensor {
     }
 
     private float[] updateColorsToHSV(){
-//        Color.RGBToHSV(
-//                (int)(colors.red * 255),
-//                (int)(colors.green * 255),
-//                (int) (colors.blue * 255),
-//                hsv
-//        );
         colorToHSV(colors.red, colors.green, colors.blue, hsv);
         return hsv;
     }
