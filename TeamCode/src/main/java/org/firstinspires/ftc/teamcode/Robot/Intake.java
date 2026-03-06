@@ -5,7 +5,6 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -36,6 +35,9 @@ public class Intake {
         }
     }
 
+    /**
+     * Update method for Intake
+     */
     public void update(){
         intakeMotor.setPower(current_speed * slow);
     }
@@ -47,6 +49,7 @@ public class Intake {
         current_speed = INTAKE_SPEED;
         telemetry.addData("Intaking", 0);
     }
+
 
     public void slow(){
         slow = SLOWED_SPEED;
@@ -67,6 +70,11 @@ public class Intake {
             }
         };
     }
+
+    /**
+     * Used to expose the intake power value to other classes
+     * @return the intake power
+     */
     public double getIntakePower(){ return intakeMotor.getPower();}
 
     /**

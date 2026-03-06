@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
-@Autonomous(group = "AutoRedFar")
+@Autonomous(group = AutoRedFar.AUTO_RED_FAR_GROUP)
 public class AutoRedFar_Loading extends LinearOpMode{
 
     @Override
@@ -164,7 +164,7 @@ public class AutoRedFar_Loading extends LinearOpMode{
         } finally {
             // This block will always run, even if the opmode is stopped prematurely.
             robot.drive.updatePoseEstimate();
-            blackboard.put("ENDING_POSITION_AUTO", robot.drive.localizer.getPose());
+            blackboard.put(ThunderBot2025.STARTING_POSE_KEY, robot.drive.localizer.getPose());
             blackboard.put("TURRET_ENDING_ANGLE_AUTO", robot.launcher.getTurretAngle());
 //            ThunderBot2025.starting_position = robot.drive.localizer.getPose();
 //            ThunderBot2025.starting_turret_angle = robot.launcher.getTurretAngle();

@@ -40,14 +40,18 @@ public class Kickstand {
     public void retract() {
         currentState = Kickstand.State.RETRACTED;
     }
+
+    /**]
+     * If kickstand is retracted, extend. If extended, retract.
+     */
     public void switchState() {
         State state = currentState;
         switch(state) {
             case EXTENDED:
-                currentState = State.RETRACTED;
+                retract();
                 break;
             case RETRACTED:
-                currentState = State.EXTENDED;
+                extend();
                 break;
         }
 
@@ -62,7 +66,6 @@ public class Kickstand {
     public void update() {
         currentServoPosition = kickstandServo.getPosition();
 
-        // Refactored to have a single exit point
         if (currentState != null) {
             switch (currentState) {
                 case EXTENDED:

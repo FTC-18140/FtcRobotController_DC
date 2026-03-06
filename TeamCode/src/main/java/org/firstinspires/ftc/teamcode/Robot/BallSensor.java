@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
 import androidx.annotation.Size;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
@@ -15,61 +17,62 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 @Config // Annotation to make this class tunable via FTC Dashboard
 public class BallSensor {
 
-    /** Enum to represent the detected color of a ball. */
+    private static final double HSV_CONST = 60.0;
+
+    /**
+     * Enum to represent the detected color of a ball.
+     */
     public enum BallColor {
         GREEN,
         PURPLE,
         NONE // Used when no ball is detected
     }
 
-    private NormalizedColorSensor colorSensor;
-    private Telemetry telemetry;
-    private String sensorName;
+    private NormalizedColorSensor colorSensor = null;
+    private Telemetry telemetry = null;
+    private String sensorName = null;
 
-    public static boolean TELEM = false;
+    private static final boolean TELEM = false;
 
     // --- Tunable Constants via FTC Dashboard ---
 
-    public static int GREEN_HUE_MIN = 110;
-    public static int GREEN_HUE_MAX = 160;
-    public static int PURPLE_HUE_MIN = 185;
-    public static int PURPLE_HUE_MAX = 245;
+    private static final int GREEN_HUE_MIN = 110;
+    private static final int GREEN_HUE_MAX = 160;
+    private static final int PURPLE_HUE_MIN = 185;
+    private static final int PURPLE_HUE_MAX = 245;
 
 
-    public static double[] presenceDistances = {4.0, 4.0, 4.2, 6.7, 5.0, 4.0} ;
-    int id;
+    private static final double[] presenceDistances = {4.0, 4.0, 4.2, 6.7, 5.0, 4.0};
+    private int id = 0;
 
-    public static float GAIN = 2.0f;
-    float[] hsv = new float[3];
+    private static final float GAIN = 2.0f;
+    private final float[] hsv = new float[3];
     // --- Cached Hardware Values ---
-    private NormalizedRGBA colors;
-    private double distanceCm;
+    private NormalizedRGBA colors = null;
+    private double distanceCm = 0.0;
     private BallColor detectedColor = BallColor.NONE;
-    boolean isV2 = false;
 
     public void init(HardwareMap hwMap, Telemetry telem, String sensorName, int id) {
-        this.telemetry = telem;
+        telemetry = telem;
         this.sensorName = sensorName;
         this.id = id;
         try {
             colorSensor = hwMap.get(NormalizedColorSensor.class, sensorName);
-            colorSensor.setGain(GAIN);
-
-            if(!colorSensor.getDeviceName().toLowerCase().matches("rev color sensor v3")){
-                isV2 = true;
-            }
-        } catch (Exception e) {
+            colorSensor.setGain(BallSensor.GAIN);
+        } catch (RuntimeException e) {
             telemetry.addData("Error", "Could not find BallSensor: " + sensorName);
         }
     }
 
-    /** Reads sensor values and determines ball color. Call this once per loop. */
+    /**
+     * Reads sensor values and determines ball color. Call this once per loop.
+     */
     public void update() {
         // Refactored to have a single exit point
-        if (colorSensor != null) {
+        if (null != colorSensor) {
             // 1. Cache hardware reads
             colors = colorSensor.getNormalizedColors();
-            updateColorsToHSV();
+            this.updateColorsToHSV();
             if (colorSensor instanceof DistanceSensor) {
                 distanceCm = ((DistanceSensor) colorSensor).getDistance(DistanceUnit.CM);
             }
@@ -79,10 +82,10 @@ public class BallSensor {
 
             // 2. Determine presence and color
 
-            if (isBallPresentInternal()) {
-                if (isBallColorHSV(BallColor.PURPLE)) {
+            if (this.isBallPresentInternal()) {
+                if (this.isBallColorHSV(BallColor.PURPLE)) {
                     detectedColor = BallColor.PURPLE;
-                } else{
+                } else {
                     detectedColor = BallColor.GREEN;
                 }
             } else {
@@ -94,77 +97,86 @@ public class BallSensor {
         } else {
             telemetry.addData(sensorName + " Not initialized", 0);
         }
-        addTelemetry();
+        this.addTelemetry();
     }
 
-    /** Returns the color of the ball detected during the last update(). */
-    public BallColor getDetectedColor() {
+    /**
+     * Returns the color of the ball detected during the last update().
+     */
+    BallColor getDetectedColor() {
         return detectedColor;
     }
 
-    /** Returns true if a ball was detected during the last update(). */
+    /**
+     * Returns true if a ball was detected during the last update().
+     */
     public boolean isBallPresent() {
-        return detectedColor != BallColor.NONE;
+        return BallColor.NONE != detectedColor;
     }
 
     // --- Internal Helper Methods ---
 
     private boolean isBallPresentInternal() {
-        return distanceCm < presenceDistances[id];
+        return distanceCm < BallSensor.presenceDistances[id];
     }
 
-    private boolean isBallColorHSV(BallColor ballColor){
+    private boolean isBallColorHSV(BallColor ballColor) {
         boolean isBallColor = false;
-        switch(ballColor){
+        switch (ballColor) {
             case GREEN:
-                isBallColor = (GREEN_HUE_MIN <= hsv[0]) && (hsv[0] <= GREEN_HUE_MAX);
+                isBallColor = ((float) BallSensor.GREEN_HUE_MIN <= hsv[0]) && (hsv[0] <= (float) BallSensor.GREEN_HUE_MAX);
 
                 break;
             case PURPLE:
-                isBallColor = (PURPLE_HUE_MIN <= hsv[0]) && (hsv[0] <= PURPLE_HUE_MAX);
+                isBallColor = ((float) BallSensor.PURPLE_HUE_MIN <= hsv[0]) && (hsv[0] <= (float) BallSensor.PURPLE_HUE_MAX);
                 break;
             case NONE:
-                isBallColor = !isBallPresentInternal();
+                isBallColor = !this.isBallPresentInternal();
                 break;
         }
         return isBallColor;
 
     }
 
-    private void colorToHSV(double red, double green, double blue, @Size(3) float[] hsv) {
-        double colorMax = Math.max(red, Math.max(green, blue));
-        double colorMin = Math.min(red, Math.min(green, blue));
+    private void colorToHSV(double red, double green, double blue, @Size(3L) float[] hsv) {
+        double greenBlueMax = Math.max(green, blue);
+        double colorMax = Math.max(red, greenBlueMax);
+        double greenBlueMin = Math.min(green, blue);
+        double colorMin = Math.min(red, greenBlueMin);
         double delta = colorMax - colorMin;
-        float hue = 0;
+        float hue = (float) 0;
         float saturation;
         float value = (float) colorMax;
-        if(delta == 0){
-            hue= 0;
+        if ((double) 0 == delta) {
+            hue = (float) 0;
         } else if (colorMax == red) {
-            hue = (float) (60 * ((((green - blue) / delta)) % 6));
+            hue = (float) (HSV_CONST * ((((green - blue) / delta)) % 6.0));
         } else if (colorMax == green) {
-            hue = (float) (60 * ((((blue - red) / delta)) + 2));
+            hue = (float) (HSV_CONST * ((((blue - red) / delta)) + 2.0));
         } else if (colorMax == blue) {
-            hue = (float) (60 * ((((red - green) / delta)) + 4));
+            hue = (float) (HSV_CONST * ((((red - green) / delta)) + 4.0));
         }
-        saturation = colorMax == 0 ? 0 : (float) (delta / colorMax);
+        saturation = (double) 0 == colorMax ? (float) 0 : (float) (delta / colorMax);
         hsv[0] = hue;
         hsv[1] = saturation;
         hsv[2] = value;
     }
 
-    private float[] updateColorsToHSV(){
-        colorToHSV(colors.red, colors.green, colors.blue, hsv);
+    private float[] updateColorsToHSV() {
+        this.colorToHSV((double) colors.red, (double) colors.green, (double) colors.blue, hsv);
         return hsv;
     }
 
-    /** Call this from update() to see live sensor values for tuning. */
+    /**
+     * Call this from update() to see live sensor values for tuning.
+     */
 
-    public void addTelemetry() {
-        if ( !TELEM ) return;
-        telemetry.addLine(String.format("--- Sensor: %s ---", sensorName));
+    void addTelemetry() {
+        if (!BallSensor.TELEM) return;
+        String format = String.format("--- Sensor: %s ---", sensorName);
+        telemetry.addLine(format);
 //        telemetry.addData("Device Info", String.format("(Name: %1s, Version: %2s)", colorSensor.getDeviceName(), colorSensor.getVersion()));
-        telemetry.addData("Detected", String.format("%s (Dist: %.2f cm, Hue: %.4f, Saturation: %.4f, Value: %.4f, Alpha: %.4f)", detectedColor, distanceCm, hsv[0],hsv[1],hsv[2], colors.alpha));
+        telemetry.addData("Detected", String.format("%s (Dist: %.2f cm, Hue: %.4f, Saturation: %.4f, Value: %.4f, Alpha: %.4f)", detectedColor, distanceCm, hsv[0], hsv[1], hsv[2], colors.alpha));
         //telemetry.addData("R | G | B", String.format("%.3f | %.3f | %.3f", colors.red, colors.green, colors.blue));
         //telemetry.addData("H | S | V", String.format("%.3f | %.3f | %.3f", hsv[0], hsv[1],hsv[2]));
         //telemetry.addData("Tunable Gain", GAIN);

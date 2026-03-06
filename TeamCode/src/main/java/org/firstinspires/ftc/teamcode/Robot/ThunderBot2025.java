@@ -23,43 +23,45 @@ import org.firstinspires.ftc.teamcode.Utilities.DataLogger;
 import org.jetbrains.annotations.Nullable;
 
 @Config
-public class ThunderBot2025 implements DataLoggable
-{
-    public MecanumDrive drive;
-    public Intake intake;
-    public IndexerFacade indexer;
-    public LauncherFacade launcher;
-    public LED led;
-    public Kickstand kickstand;
+public class ThunderBot2025 implements DataLoggable {
+    public static final String STARTING_POSE_KEY = "ENDING_POSE_AUTO";
+    public MecanumDrive drive = null;
+    public Intake intake = null;
+    public IndexerFacade indexer = null;
+    public LauncherFacade launcher = null;
+    private LED led = null;
+    public Kickstand kickstand = null;
 
     // --- AprilTag and Sequence Management ---
     private int latchedObeliskId = -1; // -1 indicates no ID has been officially latched yet.
 
-    public enum Alliance_Color{
+    public enum Alliance_Color {
         RED,
         BLUE
     }
-    public Alliance_Color color = Alliance_Color.BLUE;
-    private Telemetry telemetry = null;
-    public static boolean field_centric = true;
-    public static double MIN_SPEED = 0.3, DEFAULT_SPEED = 0.7, MAX_SPEED = 1.0;
-    public double speed = DEFAULT_SPEED;
-    public static Pose2d starting_position;
-    public static String STARTING_POSITION = "ENDING_POSITION_AUTO";
-    public ElapsedTime runtime = new ElapsedTime();
-    Pose2d TELEOP_CORNER_RED = new Pose2d(-63, 60, 0);
-    Pose2d TELEOP_CORNER_BLUE = new Pose2d(-63, -60, 0);
 
-    public void init(HardwareMap hwMap, Telemetry telem, @Nullable Pose2d pose)
-    {
+    private Alliance_Color color = Alliance_Color.BLUE;
+    private Telemetry telemetry = null;
+    private static boolean field_centric = true;
+    public static final double MIN_SPEED = 0.3;
+    public static final double DEFAULT_SPEED = 0.7;
+    public static final double MAX_SPEED = 1.0;
+    private double speed = ThunderBot2025.DEFAULT_SPEED;
+    public static Pose2d starting_position;
+    private static String STARTING_POSE = ThunderBot2025.STARTING_POSE_KEY;
+    public ElapsedTime runtime = new ElapsedTime();
+    private Pose2d TELEOP_CORNER_RED = new Pose2d(-63, 60, 0);
+    private Pose2d TELEOP_CORNER_BLUE = new Pose2d(-63, -60, 0);
+
+    public void init(HardwareMap hwMap, Telemetry telem, @Nullable Pose2d pose) {
         telemetry = new MultipleTelemetry(telem, FtcDashboard.getInstance().getTelemetry());
 
-        starting_position = (Pose2d) blackboard.getOrDefault(STARTING_POSITION, null);
-        if(pose == null){
-            if(starting_position == null) {
-                pose = new Pose2d(0,0,0);
+        ThunderBot2025.starting_position = (Pose2d) blackboard.getOrDefault(ThunderBot2025.STARTING_POSE, null);
+        if (null == pose) {
+            if (null == starting_position) {
+                pose = new Pose2d(0, 0, 0);
             } else {
-                pose = starting_position;
+                pose = ThunderBot2025.starting_position;
             }
         }
         drive = new MecanumDrive(hwMap, pose);
@@ -84,7 +86,7 @@ public class ThunderBot2025 implements DataLoggable
     }
 
 
-    public void setColor(Alliance_Color alliance){
+    public void setColor(Alliance_Color alliance) {
         color = alliance;
         launcher.setAlliance(color);
 
@@ -95,53 +97,47 @@ public class ThunderBot2025 implements DataLoggable
      * The first time it is called with a valid AprilTag in view, it "latches" that ID.
      * Every subsequent call will use the latched ID, ignoring any new tags the robot might see.
      */
-    public boolean registerObeliskID(){
+    public boolean registerObeliskID() {
 
         // Step 1: Latch the official ID if we haven't already.
 
-        launcher.setPipeline((this.color == Alliance_Color.BLUE) ? 0:3);
+        launcher.setPipeline((Alliance_Color.BLUE == this.color) ? 0 : 3);
         int currentId = launcher.getDetectedAprilTagId();
-        if (currentId != -1) {
+        if (-1 != currentId) {
             latchedObeliskId = currentId;
             telemetry.addData("Obelisk ID Latched: ", latchedObeliskId);
         }
 
         // Step 2: Plan the sequence using the latched ID.
         // This will only proceed if an ID has been successfully latched.
-        if (latchedObeliskId != -1) {
+        if (-1 != latchedObeliskId) {
             telemetry.addData("Sequence Planned:", indexer.planShotSequence(latchedObeliskId));
             return true;
         }
         return false;
     }
 
-    public void drive(double forward, double right, double clockwise, double in_speed, TelemetryPacket p)
-    {
-        if(intake.getIntakePower() != 0 && in_speed > DEFAULT_SPEED){
-            speed = DEFAULT_SPEED;
+    public void drive(double forward, double right, double clockwise, double in_speed, TelemetryPacket p) {
+        if (0 != intake.getIntakePower() && in_speed > ThunderBot2025.DEFAULT_SPEED) {
+            speed = ThunderBot2025.DEFAULT_SPEED;
         } else {
             speed = in_speed;
         }
-        if (field_centric)
-        {
-            fieldCentricDrive(forward, right, clockwise, speed, p);
-        }
-        else
-        {
-            robotCentricDrive(forward, right, clockwise, speed);
+        if (ThunderBot2025.field_centric) {
+            this.fieldCentricDrive(forward, right, clockwise, speed, p);
+        } else {
+            this.robotCentricDrive(forward, right, clockwise, speed);
         }
     }
 
-    private void robotCentricDrive(double forward, double right, double clockwise, double speed)
-    {
+    private void robotCentricDrive(double forward, double right, double clockwise, double speed) {
         PoseVelocity2d thePose = new PoseVelocity2d(new Vector2d(forward, -right).times(speed), -clockwise);
         drive.setDrivePowers(thePose);
     }
 
-    private void fieldCentricDrive(double north, double east, double clockwise, double speed, TelemetryPacket p)
-    {
+    private void fieldCentricDrive(double north, double east, double clockwise, double speed, TelemetryPacket p) {
         drive.updatePoseEstimate();
-        double heading = drive.localizer.getPose().heading.toDouble() - Math.toRadians(90);
+        double heading = drive.localizer.getPose().heading.toDouble() - 1.5707963267948966;
         Vector2d theVector = new Vector2d(
                 north * Math.cos(-heading) - (-east) * Math.sin(-heading),
                 north * Math.sin(-heading) + (-east) * Math.cos(-heading)
@@ -152,23 +148,32 @@ public class ThunderBot2025 implements DataLoggable
         drive.setDrivePowers(thePose);
     }
 
-    public void update(){
+    public void update() {
         PoseVelocity2d robotPoseVel = drive.updatePoseEstimate();
         launcher.update(drive.localizer.getPose(), robotPoseVel);
-        indexer.update(launcher.isAtTargetRpm() && launcher.isAtTarget());
+        boolean atTargetRpm = launcher.isAtTargetRpm();
+        indexer.update(atTargetRpm && launcher.isAtTarget());
         intake.update();
-        led.update(launcher.getFlywheelRpm(), launcher.getFlywheelTargetRpm(), launcher.flywheel.getRpmLowerBound(), launcher.flywheel.getRpmUpperBound(), runtime.seconds(), indexer.getLastBallState(2), indexer.indexerIsFull(), indexer.getState());
+        double rpmLowerBound = launcher.flywheel.getRpmLowerBound();
+        double rpmUpperBound = launcher.flywheel.getRpmUpperBound();
+        double seconds = runtime.seconds();
+        IndexerFacade.BallState lastBallState = indexer.getLastBallState(2);
+        double flywheelTargetRpm = launcher.getFlywheelTargetRpm();
+        double flywheelRpm = launcher.getFlywheelRpm();
+        boolean isIndexerFull = indexer.indexerIsFull();
+        IndexerFacade.State state = indexer.getCurrentState();
+        led.update(flywheelRpm, flywheelTargetRpm, rpmLowerBound, rpmUpperBound, seconds, lastBallState, isIndexerFull, state);
         kickstand.update();
 
-        if(intake.getIntakePower() > 0 && !indexer.isNearSlot()){
+        if (0 < intake.getIntakePower() && !indexer.isNearSlot()) {
             intake.slow();
-        } else if(indexer.getBallNumber() > 3) {
+        } else if (3 < indexer.getBallNumber()) {
             intake.unslow();
             intake.spit();
         } else {
             intake.unslow();
         }
-        
+
     }
 
     public Action waitForTime(double time) {
@@ -184,80 +189,85 @@ public class ThunderBot2025 implements DataLoggable
         intake.intake();
         indexer.intake();
     }
+
     public void intakeStop() {
         intake.stop();
         indexer.intakeStop();
     }
 
-    public Action intakeStartAction(){
+    public Action intakeStartAction() {
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                intakeStart();
+                ThunderBot2025.this.intakeStart();
                 return false;
             }
         };
     }
-    public Action intakeStopAction(){
+
+    public Action intakeStopAction() {
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                intakeStop();
+                ThunderBot2025.this.intakeStop();
                 return false;
             }
         };
     }
+
     public void charge() {
         launcher.prepShot();
     }
+
     public void chargeLow() {
         launcher.prepShotLow();
     }
 
-    public boolean flip(){
-        if(launcher.isAtTargetRpm()){
+    public boolean flip() {
+        if (launcher.isAtTargetRpm()) {
             return indexer.flipAndCycle();
         }
         return false;
     }
 
-    public void flipperUp()
-    {
+    public void flipperUp() {
         indexer.flipOverride(true);
     }
+
     public void flipperDown() {
         indexer.flipOverride(false);
     }
 
 
-    public Action updateAction(){
-            return new Action() {
-                @Override
-                public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                    update();
-                    telemetry.update();
-                    return true;
-                }
-            };
-        }
+    public Action updateAction() {
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                ThunderBot2025.this.update();
+                telemetry.update();
+                return true;
+            }
+        };
+    }
 
 
     public void resetHeadingAndPosition() {
 
-        drive.localizer.setPose((color == Alliance_Color.RED) ? TELEOP_CORNER_RED : TELEOP_CORNER_BLUE);
+        drive.localizer.setPose((Alliance_Color.RED == color) ? TELEOP_CORNER_RED : TELEOP_CORNER_BLUE);
 
     }
+
     public boolean resetTurret() {
-        if(launcher.setTurretOffset()){
+        if (launcher.setTurretOffset()) {
             led.setLauncherLedToColor("green");
             return true;
-        }else{
+        } else {
             led.setLauncherLedToColor("blue");
             return false;
         }
     }
 
-    public Action aimAction(){
+    public Action aimAction() {
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
@@ -267,7 +277,7 @@ public class ThunderBot2025 implements DataLoggable
         };
     }
 
-    public Action holdTurretAction(){
+    public Action holdTurretAction() {
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
@@ -276,22 +286,24 @@ public class ThunderBot2025 implements DataLoggable
             }
         };
     }
-    
+
     // --- Start of New Intelligent Actions ---
 
-    public Action spamAction(){
+    public Action spamAction() {
         return new SequentialAction(
-                launchAction(),
-                launchAction(),
-                launchAction()
+                this.launchAction(),
+                this.launchAction(),
+                this.launchAction()
         );
     }
-    public Action startSequenceAction(){
+
+    public Action startSequenceAction() {
         return new SequentialAction(
                 indexer.runCurrentSequenceAction()
         );
     }
-    public Action cancelSequenceAction(){
+
+    public Action cancelSequenceAction() {
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
@@ -300,15 +312,16 @@ public class ThunderBot2025 implements DataLoggable
             }
         };
     }
-    public Action waitForSequenceEndAction(){
+
+    public Action waitForSequenceEndAction() {
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                return indexer.inSequence();
+                return indexer.isInSequence();
             }
         };
     }
-    
+
     public Action waitForBallAndCycleAction() {
         return new Action() {
             private boolean hasStarted = false;
@@ -318,14 +331,15 @@ public class ThunderBot2025 implements DataLoggable
 
                 if (indexer.ballInIndexer() && indexer.isAtTarget() && !hasStarted) {
                     hasStarted = !indexer.readyNextIntakeSlot(IndexerFacade.BallState.VACANT); // End this action, the cycle command has been sent.
-                } else if(hasStarted){
-                    return !(indexer.getState() == IndexerFacade.State.SELECTING_BALL);
+                } else if (hasStarted) {
+                    return IndexerFacade.State.SELECTING_BALL != indexer.getCurrentState();
                 }
                 return true; // Continue waiting for a ball.
             }
         };
     }
-    public Action waitForBallAction(){
+
+    public Action waitForBallAction() {
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
@@ -336,7 +350,7 @@ public class ThunderBot2025 implements DataLoggable
 
     // --- Deprecated and Re-implemented Actions ---
 
-    public Action indexerFullAction(){
+    public Action indexerFullAction() {
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
@@ -344,7 +358,8 @@ public class ThunderBot2025 implements DataLoggable
             }
         };
     }
-    public Action indexerIsAtTargetAction(){
+
+    public Action indexerIsAtTargetAction() {
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
@@ -352,11 +367,12 @@ public class ThunderBot2025 implements DataLoggable
             }
         };
     }
-    public Action launchAction(){
+
+    public Action launchAction() {
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                return !flip();
+                return !ThunderBot2025.this.flip();
             }
         };
     }
@@ -364,6 +380,7 @@ public class ThunderBot2025 implements DataLoggable
     /**
      * Returns a Road Runner Action that plans the shot sequence based on the last detected Obelisk ID.
      * This is useful for re-planning the sequence after intaking new artifacts.
+     *
      * @return An Action that can be used in a sequence.
      */
     public Action planSequenceAction() {
@@ -371,7 +388,7 @@ public class ThunderBot2025 implements DataLoggable
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 indexer.planShotSequence(latchedObeliskId);
-                return !indexer.inSequence(); // This is a one-shot action.
+                return !indexer.isInSequence(); // This is a one-shot action.
             }
         };
     }
@@ -382,6 +399,7 @@ public class ThunderBot2025 implements DataLoggable
         Pose2d pose = drive.localizer.getPose();
         logger.addField(pose.position.x);
         logger.addField(pose.position.y);
-        logger.addField(pose.heading.toDouble());
+        double headingDouble = pose.heading.toDouble();
+        logger.addField(headingDouble);
     }
 }
