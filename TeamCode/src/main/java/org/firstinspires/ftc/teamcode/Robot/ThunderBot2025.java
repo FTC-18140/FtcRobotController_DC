@@ -243,10 +243,11 @@ public class ThunderBot2025 implements DataLoggable
         launcher.prepShotLow();
     }
 
-    public void flip(){
+    public boolean flip(){
         if(launcher.isAtTargetRpm()){
-            indexer.flipAndCycle();
+            return indexer.flipAndCycle();
         }
+        return false;
     }
 
     public void flipperUp()
@@ -329,19 +330,6 @@ public class ThunderBot2025 implements DataLoggable
             }
         };
     }
-
-    public Action launchReadyAction(){
-        return new Action() {
-            @Override
-            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                telemetry.addData("Current Action: launchReadyAction()", 0);
-                return !(launcher.isAtTarget()
-                        && launcher.isAtTargetRpm()
-                        && indexer.isAtTarget()
-                        && (indexer.getState() == IndexerFacade.State.AWAITING_FLIP || indexer.getState() == IndexerFacade.State.IDLE));
-            }
-        };
-    }
     
     // --- Start of New Intelligent Actions ---
     
@@ -360,6 +348,13 @@ public class ThunderBot2025 implements DataLoggable
         };
     }
 
+    public Action spamAction(){
+        return new SequentialAction(
+                launchAction(),
+                launchAction(),
+                launchAction()
+        );
+    }
     public Action startSequenceAction(){
         return new SequentialAction(
                 indexer.runCurrentSequenceAction()
@@ -434,25 +429,12 @@ public class ThunderBot2025 implements DataLoggable
         };
     }
     public Action launchAction(){
-        return new SequentialAction(
-                launchReadyAction(),
-                new Action() {
-                    private boolean hasStarted = false;
-                    @Override
-                    public boolean run(@NonNull TelemetryPacket packet) {
-                        telemetry.addData("Current Action: launchAction()", 0);
-                        if (!hasStarted) {
-                           hasStarted = indexer.flip();
-                           telemetry.addData("launchAction() just called indexer.flip()", indexer.getState());
-                        } else {
-                            telemetry.addData("launchAction() just called indexer.cycle(1)", 0);
-                            return !indexer.cycle(1);
-                        }
-                        return true;
-                    }
-                },
-                indexerIsAtTargetAction()
-        );
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                return !flip();
+            }
+        };
     }
 
     /**
