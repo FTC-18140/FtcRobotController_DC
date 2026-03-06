@@ -47,6 +47,7 @@ public class ThunderBot2025 implements DataLoggable
     public static Pose2d starting_position;
     public static String STARTING_POSITION = "ENDING_POSITION_AUTO";
     public ElapsedTime runtime = new ElapsedTime();
+    public static double robot_width = 20;
     Pose2d TELEOP_CORNER_RED = new Pose2d(-63, 60, 0);
     Pose2d TELEOP_CORNER_BLUE = new Pose2d(-63, -60, 0);
 
@@ -171,6 +172,23 @@ public class ThunderBot2025 implements DataLoggable
         
     }
 
+    public boolean inLaunchZone(){
+        double x = drive.localizer.getPose().position.x;
+        double y = drive.localizer.getPose().position.y;
+
+        double half_width = robot_width/2;
+        if (x > -half_width){
+            if(y < x + half_width && y > -x -half_width){
+                return true;
+            }
+        } else {
+            if(y < (-x - 45 + half_width) && y > (x + 45 - half_width)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public Action waitForTime(double time) {
         return new Action() {
             @Override
@@ -215,7 +233,7 @@ public class ThunderBot2025 implements DataLoggable
     }
 
     public boolean flip(){
-        if(launcher.isAtTargetRpm()){
+        if(launcher.isAtTargetRpm() && inLaunchZone()){
             return indexer.flipAndCycle();
         }
         return false;
@@ -354,9 +372,16 @@ public class ThunderBot2025 implements DataLoggable
     }
     public Action launchAction(){
         return new Action() {
+            boolean started = false;
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                return !flip();
+                if (!started) {
+                    started = flip();
+                }
+                else if(indexer.getState() == IndexerFacade.State.IDLE){
+                    return false;
+                }
+                return true;
             }
         };
     }
