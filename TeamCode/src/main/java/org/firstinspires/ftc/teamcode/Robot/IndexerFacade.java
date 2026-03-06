@@ -34,7 +34,6 @@ public class IndexerFacade {
     public static double FLIP_TIME_SECONDS = 0.11; // Time for the flipper to extend and retract
 
     private ElapsedTime cycleTimer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
-    public static double CYCLE_TIME_SECONDS = 0.0; // Time between initial detection and auto-indexing
     public int beamBreakCounter = 0;
 
     public static boolean TELEM = false;
