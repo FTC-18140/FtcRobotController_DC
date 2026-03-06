@@ -218,7 +218,7 @@ public class Turnstile {
                 if (isAtTarget()) {
                     currentState = State.HOLDING_POSITION;
                 }
-                angleController.setPID(P, I, D); // Re-apply PID gains from Dashboard
+                angleController.setPID(P, I, DFlywheel); // Re-apply PID gains from Dashboard
                 power = -angleController.calculate(currentAngle, targetAngle + current_offset);
                 indexerServo.setPower(power);
                 // Fall-through to HOLDING_POSITION to apply power

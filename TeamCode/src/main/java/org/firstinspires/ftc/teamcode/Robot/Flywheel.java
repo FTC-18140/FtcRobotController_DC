@@ -3,11 +3,9 @@ package org.firstinspires.ftc.teamcode.Robot;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.JavaUtil;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Utilities.MovingAverageFilter;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
@@ -23,15 +21,16 @@ public class Flywheel {
     private State currentState = State.IDLE; // Initial state
 
     // Hardware and Utilities
-    private DcMotorEx launcher, launcher2;
-    private PIDController rpmController;
+    private DcMotorEx launcher, activeRoller;
+    private PIDController rpmControllerFlywheel;
+    private PIDController rpmControllerActiveRoller;
     public static int FILTER_SIZE = 2;
     private MovingAverageFilter rpmFilter = new MovingAverageFilter(FILTER_SIZE);
     private Telemetry telemetry;
 
     // Tunable constants from your original file
-//    public static double P = 0.0025, I = 0.00, D = 0.00015;
-    public static double P = 0.0045, I = 0.006, D = 0.00011;
+//    public static double P = 0.0025, I = 0.00, DFlywheel = 0.00015;
+    public static double PFlywheel = 0.0045, IFlywheel = 0.006, DFlywheel = 0.00011;
     public static double F_MAX = 0.62, F_MIN = 0.47;
     public static double F_MAX_ADJUST = F_MAX, F_MIN_ADJUST = F_MIN;
     public static double F_STEP = .03;
@@ -55,17 +54,17 @@ public class Flywheel {
     double scaledPower = 0;
     public void init(HardwareMap hwMap, Telemetry telem) {
         this.telemetry = telem;
-        rpmController = new PIDController(P, I, D);
+        rpmControllerFlywheel = new PIDController(PFlywheel, IFlywheel, DFlywheel);
 
         launcher = hwMap.get(DcMotorEx.class, "launcher");
         launcher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         launcher.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         launcher.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        launcher2 = hwMap.get(DcMotorEx.class, "launcher2");
-        launcher2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        launcher2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        activeRoller = hwMap.get(DcMotorEx.class, "activeRoller");
+        activeRoller.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        activeRoller.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-//        launcher2.setDirection(DcMotorSimple.Direction.REVERSE);
+//        activeRoller.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     // --- High-Level Commands to Change State ---
@@ -131,7 +130,7 @@ public class Flywheel {
      */
     public void update(double distanceToGoal) {
 
-        rpmController.setPID(P, I, D);
+        rpmControllerFlywheel.setPID(PFlywheel, IFlywheel, DFlywheel);
         this.currentRpm = rpmFilter.addValue(getRPM());
 
         //telemetry.addData("launchervel",launcher.getVelocity());
@@ -152,7 +151,7 @@ public class Flywheel {
                 }
 
                 // --- Step 2: Calculate the PID correction ---
-                double pidOutput = rpmController.calculate(currentRpm, targetRpm);
+                double pidOutput = rpmControllerFlywheel.calculate(currentRpm, targetRpm);
                 double clippedPidOutput = Range.clip(pidOutput, -1, 1);
 
                 // --- Step 3: Combine and Set the Final Power ---
@@ -181,7 +180,7 @@ public class Flywheel {
 
     private void setPower(double power) {
         launcher.setPower(power);
-        launcher2.setPower(power);
+        activeRoller.setPower(power);
     }
 
     // --- Calculation Methods ---
