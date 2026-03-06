@@ -119,13 +119,6 @@ public class Teleop_BLUE extends OpMode {
         if(theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.RIGHT_TRIGGER)){
             robot.flip();
         }
-//        if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_UP)){
-//            robot.launcher.flywheel.adjustFF(1);
-//        } else if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_DOWN)) {
-//            robot.launcher.flywheel.adjustFF(-1);
-//        } else if (theGamepad2.getButtonPressed(TBDGamepad.Button.Y)) {
-//            robot.launcher.flywheel.resetFF();
-//        }
 
         if (theGamepad2.getButtonPressed(TBDGamepad.Button.Y)) {
             robot.flipperUp();
@@ -142,17 +135,6 @@ public class Teleop_BLUE extends OpMode {
         } else if (theGamepad2.getButton(TBDGamepad.Button.A) || theGamepad1.getButton(TBDGamepad.Button.A)) {
             robot.intake.spit();
         }
-
-        // --- Indexer Mode Selection & Logic ---
-        // 'Y' on Gamepad 2 toggles auto-loading mode.
-//        if (theGamepad2.getButtonPressed(TBDGamepad.Button.Y)) {
-//            isAutoLoading = !isAutoLoading;
-//            // When we enter the mode, find the first target slot.
-//            if (isAutoLoading) {
-//                robot.indexer.selectNextSlot(IndexerFacade.BallState.VACANT);
-//                slotToWatch = robot.indexer.getCurrentTargetSlot();
-//            }
-//        }
 
         // --- Manual Overrides to CANCEL Auto-Loading ---
         // Driver can cancel by spitting.
@@ -200,7 +182,7 @@ public class Teleop_BLUE extends OpMode {
         }
 
         robot.drive.localizer.update();
-//        telemetry.addData("Indexer Mode", isAutoLoading ? "AUTO-LOADING" : "MANUAL");
+        telemetry.addData("Indexer Mode", isAutoLoading ? "AUTO-LOADING" : "MANUAL");
         telemetry.addData("position X: ", robot.drive.localizer.getPose().position.x);
         telemetry.addData("position Y: ", robot.drive.localizer.getPose().position.y);
         telemetry.addData("heading: ", Math.toDegrees(robot.drive.localizer.getPose().heading.toDouble()));

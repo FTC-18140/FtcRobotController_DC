@@ -136,17 +136,6 @@ public class Teleop_Red extends OpMode {
             robot.intake.spit();
         }
 
-        // --- Indexer Mode Selection & Logic ---
-        // 'Y' on Gamepad 2 toggles auto-loading mode.
-//        if (theGamepad2.getButtonPressed(TBDGamepad.Button.Y)) {
-//            isAutoLoading = !isAutoLoading;
-//            // When we enter the mode, find the first target slot.
-//            if (isAutoLoading) {
-//                robot.indexer.selectNextSlot(IndexerFacade.BallState.VACANT);
-//                slotToWatch = robot.indexer.getCurrentTargetSlot();
-//            }
-//        }
-
         // --- Manual Overrides to CANCEL Auto-Loading ---
         // Driver can cancel by spitting.
         if (theGamepad1.getButtonPressed(TBDGamepad.Button.A)) {
