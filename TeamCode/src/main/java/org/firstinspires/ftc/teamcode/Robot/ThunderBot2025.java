@@ -85,7 +85,6 @@ public class ThunderBot2025 implements DataLoggable {
 
     }
 
-
     public void setColor(Alliance_Color alliance) {
         color = alliance;
         launcher.setAlliance(color);
@@ -154,8 +153,8 @@ public class ThunderBot2025 implements DataLoggable {
         boolean atTargetRpm = launcher.isAtTargetRpm();
         indexer.update(atTargetRpm && launcher.isAtTarget());
         intake.update();
-        double rpmLowerBound = launcher.flywheel.getRpmLowerBound();
-        double rpmUpperBound = launcher.flywheel.getRpmUpperBound();
+        double rpmLowerBound = launcher.getFlywheelLowerBoundRpm();
+        double rpmUpperBound = launcher.getFlywheelUpperBoundRpm();
         double seconds = runtime.seconds();
         IndexerFacade.BallState lastBallState = indexer.getLastBallState(2);
         double flywheelTargetRpm = launcher.getFlywheelTargetRpm();

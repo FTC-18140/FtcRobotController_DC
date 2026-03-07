@@ -9,9 +9,9 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 @Config // Make this class tunable
 public class Flipper {
 
-    private Servo flipperServo;
-    private Telemetry telemetry;
-    private double currentServoPosition;
+    private Servo flipperServo = null;
+    private Telemetry telemetry = null;
+    private double currentServoPosition = 0.0;
 
     // --- Tunable Constants via FTC Dashboard ---
     public static double EXTENDED_POSITION = 0.1;
@@ -21,7 +21,7 @@ public class Flipper {
     // --- State Management ---
     public enum State {EXTENDED, RETRACTED}
 
-    private State currentState;
+    private State currentState = null;
 
     public void init(HardwareMap hwMap, Telemetry telem) {
         this.telemetry = telem;

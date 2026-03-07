@@ -13,51 +13,52 @@ public class LED {
     Servo launcherLed = null;
 
     public ElapsedTime ledTimer = new ElapsedTime();
-    public double off = 0;
+    public double off = (double) 0;
     public double red = 0.28;
     public double blue = 0.62;
     public double green = 0.5;
     public double yellow = 0.388;
     public double orange = 0.32;
     public double purple = 0.72;
-    public double white = 1;
+    public double white = 1.0;
     public double theColor = white;
-    public void init(HardwareMap hwMap, Telemetry telem){
+
+    public void init(HardwareMap hwMap, Telemetry telem) {
         telemetry = telem;
-        try{
+        try {
             rpmLed = hwMap.servo.get("led");
             rpmLed.setPosition(red);
-        }catch (Exception e){
+        } catch (RuntimeException e) {
             telemetry.addData("led not found in configuration", 0);
         }
-        try{
+        try {
             launcherLed = hwMap.servo.get("led2");
             launcherLed.setPosition(red);
-        }catch (Exception e){
+        } catch (RuntimeException e) {
             telemetry.addData("led2 not found in configuration", 0);
         }
     }
 
 
-    public void update(double measured_rpm, double target_rpm, double lowerBound_rpm, double upperBound_rpm, double runtime, IndexerFacade.BallState loaded_color, boolean isIndexerFull, IndexerFacade.State IndexerState) {
-        double difference_tps =  measured_rpm - target_rpm;
+    public void update(double measuredRpm, double targetRpm, double lowerBoundRpm, double upperBoundRpm, double runtime, IndexerFacade.BallState loaded_color, boolean isIndexerFull, IndexerFacade.State IndexerState) {
+        double differenceTps = measuredRpm - targetRpm;
 
-        if (difference_tps < -lowerBound_rpm) {
+        if (differenceTps < -lowerBoundRpm) {
             setRPMLedToColor("red");
-        } else if (difference_tps > upperBound_rpm) {
+        } else if (differenceTps > upperBoundRpm) {
             setRPMLedToColor("blue");
         } else {
             setRPMLedToColor("green");
         }
-        double alertTime_End = 10;
-        if ((120 - runtime) < 5) {
-            if (Math.ceil(runtime * 2) % 2 == 1){
+        double alertTimeEnd = 10.0;
+        if (5.0 > (120.0 - runtime)) {
+            if (1.0 == Math.ceil(runtime * 2.0) % 2.0) {
                 setRPMLedToColor("off");
             } else {
                 setRPMLedToColor("red");
             }
-        } else if ((120 - runtime) < alertTime_End) {
-            if (Math.ceil(runtime * 2) % 2 == 1){
+        } else if ((120.0 - runtime) < alertTimeEnd) {
+            if (1.0 == Math.ceil(runtime * 2.0) % 2.0) {
                 setRPMLedToColor("off");
             } else {
                 setRPMLedToColor("orange");
@@ -65,7 +66,7 @@ public class LED {
 
         }
         if (isIndexerFull) {
-            if (Math.ceil(runtime * 2) % 2 == 1){
+            if (1.0 == Math.ceil(runtime * 2.0) % 2.0) {
                 setLauncherLedToColor("white");
             } else {
                 switch (loaded_color) {
@@ -93,69 +94,52 @@ public class LED {
             }
         }
 
-        if(IndexerState == IndexerFacade.State.HOMING) {
+        if (IndexerFacade.State.HOMING == IndexerState) {
             setRPMLedToColor("blue");
             setLauncherLedToColor("blue");
         }
     }
-//    public void update(IndexerFacade.BallState ballcolor, double remainingSeconds) {
-//        if (remainingSeconds < 10) {
-//            if (Math.ceil(remainingSeconds * 2) % 2 == 1){
-//                setToColor("off");
-//            } else {
-//                setToColor("orange");
-//            }
-//
-//        }
-//        else if (ballcolor == IndexerFacade.BallState.GREEN) {
-//            setToColor("green");
-//        } else if (ballcolor == IndexerFacade.BallState.PURPLE) {
-//            setToColor("purple");
-//        } else {
-//            setToColor("blue");
-//        }
-//    }
+
     public void setRPMLedToColor(String color) {
         rpmLed.setPosition(getColor(color));
     }
-    public void setLauncherLedToColor(String color){
-        launcherLed.setPosition(getColor(color));
+
+    public void setLauncherLedToColor(String color) {
+        double colorValue = getColor(color);
+        launcherLed.setPosition(colorValue);
     }
 
     /**
      * sets the color of the leds based on an input string
+     *
      * @param color
      */
     public double getColor(String color) {
-        if(rpmLed != null) {
-            switch(color){
-                case("off"):
+        if (null != rpmLed) {
+            switch (color) {
+                case ("off"):
                     theColor = off;
                     break;
-                case("red"):
+                case ("red"):
                     theColor = red;
                     break;
-                case("yellow"):
+                case ("yellow"):
                     theColor = yellow;
                     break;
-                case("blue"):
+                case ("blue"):
                     theColor = blue;
                     break;
-                case("purple"):
+                case ("purple"):
                     theColor = purple;
                     break;
-                case("green"):
+                case ("green"):
                     theColor = green;
                     break;
-                case("rainbow"):
-                    theColor = Range.clip(0.22*Math.sin(ledTimer.seconds()*3)+0.5, 0.28, 0.72);
+                case ("rainbow"):
+                    theColor = Range.clip(0.22 * Math.sin(ledTimer.seconds() * 3.0) + 0.5, 0.28, 0.72);
                     break;
-                case("orange"):
-//                    if(Math.sin(ledTimer.seconds()/2) > 0){
+                case ("orange"):
                     theColor = orange;
-//                    }else{
-//                        theColor = white;
-//                    }
                     break;
                 default:
                     theColor = white;

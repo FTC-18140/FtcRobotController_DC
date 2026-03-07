@@ -8,18 +8,19 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 @Config
 public class Kickstand {
-    private Servo kickstandServo;
-    private Telemetry telemetry;
-    public double currentServoPosition;
+    private Servo kickstandServo = null;
+    private Telemetry telemetry = null;
+    public double currentServoPosition = 0.0;
 
     // --- Tunable Constants via FTC Dashboard ---
-    public static double EXTENDED_POSITION = 1;
+    public static double EXTENDED_POSITION = 1.0;
     public static double RETRACTED_POSITION = 0.5;
     public static boolean TELEM = false;
 
     // --- State Management ---
-    public enum State { EXTENDED, RETRACTED }
-    private Kickstand.State currentState;
+    public enum State {EXTENDED, RETRACTED}
+
+    private Kickstand.State currentState = null;
 
     public void init(HardwareMap hwMap, Telemetry telem) {
         this.telemetry = telem;
@@ -41,12 +42,13 @@ public class Kickstand {
         currentState = Kickstand.State.RETRACTED;
     }
 
-    /**]
+    /**
+     * ]
      * If kickstand is retracted, extend. If extended, retract.
      */
     public void switchState() {
         State state = currentState;
-        switch(state) {
+        switch (state) {
             case EXTENDED:
                 retract();
                 break;
@@ -77,7 +79,7 @@ public class Kickstand {
             }
         }
 
-        if ( TELEM ) {
+        if (TELEM) {
             telemetry.addData("Kickstand State", currentState);
             telemetry.addData("Kickstand Servo Pos", currentServoPosition);
         }

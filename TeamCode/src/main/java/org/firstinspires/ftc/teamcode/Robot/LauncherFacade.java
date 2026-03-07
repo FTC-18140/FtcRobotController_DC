@@ -20,12 +20,13 @@ import java.util.Objects;
 @Config
 public class LauncherFacade implements DataLoggable {
     private static final double JOYSTICK_SENSITIVITY = 45.0;
+    public static final double INCH_TO_METER = 0.0254;
 
     // Subsystems
-    private Turret turret = null;
+    Turret turret = null;
     public Flywheel flywheel = null;
     private Limelight limelight = null;
-    private Telemetry telemetry = null;
+    Telemetry telemetry = null;
 
     private boolean usingLimelight = false;
 
@@ -35,7 +36,7 @@ public class LauncherFacade implements DataLoggable {
 
     // --- SENSOR FUSION VARIABLES ---
 //    private KalmanPoseEstimator poseEstimator;
-    private Pose2d fusedPose = new Pose2d((double) 0, (double) 0, (double) 0); // This is the "Truth" we aim with
+    private Pose2d fusedPose = new Pose2d(0, (double) 0, (double) 0); // This is the "Truth" we aim with
     private Pose2d lastOdoPose = null; // Used to calculate delta
     public static final double TURRET_OFFSET_X = 3.22805;
     public static final double TURRET_OFFSET_Y = -2.62074;
@@ -54,12 +55,12 @@ public class LauncherFacade implements DataLoggable {
     private ThunderBot2025.Alliance_Color allianceColor = ThunderBot2025.Alliance_Color.BLUE;
 
     public void init(HardwareMap hwMap, Telemetry telem, Pose2d startPose) {
-        this.telemetry = telem;
-        this.turret = new Turret();
+        telemetry = telem;
+        turret = new Turret();
         turret.init(hwMap, telem);
-        this.flywheel = new Flywheel();
+        flywheel = new Flywheel();
         flywheel.init(hwMap, telem);
-        this.limelight = new Limelight();
+        limelight = new Limelight();
         limelight.init(hwMap, telem);
 
         // Initialize Kalman Filter at (0,0,0) or load from file/auto transition
@@ -159,7 +160,7 @@ public class LauncherFacade implements DataLoggable {
     }
 
     public void setAimingMode(AimingMode mode) {
-        this.aimingMode = mode;
+        aimingMode = mode;
     }
 
     public AimingMode getAimingMode() {
@@ -190,19 +191,28 @@ public class LauncherFacade implements DataLoggable {
         return flywheel.getTargetRpm();
     }
 
+    public double getFlywheelLowerBoundRpm() {
+        return flywheel.getRpmLowerBound();
+    }
+
+    public double getFlywheelUpperBoundRpm() {
+        return flywheel.getRpmUpperBound();
+    }
+
     public void aim() {
         augmentedAim(0.0);
     }
 
     public boolean setTurretOffset() {
         // Calculate the vector (x, y) pointing from the robot to the goal
+        boolean returnValue = false;
         aimingMode = AimingMode.DIRECTIONAL;
         if (turret.isHomed()) {
             holdTurretPosition();
             turret.setOffset(getTurretAngleRaw());
-            return true;
+            returnValue = true;
         }
-        return false;
+        return returnValue;
     }
 
     /**
@@ -253,7 +263,8 @@ public class LauncherFacade implements DataLoggable {
         turret.seekToAngle(finalTargetAngle);
 
         // Diagnostic Telemetry
-        telemetry.addData("Turret Current", turret.getCurrentPosition());
+        double currentPosition = turret.getCurrentPosition();
+        telemetry.addData("Turret Current", currentPosition);
         telemetry.addData("Turret Target", finalTargetAngle);
     }
 
@@ -294,22 +305,26 @@ public class LauncherFacade implements DataLoggable {
         turret.seekToAngle(finalTargetAngle);
 
         // Diagnostic Telemetry
-        telemetry.addData("Turret Current", turret.getCurrentPosition());
+        double currentPosition = turret.getCurrentPosition();
+        telemetry.addData("Turret Current", currentPosition);
         telemetry.addData("Turret Target", finalTargetAngle);
     }
 
     public void aimToAngleInFieldSpace(double angle) {
-        turret.seekToAngle(turret.applyHardwareConstraints(Math.toDegrees(fusedPose.heading.toDouble()) - angle));
+        double robotHeadingDouble = fusedPose.heading.toDouble();
+        double robotHeadingDegrees = Math.toDegrees(robotHeadingDouble);
+        double targetAngle = turret.applyHardwareConstraints(robotHeadingDegrees - angle);
+        turret.seekToAngle(targetAngle);
     }
 
     public Vector2d getTurretOffsetPosInRobotSpace() {
-        double robotHeading = this.fusedPose.heading.toDouble();
-        Vector2d offsetPos = new Vector2d(
+        double robotHeading = fusedPose.heading.toDouble();
+        return new Vector2d(
                 TURRET_OFFSET_Y * Math.sin(-robotHeading) + (TURRET_OFFSET_X) * Math.cos(-robotHeading),
                 TURRET_OFFSET_Y * Math.cos(-robotHeading) - (TURRET_OFFSET_X) * Math.sin(-robotHeading)
         );
-        return offsetPos;
     }
+
 
     public double getLimelightAimAngle() {
         double targetTurretAngle = getTurretAngleRaw();
@@ -348,7 +363,7 @@ public class LauncherFacade implements DataLoggable {
 
 
             // Vector from Turret offset pos to Goal
-            this.trueTargetVector = targetPos.minus(this.fusedPose.position.plus(getTurretOffsetPosInRobotSpace()));
+            trueTargetVector = targetPos.minus(fusedPose.position.plus(getTurretOffsetPosInRobotSpace()));
 
             // Calculate the absolute field-centric angle to the goal (Radians)
             double fieldAngleToGoal = Math.atan2(trueTargetVector.y, trueTargetVector.x);
@@ -402,7 +417,7 @@ public class LauncherFacade implements DataLoggable {
         if (null == targetPos) return turret.getCurrentPosition();
 
         // Robot Heading (from fused pose)
-        double robotHeading = this.fusedPose.heading.toDouble();
+        double robotHeading = fusedPose.heading.toDouble();
 
         //Offset Turret center of rotation
         Vector2d offsetPos = new Vector2d(
@@ -411,7 +426,7 @@ public class LauncherFacade implements DataLoggable {
         );
 
         // Vector from Robot to Goal
-        this.trueTargetVector = targetPos.minus(this.fusedPose.position.minus(offsetPos));
+        trueTargetVector = targetPos.minus(fusedPose.position.minus(offsetPos));
 
         // Absolute Field Angle to Goal (atan2 returns -PI to PI)
         double fieldAngleToGoal = Math.atan2(trueTargetVector.y, trueTargetVector.x);
@@ -440,7 +455,7 @@ public class LauncherFacade implements DataLoggable {
 
     public void prepShot() {
         double distanceInches = getGoalDistance();
-        double distanceMeters = distanceInches * 0.0254;
+        double distanceMeters = distanceInches * INCH_TO_METER;
         double targetVelocity = flywheel.calculateBallVelocity(distanceMeters, 0.6096, 48.0);
         double targetRpm = flywheel.calculateWheelRPM(targetVelocity);
 
@@ -509,9 +524,9 @@ public class LauncherFacade implements DataLoggable {
     }
 
     public void setAlliance(ThunderBot2025.Alliance_Color color) {
-        this.allianceColor = color;
-        this.targetPos = Objects.equals(this.allianceColor, ThunderBot2025.Alliance_Color.RED) ? targetPosRed : targetPosBlue;
-        limelight.setPipeline(Objects.equals(this.allianceColor, ThunderBot2025.Alliance_Color.RED) ? 2 : 1);
+        allianceColor = color;
+        targetPos = Objects.equals(allianceColor, ThunderBot2025.Alliance_Color.RED) ? targetPosRed : targetPosBlue;
+        limelight.setPipeline(Objects.equals(allianceColor, ThunderBot2025.Alliance_Color.RED) ? 2 : 1);
     }
 
     private double getGoalDistanceFUSION() {
@@ -522,10 +537,10 @@ public class LauncherFacade implements DataLoggable {
     }
 
     private double getGoalDistance() {
-        if (null == trueTargetVector || null == targetPos) return (double) 0;
-        // Use FUSED pose for distance calculation
         double distance = trueTargetVector.norm();
-//        telemetry.addData("distance: ", distance);
+        if (null == trueTargetVector || null == targetPos) distance = 0.0;
+        // Use FUSED pose for distance calculation
+        //        telemetry.addData("distance: ", distance);
         return distance;
     }
 
@@ -540,6 +555,7 @@ public class LauncherFacade implements DataLoggable {
         // Log fusion debug info
         logger.addField(fusedPose.position.x);
         logger.addField(fusedPose.position.y);
-        logger.addField(fusedPose.heading.toDouble());
+        double headingDouble = fusedPose.heading.toDouble();
+        logger.addField(headingDouble);
     }
 }
