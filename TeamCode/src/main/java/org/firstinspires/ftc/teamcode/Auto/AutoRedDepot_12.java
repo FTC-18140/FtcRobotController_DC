@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
-@Autonomous(group = "AutoRedDepot")
+@Autonomous(group = AutoRedDepot_Coop.AUTO_RED_DEPOT_GROUP)
 public class AutoRedDepot_12 extends LinearOpMode{
 
     @Override
@@ -154,7 +154,7 @@ public class AutoRedDepot_12 extends LinearOpMode{
             );
         }finally{
             robot.drive.updatePoseEstimate();
-            blackboard.put("ENDING_POSITION_AUTO", robot.drive.localizer.getPose());
+            blackboard.put(ThunderBot2025.STARTING_POSE_KEY, robot.drive.localizer.getPose());
             blackboard.put("TURRET_ENDING_ANGLE_AUTO", robot.launcher.getTurretAngle());
 //            ThunderBot2025.starting_position = robot.drive.localizer.getPose();
 //            ThunderBot2025.starting_turret_angle = robot.launcher.getTurretAngle();

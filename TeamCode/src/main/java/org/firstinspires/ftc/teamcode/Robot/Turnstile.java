@@ -28,7 +28,7 @@ public class Turnstile {
     public static boolean TELEM = false;
 
     // --- Tunable Constants via FTC Dashboard ---
-    public static double P = 0.0035 , I = 0.01, D = 0.0001;
+    public static double P = 0.0035, I = 0.01, D = 0.0001;
     public static double THRESHOLD = 0.00;
     public static double MIN_POWER_POS = 0.032;
     public static double MIN_POWER_NEG = 0.015;
@@ -40,12 +40,13 @@ public class Turnstile {
     private double current_offset = 0; // --- Non-tunable Constants ---
     private static final double COUNTS_PER_REVOLUTION = 8192;
     private static final double GEAR_RATIO = 1.0;
-    private static final double COUNTS_PER_DEGREE = (COUNTS_PER_REVOLUTION * GEAR_RATIO)/360;
+    private static final double COUNTS_PER_DEGREE = (COUNTS_PER_REVOLUTION * GEAR_RATIO) / 360;
     public static final String STARTING_ANGLE_KEY = "ENDING_ANGLE_INDEXER";
     public double startingAngle;
 
     // --- State Management ---
-    public enum State { IDLE, HOMING, SEEKING_POSITION, HOLDING_POSITION, MANUAL_SPIN } // Added MANUAL_SPIN
+    public enum State {IDLE, HOMING, SEEKING_POSITION, HOLDING_POSITION, MANUAL_SPIN} // Added MANUAL_SPIN
+
     private State currentState = State.IDLE;
     private double targetAngle = 0;
     private double manualPower = 0; // For spin()
@@ -118,10 +119,10 @@ public class Turnstile {
 
         if (Math.abs(power) == 0 && currentState != State.SEEKING_POSITION && currentState != State.HOLDING_POSITION) {
             // When driver lets go, find the nearest physical slot and seek to it.
-            double nearestSlotAngle = ((int)Math.round(currentAngle / 120.0)) * 120.0;
+            double nearestSlotAngle = ((int) Math.round(currentAngle / 120.0)) * 120.0;
             this.seekToAngle(nearestSlotAngle);
             this.currentState = State.SEEKING_POSITION;
-        } else if(Math.abs(power) > 0){
+        } else if (Math.abs(power) > 0) {
             this.manualPower = power;
             this.currentState = State.MANUAL_SPIN;
         } else {
@@ -137,7 +138,7 @@ public class Turnstile {
         return (Math.abs(currentAngle - (targetAngle + current_offset)) < ANGLE_TOLERANCE);
     }
 
-    public boolean isOverSlot(){
+    public boolean isOverSlot() {
         return Math.abs(currentAngle - (targetAngle + current_offset)) < INTAKE_TOLERANCE;
     }
 
@@ -161,7 +162,7 @@ public class Turnstile {
         power = angleController.calculate(currentAngle, targetAngle + current_offset);
 
         if (power > THRESHOLD) power = Range.scale(power, THRESHOLD, 1, MIN_POWER_POS, 1);
-        if (power < -THRESHOLD) power = Range.scale(power, -1, -THRESHOLD,  -1, -MIN_POWER_NEG);
+        if (power < -THRESHOLD) power = Range.scale(power, -1, -THRESHOLD, -1, -MIN_POWER_NEG);
 
         switch (currentState) {
             case IDLE:
@@ -193,7 +194,7 @@ public class Turnstile {
                 indexerServo2.setPower(manualPower);
                 if (Math.abs(manualPower) < 0.01) {
                     // When driver lets go, find the nearest physical slot and seek to it.
-                    double nearestSlotAngle = ((int)Math.round(currentAngle / 120.0)) * 120.0;
+                    double nearestSlotAngle = ((int) Math.round(currentAngle / 120.0)) * 120.0;
                     this.seekToAngle(nearestSlotAngle);
                     currentState = State.SEEKING_POSITION;
                 }
@@ -218,7 +219,7 @@ public class Turnstile {
                 if (isAtTarget()) {
                     currentState = State.HOLDING_POSITION;
                 }
-                angleController.setPID(P, I, D); // Re-apply PID gains from Dashboard
+                angleController.setPID(P, I, DFlywheel); // Re-apply PID gains from Dashboard
                 power = -angleController.calculate(currentAngle, targetAngle + current_offset);
                 indexerServo.setPower(power);
                 // Fall-through to HOLDING_POSITION to apply power
@@ -240,7 +241,7 @@ public class Turnstile {
         }
 
         // --- 3. Telemetry ---
-        if (TELEM ) {
+        if (TELEM) {
 //        telemetry.addData("Turnstile State", currentState.name());
             telemetry.addData("Turnstile Angle", currentAngle);
             telemetry.addData("Turnstile Target", targetAngle + current_offset);

@@ -68,7 +68,7 @@ public class Teleop_Red_DataLogger extends OpMode {
             logger.addField("Turret.currentPosition");
             logger.addField("Turret.P");
             logger.addField("Turret.I");
-            logger.addField("Turret.D");
+            logger.addField("Turret.DFlywheel");
             logger.addField("Turret.seekingPower");
             logger.addField("Localizer.pose.x");
             logger.addField("Localizer.pose.y");

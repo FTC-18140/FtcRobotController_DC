@@ -11,8 +11,10 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
-@Autonomous(group = "AutoBlueFar")
+@Autonomous(group = AutoBlueFar_WAIT.AUTO_BLUE_FAR_GROUP)
 public class AutoBlueFar_WAIT extends LinearOpMode{
+
+    public static final String AUTO_BLUE_FAR_GROUP = "AutoBlueFar";
 
     @Override
     public void runOpMode() throws InterruptedException {

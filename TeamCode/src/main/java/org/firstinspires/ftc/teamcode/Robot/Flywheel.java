@@ -21,40 +21,41 @@ public class Flywheel {
     private State currentState = State.IDLE; // Initial state
 
     // Hardware and Utilities
-    private DcMotorEx launcher, launcher2;
-    private PIDController rpmController;
+    private DcMotorEx launcher = null, launcher2 = null;
+    private PIDController rpmController = null;
     public static int FILTER_SIZE = 2;
     private MovingAverageFilter rpmFilter = new MovingAverageFilter(FILTER_SIZE);
-    private Telemetry telemetry;
+    private Telemetry telemetry = null;
 
     // Tunable constants from your original file
 
     public static double P = 0.0045, I = 0.006, D = 0.00011;
     public static double F_MAX = 0.62, F_MIN = 0.47;
 
-    public double feedforward;
+    public double feedforward = 0.0;
 
     public static boolean TELEM = false;
-    public static double MAX_SHOOTER_RPM = 2300;
-    public static double MIN_SHOOTER_RPM = 1600;
+    public static double MAX_SHOOTER_RPM = 2300.0;
+    public static double MIN_SHOOTER_RPM = 1600.0;
     public static final double SHOOTER_RADIUS = 0.072 / 2.0;
     public static double SPIN_EFFICIENCY = 0.586;
-    public static double FLYWHEEL_RATIO = (1/1);
+    public static double FLYWHEEL_RATIO = (double) (1 / 1);
 
 
-    private double targetRpm = 0;
+    private double targetRpm = (double) 0;
 
-    public static double RPM_LOWER_BOUND = 20;
-    public static double RPM_UPPER_BOUND = 20;
+    public static double RPM_LOWER_BOUND = 20.0;
+    public static double RPM_UPPER_BOUND = 20.0;
 
-    private double currentRpm = 0;
-    double scaledPower = 0;
+    private double currentRpm = (double) 0;
+    double scaledPower = (double) 0;
 
-    public static void flywheel(String[] args){
+    public static void flywheel(String[] args) {
         Flywheel launcher = new Flywheel();
         Flywheel activeRoller = new Flywheel();
 
     }
+
     public void init(HardwareMap hwMap, Telemetry telem) {
         this.telemetry = telem;
         rpmController = new PIDController(P, I, D);
@@ -71,22 +72,26 @@ public class Flywheel {
 
     // --- High-Level Commands to Change State ---
 
-    /** Commands the flywheel to spin up to a target RPM. */
+    /**
+     * Commands the flywheel to spin up to a target RPM.
+     */
     public void setTargetRpm(double rpm) {
         this.targetRpm = Range.clip(rpm, MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
         this.currentState = State.SPINNING_UP;
     }
+
     public double getCurrentRpm() {
         return currentRpm;
     }
+
     public double getTargetRpm() {
         return targetRpm;
     }
 
 
-
     /**
      * Checks if the flywheel is spinning at the target speed within a given tolerance.
+     *
      * @return true if the flywheel is at the target RPM, false otherwise.
      */
     public boolean isAtTargetRpm() {
@@ -102,10 +107,11 @@ public class Flywheel {
         return currentRpm - targetRpm < RPM_UPPER_BOUND && currentRpm - targetRpm > -RPM_LOWER_BOUND;
     }
 
-    public double getRPM(){
+    public double getRPM() {
         double tps = -launcher.getVelocity();
-        return (tps * 60) / 28;
+        return (tps * 60.0) / 28.0;
     }
+
     public double getRpmLowerBound() {
         return RPM_LOWER_BOUND;
     }
@@ -115,7 +121,9 @@ public class Flywheel {
     }
 
 
-    /** Commands the flywheel to stop. */
+    /**
+     * Commands the flywheel to stop.
+     */
     public void stop() {
         this.currentState = State.IDLE;
     }
@@ -134,7 +142,7 @@ public class Flywheel {
 
         switch (currentState) {
             case IDLE:
-                setPower(0);
+                setPower((double) 0);
                 break;
 
             case SPINNING_UP:
@@ -146,14 +154,14 @@ public class Flywheel {
 
                 // --- Step 2: Calculate the PID correction ---
                 double pidOutput = rpmController.calculate(currentRpm, targetRpm);
-                double clippedPidOutput = Range.clip(pidOutput, -1, 1);
+                double clippedPidOutput = Range.clip(pidOutput, -1.0, 1.0);
 
                 // --- Step 3: Combine and Set the Final Power ---
                 double finalPower = feedforward + clippedPidOutput;
                 setPower(finalPower);
 
                 // --- Telemetry for Debugging ---
-                if ( TELEM ) {
+                if (TELEM) {
                     telemetry.addData("Target RPM", targetRpm);
                     telemetry.addData("Current RPM", currentRpm);
                     telemetry.addData("Feedforward", feedforward);
@@ -175,7 +183,7 @@ public class Flywheel {
         double g = 9.81;
 
         double numerator = distance * distance * g;
-        double denominator = (distance * Math.sin(2 * angleRad)) - (2 * height * Math.pow(Math.cos(angleRad), 2));
+        double denominator = (distance * Math.sin(2.0 * angleRad)) - (2.0 * height * Math.pow(Math.cos(angleRad), 2.0));
 
         denominator = Math.max(denominator, 0.4);
 
