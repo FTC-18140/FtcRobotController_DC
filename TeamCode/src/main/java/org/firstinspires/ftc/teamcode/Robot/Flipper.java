@@ -14,9 +14,9 @@ public class Flipper {
     private double currentServoPosition = 0.0;
 
     // --- Tunable Constants via FTC Dashboard ---
-    public static double EXTENDED_POSITION = 0.1;
-    public static double RETRACTED_POSITION = 0.015;
-    public static boolean TELEM = false;
+    private static double EXTENDED_POSITION = 0.1;
+    private static double RETRACTED_POSITION = 0.015;
+    private static boolean TELEM = false;
 
     // --- State Management ---
     public enum State {EXTENDED, RETRACTED}
@@ -31,23 +31,23 @@ public class Flipper {
         } catch (RuntimeException e) {
             telemetry.addData("Servo \"flipper\" not found", 0);
         }
-        retract();
+        this.retract();
     }
 
     // --- High-Level Commands ---
 
-    public void extend() {
+    void extend() {
         currentState = State.EXTENDED;
     }
 
-    public void retract() {
+    void retract() {
         currentState = State.RETRACTED;
     }
 
     // --- State Checking ---
 
-    public boolean isRetracted() {
-        return 0.05 > Math.abs(currentServoPosition - RETRACTED_POSITION);
+    boolean isRetracted() {
+        return 0.05 > Math.abs(currentServoPosition - Flipper.RETRACTED_POSITION);
     }
 
     public void update() {
@@ -65,7 +65,7 @@ public class Flipper {
             }
         }
 
-        if (TELEM) {
+        if (Flipper.TELEM) {
             telemetry.addData("Flipper State", currentState);
             telemetry.addData("Flipper Servo Pos", currentServoPosition);
         }

@@ -8,105 +8,125 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class LED {
-    Telemetry telemetry;
-    Servo rpmLed = null;
-    Servo launcherLed = null;
+    private Telemetry telemetry = null;
+    private Servo rpmLed = null;
+    private Servo launcherLed = null;
 
-    public ElapsedTime ledTimer = new ElapsedTime();
-    public double off = (double) 0;
-    public double red = 0.28;
-    public double blue = 0.62;
-    public double green = 0.5;
-    public double yellow = 0.388;
-    public double orange = 0.32;
-    public double purple = 0.72;
-    public double white = 1.0;
-    public double theColor = white;
+    private final ElapsedTime ledTimer = new ElapsedTime();
 
-    public void init(HardwareMap hwMap, Telemetry telem) {
+    enum Colors {
+        OFF,
+        RED,
+        BLUE,
+        GREEN,
+        YELLOW,
+        ORANGE,
+        INDIGO,
+        PURPLE,
+        WHITE,
+        RAINBOW
+    }
+
+    private double hue = 1.0;
+    private double hueLauncherLed = 1.0;
+    private double hueRpmLed = 1.0;
+    private double lowerBoundRpm = 0.0;
+    private double upperBoundRpm = 0.0;
+
+    public void init(HardwareMap hwMap, Telemetry telem, double lowerBoundRpmIn, double upperBoundRpmIn) {
         telemetry = telem;
+
         try {
             rpmLed = hwMap.servo.get("led");
-            rpmLed.setPosition(red);
+            this.setRPMLedToColor(Colors.RED);
         } catch (RuntimeException e) {
             telemetry.addData("led not found in configuration", 0);
         }
         try {
             launcherLed = hwMap.servo.get("led2");
-            launcherLed.setPosition(red);
+            this.setLauncherLedToColor(Colors.RED);
         } catch (RuntimeException e) {
             telemetry.addData("led2 not found in configuration", 0);
         }
+        this.lowerBoundRpm = lowerBoundRpmIn;
+        this.upperBoundRpm = upperBoundRpmIn;
     }
 
-
-    public void update(double measuredRpm, double targetRpm, double lowerBoundRpm, double upperBoundRpm, double runtime, IndexerFacade.BallState loaded_color, boolean isIndexerFull, IndexerFacade.State IndexerState) {
+    public void update(double measuredRpm, double targetRpm, double runtime, IndexerFacade.BallState loaded_color, boolean isIndexerFull, IndexerFacade.State IndexerState) {
         double differenceTps = measuredRpm - targetRpm;
 
         if (differenceTps < -lowerBoundRpm) {
-            setRPMLedToColor("red");
+            this.setRPMLedToColor(Colors.RED);
         } else if (differenceTps > upperBoundRpm) {
-            setRPMLedToColor("blue");
+            this.setRPMLedToColor(Colors.BLUE);
         } else {
-            setRPMLedToColor("green");
+            this.setRPMLedToColor(Colors.GREEN);
         }
         double alertTimeEnd = 10.0;
         if (5.0 > (120.0 - runtime)) {
             if (1.0 == Math.ceil(runtime * 2.0) % 2.0) {
-                setRPMLedToColor("off");
+                this.setRPMLedToColor(Colors.OFF);
             } else {
-                setRPMLedToColor("red");
+                this.setRPMLedToColor(Colors.RED);
             }
         } else if ((120.0 - runtime) < alertTimeEnd) {
             if (1.0 == Math.ceil(runtime * 2.0) % 2.0) {
-                setRPMLedToColor("off");
+                this.setRPMLedToColor(Colors.OFF);
             } else {
-                setRPMLedToColor("orange");
+                this.setRPMLedToColor(Colors.ORANGE);
             }
 
         }
         if (isIndexerFull) {
             if (1.0 == Math.ceil(runtime * 2.0) % 2.0) {
-                setLauncherLedToColor("white");
+                this.setLauncherLedToColor(Colors.WHITE);
             } else {
                 switch (loaded_color) {
                     case GREEN:
-                        setLauncherLedToColor("green");
+                        this.setLauncherLedToColor(Colors.GREEN);
                         break;
                     case PURPLE:
-                        setLauncherLedToColor("purple");
+                        this.setLauncherLedToColor(Colors.PURPLE);
                         break;
                     default:
-                        setLauncherLedToColor("off");
+                        this.setLauncherLedToColor(Colors.OFF);
                 }
             }
 
         } else {
             switch (loaded_color) {
                 case GREEN:
-                    setLauncherLedToColor("green");
+                    this.setLauncherLedToColor(Colors.GREEN);
                     break;
                 case PURPLE:
-                    setLauncherLedToColor("purple");
+                    this.setLauncherLedToColor(Colors.PURPLE);
                     break;
                 default:
-                    setLauncherLedToColor("off");
+                    this.setLauncherLedToColor(Colors.OFF);
             }
         }
+        this.setColorsIfHoming(IndexerState);
+        this.writeToLeds();
+    }
 
+    private void setColorsIfHoming(IndexerFacade.State IndexerState) {
         if (IndexerFacade.State.HOMING == IndexerState) {
-            setRPMLedToColor("blue");
-            setLauncherLedToColor("blue");
+            this.setRPMLedToColor(Colors.BLUE);
+            this.setLauncherLedToColor(Colors.BLUE);
         }
     }
 
-    public void setRPMLedToColor(String color) {
-        rpmLed.setPosition(getColor(color));
+    private void setRPMLedToColor(Colors color) {
+        hueRpmLed = this.getColor(color);
     }
 
-    public void setLauncherLedToColor(String color) {
-        double colorValue = getColor(color);
-        launcherLed.setPosition(colorValue);
+    void setLauncherLedToColor(Colors color) {
+        hueLauncherLed = this.getColor(color);
+    }
+
+    void writeToLeds() {
+        launcherLed.setPosition(hueLauncherLed);
+        rpmLed.setPosition(hueRpmLed);
     }
 
     /**
@@ -114,38 +134,41 @@ public class LED {
      *
      * @param color
      */
-    public double getColor(String color) {
+    private double getColor(Colors color) {
         if (null != rpmLed) {
             switch (color) {
-                case ("off"):
-                    theColor = off;
+                case OFF:
+                    hue = 0.0;
                     break;
-                case ("red"):
-                    theColor = red;
+                case RED:
+                    hue = 0.28;
                     break;
-                case ("yellow"):
-                    theColor = yellow;
+                case ORANGE:
+                    hue = 0.62;
                     break;
-                case ("blue"):
-                    theColor = blue;
+                case YELLOW:
+                    hue = 0.388;
                     break;
-                case ("purple"):
-                    theColor = purple;
+                case GREEN:
+                    hue = 0.5;
                     break;
-                case ("green"):
-                    theColor = green;
+                case BLUE:
+                    hue = 0.611;
                     break;
-                case ("rainbow"):
-                    theColor = Range.clip(0.22 * Math.sin(ledTimer.seconds() * 3.0) + 0.5, 0.28, 0.72);
+                case INDIGO:
+                    hue = 0.666;
                     break;
-                case ("orange"):
-                    theColor = orange;
+                case PURPLE:
+                    hue = 0.722;
                     break;
-                default:
-                    theColor = white;
+                case WHITE:
+                    hue = 1.0;
+                    break;
+                case RAINBOW:
+                    hue = Range.clip(0.22 * Math.sin(ledTimer.seconds() * 3.0) + 0.5, 0.28, 0.72);
                     break;
             }
         }
-        return theColor;
+        return hue;
     }
 }

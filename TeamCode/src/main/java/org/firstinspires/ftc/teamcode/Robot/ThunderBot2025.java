@@ -76,7 +76,7 @@ public class ThunderBot2025 implements DataLoggable {
         launcher.init(hwMap, telemetry, pose);
 
         led = new LED();
-        led.init(hwMap, telemetry);
+        led.init(hwMap, telemetry, launcher.getFlywheelLowerBoundRpm(), launcher.getFlywheelUpperBoundRpm());
 
         kickstand = new Kickstand();
         kickstand.init(hwMap, telemetry);
@@ -148,20 +148,27 @@ public class ThunderBot2025 implements DataLoggable {
     }
 
     public void update() {
+        double seconds = runtime.seconds();
+
         PoseVelocity2d robotPoseVel = drive.updatePoseEstimate();
         launcher.update(drive.localizer.getPose(), robotPoseVel);
+
         boolean atTargetRpm = launcher.isAtTargetRpm();
-        indexer.update(atTargetRpm && launcher.isAtTarget());
+        boolean atTarget = launcher.isAtTarget();
+
+        indexer.update(atTargetRpm && atTarget);
         intake.update();
-        double rpmLowerBound = launcher.getFlywheelLowerBoundRpm();
-        double rpmUpperBound = launcher.getFlywheelUpperBoundRpm();
-        double seconds = runtime.seconds();
+
+
         IndexerFacade.BallState lastBallState = indexer.getLastBallState(2);
         double flywheelTargetRpm = launcher.getFlywheelTargetRpm();
         double flywheelRpm = launcher.getFlywheelRpm();
+
         boolean isIndexerFull = indexer.indexerIsFull();
         IndexerFacade.State state = indexer.getCurrentState();
-        led.update(flywheelRpm, flywheelTargetRpm, rpmLowerBound, rpmUpperBound, seconds, lastBallState, isIndexerFull, state);
+
+        led.update(flywheelRpm, flywheelTargetRpm, seconds, lastBallState, isIndexerFull, state);
+
         kickstand.update();
 
         if (0 < intake.getIntakePower() && !indexer.isNearSlot()) {
@@ -258,10 +265,10 @@ public class ThunderBot2025 implements DataLoggable {
 
     public boolean resetTurret() {
         if (launcher.setTurretOffset()) {
-            led.setLauncherLedToColor("green");
+            led.setLauncherLedToColor(LED.Colors.GREEN);
             return true;
         } else {
-            led.setLauncherLedToColor("blue");
+            led.setLauncherLedToColor(LED.Colors.BLUE);
             return false;
         }
     }
