@@ -21,7 +21,7 @@ public class Flywheel {
     private State currentState = State.IDLE; // Initial state
 
     // Hardware and Utilities
-    private DcMotorEx launcher = null, launcher2 = null;
+    private DcMotorEx launcher = null;
     private PIDController rpmController = null;
     public static int FILTER_SIZE = 2;
     private MovingAverageFilter rpmFilter = new MovingAverageFilter(FILTER_SIZE);
@@ -39,7 +39,7 @@ public class Flywheel {
     public static double MIN_SHOOTER_RPM = 1600.0;
     public static final double SHOOTER_RADIUS = 0.072 / 2.0;
     public static double SPIN_EFFICIENCY = 0.586;
-    public static double FLYWHEEL_RATIO = (double) (1 / 1);
+    public static double FLYWHEEL_RATIO = (double) 1.0;
 
 
     private double targetRpm = (double) 0;
@@ -56,17 +56,14 @@ public class Flywheel {
 
     }
 
-    public void init(HardwareMap hwMap, Telemetry telem) {
+    public void init(HardwareMap hwMap, Telemetry telem, String motorName) {
         this.telemetry = telem;
         rpmController = new PIDController(P, I, D);
 
-        launcher = hwMap.get(DcMotorEx.class, "launcher");
+        launcher = hwMap.get(DcMotorEx.class, motorName);
         launcher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         launcher.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         launcher.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        launcher2 = hwMap.get(DcMotorEx.class, "launcher2");
-        launcher2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        launcher2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
     }
 
@@ -174,7 +171,6 @@ public class Flywheel {
 
     private void setPower(double power) {
         launcher.setPower(power);
-        launcher2.setPower(power);
     }
 
     // --- Calculation Methods ---
