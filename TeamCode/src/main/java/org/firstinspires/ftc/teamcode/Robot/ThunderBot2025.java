@@ -48,6 +48,7 @@ public class ThunderBot2025 implements DataLoggable {
     public static final double MAX_SPEED = 1.0;
     private double speed = ThunderBot2025.DEFAULT_SPEED;
     public static Pose2d starting_position;
+    public static double robot_width = 20;
     private static String STARTING_POSE = ThunderBot2025.STARTING_POSE_KEY;
     public ElapsedTime runtime = new ElapsedTime();
     private Pose2d TELEOP_CORNER_RED = new Pose2d(-63, 60, 0);
@@ -172,7 +173,24 @@ public class ThunderBot2025 implements DataLoggable {
         } else {
             intake.unslow();
         }
+        
+    }
 
+    public boolean inLaunchZone(){
+        double x = drive.localizer.getPose().position.x;
+        double y = drive.localizer.getPose().position.y;
+
+        double half_width = robot_width/2;
+        if (x > -half_width){
+            if(y < x + half_width && y > -x -half_width){
+                return true;
+            }
+        } else {
+            if(y < (-x - 45 + half_width) && y > (x + 45 - half_width)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public Action waitForTime(double time) {
