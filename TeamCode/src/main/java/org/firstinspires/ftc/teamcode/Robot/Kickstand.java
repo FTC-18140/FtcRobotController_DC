@@ -10,12 +10,12 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class Kickstand {
     private Servo kickstandServo = null;
     private Telemetry telemetry = null;
-    public double currentServoPosition = 0.0;
+    private double currentServoPosition = 0.0;
 
     // --- Tunable Constants via FTC Dashboard ---
-    public static double EXTENDED_POSITION = 1.0;
-    public static double RETRACTED_POSITION = 0.5;
-    public static boolean TELEM = false;
+    private static double EXTENDED_POSITION = 1.0;
+    private static double RETRACTED_POSITION = 0.5;
+    private static boolean TELEM = false;
 
     // --- State Management ---
     public enum State {EXTENDED, RETRACTED}

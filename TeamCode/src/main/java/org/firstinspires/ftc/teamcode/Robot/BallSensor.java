@@ -138,7 +138,7 @@ public class BallSensor {
 
     }
 
-    private void colorToHSV(double red, double green, double blue, @Size(3L) float[] hsv) {
+    private static void colorToHSV(double red, double green, double blue, @Size(3L) float[] hsv) {
         double greenBlueMax = Math.max(green, blue);
         double colorMax = Math.max(red, greenBlueMax);
         double greenBlueMin = Math.min(green, blue);
@@ -163,7 +163,7 @@ public class BallSensor {
     }
 
     private float[] updateColorsToHSV() {
-        this.colorToHSV((double) colors.red, (double) colors.green, (double) colors.blue, hsv);
+        BallSensor.colorToHSV((double) colors.red, (double) colors.green, (double) colors.blue, hsv);
         return hsv;
     }
 
