@@ -6,7 +6,6 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.teamcode.Robot.IndexerFacade;
 import org.firstinspires.ftc.teamcode.Robot.LauncherFacade;
@@ -117,7 +116,7 @@ public class Teleop_BLUE extends OpMode {
         if (theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.LEFT_TRIGGER)) {
             robot.charge();
         } else {
-            robot.chargeLow();
+            robot.launcher.stop();
         }
 
         if (theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.RIGHT_TRIGGER)) {
@@ -197,8 +196,11 @@ public class Teleop_BLUE extends OpMode {
 
         telemetry.addData("Indexer Mode", isAutoLoading ? "AUTO-LOADING" : "MANUAL");
 
-        telemetry.addData("Flywheel RPM ", robot.launcher.getFlywheelRpm());
+        telemetry.addData("Flywheel RPM ", robot.launcher.getLowerFlywheelRpm());
         telemetry.addData("Flywheel Target ", robot.launcher.getFlywheelTargetRpm());
+
+        telemetry.addData("Upper Flywheel RPM ", robot.launcher.getUpperFlywheelRpm());
+        telemetry.addData("Upper Flywheel Target ", robot.launcher.getUpperFlywheelTargetRpm());
         telemetry.addData("Turret aiming mode:", robot.launcher.isUsingLimelight());
         telemetry.addData("Turret angle:", robot.launcher.getTurretAngle());
         dashboard.sendTelemetryPacket(p);

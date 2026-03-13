@@ -13,14 +13,17 @@ public class FlywheelController {
     private Flywheel upperWheel = null;
 
     public static class LowerPID {
-        public static double P = 0.0045, I = 0.006, D = 0.00011;
-        public static double F_MAX = 0.62, F_MIN = 0.47;
+        public double P = 0.0013, I = 0.006, D = 0.00011;
+        public double F_MAX = 0.5, F_MIN = 0.47;
     }
 
     public static class UpperPID {
-        public static double P = 0.0045, I = 0.006, D = 0.00011;
-        public static double F_MAX = 0.62, F_MIN = 0.47;
+        public double P = 0.0013, I = 0.006, D = 0.00011;
+        public double F_MAX = 0.5, F_MIN = 0.47;
     }
+
+    public static LowerPID LOWER_PID = new LowerPID();
+    public static UpperPID UPPER_PID = new UpperPID();
 
 
     public static double FLYWHEEL_RATIO = (double) 1.0;
@@ -32,14 +35,15 @@ public class FlywheelController {
 
         lowerWheel.init(hwMap, telem, "launcher", "launcher");
         upperWheel.init(hwMap, telem, "launcher2", "leftBack");
+        upperWheel.setEncoderReversed();
 
-        lowerWheel.setParameters(LowerPID.P, LowerPID.I, LowerPID.D, LowerPID.F_MIN, LowerPID.F_MAX);
-        upperWheel.setParameters(UpperPID.P, UpperPID.I, UpperPID.D, UpperPID.F_MIN, UpperPID.F_MAX);
+        lowerWheel.setParameters(LOWER_PID.P, LOWER_PID.I, LOWER_PID.D, LOWER_PID.F_MIN, LOWER_PID.F_MAX);
+        upperWheel.setParameters(UPPER_PID.P, UPPER_PID.I, UPPER_PID.D, UPPER_PID.F_MIN, UPPER_PID.F_MAX);
     }
 
     public void update() {
-        lowerWheel.setParameters(LowerPID.P, LowerPID.I, LowerPID.D, LowerPID.F_MIN, LowerPID.F_MAX);
-        upperWheel.setParameters(UpperPID.P, UpperPID.I, UpperPID.D, UpperPID.F_MIN, UpperPID.F_MAX);
+        lowerWheel.setParameters(LOWER_PID.P, LOWER_PID.I, LOWER_PID.D, LOWER_PID.F_MIN, LOWER_PID.F_MAX);
+        upperWheel.setParameters(UPPER_PID.P, UPPER_PID.I, UPPER_PID.D, UPPER_PID.F_MIN, UPPER_PID.F_MAX);
 
         lowerWheel.update();
         upperWheel.update();

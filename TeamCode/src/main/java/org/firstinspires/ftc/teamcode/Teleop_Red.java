@@ -1,16 +1,12 @@
 package org.firstinspires.ftc.teamcode;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.VoltageSensor;
 
-import org.firstinspires.ftc.ftccommon.internal.manualcontrol.commands.AnalogCommands;
 import org.firstinspires.ftc.teamcode.Robot.IndexerFacade;
 import org.firstinspires.ftc.teamcode.Robot.LauncherFacade;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
@@ -120,7 +116,7 @@ public class Teleop_Red extends OpMode {
         if (theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.LEFT_TRIGGER)) {
             robot.charge();
         } else {
-            robot.chargeLow();
+            robot.launcher.stop();
         }
 
         if (theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.RIGHT_TRIGGER)) {
@@ -198,8 +194,11 @@ public class Teleop_Red extends OpMode {
         telemetry.addData("heading: ", Math.toDegrees(robot.drive.localizer.getPose().heading.toDouble()));
 
         telemetry.addData("Indexer Mode", isAutoLoading ? "AUTO-LOADING" : "MANUAL");
-        telemetry.addData("Flywheel RPM ", robot.launcher.getFlywheelRpm());
+        telemetry.addData("Flywheel RPM ", robot.launcher.getLowerFlywheelRpm());
         telemetry.addData("Flywheel Target ", robot.launcher.getFlywheelTargetRpm());
+
+        telemetry.addData("Upper Flywheel RPM ", robot.launcher.getUpperFlywheelRpm());
+        telemetry.addData("Upper Flywheel Target ", robot.launcher.getUpperFlywheelTargetRpm());
         telemetry.addData("Turret aiming mode:", robot.launcher.isUsingLimelight());
         telemetry.addData("Turret angle:", robot.launcher.getTurretAngle());
         dashboard.sendTelemetryPacket(p);

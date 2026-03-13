@@ -187,12 +187,18 @@ public class LauncherFacade implements DataLoggable {
         return turret.getCurrentPositionRaw();
     }
 
-    public double getFlywheelRpm() {
+    public double getLowerFlywheelRpm() {
         return flywheel.getLowerFlywheelCurrentRPM();
+    }
+    public double getUpperFlywheelRpm() {
+        return flywheel.getUpperFlywheelCurrentRPM();
     }
 
     public double getFlywheelTargetRpm() {
         return flywheel.getLowerFlywheelTargetRPM();
+    }
+    public double getUpperFlywheelTargetRpm() {
+        return flywheel.getUpperFlywheelTargetRPM();
     }
 
     double getFlywheelLowerBoundRpm() {

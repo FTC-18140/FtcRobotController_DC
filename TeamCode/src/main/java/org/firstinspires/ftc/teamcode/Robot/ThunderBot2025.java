@@ -113,7 +113,7 @@ public class ThunderBot2025 implements DataLoggable {
 
         IndexerFacade.BallState lastBallState = indexer.getLastBallState(2);
         double flywheelTargetRpm = launcher.getFlywheelTargetRpm();
-        double flywheelRpm = launcher.getFlywheelRpm();
+        double flywheelRpm = launcher.getLowerFlywheelRpm();
 
         boolean isIndexerFull = indexer.indexerIsFull();
         IndexerFacade.State state = indexer.getCurrentState();
