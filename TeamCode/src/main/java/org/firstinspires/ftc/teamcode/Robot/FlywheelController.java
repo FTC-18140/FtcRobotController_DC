@@ -29,8 +29,8 @@ public class FlywheelController {
         lowerWheel = new Flywheel();
         upperWheel = new Flywheel();
 
-        lowerWheel.init(hwMap, telem, "launcher");
-        upperWheel.init(hwMap, telem, "launcher2");
+        lowerWheel.init(hwMap, telem, "launcher", "launcher");
+        upperWheel.init(hwMap, telem, "launcher2", "leftBack");
 
         lowerWheel.setParameters(LowerPID.P, LowerPID.I, LowerPID.D, LowerPID.F_MIN, LowerPID.F_MAX);
         upperWheel.setParameters(UpperPID.P, UpperPID.I, UpperPID.D, UpperPID.F_MIN, UpperPID.F_MAX);
