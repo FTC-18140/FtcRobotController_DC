@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Utilities.MovingAverageFilter;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 
@@ -49,6 +50,7 @@ public class Flywheel {
 
     private double currentRpm = (double) 0;
     double scaledPower = (double) 0;
+    private double currentDraw = 0.0;
 
     public void init(HardwareMap hwMap, Telemetry telem, String motorName) {
         this.telemetry = telem;
@@ -123,6 +125,10 @@ public class Flywheel {
         return RPM_UPPER_BOUND;
     }
 
+    public double getCurrentDraw() {
+        return launcher.getCurrent(CurrentUnit.AMPS);
+    }
+
 
     /**
      * Commands the flywheel to stop.
@@ -170,6 +176,7 @@ public class Flywheel {
                     telemetry.addData("Feedforward", feedforward);
                     telemetry.addData("PID Output", clippedPidOutput);
                     telemetry.addData("Final Power", finalPower);
+                    telemetry.addData("Current Draw", getCurrentDraw());
                 }
                 break;
         }

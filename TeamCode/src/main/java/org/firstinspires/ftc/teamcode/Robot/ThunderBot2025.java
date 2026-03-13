@@ -146,7 +146,7 @@ public class ThunderBot2025 implements DataLoggable {
     }
 
     public double getTotalMotorCurrentDraw(){
-        return launcher.getTotalCurrentDraw() + intake.getTotalCurrentDraw();
+        return launcher.getTotalCurrentDraw() + intake.getTotalCurrentDraw() + drive.getTotalCurrentDraw();
     }
 
     /**
@@ -449,5 +449,6 @@ public class ThunderBot2025 implements DataLoggable {
         double headingDouble = pose.heading.toDouble();
         logger.addField(headingDouble);
         logger.addField(getBatteryVoltage());
+        logger.addField(getTotalMotorCurrentDraw());
     }
 }

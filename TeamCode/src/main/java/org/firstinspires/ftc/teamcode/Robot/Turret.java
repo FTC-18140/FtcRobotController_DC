@@ -215,14 +215,14 @@ public class Turret implements DataLoggable {
         switch (currentState) {
             case HOLDING:
             case SEEKING_ANGLE:
-//                setHardwarePower(totalPower);
+                setHardwarePower(totalPower);
                 if (State.SEEKING_ANGLE == currentState && isAtTarget()) {
                     currentState = State.HOLDING;
                 }
                 break;
 
             case MANUAL_CONTROL:
-//                setHardwarePower(manualPower);
+                setHardwarePower(manualPower);
                 if (0.01 > Math.abs(manualPower)) {
                     currentState = State.HOLDING;
                     setHardwarePower((double) 0);
