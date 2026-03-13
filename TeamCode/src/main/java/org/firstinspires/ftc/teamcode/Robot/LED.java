@@ -143,7 +143,7 @@ public class LED {
                 hue = 0.28;
                 break;
             case ORANGE:
-                hue = 0.62;
+                hue = 0.333;
                 break;
             case YELLOW:
                 hue = 0.388;

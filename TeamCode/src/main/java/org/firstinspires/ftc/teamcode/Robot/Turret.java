@@ -7,11 +7,13 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Utilities.DataLoggable;
 import org.firstinspires.ftc.teamcode.Utilities.DataLogger;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
@@ -64,6 +66,7 @@ public class Turret implements DataLoggable {
     private double manualPower = (double) 0;
     public double manualAngle = (double) 0;
     private double currentPosition = (double) 0;
+    private double currentdraw = 0.0;
     private double offsetAngle = (double) 0;
     private double seekingPower = (double) 0; // Member variable to be accessible for logging
     private double lastSeekingPower = (double) 0;
@@ -193,6 +196,8 @@ public class Turret implements DataLoggable {
 
         isHomed = turretSwitch.isPressed();
 
+        currentdraw = getTotalCurrentDraw();
+
         // 1. Static Feedforward (Wires/Friction)
         double ffStatic = Range.clip(Range.scale(currentPosition, -90.0, -15.0, F_TURRET_MAX, F_TURRET_MIN), F_TURRET_MIN, F_TURRET_MAX);
 
@@ -210,14 +215,14 @@ public class Turret implements DataLoggable {
         switch (currentState) {
             case HOLDING:
             case SEEKING_ANGLE:
-                setHardwarePower(totalPower);
+//                setHardwarePower(totalPower);
                 if (State.SEEKING_ANGLE == currentState && isAtTarget()) {
                     currentState = State.HOLDING;
                 }
                 break;
 
             case MANUAL_CONTROL:
-                setHardwarePower(manualPower);
+//                setHardwarePower(manualPower);
                 if (0.01 > Math.abs(manualPower)) {
                     currentState = State.HOLDING;
                     setHardwarePower((double) 0);
@@ -238,6 +243,7 @@ public class Turret implements DataLoggable {
             // Add these lines to see the "Blend" of control:
             telemetry.addData("PID Power", "%.3f", seekingPower);
             telemetry.addData("FF Total", "%.3f", (ffStatic * Math.signum(seekingPower)) + ffRobotRot + ffTrans);
+            telemetry.addData("Total current draw", "%.3f", getTotalCurrentDraw());
             telemetry.addData("Turret State", currentState);
         }
 
@@ -312,6 +318,11 @@ public class Turret implements DataLoggable {
         return currentPosition + offsetAngle;
     }
 
+    public double getTotalCurrentDraw() {
+        DcMotorEx turretEx = (DcMotorEx) turret;
+        return turretEx.getCurrent(CurrentUnit.AMPS);
+    }
+
 
     public boolean isAtTarget() {
         return Math.abs(currentPosition - targetAngle) < TURRET_ANGLE_TOLERANCE;
@@ -325,5 +336,6 @@ public class Turret implements DataLoggable {
         logger.addField(I_TURRET);
         logger.addField(D_TURRET);
         logger.addField(seekingPower);
+        logger.addField(currentdraw);
     }
 }

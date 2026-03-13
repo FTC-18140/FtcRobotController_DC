@@ -6,31 +6,35 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.teamcode.Utilities.DataLogger;
 
 @Config
 public class Intake {
-    Telemetry telemetry;
-    HardwareMap hardwareMap;
+    private Telemetry telemetry = null;
+    private HardwareMap hardwareMap = null;
 
-    public static double INTAKE_SPEED = 1.0;
-    DcMotor intakeMotor = null;
+    private static double INTAKE_SPEED = 1.0;
+    private DcMotor intakeMotor = null;
 
     private double current_speed = 0;
     private double slow = 1;
-    public static double SLOWED_SPEED = 0.6;
+    private static double SLOWED_SPEED = 0.6;
+    private double currentdraw;
 
     public void init(HardwareMap hwMap, Telemetry telem) {
         hardwareMap = hwMap;
         telemetry = telem;
 
-        try{
+        try {
             intakeMotor = hardwareMap.get(DcMotor.class, "intake");
             intakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             telemetry.addData("DC Motor \"intake\" not found", 0);
         }
     }
@@ -38,29 +42,33 @@ public class Intake {
     /**
      * Update method for Intake
      */
-    public void update(){
+    public void update() {
+
         intakeMotor.setPower(current_speed * slow);
+        currentdraw = getTotalCurrentDraw();
+        telemetry.addData("Intake Current Draw", currentdraw);
     }
 
     /**
      * sets the intake motor to the preset intake speed
      */
-    public void intake(){
+    public void intake() {
         current_speed = INTAKE_SPEED;
         telemetry.addData("Intaking", 0);
     }
 
 
-    public void slow(){
+    void slow() {
         slow = SLOWED_SPEED;
 //        telemetry.addData("Intaking", 0);
     }
-    public void unslow(){
+
+    void unslow() {
         slow = 1;
     }
 
 
-    public Action intakeStopAction(){
+    public Action intakeStopAction() {
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
@@ -73,14 +81,22 @@ public class Intake {
 
     /**
      * Used to expose the intake power value to other classes
+     *
      * @return the intake power
      */
-    public double getIntakePower(){ return intakeMotor.getPower();}
+    double getIntakePower() {
+        return intakeMotor.getPower();
+    }
+
+    public double getTotalCurrentDraw() {
+        DcMotorEx intakeMotorEx = (DcMotorEx) intakeMotor;
+        return intakeMotorEx.getCurrent(CurrentUnit.AMPS);
+    }
 
     /**
      * Sets the intake motor to the opposite of the preset intake speed
      */
-    public void spit(){
+    public void spit() {
         current_speed = -INTAKE_SPEED;
         telemetry.addData("Spitting", 0);
     }
@@ -90,5 +106,9 @@ public class Intake {
      */
     public void stop() {
         current_speed = 0;
+    }
+
+    public void logData(DataLogger logger) {
+        logger.addField(currentdraw);
     }
 }
