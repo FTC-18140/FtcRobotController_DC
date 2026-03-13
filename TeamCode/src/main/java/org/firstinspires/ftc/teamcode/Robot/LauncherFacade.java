@@ -157,6 +157,8 @@ public class LauncherFacade implements DataLoggable {
         turret.update(fusedPose, currentOdoVelocity, targetPos);
         flywheel.update();
 
+        setTurretOffset();
+
         telemetry.addData("Using Limelight: ", usingLimelight);
     }
 
@@ -209,10 +211,9 @@ public class LauncherFacade implements DataLoggable {
         // Calculate the vector (x, y) pointing from the robot to the goal
         boolean returnValue = false;
         aimingMode = AimingMode.DIRECTIONAL;
-        if (turret.isHomed()) {
-            holdTurretPosition();
-            double turretAngleRaw = getTurretAngleRaw();
-            turret.setOffset(turretAngleRaw);
+        if (limelight.hasTarget()) {
+            double offset = getLimelightAimAngle() - getAutoAimAngle();
+            turret.setOffset(offset);
             returnValue = true;
         }
         return returnValue;
