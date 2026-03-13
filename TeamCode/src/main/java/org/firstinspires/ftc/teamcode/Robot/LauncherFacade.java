@@ -464,7 +464,7 @@ public class LauncherFacade implements DataLoggable {
     void prepShot() {
         double distanceInches = getGoalDistance();
         double distanceMeters = distanceInches * INCH_TO_METER;
-        double targetVelocity = flywheel.calculateBallVelocity(distanceMeters, 0.6096, 48.0);
+        double targetVelocity = flywheel.calculateBallVelocity(distanceMeters, 0.6096, 55.0);
 
         flywheel.setTargetRpmFromVelocity(targetVelocity);
     }
