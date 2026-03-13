@@ -201,6 +201,10 @@ public class LauncherFacade implements DataLoggable {
         return flywheel.getRpmUpperBound();
     }
 
+    public double getTotalCurrentDraw() {
+        return turret.getTotalCurrentDraw() + flywheel.getTotalCurrentDraw();
+    }
+
     public void aim() {
         augmentedAim(0.0);
     }

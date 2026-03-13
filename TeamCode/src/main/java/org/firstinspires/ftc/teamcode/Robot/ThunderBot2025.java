@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
-import static com.qualcomm.robotcore.eventloop.opmode.OpMode.blackboard;
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
 
 import androidx.annotation.NonNull;
 
@@ -13,14 +13,19 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Robot.Drives.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Utilities.DataLoggable;
 import org.firstinspires.ftc.teamcode.Utilities.DataLogger;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Iterator;
 
 @Config
 public class ThunderBot2025 implements DataLoggable {
@@ -31,6 +36,7 @@ public class ThunderBot2025 implements DataLoggable {
     public LauncherFacade launcher = null;
     private LED led = null;
     public Kickstand kickstand = null;
+    VoltageSensor voltageSensor = null;
 
     // --- AprilTag and Sequence Management ---
     private int latchedObeliskId = -1; // -1 indicates no ID has been officially latched yet.
@@ -57,7 +63,7 @@ public class ThunderBot2025 implements DataLoggable {
     public void init(HardwareMap hwMap, Telemetry telem, @Nullable Pose2d pose) {
         telemetry = new MultipleTelemetry(telem, FtcDashboard.getInstance().getTelemetry());
 
-        ThunderBot2025.starting_position = (Pose2d) blackboard.getOrDefault(ThunderBot2025.STARTING_POSE, null);
+        starting_position = (Pose2d) OpMode.blackboard.getOrDefault(ThunderBot2025.STARTING_POSE, null);
         if (null == pose) {
             if (null == starting_position) {
                 pose = new Pose2d(0, 0, 0);
@@ -65,6 +71,16 @@ public class ThunderBot2025 implements DataLoggable {
                 pose = ThunderBot2025.starting_position;
             }
         }
+        try {
+            voltageSensor = hwMap.get(VoltageSensor.class, "Control Hub");
+        } catch (RuntimeException e) {
+            telemetry.addData("Could not init voltage sensor", 0);
+        }
+        if (getBatteryVoltage() < 13) {
+            telemetry.addData("Replace Battery please, I Beg you", 0);
+        }
+
+
         drive = new MecanumDrive(hwMap, pose);
 
         intake = new Intake();
@@ -84,12 +100,53 @@ public class ThunderBot2025 implements DataLoggable {
 
         runtime.reset();
 
+
+    }
+
+    public void update() {
+        double seconds = runtime.seconds();
+
+        PoseVelocity2d robotPoseVel = drive.updatePoseEstimate();
+        launcher.update(drive.localizer.getPose(), robotPoseVel);
+
+        boolean atTargetRpm = launcher.isAtTargetRpm();
+        boolean atTarget = launcher.isAtTarget();
+
+        indexer.update(atTargetRpm && atTarget);
+        intake.update();
+
+
+        IndexerFacade.BallState lastBallState = indexer.getLastBallState(2);
+        double flywheelTargetRpm = launcher.getFlywheelTargetRpm();
+        double flywheelRpm = launcher.getFlywheelRpm();
+
+        boolean isIndexerFull = indexer.indexerIsFull();
+        IndexerFacade.State state = indexer.getCurrentState();
+
+        led.update(flywheelRpm, flywheelTargetRpm, seconds, lastBallState, isIndexerFull, state);
+
+        kickstand.update();
+
+        if (0 < intake.getIntakePower() && !indexer.isNearSlot()) {
+            intake.slow();
+        } else if (3 < indexer.getBallNumber()) {
+            intake.unslow();
+            intake.spit();
+        } else {
+            intake.unslow();
+        }
     }
 
     public void setColor(Alliance_Color alliance) {
         color = alliance;
         launcher.setAlliance(color);
+    }
+    public double getBatteryVoltage() {
+        return voltageSensor.getVoltage();
+    }
 
+    public double getTotalMotorCurrentDraw(){
+        return launcher.getTotalCurrentDraw() + intake.getTotalCurrentDraw();
     }
 
     /**
@@ -146,41 +203,6 @@ public class ThunderBot2025 implements DataLoggable {
         theVector = theVector.times(speed);
         PoseVelocity2d thePose = new PoseVelocity2d(theVector, -clockwise * speed);
         drive.setDrivePowers(thePose);
-    }
-
-    public void update() {
-        double seconds = runtime.seconds();
-
-        PoseVelocity2d robotPoseVel = drive.updatePoseEstimate();
-        launcher.update(drive.localizer.getPose(), robotPoseVel);
-
-        boolean atTargetRpm = launcher.isAtTargetRpm();
-        boolean atTarget = launcher.isAtTarget();
-
-        indexer.update(atTargetRpm && atTarget);
-        intake.update();
-
-
-        IndexerFacade.BallState lastBallState = indexer.getLastBallState(2);
-        double flywheelTargetRpm = launcher.getFlywheelTargetRpm();
-        double flywheelRpm = launcher.getFlywheelRpm();
-
-        boolean isIndexerFull = indexer.indexerIsFull();
-        IndexerFacade.State state = indexer.getCurrentState();
-
-        led.update(flywheelRpm, flywheelTargetRpm, seconds, lastBallState, isIndexerFull, state);
-
-        kickstand.update();
-
-        if (0 < intake.getIntakePower() && !indexer.isNearSlot()) {
-            intake.slow();
-        } else if (3 < indexer.getBallNumber()) {
-            intake.unslow();
-            intake.spit();
-        } else {
-            intake.unslow();
-        }
-        
     }
 
     public boolean inLaunchZone(){
@@ -420,10 +442,12 @@ public class ThunderBot2025 implements DataLoggable {
     @Override
     public void logData(DataLogger logger) {
         launcher.logData(logger);
+        intake.logData(logger);
         Pose2d pose = drive.localizer.getPose();
         logger.addField(pose.position.x);
         logger.addField(pose.position.y);
         double headingDouble = pose.heading.toDouble();
         logger.addField(headingDouble);
+        logger.addField(getBatteryVoltage());
     }
 }

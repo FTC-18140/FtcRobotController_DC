@@ -7,6 +7,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.teamcode.Utilities.DataLogger;
 import org.firstinspires.ftc.teamcode.Utilities.MovingAverageFilter;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 
@@ -21,7 +23,8 @@ public class Flywheel {
     private State currentState = State.IDLE; // Initial state
 
     // Hardware and Utilities
-    private DcMotorEx launcher = null, launcher2 = null;
+    private DcMotorEx launcher = null;
+    private DcMotorEx launcher2 = null;
     private PIDController rpmController = null;
     public static int FILTER_SIZE = 2;
     private MovingAverageFilter rpmFilter = new MovingAverageFilter(FILTER_SIZE);
@@ -48,6 +51,7 @@ public class Flywheel {
     public static double RPM_UPPER_BOUND = 20.0;
 
     private double currentRpm = (double) 0;
+    private double currentdraw = 0.0;
     double scaledPower = (double) 0;
 
     public static void flywheel(String[] args) {
@@ -86,6 +90,14 @@ public class Flywheel {
 
     public double getTargetRpm() {
         return targetRpm;
+    }
+
+    private static double currentDrawn(DcMotorEx motor) {
+        return motor.getCurrent(CurrentUnit.AMPS);
+    }
+
+    public double getTotalCurrentDraw() {
+        return currentDrawn(launcher) + currentDrawn(launcher2);
     }
 
 
@@ -137,6 +149,7 @@ public class Flywheel {
 
         rpmController.setPID(P, I, D);
         this.currentRpm = rpmFilter.addValue(getRPM());
+        currentdraw = getTotalCurrentDraw();
 
         //telemetry.addData("launcherVel",launcher.getVelocity());
 
@@ -167,6 +180,9 @@ public class Flywheel {
                     telemetry.addData("Feedforward", feedforward);
                     telemetry.addData("PID Output", clippedPidOutput);
                     telemetry.addData("Final Power", finalPower);
+                    telemetry.addData("Launcher1 Current", currentDrawn(launcher));
+                    telemetry.addData("Launcher2 Current", currentDrawn(launcher2));
+                    telemetry.addData("Total current", getTotalCurrentDraw());
                 }
                 break;
         }
@@ -193,6 +209,11 @@ public class Flywheel {
 
     public double calculateWheelRPM(double ballVelocity) {
         return (60.0 * ballVelocity) / (2.0 * Math.PI * SHOOTER_RADIUS * SPIN_EFFICIENCY);
+    }
+
+
+    public void logData(DataLogger logger) {
+        logger.addField(currentdraw);
     }
 
 }

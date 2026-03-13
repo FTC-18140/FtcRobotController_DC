@@ -147,7 +147,7 @@ public class Turnstile {
     }
 
 
-    public double getCurrentAngle() {
+    double getCurrentAngle() {
         return currentAngle;
     }
 
