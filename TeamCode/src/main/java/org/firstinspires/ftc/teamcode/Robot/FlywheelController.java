@@ -66,6 +66,17 @@ public class FlywheelController {
     public double getUpperFlywheelTargetRPM() {
         return upperWheel.getTargetRpm();
     }
+    public double getLowerFlywheelCurrentDraw() {
+        return lowerWheel.getCurrentDraw();
+    }
+
+    public double getUpperFlywheelCurrentDraw() {
+        return upperWheel.getCurrentDraw();
+    }
+    public double getTotalCurrentDraw() {
+        return getLowerFlywheelCurrentDraw() + getUpperFlywheelCurrentDraw();
+    }
+
 
     public boolean isAtTargetRpm() {
         if (lowerWheel.isAtTargetRpm() && upperWheel.isAtTargetRpm()) return true;

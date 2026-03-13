@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Utilities.MovingAverageFilter;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 
@@ -123,6 +124,9 @@ public class Flywheel {
         return RPM_UPPER_BOUND;
     }
 
+    public double getCurrentDraw() {
+        return launcher.getCurrent(CurrentUnit.AMPS);
+    }
 
     /**
      * Commands the flywheel to stop.
