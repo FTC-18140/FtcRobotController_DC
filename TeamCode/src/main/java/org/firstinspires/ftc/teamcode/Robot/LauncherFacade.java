@@ -24,7 +24,7 @@ public class LauncherFacade implements DataLoggable {
 
     // Subsystems
     private Turret turret = null;
-    private Flywheel flywheel = null;
+    private FlywheelController flywheel = null;
     private Limelight limelight = null;
     private Telemetry telemetry = null;
 
@@ -58,7 +58,7 @@ public class LauncherFacade implements DataLoggable {
         telemetry = telem;
         turret = new Turret();
         turret.init(hwMap, telem);
-        flywheel = new Flywheel();
+        flywheel = new FlywheelController();
         flywheel.init(hwMap, telem);
         limelight = new Limelight();
         limelight.init(hwMap, telem);
@@ -186,19 +186,19 @@ public class LauncherFacade implements DataLoggable {
     }
 
     public double getFlywheelRpm() {
-        return flywheel.getCurrentRpm();
+        return flywheel.getLowerFlywheelCurrentRPM();
     }
 
     public double getFlywheelTargetRpm() {
-        return flywheel.getTargetRpm();
+        return flywheel.getLowerFlywheelTargetRPM();
     }
 
     double getFlywheelLowerBoundRpm() {
-        return flywheel.getRpmLowerBound();
+        return Flywheel.RPM_LOWER_BOUND;
     }
 
     double getFlywheelUpperBoundRpm() {
-        return flywheel.getRpmUpperBound();
+        return Flywheel.RPM_UPPER_BOUND;
     }
 
     public void aim() {
@@ -460,10 +460,8 @@ public class LauncherFacade implements DataLoggable {
         double distanceInches = getGoalDistance();
         double distanceMeters = distanceInches * INCH_TO_METER;
         double targetVelocity = flywheel.calculateBallVelocity(distanceMeters, 0.6096, 48.0);
-        double targetRpm = flywheel.calculateWheelRPM(targetVelocity);
 
-
-        flywheel.setTargetRpm(targetRpm);
+        flywheel.setTargetRpmFromVelocity(targetVelocity);
     }
 
     void prepShotLow() {
@@ -476,8 +474,6 @@ public class LauncherFacade implements DataLoggable {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 prepShot();
-                telemetry.addData("Flywheel Target RPM", flywheel.getTargetRpm());
-                telemetry.addData("Flywheel RPM", flywheel.getCurrentRpm());
 
                 return true;
             }

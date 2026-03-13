@@ -29,8 +29,8 @@ public class Flywheel {
 
     // Tunable constants from your original file
 
-    public static double P = 0.0045, I = 0.006, D = 0.00011;
-    public static double F_MAX = 0.62, F_MIN = 0.47;
+    private double P = 0.0045, I = 0.006, D = 0.00011;
+    public double F_MAX = 0.62, F_MIN = 0.47;
 
     public double feedforward = 0.0;
 
@@ -50,12 +50,6 @@ public class Flywheel {
     private double currentRpm = (double) 0;
     double scaledPower = (double) 0;
 
-    public static void flywheel(String[] args) {
-        Flywheel launcher = new Flywheel();
-        Flywheel activeRoller = new Flywheel();
-
-    }
-
     public void init(HardwareMap hwMap, Telemetry telem, String motorName) {
         this.telemetry = telem;
         rpmController = new PIDController(P, I, D);
@@ -65,6 +59,18 @@ public class Flywheel {
         launcher.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         launcher.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+    }
+
+    public void setPID(double p, double i, double d){
+        this.P = p;
+        this.I = i;
+        this.D = d;
+    }
+
+    public void setParameters(double p, double i, double d, double fMin, double fMax) {
+        setPID(p, i, d);
+        this.F_MIN = fMin;
+        this.F_MAX = fMax;
     }
 
     // --- High-Level Commands to Change State ---
@@ -174,18 +180,6 @@ public class Flywheel {
     }
 
     // --- Calculation Methods ---
-    public double calculateBallVelocity(double distance, double height, double angleDegrees) {
-        double angleRad = Math.toRadians(angleDegrees);
-        double g = 9.81;
-
-        double numerator = distance * distance * g;
-        double denominator = (distance * Math.sin(2.0 * angleRad)) - (2.0 * height * Math.pow(Math.cos(angleRad), 2.0));
-
-        denominator = Math.max(denominator, 0.4);
-
-        telemetry.addData("Denominator: ", denominator);
-        return Math.sqrt(numerator / denominator);
-    }
 
     public double calculateWheelRPM(double ballVelocity) {
         return (60.0 * ballVelocity) / (2.0 * Math.PI * SHOOTER_RADIUS * SPIN_EFFICIENCY);
