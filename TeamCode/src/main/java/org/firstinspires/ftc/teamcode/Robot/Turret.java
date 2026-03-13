@@ -115,7 +115,7 @@ public class Turret implements DataLoggable {
     /**
      * @param angle in degrees
      */
-    public void seekToAngle(double angle) {
+    void seekToAngle(double angle) {
         targetAngle = Range.clip(angle, MIN_TURRET_POS, MAX_TURRET_POS);
         currentState = State.SEEKING_ANGLE;
     }
