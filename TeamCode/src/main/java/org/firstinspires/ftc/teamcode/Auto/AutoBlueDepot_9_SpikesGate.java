@@ -66,8 +66,7 @@ public class AutoBlueDepot_9_SpikesGate extends LinearOpMode{
                                                                     .build()
                                                     ),
                                                     // Launch Preloads
-                                                    robot.startSequenceAction(),
-                                                    robot.waitForSequenceEndAction(),
+                                                    robot.spamAction(),
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
@@ -95,8 +94,7 @@ public class AutoBlueDepot_9_SpikesGate extends LinearOpMode{
                                                     ),
                                                     robot.intakeStopAction(),
                                                     // Launch Preloads
-                                                    robot.startSequenceAction(),
-                                                    robot.waitForSequenceEndAction(),
+                                                    robot.spamAction(),
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
