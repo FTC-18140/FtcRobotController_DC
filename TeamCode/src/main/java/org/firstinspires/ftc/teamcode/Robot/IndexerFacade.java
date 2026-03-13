@@ -22,7 +22,7 @@ public class IndexerFacade {
 
 
     // --- Sub-Components ---
-    private Flipper flipper = null;
+//    private Flipper flipper = null;
     private Turnstile turnstile = null;
     private BallSensor[] ballSensors = new BallSensor[6];
     private BeamBreaker beamBreak = new BeamBreaker();
@@ -40,7 +40,7 @@ public class IndexerFacade {
     private boolean updated = false;
 
     // --- State Management ---
-    public enum State {IDLE, HOMING, SELECTING_BALL, INTAKE, AWAITING_FLIP, FLIPPING, FLIP_TO_CYCLE, RETRACTING_FLIPPER}
+    public enum State {IDLE, HOMING, SELECTING_BALL, INTAKE, AWAITING_LAUNCH, FLIPPING}
 
     private State currentState = State.IDLE;
     private boolean isIntaking = false;
@@ -67,8 +67,8 @@ public class IndexerFacade {
     public void init(HardwareMap hwMap, Telemetry telem) {
         this.telemetry = telem;
 
-        flipper = new Flipper();
-        flipper.init(hwMap, telem);
+//        flipper = new Flipper();
+//        flipper.init(hwMap, telem);
 
         turnstile = new Turnstile();
         turnstile.init(hwMap, telem);
@@ -100,13 +100,13 @@ public class IndexerFacade {
         //turnstile.home();
     }
 
-    public void flipOverride(boolean up) {
-        if (up) {
-            flipper.extend();
-        } else {
-            flipper.retract();
-        }
-    }
+//    public void flipOverride(boolean up) {
+//        if (up) {
+//            flipper.extend();
+//        } else {
+//            flipper.retract();
+//        }
+//    }
 
     public void setInitialBallStates(BallState[] initialStates) {
         if (3 == initialStates.length) {
@@ -248,7 +248,7 @@ public class IndexerFacade {
 
 
     public void launchAllInIndexer() {
-        if (State.IDLE != currentState && State.AWAITING_FLIP != currentState) return;
+        if (State.IDLE != currentState && State.AWAITING_LAUNCH != currentState) return;
 
         shotSequence = Arrays.asList(BallState.ALL, BallState.ALL, BallState.ALL);
 
@@ -324,7 +324,7 @@ public class IndexerFacade {
     public boolean selectNextSlot(BallState ballState) {
         // Refactored to have a single exit point
         boolean slotFound = false;
-        if (State.IDLE == currentState || State.AWAITING_FLIP == currentState) {
+        if (State.IDLE == currentState || State.AWAITING_LAUNCH == currentState) {
             int startSlot = currentTargetSlot;
 
             for (int i = 3; 0 < i && !slotFound; i--) {
@@ -347,7 +347,7 @@ public class IndexerFacade {
     public boolean readyNextIntakeSlot(BallState ballState) {
         // Refactored to have a single exit point
         boolean slotFound = false;
-        if (State.IDLE == currentState || State.AWAITING_FLIP == currentState || isIntaking) {
+        if (State.IDLE == currentState || State.AWAITING_LAUNCH == currentState || isIntaking) {
             int startSlot = 0;
 
             updateBallSensors();
@@ -381,7 +381,7 @@ public class IndexerFacade {
      * @param slot The index of the target slot (0, 1, or 2).
      */
     public boolean selectSlot(int slot) {
-        if (flipper.isRetracted() && (State.IDLE == currentState || State.AWAITING_FLIP == currentState || State.SELECTING_BALL == currentState || State.FLIP_TO_CYCLE == currentState || State.RETRACTING_FLIPPER == currentState) && 0 <= slot && 3 > slot) {
+        if ((State.IDLE == currentState || State.AWAITING_LAUNCH == currentState || State.SELECTING_BALL == currentState) && 0 <= slot && 3 > slot) {
             rotateBallStates((slot - currentTargetSlot + 3) % 3);
             currentTargetSlot = slot;
             turnstile.seekToAngle(SLOT_ANGLES[currentTargetSlot]);
@@ -392,11 +392,10 @@ public class IndexerFacade {
         return false;
     }
 
-    public boolean flip() {
-        if ((State.AWAITING_FLIP == currentState || State.IDLE == currentState) && turnstile.isAtTarget()) {
+    public boolean launch() {
+        if ((State.AWAITING_LAUNCH == currentState || State.IDLE == currentState)) {
             currentState = State.FLIPPING;
-            flipper.extend();
-            flipTimer.reset();
+            turnstile.launchSlots(1);
             return true;
         }
         return false;
@@ -406,16 +405,16 @@ public class IndexerFacade {
 
     }
 
-    public boolean flipAndCycle() {
-        boolean returnValue = false;
-        if ((State.AWAITING_FLIP == currentState || State.IDLE == currentState) && turnstile.isAtTarget()) {
-            currentState = State.FLIP_TO_CYCLE;
-            flipper.extend();
-            flipTimer.reset();
-            returnValue = true;
-        }
-        return returnValue;
-    }
+//    public boolean flipAndCycle() {
+//        boolean returnValue = false;
+//        if ((State.AWAITING_LAUNCH == currentState || State.IDLE == currentState) && turnstile.isAtTarget()) {
+//            currentState = State.FLIP_TO_CYCLE;
+//            flipper.extend();
+//            flipTimer.reset();
+//            returnValue = true;
+//        }
+//        return returnValue;
+//    }
 
     /**
      * Plans and initiates an autonomous shot sequence based on a detected AprilTag ID.
@@ -428,7 +427,7 @@ public class IndexerFacade {
      */
     public String planShotSequence(int aprilTagId) {
         // Only start a new sequence if the facade is idle.
-        if (State.IDLE != currentState && State.AWAITING_FLIP != currentState) return null;
+        if (State.IDLE != currentState && State.AWAITING_LAUNCH != currentState) return null;
 
         switch (aprilTagId) {
             case 21: // Motif: G-P-P
@@ -559,7 +558,7 @@ public class IndexerFacade {
 
     public void update(boolean isAtRpm) {
 
-        flipper.update();
+//        flipper.update();
         turnstile.update();
         beamBreak.update();
 
@@ -599,13 +598,13 @@ public class IndexerFacade {
                     beamBreakCounter = 0;
                     updateBallSensors();
                     updateIntakePosited();
-                    currentState = State.AWAITING_FLIP;
+                    currentState = State.AWAITING_LAUNCH;
                 }
                 break;
-            case AWAITING_FLIP: // In position, ready to receive a flip() command from an external source.
+            case AWAITING_LAUNCH: // In position, ready to receive a flip() command from an external source.
                 // Do nothing. The system will wait here until flip() is called.
                 if (null != shotSequence && turnstile.isAtTarget() && sequenceStarted && isAtRpm) {
-                    flip();
+                    launch();
                     ballNumber--;
                     positedBallStates[2] = BallState.VACANT;
                     if (0 > ballNumber) ballNumber = 0;
@@ -614,36 +613,8 @@ public class IndexerFacade {
                 }
                 break;
             case FLIPPING:
-                if (flipTimer.seconds() > FLIP_TIME_SECONDS) {
-                    flipper.retract();
-                    currentState = State.RETRACTING_FLIPPER;
-                }
-                break;
-            case FLIP_TO_CYCLE:
-                if (flipTimer.seconds() > FLIP_TIME_SECONDS) {
-                    flipper.retract();
-                    if (flipper.isRetracted()) {
-                        if (cycle(1)) {
-                            currentState = State.RETRACTING_FLIPPER;
-                        }
-                    }
-                }
-                break;
-            case RETRACTING_FLIPPER:
-                if (flipper.isRetracted()) {
-                    // If we were in a sequence, advance to the next step.
-                    if (null != shotSequence) {
-                        sequenceIndex++;
-                        if (sequenceIndex < shotSequence.size()) {
-                            executeNextInSequence();
-                        } else {
-                            cancelSequence(); // Sequence complete
-                        }
-                    } else {
-                        // Otherwise, just go back to idle.
-                        updateBallSensors();
-                        currentState = State.IDLE;
-                    }
+                if (turnstile.isAtTarget()) {
+                    currentState = State.SELECTING_BALL;
                 }
                 break;
         }
@@ -713,6 +684,6 @@ public class IndexerFacade {
     public boolean isDone() {
         // The facade is "done" if it's idle or if it's ready for a manual flip.
         // During an auto-sequence, it is NOT done.
-        return (null == shotSequence) && (State.IDLE == currentState || State.AWAITING_FLIP == currentState);
+        return (null == shotSequence) && (State.IDLE == currentState || State.AWAITING_LAUNCH == currentState);
     }
 }

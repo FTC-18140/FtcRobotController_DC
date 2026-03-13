@@ -14,7 +14,7 @@ public class Kickstand {
 
     // --- Tunable Constants via FTC Dashboard ---
     private static double EXTENDED_POSITION = 1.0;
-    private static double RETRACTED_POSITION = 0.5;
+    private static double RETRACTED_POSITION = 0.37;
     private static boolean TELEM = false;
 
     // --- State Management ---

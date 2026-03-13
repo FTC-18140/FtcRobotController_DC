@@ -141,7 +141,7 @@ public class Teleop_Red_DataLogger extends OpMode {
         }
 
         if(theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.RIGHT_TRIGGER)){
-            robot.indexer.flip();
+            robot.indexer.launch();
         }
 
         // --- Intake Controls (Stateful Latch) ---

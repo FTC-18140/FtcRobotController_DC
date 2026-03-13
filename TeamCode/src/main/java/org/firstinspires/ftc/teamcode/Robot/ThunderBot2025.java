@@ -247,9 +247,9 @@ public class ThunderBot2025 implements DataLoggable {
         launcher.prepShotLow();
     }
 
-    public boolean flip() {
+    public boolean launch() {
         if (launcher.isAtTargetRpm()) {
-            return indexer.flipAndCycle();
+            return indexer.launch();
         }
         return false;
     }
@@ -396,7 +396,7 @@ public class ThunderBot2025 implements DataLoggable {
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                return !ThunderBot2025.this.flip();
+                return !ThunderBot2025.this.launch();
             }
         };
     }
