@@ -23,6 +23,7 @@ public class Flywheel {
 
     // Hardware and Utilities
     private DcMotorEx launcher = null;
+    private DcMotorEx launcherEnc = null;
     private PIDController rpmController = null;
     public static int FILTER_SIZE = 2;
     private MovingAverageFilter rpmFilter = new MovingAverageFilter(FILTER_SIZE);
@@ -52,7 +53,7 @@ public class Flywheel {
     double scaledPower = (double) 0;
     private double currentDraw = 0.0;
 
-    public void init(HardwareMap hwMap, Telemetry telem, String motorName) {
+    public void init(HardwareMap hwMap, Telemetry telem, String motorName, String encoderName) {
         this.telemetry = telem;
         rpmController = new PIDController(P, I, D);
 
@@ -61,6 +62,9 @@ public class Flywheel {
         launcher.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         launcher.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+        if(!motorName.matches(encoderName)) {
+            launcherEnc = hwMap.get(DcMotorEx.class, encoderName);
+        }
     }
 
     public void setPID(double p, double i, double d){
@@ -113,7 +117,12 @@ public class Flywheel {
     }
 
     public double getRPM() {
-        double tps = -launcher.getVelocity();
+        double tps;
+        if (launcherEnc != null) {
+            tps = -launcherEnc.getVelocity();
+        } else {
+            tps = -launcher.getVelocity();
+        }
         return (tps * 60.0) / 28.0;
     }
 
