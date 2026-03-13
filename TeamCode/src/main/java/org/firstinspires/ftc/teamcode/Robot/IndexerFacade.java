@@ -31,16 +31,14 @@ public class IndexerFacade {
 
     // --- Constants ---
     public static final double[] SLOT_ANGLES = {120.0, 240.0, (double) 0}; // Angles for slots 0, 1, and 2
-    public static final double FLIP_TIME_SECONDS = 0.11; // Time for the flipper to extend and retract
 
-    private final ElapsedTime cycleTimer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
     public int beamBreakCounter = 0;
 
     public static boolean TELEM = false;
     private boolean updated = false;
 
     // --- State Management ---
-    public enum State {IDLE, HOMING, SELECTING_BALL, INTAKE, AWAITING_LAUNCH, FLIPPING}
+    public enum State {IDLE, HOMING, SELECTING_BALL, INTAKE, AWAITING_LAUNCH, LAUNCHING}
 
     private State currentState = State.IDLE;
     private boolean isIntaking = false;
@@ -86,7 +84,6 @@ public class IndexerFacade {
 
         beamBreak.init(hwMap, telem);
 
-        cycleTimer.reset();
         updateBallSensors();
         updateBallStates();
         for (int i = 0; 3 > i; i++) {
@@ -123,6 +120,21 @@ public class IndexerFacade {
      * turnstile to that slot. It critically modifies the internal `ballSlots` model to prevent
      * the same ball from being used twice to fulfill the sequence.
      */
+    public boolean prepSequence(){
+        if (shotSequence == null) return false;
+        if (!shotSequence.contains(BallState.GREEN)) return true;
+
+        int index = shotSequence.indexOf(BallState.GREEN);
+        int green_pos;
+        for (int i = 0; i < 3; i++) {
+            if (getBallState(i) == BallState.GREEN){
+                green_pos = i;
+                turnstile.seekToAngle(currentTargetSlot + (green_pos - index));
+                return true;
+            }
+        }
+        return false;
+    }
     private boolean executeNextInSequence() {
         // Safety check: Do nothing if the sequence is not active.
         if (null == shotSequence || 0 > sequenceIndex || sequenceIndex >= shotSequence.size())
@@ -250,10 +262,7 @@ public class IndexerFacade {
     public void launchAllInIndexer() {
         if (State.IDLE != currentState && State.AWAITING_LAUNCH != currentState) return;
 
-        shotSequence = Arrays.asList(BallState.ALL, BallState.ALL, BallState.ALL);
-
-        sequenceIndex = 0;
-        executeNextInSequence();
+        turnstile.launchSlots(3);
     }
 
     public Action runCurrentSequenceAction() {
@@ -394,7 +403,7 @@ public class IndexerFacade {
 
     public boolean launch() {
         if ((State.AWAITING_LAUNCH == currentState || State.IDLE == currentState)) {
-            currentState = State.FLIPPING;
+            currentState = State.LAUNCHING;
             turnstile.launchSlots(1);
             return true;
         }
@@ -577,7 +586,6 @@ public class IndexerFacade {
 //                ballNumber++;
 //            }
 
-            cycleTimer.reset();
             readyNextIntakeSlot(BallState.VACANT);
         }
 
@@ -612,7 +620,7 @@ public class IndexerFacade {
                     sequenceStarted = false;
                 }
                 break;
-            case FLIPPING:
+            case LAUNCHING:
                 if (turnstile.isAtTarget()) {
                     currentState = State.SELECTING_BALL;
                 }

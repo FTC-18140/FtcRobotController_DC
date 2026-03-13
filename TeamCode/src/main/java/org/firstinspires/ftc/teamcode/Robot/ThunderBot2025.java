@@ -254,13 +254,21 @@ public class ThunderBot2025 implements DataLoggable {
         return false;
     }
 
-    public void flipperUp() {
-        indexer.flipOverride(true);
+    public boolean launchAll() {
+        if (launcher.isAtTargetRpm()) {
+            indexer.launchAllInIndexer();
+            return true;
+        }
+        return false;
     }
 
-    public void flipperDown() {
-        indexer.flipOverride(false);
-    }
+//    public void flipperUp() {
+//        indexer.flipOverride(true);
+//    }
+
+//    public void flipperDown() {
+//        indexer.flipOverride(false);
+//    }
 
 
     public Action updateAction() {
