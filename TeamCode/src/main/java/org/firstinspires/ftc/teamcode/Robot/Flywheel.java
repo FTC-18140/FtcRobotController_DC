@@ -26,7 +26,7 @@ public class Flywheel {
     private DcMotorEx launcher = null;
     private DcMotorEx launcherEnc = null;
     private PIDController rpmController = null;
-    public static int FILTER_SIZE = 2;
+    public static int FILTER_SIZE = 1;
     private MovingAverageFilter rpmFilter = new MovingAverageFilter(FILTER_SIZE);
     private Telemetry telemetry = null;
 
@@ -38,19 +38,22 @@ public class Flywheel {
     public double feedforward = 0.0;
 
     public static boolean TELEM = false;
-    public static double MAX_SHOOTER_RPM = 2300.0;
-    public static double MIN_SHOOTER_RPM = 800.0;
+    public static double MAX_SHOOTER_RPM = 2000.0;
+    public static double MIN_SHOOTER_RPM = 1000.0;
     public static final double SHOOTER_RADIUS = 0.072 / 2.0;
-    public static double SPIN_EFFICIENCY = 1.0;
-    public static double FLYWHEEL_RATIO = (double) 1.0;
+    public static double SPIN_EFFICIENCY = 0.915;
+    public static double FLYWHEEL_RATIO = (double) 0.9;
 
 
     private double targetRpm = (double) 0;
 
-    public static double RPM_LOWER_BOUND = 20.0;
-    public static double RPM_UPPER_BOUND = 20.0;
+    public static double RPM_LOWER_BOUND = 15.0;
+    public static double RPM_UPPER_BOUND = 25.0;
 
     private double currentRpm = (double) 0;
+    private double previousRpm = 0;
+    private double currentAccel = 0;
+    public static double ACCEL_RATE = 200;
     double scaledPower = (double) 0;
     private double currentDraw = 0.0;
 
@@ -159,13 +162,24 @@ public class Flywheel {
     public void update() {
 
         rpmController.setPID(P, I, D);
-        this.currentRpm = rpmFilter.addValue(getRPM());
+
+        double detectedRpm = rpmFilter.addValue(getRPM());
+        if(previousRpm == 0) this.previousRpm = this.currentRpm;
+
+        if(detectedRpm == this.previousRpm) {
+            this.currentRpm += currentAccel;
+        } else {
+            this.currentRpm = detectedRpm;
+        }
+        this.previousRpm = detectedRpm;
+
 
         //telemetry.addData("launcherVel",launcher.getVelocity());
 
         switch (currentState) {
             case IDLE:
                 setPower((double) 0);
+                this.currentAccel = 0;
                 break;
 
             case SPINNING_UP:
@@ -181,12 +195,14 @@ public class Flywheel {
 
                 // --- Step 3: Combine and Set the Final Power ---
                 double finalPower = feedforward + clippedPidOutput;
+                this.currentAccel = clippedPidOutput * ACCEL_RATE;
                 setPower(finalPower);
 
                 // --- Telemetry for Debugging ---
                 if (TELEM) {
                     telemetry.addData("Target RPM", targetRpm);
                     telemetry.addData("Current RPM", currentRpm);
+                    telemetry.addData("RPM Acceleration", currentAccel);
                     telemetry.addData("Feedforward", feedforward);
                     telemetry.addData("PID Output", clippedPidOutput);
                     telemetry.addData("Final Power", finalPower);
@@ -194,6 +210,7 @@ public class Flywheel {
                 }
                 break;
         }
+
     }
 
     private void setPower(double power) {

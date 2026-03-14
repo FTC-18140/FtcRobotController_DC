@@ -13,20 +13,20 @@ public class FlywheelController {
     private Flywheel upperWheel = null;
 
     public static class LowerPID {
-        public double P = 0.0013, I = 0.006, D = 0.00011;
-        public double F_MAX = 0.5, F_MIN = 0.47;
+        public double P = 0.0015, I = 0.0, D = 0.000;
+        public double F_MAX = 0.72, F_MIN = 0.47;
     }
 
     public static class UpperPID {
-        public double P = 0.0013, I = 0.006, D = 0.00011;
-        public double F_MAX = 0.5, F_MIN = 0.47;
+        public double P = 0.0013, I = 0.0, D = 0.000;
+        public double F_MAX = 0.63, F_MIN = 0.42;
     }
 
     public static LowerPID LOWER_PID = new LowerPID();
     public static UpperPID UPPER_PID = new UpperPID();
 
 
-    public static double FLYWHEEL_RATIO = (double) 1.0;
+    public static double FLYWHEEL_RATIO = (double) 0.9;
 
     public void init(HardwareMap hwMap, Telemetry telem) {
         telemetry = telem;
