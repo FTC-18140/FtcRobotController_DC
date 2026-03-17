@@ -10,6 +10,7 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -261,7 +262,7 @@ public class ThunderBot2025 implements DataLoggable {
     }
 
     public boolean flip() {
-        if (launcher.isAtTargetRpm()) {
+        if (launcher.isAtTargetRpm() && launcher.isAtTarget()) {
             return indexer.flipAndCycle();
         }
         return false;
@@ -329,10 +330,9 @@ public class ThunderBot2025 implements DataLoggable {
     public Action spamAction() {
         return new SequentialAction(
                 launchAction(),
-                indexerIsAtTargetAction(),
                 launchAction(),
-                indexerIsAtTargetAction(),
-                launchAction()
+                launchAction(),
+                new SleepAction(0.2)
         );
     }
 
@@ -408,12 +408,14 @@ public class ThunderBot2025 implements DataLoggable {
     }
 
     public Action launchAction() {
-        return new Action() {
-            @Override
-            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                return !flip();
-            }
-        };
+        return new SequentialAction(
+                new Action() {
+                    @Override
+                    public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                        return !flip();
+                    }
+                }
+        );
     }
 
     /**

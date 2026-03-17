@@ -36,16 +36,15 @@ public class AutoTest extends LinearOpMode {
         robot.launcher.setPipeline(2);
 
         Actions.runBlocking(
-                new SequentialAction(
-                    new RaceAction(
-                            robot.updateAction(),
-                            robot.aimAction(),
-                            robot.launcher.prepShotAction(),
-                            new SequentialAction(
-                                    robot.spamAction()
-                            )
-                    ),
-                        robot.launcher.stopAction()
+                new ParallelAction(
+                    robot.updateAction(),
+                        robot.aimAction(),
+                        robot.launcher.prepShotAction(),
+                    new SequentialAction(
+                        robot.spamAction(),
+                            new SleepAction(2),
+                            robot.launcher.stopAction()
+                    )
                 )
         );
 

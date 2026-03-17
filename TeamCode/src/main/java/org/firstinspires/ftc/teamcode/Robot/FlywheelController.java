@@ -15,13 +15,13 @@ public class FlywheelController {
     private double last_distance = 0;
 
     public static class LowerPID {
-        public double P = 0.0013, I = 0.0, D = 0.000001;
-        public double F_MAX = 0.75, F_MIN = 0.49;
+        public double P = 0.0017, I = 0.0, D = 0.000001;
+        public double F_MAX = 0.79, F_MIN = 0.55;
     }
 
     public static class UpperPID {
-        public double P = 0.0014, I = 0.0, D = 0.000001;
-        public double F_MAX = 0.66, F_MIN = 0.43;
+        public double P = 0.0018, I = 0.0, D = 0.000001;
+        public double F_MAX = 0.67, F_MIN = 0.45;
     }
 
     public static LowerPID LOWER_PID = new LowerPID();

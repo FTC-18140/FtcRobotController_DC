@@ -101,7 +101,7 @@ public class IndexerFacade {
     }
 
     public void flipOverride(boolean up) {
-        if (up) {
+        if (up && turnstile.isAtTarget()) {
             flipper.extend();
         } else {
             flipper.retract();
@@ -125,7 +125,7 @@ public class IndexerFacade {
      */
     private boolean executeNextInSequence() {
         // Safety check: Do nothing if the sequence is not active.
-        if (null == shotSequence || 0 > sequenceIndex || sequenceIndex >= shotSequence.size())
+        if (null == shotSequence || 0 > sequenceIndex || sequenceIndex >= shotSequence.size() || !flipper.isRetracted())
             return false;
 
         sequenceStarted = true;
@@ -324,7 +324,7 @@ public class IndexerFacade {
     public boolean selectNextSlot(BallState ballState) {
         // Refactored to have a single exit point
         boolean slotFound = false;
-        if (State.IDLE == currentState || State.AWAITING_FLIP == currentState) {
+        if ((State.IDLE == currentState || State.AWAITING_FLIP == currentState)  && flipper.isRetracted()) {
             int startSlot = currentTargetSlot;
 
             for (int i = 3; 0 < i && !slotFound; i--) {
@@ -347,7 +347,7 @@ public class IndexerFacade {
     public boolean readyNextIntakeSlot(BallState ballState) {
         // Refactored to have a single exit point
         boolean slotFound = false;
-        if (State.IDLE == currentState || State.AWAITING_FLIP == currentState || isIntaking) {
+        if ((State.IDLE == currentState || State.AWAITING_FLIP == currentState || isIntaking) && flipper.isRetracted()){
             int startSlot = 0;
 
             updateBallSensors();
@@ -477,6 +477,9 @@ public class IndexerFacade {
 
     public boolean isBallInIntake() {
         return beamBreak.ballDetectedInIntake();
+    }
+    public boolean isFlipperDown() {
+        return flipper.isRetracted();
     }
 
     public boolean isAtTarget() {

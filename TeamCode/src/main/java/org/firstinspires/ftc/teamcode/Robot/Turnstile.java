@@ -28,7 +28,7 @@ public class Turnstile {
     public static boolean TELEM = false;
 
     // --- Tunable Constants via FTC Dashboard ---
-    public static double P = 0.0035, I = 0.01, D = 0.0001;
+    public static double P = 0.0032, I = 0.01, D = 0.00015;
     public static double THRESHOLD = 0.00;
     public static double MIN_POWER_POS = 0.032;
     public static double MIN_POWER_NEG = 0.015;

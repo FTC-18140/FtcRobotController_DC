@@ -64,6 +64,7 @@ public class AutoRedFar_12 extends LinearOpMode{
                                                                     .build()
                                                             // Plan the first shot sequence while driving.
                                                     ),
+                                                    robot.cancelSequenceAction(),
                                                     // Launch Preloads
                                                     robot.spamAction(),
                                                     robot.intakeStartAction(),
@@ -72,19 +73,7 @@ public class AutoRedFar_12 extends LinearOpMode{
                                                                     .splineTo(intakePos.position, Math.toRadians(-90))
                                                                     .splineToConstantHeading(new Vector2d(intakePos.position.x, -53), Math.toRadians(-90), new TranslationalVelConstraint(20))
                                                                     .build(),
-                                                            new RaceAction(
-                                                                    new SequentialAction(
-//                                                                            robot.seekToSlotAction(0), // Move to the first intake slot
-                                                                            //robot.indexerIsAtTargetAction(),
-                                                                            robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-                                                                            robot.indexerIsAtTargetAction(),
-                                                                            robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-                                                                            robot.indexerIsAtTargetAction(),
-                                                                            robot.waitForBallAction()
-                                                                            // The third ball will be loaded but we won't cycle away from it
-                                                                    ),
-                                                                    robot.indexerFullAction()
-                                                            )
+                                                            robot.indexerFullAction()
                                                     ),
 
                                                     // Drive to launch spot
@@ -108,19 +97,7 @@ public class AutoRedFar_12 extends LinearOpMode{
                                                                     .splineTo(intakePos2.position, Math.toRadians(-90))
                                                                     .splineToConstantHeading(new Vector2d(intakePos2.position.x, -53), Math.toRadians(-90), new TranslationalVelConstraint(20))
                                                                     .build(),
-                                                            new RaceAction(
-                                                                    new SequentialAction(
-//                                                                            robot.seekToSlotAction(0), // Move to the first intake slot
-                                                                            //robot.indexerIsAtTargetAction(),
-                                                                            robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-                                                                            robot.indexerIsAtTargetAction(),
-                                                                            robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-                                                                            robot.indexerIsAtTargetAction(),
-                                                                            robot.waitForBallAction()
-                                                                            // The third ball will be loaded but we won't cycle away from it
-                                                                    ),
-                                                                    robot.indexerFullAction()
-                                                            )
+                                                            robot.indexerFullAction()
                                                     ),
 
                                                     // Drive to launch spot
@@ -148,19 +125,7 @@ public class AutoRedFar_12 extends LinearOpMode{
                                                                     .splineToSplineHeading(intakePos3, Math.toRadians(-90))
                                                                     .splineToConstantHeading(new Vector2d(intakePos3.position.x, -53), Math.toRadians(-90), new TranslationalVelConstraint(20))
                                                                     .build(),
-                                                            new RaceAction(
-                                                                    new SequentialAction(
-//                                                                            robot.seekToSlotAction(0), // Move to the first intake slot
-                                                                            //robot.indexerIsAtTargetAction(),
-                                                                            robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-                                                                            robot.indexerIsAtTargetAction(),
-                                                                            robot.waitForBallAndCycleAction(), // Wait for a ball, then cycle
-                                                                            robot.indexerIsAtTargetAction(),
-                                                                            robot.waitForBallAction()
-                                                                            // The third ball will be loaded but we won't cycle away from it
-                                                                    ),
-                                                                    robot.indexerFullAction()
-                                                            )
+                                                            robot.indexerFullAction()
                                                     ),
 
                                                     // Drive to launch spot
