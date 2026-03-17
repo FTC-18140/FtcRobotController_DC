@@ -31,7 +31,7 @@ public class IndexerFacade {
 
     // --- Constants ---
     public static final double[] SLOT_ANGLES = {120.0, 240.0, (double) 0}; // Angles for slots 0, 1, and 2
-    public static final double FLIP_TIME_SECONDS = 0.11; // Time for the flipper to extend and retract
+    public static final double FLIP_TIME_SECONDS = 0.16; // Time for the flipper to extend and retract
 
     private final ElapsedTime cycleTimer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
     public int beamBreakCounter = 0;

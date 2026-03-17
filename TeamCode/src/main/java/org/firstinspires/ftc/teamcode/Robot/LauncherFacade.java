@@ -38,8 +38,8 @@ public class LauncherFacade implements DataLoggable {
 //    private KalmanPoseEstimator poseEstimator;
     private Pose2d fusedPose = new Pose2d(0.0, 0.0, 0.0); // This is the "Truth" we aim with
     private Pose2d lastOdoPose = null; // Used to calculate delta
-    private static final double TURRET_OFFSET_X = 3.22805;
-    private static final double TURRET_OFFSET_Y = -2.62074;
+    private static double TURRET_OFFSET_X = -2.62074;
+    private static double TURRET_OFFSET_Y = -3.22805;
     private static final double LIMELIGHT_FORWARD_POSITION = 6.175;
     private Vector2d trueTargetVector = fusedPose.position;
     private static double trust = 0.0;
@@ -50,8 +50,8 @@ public class LauncherFacade implements DataLoggable {
 
     // Target and alliance properties
     private Vector2d targetPos = null;
-    private static final Vector2d targetPosBlue = new Vector2d(69.0, 68.0);
-    private static final Vector2d targetPosRed = new Vector2d(70.0, -68.0);
+    private static final Vector2d targetPosBlue = new Vector2d(67.0, 67.0);
+    private static final Vector2d targetPosRed = new Vector2d(67.0, -67.0);
     private ThunderBot2025.Alliance_Color allianceColor = ThunderBot2025.Alliance_Color.BLUE;
 
     public void init(HardwareMap hwMap, Telemetry telem, Pose2d startPose) {

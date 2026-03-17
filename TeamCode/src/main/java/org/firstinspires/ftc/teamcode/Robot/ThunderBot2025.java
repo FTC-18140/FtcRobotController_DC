@@ -329,7 +329,9 @@ public class ThunderBot2025 implements DataLoggable {
     public Action spamAction() {
         return new SequentialAction(
                 launchAction(),
+                indexerIsAtTargetAction(),
                 launchAction(),
+                indexerIsAtTargetAction(),
                 launchAction()
         );
     }

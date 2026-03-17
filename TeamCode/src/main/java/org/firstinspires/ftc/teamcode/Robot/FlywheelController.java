@@ -12,14 +12,16 @@ public class FlywheelController {
     private Flywheel lowerWheel = null;
     private Flywheel upperWheel = null;
 
+    private double last_distance = 0;
+
     public static class LowerPID {
-        public double P = 0.0015, I = 0.0, D = 0.000;
-        public double F_MAX = 0.72, F_MIN = 0.47;
+        public double P = 0.0013, I = 0.0, D = 0.000001;
+        public double F_MAX = 0.75, F_MIN = 0.49;
     }
 
     public static class UpperPID {
-        public double P = 0.0013, I = 0.0, D = 0.000;
-        public double F_MAX = 0.63, F_MIN = 0.42;
+        public double P = 0.0014, I = 0.0, D = 0.000001;
+        public double F_MAX = 0.66, F_MIN = 0.43;
     }
 
     public static LowerPID LOWER_PID = new LowerPID();
@@ -37,17 +39,18 @@ public class FlywheelController {
         upperWheel.init(hwMap, telem, "launcher2", "leftBack");
         upperWheel.setEncoderReversed();
 
-        lowerWheel.setParameters(LOWER_PID.P, LOWER_PID.I, LOWER_PID.D, LOWER_PID.F_MIN, LOWER_PID.F_MAX);
-        upperWheel.setParameters(UPPER_PID.P, UPPER_PID.I, UPPER_PID.D, UPPER_PID.F_MIN, UPPER_PID.F_MAX);
+        lowerWheel.setParameters(LOWER_PID.P, LOWER_PID.I, LOWER_PID.D, LOWER_PID.F_MIN, LOWER_PID.F_MAX, 1);
+        upperWheel.setParameters(UPPER_PID.P, UPPER_PID.I, UPPER_PID.D, UPPER_PID.F_MIN, UPPER_PID.F_MAX, FLYWHEEL_RATIO);
     }
 
     public void update() {
-        lowerWheel.setParameters(LOWER_PID.P, LOWER_PID.I, LOWER_PID.D, LOWER_PID.F_MIN, LOWER_PID.F_MAX);
-        upperWheel.setParameters(UPPER_PID.P, UPPER_PID.I, UPPER_PID.D, UPPER_PID.F_MIN, UPPER_PID.F_MAX);
+        lowerWheel.setParameters(LOWER_PID.P, LOWER_PID.I, LOWER_PID.D, LOWER_PID.F_MIN, LOWER_PID.F_MAX, 1);
+        upperWheel.setParameters(UPPER_PID.P, UPPER_PID.I, UPPER_PID.D, UPPER_PID.F_MIN, UPPER_PID.F_MAX, FLYWHEEL_RATIO);
 
         lowerWheel.update();
         upperWheel.update();
     }
+
 
     public void stop() {
         lowerWheel.stop();
@@ -56,7 +59,7 @@ public class FlywheelController {
 
     public void setTargetRpm(double target) {
         lowerWheel.setTargetRpm(target);
-        upperWheel.setTargetRpm(target * FLYWHEEL_RATIO);
+        upperWheel.setTargetRpm(target);
     }
 
     public double getLowerFlywheelCurrentRPM() {
@@ -95,6 +98,7 @@ public class FlywheelController {
     }
 
     public double calculateBallVelocity(double distance, double height, double angleDegrees) {
+        last_distance = distance;
         double angleRad = Math.toRadians(angleDegrees);
         double g = 9.81;
 
@@ -112,7 +116,7 @@ public class FlywheelController {
         double upperWheelRpm = upperWheel.calculateWheelRPM(velocity);
 
         lowerWheel.setTargetRpm(lowerWheelRpm);
-        upperWheel.setTargetRpm(upperWheelRpm * FLYWHEEL_RATIO);
+        upperWheel.setTargetRpm(upperWheelRpm);
     }
 
 }

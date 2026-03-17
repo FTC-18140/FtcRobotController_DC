@@ -26,7 +26,7 @@ public class Flywheel {
     private DcMotorEx launcher = null;
     private DcMotorEx launcherEnc = null;
     private PIDController rpmController = null;
-    public static int FILTER_SIZE = 1;
+    public static int FILTER_SIZE = 2;
     private MovingAverageFilter rpmFilter = new MovingAverageFilter(FILTER_SIZE);
     private Telemetry telemetry = null;
 
@@ -38,22 +38,22 @@ public class Flywheel {
     public double feedforward = 0.0;
 
     public static boolean TELEM = false;
-    public static double MAX_SHOOTER_RPM = 2000.0;
-    public static double MIN_SHOOTER_RPM = 1000.0;
+    public static double MAX_SHOOTER_RPM = 1900.0;
+    public static double MIN_SHOOTER_RPM = 1200.0;
     public static final double SHOOTER_RADIUS = 0.072 / 2.0;
-    public static double SPIN_EFFICIENCY = 0.915;
-    public static double FLYWHEEL_RATIO = (double) 0.9;
+    public static double SPIN_EFFICIENCY = 0.999;
+    public double FLYWHEEL_RATIO = (double) 0.9;
 
 
     private double targetRpm = (double) 0;
 
-    public static double RPM_LOWER_BOUND = 15.0;
+    public static double RPM_LOWER_BOUND = 20.0;
     public static double RPM_UPPER_BOUND = 25.0;
 
     private double currentRpm = (double) 0;
     private double previousRpm = 0;
     private double currentAccel = 0;
-    public static double ACCEL_RATE = 200;
+    public static double ACCEL_RATE = 50;
     double scaledPower = (double) 0;
     private double currentDraw = 0.0;
 
@@ -65,6 +65,7 @@ public class Flywheel {
         launcher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         launcher.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         launcher.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        launcher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         if(!motorName.matches(encoderName)) {
             launcherEnc = hwMap.get(DcMotorEx.class, encoderName);
@@ -81,10 +82,11 @@ public class Flywheel {
         this.D = d;
     }
 
-    public void setParameters(double p, double i, double d, double fMin, double fMax) {
+    public void setParameters(double p, double i, double d, double fMin, double fMax, double ratio) {
         setPID(p, i, d);
         this.F_MIN = fMin;
         this.F_MAX = fMax;
+        this.FLYWHEEL_RATIO = ratio;
     }
 
     // --- High-Level Commands to Change State ---
@@ -93,7 +95,7 @@ public class Flywheel {
      * Commands the flywheel to spin up to a target RPM.
      */
     public void setTargetRpm(double rpm) {
-        this.targetRpm = Range.clip(rpm, MIN_SHOOTER_RPM, MAX_SHOOTER_RPM);
+        this.targetRpm = Range.clip(rpm * FLYWHEEL_RATIO, MIN_SHOOTER_RPM * FLYWHEEL_RATIO, MAX_SHOOTER_RPM * FLYWHEEL_RATIO);
         this.currentState = State.SPINNING_UP;
     }
 
@@ -185,7 +187,7 @@ public class Flywheel {
             case SPINNING_UP:
                 // --- Step 1: Calculate the Feedforward value ---
 
-                scaledPower = Range.scale(targetRpm, MIN_SHOOTER_RPM, MAX_SHOOTER_RPM, F_MIN, F_MAX);
+                scaledPower = Range.scale(targetRpm, MIN_SHOOTER_RPM * FLYWHEEL_RATIO, MAX_SHOOTER_RPM * FLYWHEEL_RATIO, F_MIN, F_MAX);
                 feedforward = Range.clip(scaledPower, F_MIN, F_MAX);
 
 
