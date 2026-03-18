@@ -13,9 +13,10 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
+import org.firstinspires.ftc.teamcode.Robot.Turret;
 
 @Autonomous(group = AutoBlueFar_WAIT.AUTO_BLUE_FAR_GROUP)
-public class AutoBlueFar extends LinearOpMode{
+public class AutoBlueFar extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -25,7 +26,7 @@ public class AutoBlueFar extends LinearOpMode{
         Pose2d intakePos2 = new Pose2d(AutoPositions.Positions.ARTIFACT_CENTER_BLUE.position, Math.toRadians(90));
 
         ThunderBot2025 robot = new ThunderBot2025();
-        blackboard.put("TURRET_ENDING_ANGLE_AUTO", (double) 0);
+        blackboard.put(Turret.STARTING_ANGLE, (double) 0);
         blackboard.put("ENDING_ANGLE_INDEXER", (double) 0);
 
         robot.init(hardwareMap, telemetry, start);
@@ -61,8 +62,10 @@ public class AutoBlueFar extends LinearOpMode{
                                                             robot.drive.actionBuilder(start)
                                                                     .splineTo(launchPos.position, 0)
                                                                     .build()
-                                                             // Plan the first shot sequence while driving.
+                                                            // Plan the first shot sequence while driving.
                                                     ),
+                                                    robot.cancelSequenceAction(),
+
                                                     // Launch Preloads
                                                     robot.spamAction(),
                                                     robot.intakeStartAction(),
@@ -80,9 +83,9 @@ public class AutoBlueFar extends LinearOpMode{
                                                                     .setTangent(Math.toRadians(-90))
                                                                     .splineTo(launchPos.position, Math.toRadians(180))
                                                                     .build()
-        //                                        ,
-        //                                        // Re-plan the shot sequence with the newly loaded balls
-        //                                        robot.planSequenceAction()
+                                                            //                                        ,
+                                                            //                                        // Re-plan the shot sequence with the newly loaded balls
+                                                            //                                        robot.planSequenceAction()
                                                     ),
 
                                                     robot.intakeStopAction(),
@@ -106,9 +109,9 @@ public class AutoBlueFar extends LinearOpMode{
                                                                     .setTangent(Math.toRadians(-90))
                                                                     .splineTo(launchPos.position, Math.toRadians(180))
                                                                     .build()
-        //                                            ,
-        //                                            // Re-plan the shot sequence with the newly loaded balls
-        //                                            robot.planSequenceAction()
+                                                            //                                            ,
+                                                            //                                            // Re-plan the shot sequence with the newly loaded balls
+                                                            //                                            robot.planSequenceAction()
                                                     ),
 
                                                     robot.intakeStopAction(),
@@ -121,19 +124,19 @@ public class AutoBlueFar extends LinearOpMode{
                                             ),
                                             new SleepAction(27)
                                     ),
-                                // Park
-                                robot.cancelSequenceAction(),
-                                robot.intake.intakeStopAction(),
-                                robot.drive.actionBuilder(launchPos)
-                                        .splineTo(new Vector2d(-12, 12), Math.toRadians(0))
-                                        .build(),
-                                robot.launcher.pointToAction(0),
-                                new ParallelAction(
-                                        robot.holdTurretAction(),
-                                        robot.launcher.stopAction()
-                                )
+                                    // Park
+                                    robot.cancelSequenceAction(),
+                                    robot.intake.intakeStopAction(),
+                                    robot.drive.actionBuilder(launchPos)
+                                            .splineTo(new Vector2d(-12, 12), Math.toRadians(0))
+                                            .build(),
+                                    robot.launcher.pointToAction(0),
+                                    new ParallelAction(
+                                            robot.holdTurretAction(),
+                                            robot.launcher.stopAction()
+                                    )
                             )
-                )
+                    )
             );
         } finally {
             // This block will always run, even if the opmode is stopped prematurely.

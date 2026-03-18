@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.Utilities.DataLogger;
 
 @Config
 public class Intake {
+    public static final double REV_MOTOR_STALL_CURRENT = 8.5;
     private Telemetry telemetry = null;
     private HardwareMap hardwareMap = null;
 
@@ -25,7 +26,7 @@ public class Intake {
     private double current_speed = 0;
     private double slow = 1;
     private static double SLOWED_SPEED = 0.6;
-    private double currentdraw;
+    private double currentDraw = 0.0;
 
     public void init(HardwareMap hwMap, Telemetry telem) {
         hardwareMap = hwMap;
@@ -45,8 +46,11 @@ public class Intake {
     public void update() {
 
         intakeMotor.setPower(current_speed * slow);
-        currentdraw = getTotalCurrentDraw();
-        telemetry.addData("Intake Current Draw", currentdraw);
+        currentDraw = getTotalCurrentDraw();
+        if (REV_MOTOR_STALL_CURRENT <= currentDraw) {
+            telemetry.addData("INTAKE STALLED", 0);
+        }
+        telemetry.addData("Intake Current Draw", currentDraw);
     }
 
     /**
@@ -109,6 +113,6 @@ public class Intake {
     }
 
     public void logData(DataLogger logger) {
-        logger.addField(currentdraw);
+        logger.addField(currentDraw);
     }
 }

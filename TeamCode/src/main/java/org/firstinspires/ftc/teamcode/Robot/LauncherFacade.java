@@ -190,6 +190,7 @@ public class LauncherFacade implements DataLoggable {
     public double getLowerFlywheelRpm() {
         return flywheel.getLowerFlywheelCurrentRPM();
     }
+
     public double getUpperFlywheelRpm() {
         return flywheel.getUpperFlywheelCurrentRPM();
     }
@@ -197,6 +198,7 @@ public class LauncherFacade implements DataLoggable {
     public double getFlywheelTargetRpm() {
         return flywheel.getLowerFlywheelTargetRPM();
     }
+
     public double getUpperFlywheelTargetRpm() {
         return flywheel.getUpperFlywheelTargetRPM();
     }

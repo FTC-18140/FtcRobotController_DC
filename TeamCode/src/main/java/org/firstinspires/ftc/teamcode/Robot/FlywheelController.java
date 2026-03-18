@@ -85,6 +85,7 @@ public class FlywheelController {
     public double getUpperFlywheelCurrentDraw() {
         return upperWheel.getCurrentDraw();
     }
+
     public double getTotalCurrentDraw() {
         return getLowerFlywheelCurrentDraw() + getUpperFlywheelCurrentDraw();
     }
