@@ -63,6 +63,7 @@ public class AutoBlueFar_12_Loading_Spike extends LinearOpMode{
                                                                     .build()
                                                              // Plan the first shot sequence while driving.
                                                     ),
+                                                    robot.cancelSequenceAction(),
                                                     // Launch Preloads
                                                     robot.spamAction(),
                                                     robot.intakeStartAction(),

@@ -65,9 +65,9 @@ public class AutoBlueDepot_Spikes_4_Gate extends LinearOpMode{
                                                                     .strafeToSplineHeading(launchPos1.position, Math.toRadians(90))
                                                                     .build()
                                                     ),
+                                                    robot.cancelSequenceAction(),
                                                     // Launch Preloads
-                                                    robot.startSequenceAction(),
-                                                    robot.waitForSequenceEndAction(),
+                                                    robot.spamAction(),
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
@@ -94,8 +94,7 @@ public class AutoBlueDepot_Spikes_4_Gate extends LinearOpMode{
                                                     ),
                                                     robot.intakeStopAction(),
                                                     // Launch Preloads
-                                                    robot.startSequenceAction(),
-                                                    robot.waitForSequenceEndAction(),
+                                                    robot.spamAction(),
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(

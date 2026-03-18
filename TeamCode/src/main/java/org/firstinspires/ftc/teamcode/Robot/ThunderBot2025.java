@@ -50,7 +50,7 @@ public class ThunderBot2025 implements DataLoggable {
     public static final double MAX_SPEED = 1.0;
     private double speed = DEFAULT_SPEED;
     public static Pose2d starting_position = null;
-    public static double robot_width = 20;
+    public static double robot_width = 21;
     private static String STARTING_POSE = STARTING_POSE_KEY;
     public ElapsedTime runtime = new ElapsedTime();
     private Pose2d TELEOP_CORNER_RED = new Pose2d(-63, 60, 0);
@@ -262,7 +262,7 @@ public class ThunderBot2025 implements DataLoggable {
     }
 
     public boolean flip() {
-        if (launcher.isAtTargetRpm() && launcher.isAtTarget()) {
+        if (launcher.isAtTargetRpm() && launcher.isAtTarget() && inLaunchZone()) {
             return indexer.flipAndCycle();
         }
         return false;

@@ -64,6 +64,7 @@ public class AutoBlueDepot_12 extends LinearOpMode{
                                                                     .strafeToSplineHeading(launchPos1.position, Math.toRadians(90))
                                                                     .build()
                                                     ),
+                                                    robot.cancelSequenceAction(),
                                                     // Launch Preloads
                                                     robot.spamAction(),
                                                     robot.intakeStartAction(),
