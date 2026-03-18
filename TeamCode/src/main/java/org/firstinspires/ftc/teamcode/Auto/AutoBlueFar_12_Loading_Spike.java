@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
 @Autonomous(group = AutoBlueFar_WAIT.AUTO_BLUE_FAR_GROUP)
-public class AutoBlueFar_12_Loading_Spike extends LinearOpMode {
+public class AutoBlueFar_12_Loading_Spike extends LinearOpMode{
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -61,10 +61,9 @@ public class AutoBlueFar_12_Loading_Spike extends LinearOpMode {
                                                             robot.drive.actionBuilder(start)
                                                                     .splineTo(launchPos.position, 0)
                                                                     .build()
-                                                            // Plan the first shot sequence while driving.
+                                                             // Plan the first shot sequence while driving.
                                                     ),
                                                     robot.cancelSequenceAction(),
-
                                                     // Launch Preloads
                                                     robot.spamAction(),
                                                     robot.intakeStartAction(),
@@ -82,9 +81,9 @@ public class AutoBlueFar_12_Loading_Spike extends LinearOpMode {
                                                                     .setTangent(Math.toRadians(-90))
                                                                     .splineTo(launchPos.position, Math.toRadians(180))
                                                                     .build()
-                                                            //                                        ,
-                                                            //                                        // Re-plan the shot sequence with the newly loaded balls
-                                                            //                                        robot.planSequenceAction()
+        //                                        ,
+        //                                        // Re-plan the shot sequence with the newly loaded balls
+        //                                        robot.planSequenceAction()
                                                     ),
 
                                                     robot.intakeStopAction(),
@@ -94,9 +93,9 @@ public class AutoBlueFar_12_Loading_Spike extends LinearOpMode {
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
-                                                                    .splineTo(new Vector2d(intakePos2.position.x + 5, 50), Math.toRadians(90))
+                                                                    .splineTo(new Vector2d(intakePos2.position.x+5, 50), Math.toRadians(90))
                                                                     .splineTo(intakePos2.position, Math.toRadians(110), new TranslationalVelConstraint(20))
-                                                                    .build(),
+                                                                            .build(),
                                                             robot.indexerFullAction()
                                                     ),
 
@@ -106,9 +105,9 @@ public class AutoBlueFar_12_Loading_Spike extends LinearOpMode {
                                                                     .setReversed(true)
                                                                     .splineTo(launchPos.position, Math.toRadians(-90))
                                                                     .build()
-                                                            //                                            ,
-                                                            //                                            // Re-plan the shot sequence with the newly loaded balls
-                                                            //                                            robot.planSequenceAction()
+        //                                            ,
+        //                                            // Re-plan the shot sequence with the newly loaded balls
+        //                                            robot.planSequenceAction()
                                                     ),
 
                                                     robot.intakeStopAction(),
@@ -122,7 +121,7 @@ public class AutoBlueFar_12_Loading_Spike extends LinearOpMode {
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(new Pose2d(launchPos.position, Math.toRadians(90)))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos3.position.x + 5, 50), Math.toRadians(90))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos3.position.x+5, 50), Math.toRadians(90))
                                                                     .splineTo(intakePos3.position, Math.toRadians(110), new TranslationalVelConstraint(20))
                                                                     .build(),
                                                             robot.indexerFullAction()
@@ -149,19 +148,19 @@ public class AutoBlueFar_12_Loading_Spike extends LinearOpMode {
                                             ),
                                             new SleepAction(27)
                                     ),
-                                    // Park
-                                    robot.cancelSequenceAction(),
-                                    robot.intake.intakeStopAction(),
-                                    robot.drive.actionBuilder(launchPos)
-                                            .splineTo(new Vector2d(-50, 38), Math.toRadians(90))
-                                            .build(),
-                                    robot.launcher.pointToAction(0),
-                                    new ParallelAction(
-                                            robot.holdTurretAction(),
-                                            robot.launcher.stopAction()
-                                    )
+                                // Park
+                                robot.cancelSequenceAction(),
+                                robot.intake.intakeStopAction(),
+                                robot.drive.actionBuilder(launchPos)
+                                        .splineTo(new Vector2d(-50, 38), Math.toRadians(90))
+                                        .build(),
+                                robot.launcher.pointToAction(0),
+                                new ParallelAction(
+                                        robot.holdTurretAction(),
+                                        robot.launcher.stopAction()
+                                )
                             )
-                    )
+                )
             );
         } finally {
             // This block will always run, even if the opmode is stopped prematurely.

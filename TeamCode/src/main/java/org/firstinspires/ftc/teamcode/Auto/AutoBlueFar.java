@@ -67,7 +67,8 @@ public class AutoBlueFar extends LinearOpMode {
                                                     robot.cancelSequenceAction(),
 
                                                     // Launch Preloads
-                                                    robot.spamAction(),
+                                                    robot.startSequenceAction(),
+                                                    robot.waitForSequenceEndAction(),
                                                     robot.intakeStartAction(),
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
