@@ -1,13 +1,10 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
-import static com.qualcomm.robotcore.eventloop.opmode.OpMode.blackboard;
-
-import static org.firstinspires.ftc.teamcode.Robot.Flywheel.GOBILDA_MOTOR_STALL_CURRENT;
-
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -78,7 +75,7 @@ public class Turret implements DataLoggable {
     public void init(HardwareMap hwMap, Telemetry telem) {
 
         // touch sensor: Control hub Digital port 4
-        startingAngle = (double) blackboard.getOrDefault(STARTING_ANGLE, (double) 0);
+        startingAngle = (double) OpMode.blackboard.getOrDefault(STARTING_ANGLE, (double) 0);
 
         telemetry = telem;
         turretAimPID = new PIDController(P_TURRET, I_TURRET, D_TURRET);
@@ -199,7 +196,7 @@ public class Turret implements DataLoggable {
         isHomed = turretSwitch.isPressed();
 
         currentDraw = getTotalCurrentDraw();
-        if (GOBILDA_MOTOR_STALL_CURRENT <= currentDraw) {
+        if (Flywheel.GOBILDA_MOTOR_STALL_CURRENT <= currentDraw) {
             telemetry.addData("TURRET STALLED", 0);
         }
 
