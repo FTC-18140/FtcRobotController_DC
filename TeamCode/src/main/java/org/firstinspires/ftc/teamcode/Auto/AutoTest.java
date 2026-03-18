@@ -37,14 +37,14 @@ public class AutoTest extends LinearOpMode {
 
         Actions.runBlocking(
                 new ParallelAction(
-                    robot.updateAction(),
+                        robot.updateAction(),
                         robot.aimAction(),
                         robot.launcher.prepShotAction(),
-                    new SequentialAction(
-                        robot.spamAction(),
-                            new SleepAction(2),
-                            robot.launcher.stopAction()
-                    )
+                        new SequentialAction(
+                                robot.spamAction(),
+                                new SleepAction(2),
+                                robot.launcher.stopAction()
+                        )
                 )
         );
 

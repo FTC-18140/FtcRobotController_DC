@@ -13,8 +13,11 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
+/**
+ * @noinspection LawOfDemeter
+ */
 @Autonomous(group = AutoBlueDepot_Coop.AUTO_BLUE_DEPOT_GROUP)
-public class AutoBlueDepot_12 extends LinearOpMode{
+public class AutoBlueDepot_12 extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -131,7 +134,7 @@ public class AutoBlueDepot_12 extends LinearOpMode{
 //                                                            robot.planSequenceAction()
                                                     ),
                                                     robot.intakeStopAction(),
-                                                    // Launch 2nd set of Artifacts
+                                                    // Launch 3rd set of Artifacts
                                                     robot.planSequenceAction(),
                                                     robot.startSequenceAction(),
                                                     robot.waitForSequenceEndAction()
@@ -148,7 +151,7 @@ public class AutoBlueDepot_12 extends LinearOpMode{
                             )
                     )
             );
-        }finally{
+        } finally {
             robot.drive.updatePoseEstimate();
             blackboard.put(ThunderBot2025.STARTING_POSE_KEY, robot.drive.localizer.getPose());
             blackboard.put("TURRET_ENDING_ANGLE_AUTO", robot.launcher.getTurretAngle());

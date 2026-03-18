@@ -1,11 +1,10 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
-import static com.qualcomm.robotcore.eventloop.opmode.OpMode.blackboard;
-
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -66,7 +65,7 @@ public class Turret implements DataLoggable {
     private double manualPower = (double) 0;
     public double manualAngle = (double) 0;
     private double currentPosition = (double) 0;
-    private double currentdraw = 0.0;
+    private double currentDraw = 0.0;
     private double offsetAngle = (double) 0;
     private double seekingPower = (double) 0; // Member variable to be accessible for logging
     private double lastSeekingPower = (double) 0;
@@ -76,7 +75,7 @@ public class Turret implements DataLoggable {
     public void init(HardwareMap hwMap, Telemetry telem) {
 
         // touch sensor: Control hub Digital port 4
-        startingAngle = (double) blackboard.getOrDefault(STARTING_ANGLE, (double) 0);
+        startingAngle = (double) OpMode.blackboard.getOrDefault(STARTING_ANGLE, (double) 0);
 
         telemetry = telem;
         turretAimPID = new PIDController(P_TURRET, I_TURRET, D_TURRET);
@@ -196,7 +195,10 @@ public class Turret implements DataLoggable {
 
         isHomed = turretSwitch.isPressed();
 
-        currentdraw = getTotalCurrentDraw();
+        currentDraw = getTotalCurrentDraw();
+        if (Flywheel.GOBILDA_MOTOR_STALL_CURRENT <= currentDraw) {
+            telemetry.addData("TURRET STALLED", 0);
+        }
 
         // 1. Static Feedforward (Wires/Friction)
         double ffStatic = Range.clip(Range.scale(currentPosition, -90.0, -15.0, F_TURRET_MAX, F_TURRET_MIN), F_TURRET_MIN, F_TURRET_MAX);
@@ -336,6 +338,6 @@ public class Turret implements DataLoggable {
         logger.addField(I_TURRET);
         logger.addField(D_TURRET);
         logger.addField(seekingPower);
-        logger.addField(currentdraw);
+        logger.addField(currentDraw);
     }
 }

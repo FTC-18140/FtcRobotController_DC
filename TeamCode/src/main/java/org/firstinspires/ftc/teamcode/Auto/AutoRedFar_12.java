@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
 @Autonomous(group = AutoRedFar.AUTO_RED_FAR_GROUP)
-public class AutoRedFar_12 extends LinearOpMode{
+public class AutoRedFar_12 extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -163,7 +163,7 @@ public class AutoRedFar_12 extends LinearOpMode{
                                             robot.launcher.stopAction()
                                     )
                             )
-                )
+                    )
             );
         } finally {
             // This block will always run, even if the opmode is stopped prematurely.

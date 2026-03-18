@@ -14,6 +14,8 @@ import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 
 @Config
 public class Flywheel {
+    public static final double GOBILDA_MOTOR_STALL_CURRENT = 9.2;
+
     // Define the states as an enum
     private enum State {
         IDLE,
@@ -67,16 +69,16 @@ public class Flywheel {
         launcher.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         launcher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
-        if(!motorName.matches(encoderName)) {
+        if (!motorName.matches(encoderName)) {
             launcherEnc = hwMap.get(DcMotorEx.class, encoderName);
         }
     }
 
-    public void setEncoderReversed(){
+    public void setEncoderReversed() {
         launcherEnc.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
-    public void setPID(double p, double i, double d){
+    public void setPID(double p, double i, double d) {
         this.P = p;
         this.I = i;
         this.D = d;
@@ -164,11 +166,15 @@ public class Flywheel {
     public void update() {
 
         rpmController.setPID(P, I, D);
+        currentDraw = getCurrentDraw();
+        if (GOBILDA_MOTOR_STALL_CURRENT <= currentDraw) {
+            telemetry.addData("FLYWHEEL STALLED", 0);
+        }
 
         double detectedRpm = rpmFilter.addValue(getRPM());
-        if(previousRpm == 0) this.previousRpm = this.currentRpm;
+        if (previousRpm == 0) this.previousRpm = this.currentRpm;
 
-        if(detectedRpm == this.previousRpm) {
+        if (detectedRpm == this.previousRpm) {
             this.currentRpm += currentAccel;
         } else {
             this.currentRpm = detectedRpm;

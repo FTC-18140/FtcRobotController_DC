@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
 @Autonomous(group = AutoRedDepot_Coop.AUTO_RED_DEPOT_GROUP)
-public class AutoRedDepot_Coop extends LinearOpMode{
+public class AutoRedDepot_Coop extends LinearOpMode {
 
     public static final String AUTO_RED_DEPOT_GROUP = "AutoRedDepot";
 
@@ -111,16 +111,16 @@ public class AutoRedDepot_Coop extends LinearOpMode{
                                     robot.launcher.pointToAction(0),
                                     new ParallelAction(
                                             robot.drive.actionBuilder(launchPos3)
-                                                            .setReversed(true)
-                                                                    .splineTo(new Vector2d(52, -12), 0)
-                                                                            .build(),
+                                                    .setReversed(true)
+                                                    .splineTo(new Vector2d(52, -12), 0)
+                                                    .build(),
                                             robot.holdTurretAction(),
                                             robot.launcher.stopAction()
                                     )
                             )
                     )
             );
-        }finally{
+        } finally {
             robot.drive.updatePoseEstimate();
             blackboard.put(ThunderBot2025.STARTING_POSE_KEY, robot.drive.localizer.getPose());
             blackboard.put("TURRET_ENDING_ANGLE_AUTO", robot.launcher.getTurretAngle());

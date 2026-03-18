@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
 @Autonomous(group = AutoRedDepot_Coop.AUTO_RED_DEPOT_GROUP)
-public class AutoRedDepot_6_OPENSOURCE extends LinearOpMode{
+public class AutoRedDepot_6_OPENSOURCE extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -71,9 +71,9 @@ public class AutoRedDepot_6_OPENSOURCE extends LinearOpMode{
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
                                                                     .turnTo(Math.toRadians(180))
-                                                                    .splineTo(new Vector2d(intakePos.position.x+18, -12), Math.toRadians(180))
+                                                                    .splineTo(new Vector2d(intakePos.position.x + 18, -12), Math.toRadians(180))
                                                                     .splineTo(new Vector2d(intakePos.position.x, -18), Math.toRadians(-90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x+5, -48), Math.toRadians(-90))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x + 5, -48), Math.toRadians(-90))
                                                                     .splineTo(intakePos.position, Math.toRadians(-110))
                                                                     .build(),
                                                             robot.indexerFullAction()
@@ -93,9 +93,9 @@ public class AutoRedDepot_6_OPENSOURCE extends LinearOpMode{
                                                     robot.intakeStartAction(),
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos2)
-                                                                .splineTo(new Vector2d(intakePos.position.x, -50), Math.toRadians(-90))
-                                                                .splineTo(intakePos.position, Math.toRadians(-90), new TranslationalVelConstraint(30))
-                                                                .build(),
+                                                                    .splineTo(new Vector2d(intakePos.position.x, -50), Math.toRadians(-90))
+                                                                    .splineTo(intakePos.position, Math.toRadians(-90), new TranslationalVelConstraint(30))
+                                                                    .build(),
                                                             robot.indexerFullAction()
                                                     ),
 
@@ -129,7 +129,7 @@ public class AutoRedDepot_6_OPENSOURCE extends LinearOpMode{
                             )
                     )
             );
-        }finally{
+        } finally {
             robot.drive.updatePoseEstimate();
             blackboard.put(ThunderBot2025.STARTING_POSE_KEY, robot.drive.localizer.getPose());
             blackboard.put("TURRET_ENDING_ANGLE_AUTO", robot.launcher.getTurretAngle());

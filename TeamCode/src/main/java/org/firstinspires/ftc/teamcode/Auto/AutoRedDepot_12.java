@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
 @Autonomous(group = AutoRedDepot_Coop.AUTO_RED_DEPOT_GROUP)
-public class AutoRedDepot_12 extends LinearOpMode{
+public class AutoRedDepot_12 extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -151,7 +151,7 @@ public class AutoRedDepot_12 extends LinearOpMode{
                             )
                     )
             );
-        }finally{
+        } finally {
             robot.drive.updatePoseEstimate();
             blackboard.put(ThunderBot2025.STARTING_POSE_KEY, robot.drive.localizer.getPose());
             blackboard.put("TURRET_ENDING_ANGLE_AUTO", robot.launcher.getTurretAngle());

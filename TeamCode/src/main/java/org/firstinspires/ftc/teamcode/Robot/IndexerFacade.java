@@ -324,7 +324,7 @@ public class IndexerFacade {
     public boolean selectNextSlot(BallState ballState) {
         // Refactored to have a single exit point
         boolean slotFound = false;
-        if ((State.IDLE == currentState || State.AWAITING_FLIP == currentState)  && flipper.isRetracted()) {
+        if ((State.IDLE == currentState || State.AWAITING_FLIP == currentState) && flipper.isRetracted()) {
             int startSlot = currentTargetSlot;
 
             for (int i = 3; 0 < i && !slotFound; i--) {
@@ -347,7 +347,7 @@ public class IndexerFacade {
     public boolean readyNextIntakeSlot(BallState ballState) {
         // Refactored to have a single exit point
         boolean slotFound = false;
-        if ((State.IDLE == currentState || State.AWAITING_FLIP == currentState || isIntaking) && flipper.isRetracted()){
+        if ((State.IDLE == currentState || State.AWAITING_FLIP == currentState || isIntaking) && flipper.isRetracted()) {
             int startSlot = 0;
 
             updateBallSensors();
@@ -478,6 +478,7 @@ public class IndexerFacade {
     public boolean isBallInIntake() {
         return beamBreak.ballDetectedInIntake();
     }
+
     public boolean isFlipperDown() {
         return flipper.isRetracted();
     }
