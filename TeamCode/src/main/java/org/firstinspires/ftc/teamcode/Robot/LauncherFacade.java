@@ -350,7 +350,7 @@ public class LauncherFacade implements DataLoggable {
             // Add the vision offset to the current physical encoder position.
             targetTurretAngle = getTurretAngleRaw() + limelight.getX();
 
-            telemetry.addData("Aiming Mode LIMELIGHT -- target: ", "%.3f ", targetTurretAngle);
+//            telemetry.addData("Aiming Mode LIMELIGHT -- target: ", "%.3f ", targetTurretAngle);
         } else {
             usingLimelight = false;
         }
@@ -399,7 +399,7 @@ public class LauncherFacade implements DataLoggable {
             double currentTurret = turret.getCurrentPosition();
 
 
-            telemetry.addData("Aiming Mode ODOMETRY -- target: ", " %.3f", targetTurretAngle);
+//            telemetry.addData("Aiming Mode ODOMETRY -- target: ", " %.3f", targetTurretAngle);
             if (limelight.hasTarget()) {
                 usingLimelight = true;
                 double limeLightDistanceX = limelight.getDistance() * Math.sin(Math.toRadians(limelight.getX()));
@@ -544,7 +544,7 @@ public class LauncherFacade implements DataLoggable {
     private double getGoalDistanceFUSION() {
         if (null == trueTargetVector || null == targetPos) return 0.0;
         // Use FUSED pose for distance calculation
-        telemetry.addData("distance: ", targetPos.minus(trueTargetVector).norm());
+//        telemetry.addData("distance: ", targetPos.minus(trueTargetVector).norm());
         return targetPos.minus(trueTargetVector).norm();
     }
 

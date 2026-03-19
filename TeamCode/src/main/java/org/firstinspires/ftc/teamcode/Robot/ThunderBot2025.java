@@ -103,6 +103,8 @@ public class ThunderBot2025 implements DataLoggable {
         double seconds = runtime.seconds();
 
         PoseVelocity2d robotPoseVel = drive.updatePoseEstimate();
+
+        addTelemetry();
         launcher.update(drive.localizer.getPose(), robotPoseVel);
 
         boolean atTargetRpm = launcher.isAtTargetRpm();
@@ -131,6 +133,24 @@ public class ThunderBot2025 implements DataLoggable {
         } else {
             intake.unslow();
         }
+    }
+
+    private void addTelemetry() {
+        telemetry.addData("Time since start", runtime.seconds());
+        telemetry.addData("Battery Voltage", getBatteryVoltage());
+        telemetry.addData("Total Motor Current Draw", getTotalMotorCurrentDraw());
+
+        telemetry.addData("position X: ", drive.localizer.getPose().position.x);
+        telemetry.addData("position Y: ", drive.localizer.getPose().position.y);
+        telemetry.addData("heading: ", Math.toDegrees(drive.localizer.getPose().heading.toDouble()));
+
+        telemetry.addData("Flywheel RPM ", launcher.getLowerFlywheelRpm());
+        telemetry.addData("Flywheel Target ", launcher.getFlywheelTargetRpm());
+
+        telemetry.addData("Upper Flywheel RPM ", launcher.getUpperFlywheelRpm());
+        telemetry.addData("Upper Flywheel Target ", launcher.getUpperFlywheelTargetRpm());
+        telemetry.addData("Turret aiming mode:", launcher.isUsingLimelight());
+        telemetry.addData("Turret angle:", launcher.getTurretAngle());
     }
 
     public void setColor(Alliance_Color alliance) {
