@@ -86,7 +86,8 @@ public class Turnstile {
         currentState = State.HOMING;
 
     }
-    public void launchSlots(int launches){
+
+    public void launchSlots(int launches) {
         targetAngle = currentAngle - (120 * launches);
 
         currentState = State.SEEKING_POSITION;

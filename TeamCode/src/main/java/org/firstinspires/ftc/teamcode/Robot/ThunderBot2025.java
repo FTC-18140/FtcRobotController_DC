@@ -141,11 +141,12 @@ public class ThunderBot2025 implements DataLoggable {
         color = alliance;
         launcher.setAlliance(color);
     }
+
     public double getBatteryVoltage() {
         return voltageSensor.getVoltage();
     }
 
-    public double getTotalMotorCurrentDraw(){
+    public double getTotalMotorCurrentDraw() {
         return launcher.getTotalCurrentDraw() + intake.getTotalCurrentDraw();
     }
 
@@ -205,17 +206,17 @@ public class ThunderBot2025 implements DataLoggable {
         drive.setDrivePowers(thePose);
     }
 
-    public boolean inLaunchZone(){
+    public boolean inLaunchZone() {
         double x = drive.localizer.getPose().position.x;
         double y = drive.localizer.getPose().position.y;
 
-        double half_width = robot_width/2;
-        if (x > -half_width){
-            if(y < x + half_width && y > -x -half_width){
+        double half_width = robot_width / 2;
+        if (x > -half_width) {
+            if (y < x + half_width && y > -x - half_width) {
                 return true;
             }
         } else {
-            if(y < (-x - 45 + half_width) && y > (x + 45 - half_width)) {
+            if (y < (-x - 45 + half_width) && y > (x + 45 - half_width)) {
                 return true;
             }
         }

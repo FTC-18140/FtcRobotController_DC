@@ -16,6 +16,7 @@ public class FlywheelController {
         public static double P = 0.0045, I = 0.006, D = 0.00011;
         public static double F_MAX = 0.62, F_MIN = 0.47;
     }
+
     public static class UpperPID {
         public static double P = 0.0045, I = 0.006, D = 0.00011;
         public static double F_MAX = 0.62, F_MIN = 0.47;
@@ -48,7 +49,8 @@ public class FlywheelController {
         lowerWheel.stop();
         upperWheel.stop();
     }
-    public void setTargetRpm(double target){
+
+    public void setTargetRpm(double target) {
         lowerWheel.setTargetRpm(target);
         upperWheel.setTargetRpm(target * FLYWHEEL_RATIO);
     }
@@ -56,6 +58,7 @@ public class FlywheelController {
     public double getLowerFlywheelCurrentRPM() {
         return lowerWheel.getCurrentRpm();
     }
+
     public double getUpperFlywheelCurrentRPM() {
         return upperWheel.getCurrentRpm();
     }
@@ -63,9 +66,11 @@ public class FlywheelController {
     public double getLowerFlywheelTargetRPM() {
         return lowerWheel.getTargetRpm();
     }
+
     public double getUpperFlywheelTargetRPM() {
         return upperWheel.getTargetRpm();
     }
+
     public double getLowerFlywheelCurrentDraw() {
         return lowerWheel.getCurrentDraw();
     }
@@ -73,6 +78,7 @@ public class FlywheelController {
     public double getUpperFlywheelCurrentDraw() {
         return upperWheel.getCurrentDraw();
     }
+
     public double getTotalCurrentDraw() {
         return getLowerFlywheelCurrentDraw() + getUpperFlywheelCurrentDraw();
     }
@@ -85,6 +91,7 @@ public class FlywheelController {
         telemetry.addData("upper Flywheel at target RPM: ", upperWheel.isAtTargetRpm());
         return false;
     }
+
     public double calculateBallVelocity(double distance, double height, double angleDegrees) {
         double angleRad = Math.toRadians(angleDegrees);
         double g = 9.81;
@@ -97,6 +104,7 @@ public class FlywheelController {
         telemetry.addData("Denominator: ", denominator);
         return Math.sqrt(numerator / denominator);
     }
+
     public void setTargetRpmFromVelocity(double velocity) {
         double lowerWheelRpm = lowerWheel.calculateWheelRPM(velocity);
         double upperWheelRpm = upperWheel.calculateWheelRPM(velocity);

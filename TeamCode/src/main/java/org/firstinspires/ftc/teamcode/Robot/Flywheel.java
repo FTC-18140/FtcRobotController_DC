@@ -62,7 +62,7 @@ public class Flywheel {
 
     }
 
-    public void setPID(double p, double i, double d){
+    public void setPID(double p, double i, double d) {
         this.P = p;
         this.I = i;
         this.D = d;

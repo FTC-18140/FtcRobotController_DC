@@ -120,14 +120,14 @@ public class IndexerFacade {
      * turnstile to that slot. It critically modifies the internal `ballSlots` model to prevent
      * the same ball from being used twice to fulfill the sequence.
      */
-    public boolean prepSequence(){
+    public boolean prepSequence() {
         if (shotSequence == null) return false;
         if (!shotSequence.contains(BallState.GREEN)) return true;
 
         int index = shotSequence.indexOf(BallState.GREEN);
         int green_pos;
         for (int i = 0; i < 3; i++) {
-            if (getBallState(i) == BallState.GREEN){
+            if (getBallState(i) == BallState.GREEN) {
                 green_pos = i;
                 turnstile.seekToAngle(currentTargetSlot + (green_pos - index));
                 return true;
@@ -135,6 +135,7 @@ public class IndexerFacade {
         }
         return false;
     }
+
     private boolean executeNextInSequence() {
         // Safety check: Do nothing if the sequence is not active.
         if (null == shotSequence || 0 > sequenceIndex || sequenceIndex >= shotSequence.size())

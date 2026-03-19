@@ -7,6 +7,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
 import org.firstinspires.ftc.teamcode.Robot.IndexerFacade;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 import org.firstinspires.ftc.teamcode.Utilities.DataLogger;
@@ -112,40 +113,40 @@ public class Teleop_Red_DataLogger extends OpMode {
         double turn = theGamepad1.getRightX();
         double speed = 0.7;
 
-        if(theGamepad1.getTriggerBoolean(TBDGamepad.Trigger.RIGHT_TRIGGER)){
+        if (theGamepad1.getTriggerBoolean(TBDGamepad.Trigger.RIGHT_TRIGGER)) {
             speed = 0.3;
-        } else if(theGamepad1.getTriggerBoolean(TBDGamepad.Trigger.LEFT_TRIGGER)){
+        } else if (theGamepad1.getTriggerBoolean(TBDGamepad.Trigger.LEFT_TRIGGER)) {
             speed = 1.0;
         }
 
         // Note: The driver's 'Y' button is used for resetting pose.
-        if(theGamepad1.getButton(TBDGamepad.Button.Y)){
+        if (theGamepad1.getButton(TBDGamepad.Button.Y)) {
             robot.drive.localizer.setPose(new Pose2d(robot.drive.localizer.getPose().position, 0));
         }
 
         robot.drive(forward, strafe, turn * 0.7, speed, p);
 
         // --- Launcher Controls ---
-        if(Math.abs(theGamepad2.getRightX()) > 0.01){
+        if (Math.abs(theGamepad2.getRightX()) > 0.01) {
             robot.launcher.augmentedAim(-1.2 * theGamepad2.getRightX() + theGamepad1.getRightX() * speed * 0.75);
-        } else if(Math.abs(theGamepad1.getRightX()) > 0.01){
+        } else if (Math.abs(theGamepad1.getRightX()) > 0.01) {
             robot.launcher.augmentedAim(theGamepad1.getRightX() * speed * 0.75);
         } else {
             robot.launcher.aim();
         }
 
-        if(theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.LEFT_TRIGGER)){
+        if (theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.LEFT_TRIGGER)) {
             robot.charge();
         } else {
             robot.launcher.stop();
         }
 
-        if(theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.RIGHT_TRIGGER)){
+        if (theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.RIGHT_TRIGGER)) {
             robot.indexer.launch();
         }
 
         // --- Intake Controls (Stateful Latch) ---
-        if(theGamepad2.getButton(TBDGamepad.Button.X) || theGamepad1.getButton(TBDGamepad.Button.X)){
+        if (theGamepad2.getButton(TBDGamepad.Button.X) || theGamepad1.getButton(TBDGamepad.Button.X)) {
             robot.intake.intake();
         } else if (theGamepad2.getButton(TBDGamepad.Button.B) || theGamepad1.getButton(TBDGamepad.Button.B)) {
             robot.intake.stop();
@@ -171,10 +172,10 @@ public class Teleop_Red_DataLogger extends OpMode {
         }
         // Operator can cancel by pressing any manual indexer button.
         if (theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER) ||
-            theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER) ||
-            theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_LEFT) ||
-            theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_RIGHT) ||
-            theGamepad2.getButtonPressed(TBDGamepad.Button.LEFT_STICK_BUTTON)) {
+                theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER) ||
+                theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_LEFT) ||
+                theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_RIGHT) ||
+                theGamepad2.getButtonPressed(TBDGamepad.Button.LEFT_STICK_BUTTON)) {
             isAutoLoading = false;
         }
 
@@ -187,7 +188,7 @@ public class Teleop_Red_DataLogger extends OpMode {
             }
         } else {
             // --- MANUAL INDEXER MODE ---
-            if(theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER)){
+            if (theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER)) {
                 robot.indexer.spin(-0.2);
             } else if (theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER)) {
                 robot.indexer.spin(0.2);
@@ -196,11 +197,11 @@ public class Teleop_Red_DataLogger extends OpMode {
                 robot.indexer.cycle(0);
 
                 // Then, check for discrete, one-shot commands.
-                if(theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_LEFT)){
+                if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_LEFT)) {
                     robot.indexer.cycle(-1);
                 } else if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_RIGHT)) {
                     robot.indexer.cycle(1);
-                } else if (theGamepad2.getButtonPressed(TBDGamepad.Button.LEFT_STICK_BUTTON)){
+                } else if (theGamepad2.getButtonPressed(TBDGamepad.Button.LEFT_STICK_BUTTON)) {
                     robot.indexer.adjustToThird();
                 }
             }
