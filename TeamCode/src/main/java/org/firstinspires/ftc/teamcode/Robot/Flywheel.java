@@ -43,14 +43,14 @@ public class Flywheel {
     public static double MAX_SHOOTER_RPM = 1900.0;
     public static double MIN_SHOOTER_RPM = 1200.0;
     public static final double SHOOTER_RADIUS = 0.072 / 2.0;
-    public static double SPIN_EFFICIENCY = 0.999;
+    public static double SPIN_EFFICIENCY = 1.0;
     public double FLYWHEEL_RATIO = (double) 0.9;
 
 
     private double targetRpm = (double) 0;
 
-    public static double RPM_LOWER_BOUND = 20.0;
-    public static double RPM_UPPER_BOUND = 25.0;
+    public static double RPM_LOWER_BOUND = 25.0;
+    public static double RPM_UPPER_BOUND = 20.0;
 
     private double currentRpm = (double) 0;
     private double previousRpm = 0;

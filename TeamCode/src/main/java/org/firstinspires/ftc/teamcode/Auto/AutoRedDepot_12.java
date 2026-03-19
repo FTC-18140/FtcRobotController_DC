@@ -20,7 +20,7 @@ public class AutoRedDepot_12 extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         Pose2d start = new Pose2d(AutoPositions.Positions.START_RED_DEPOT.position, Math.toRadians(45));
         Pose2d launchPos1 = new Pose2d(AutoPositions.Positions.CLOSE_LAUNCH_ZONE_RED.position, Math.toRadians(-90));
-        Pose2d launchPos2 = new Pose2d(new Vector2d(6, -13), Math.toRadians(180));
+        Pose2d launchPos2 = new Pose2d(new Vector2d(6, -13), Math.toRadians(-90));
         Pose2d launchPos3 = new Pose2d(AutoPositions.Positions.PARKING_LAUNCH_ZONE_RED.position, Math.toRadians(180));
         Pose2d intakePos = new Pose2d(AutoPositions.Positions.ARTIFACT_GATE_RED.position, Math.toRadians(-90));
         Pose2d intakePos2 = new Pose2d(AutoPositions.Positions.ARTIFACT_CENTER_RED.position, Math.toRadians(-90));
@@ -81,7 +81,7 @@ public class AutoRedDepot_12 extends LinearOpMode {
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, -51), Math.toRadians(-90)))
                                                                     .setReversed(true)
-                                                                    .splineTo(launchPos2.position, Math.toRadians(0))
+                                                                    .splineTo(launchPos2.position, Math.toRadians(90))
                                                                     .build()
                                                     ),
                                                     robot.intakeStopAction(),
@@ -92,7 +92,7 @@ public class AutoRedDepot_12 extends LinearOpMode {
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos2)
                                                                     .setTangent(Math.toRadians(180))
-                                                                    .splineTo(intakePos2.position, Math.toRadians(-90))
+                                                                    .splineToConstantHeading(intakePos2.position, Math.toRadians(-90))
                                                                     .splineToConstantHeading(new Vector2d(intakePos2.position.x, -57), Math.toRadians(-90), new TranslationalVelConstraint(20))
                                                                     .build(),
                                                             robot.indexerFullAction()

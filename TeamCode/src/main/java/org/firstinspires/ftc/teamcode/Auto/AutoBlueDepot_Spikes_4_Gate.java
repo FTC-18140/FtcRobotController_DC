@@ -140,10 +140,6 @@ public class AutoBlueDepot_Spikes_4_Gate extends LinearOpMode {
                                     robot.intakeStopAction(),
                                     robot.launcher.pointToAction(0),
                                     new ParallelAction(
-                                            robot.drive.actionBuilder(launchPos3)
-                                                    .setTangent(-90)
-                                                    .splineToConstantHeading(launchPos3.position, Math.toRadians(0))
-                                                    .build(),
                                             robot.holdTurretAction(),
                                             robot.launcher.stopAction()
                                     )
