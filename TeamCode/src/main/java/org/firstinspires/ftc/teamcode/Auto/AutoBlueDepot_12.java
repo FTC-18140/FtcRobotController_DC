@@ -74,7 +74,7 @@ public class AutoBlueDepot_12 extends LinearOpMode {
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos1)
-                                                                    .setTangent(0)
+                                                                    .setTangent(Math.toRadians(180))
                                                                     .splineToConstantHeading(intakePos.position, Math.toRadians(90))
                                                                     .splineToConstantHeading(new Vector2d(intakePos.position.x, 51), Math.toRadians(90), new TranslationalVelConstraint(20))
                                                                     .build(),

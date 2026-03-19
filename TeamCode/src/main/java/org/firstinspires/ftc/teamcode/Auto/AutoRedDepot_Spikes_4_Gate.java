@@ -88,8 +88,8 @@ public class AutoRedDepot_Spikes_4_Gate extends LinearOpMode {
                                                     ),
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(gatePos.position, Math.toRadians(-90)))
-                                                                    .setTangent(Math.toRadians(-90))
-                                                                    .splineToConstantHeading(launchPos2.position, Math.toRadians(90))
+                                                                    .setReversed(true)
+                                                                    .splineTo(launchPos2.position, Math.toRadians(90))
                                                                     .build(),
                                                             robot.planSequenceAction()
                                                     ),
@@ -122,8 +122,8 @@ public class AutoRedDepot_Spikes_4_Gate extends LinearOpMode {
                                                     // Drive to launch spot
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(gatePos.position, Math.toRadians(-90)))
-                                                                    .setTangent(Math.toRadians(-90))
-                                                                    .splineToConstantHeading(launchPos3.position, Math.toRadians(90))
+                                                                    .setReversed(true)
+                                                                    .splineTo(launchPos3.position, Math.toRadians(0))
                                                                     .build()
 //                                                            ,
 //                                                            // Re-plan the shot sequence with the newly loaded balls
@@ -144,7 +144,7 @@ public class AutoRedDepot_Spikes_4_Gate extends LinearOpMode {
                                     new ParallelAction(
                                             robot.drive.actionBuilder(gatePos)
                                                     .setTangent(90)
-                                                    .splineToConstantHeading(new Vector2d(12, -36), Math.toRadians(90))
+                                                    .splineToConstantHeading(launchPos3.position, Math.toRadians(0))
                                                     .build(),
                                             robot.holdTurretAction(),
                                             robot.launcher.stopAction()

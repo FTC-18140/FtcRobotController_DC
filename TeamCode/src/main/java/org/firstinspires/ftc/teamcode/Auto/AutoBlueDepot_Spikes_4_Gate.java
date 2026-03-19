@@ -81,7 +81,7 @@ public class AutoBlueDepot_Spikes_4_Gate extends LinearOpMode {
 //                                                    robot.waitForTime(9.5),
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, 49), Math.toRadians(90)))
-                                                                    .setTangent(Math.toRadians(-90))
+                                                                    .setTangent(Math.toRadians(180))
                                                                     .splineToConstantHeading(gatePos.position, Math.toRadians(90))
                                                                     .build()
                                                     ),
@@ -131,13 +131,7 @@ public class AutoBlueDepot_Spikes_4_Gate extends LinearOpMode {
                                                     // Launch 2nd set of Artifacts
                                                     robot.planSequenceAction(),
                                                     robot.startSequenceAction(),
-                                                    robot.waitForSequenceEndAction(),
-                                                    new RaceAction(
-                                                            robot.drive.actionBuilder(launchPos3)
-                                                                    .setTangent(180)
-                                                                    .splineToConstantHeading(gatePos.position, Math.toRadians(90))
-                                                                    .build()
-                                                    )
+                                                    robot.waitForSequenceEndAction()
 
                                             ),
                                             new SleepAction(27)
@@ -146,9 +140,9 @@ public class AutoBlueDepot_Spikes_4_Gate extends LinearOpMode {
                                     robot.intakeStopAction(),
                                     robot.launcher.pointToAction(0),
                                     new ParallelAction(
-                                            robot.drive.actionBuilder(gatePos)
+                                            robot.drive.actionBuilder(launchPos3)
                                                     .setTangent(-90)
-                                                    .splineToConstantHeading(new Vector2d(12, 36), Math.toRadians(-90))
+                                                    .splineToConstantHeading(launchPos3.position, Math.toRadians(0))
                                                     .build(),
                                             robot.holdTurretAction(),
                                             robot.launcher.stopAction()
