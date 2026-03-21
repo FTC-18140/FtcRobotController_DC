@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.Auto;
 
-import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.RaceAction;
@@ -16,7 +15,7 @@ import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 import org.firstinspires.ftc.teamcode.Robot.Turret;
 
 @Autonomous(group = AutoBlueFar_WAIT.AUTO_BLUE_FAR_GROUP)
-public class AutoBlueFar extends LinearOpMode {
+public class AutoBlueFar_9 extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -64,7 +63,6 @@ public class AutoBlueFar extends LinearOpMode {
                                                                     .build()
                                                             // Plan the first shot sequence while driving.
                                                     ),
-                                                    robot.cancelSequenceAction(),
 
                                                     // Launch Preloads
                                                     robot.startSequenceAction(),

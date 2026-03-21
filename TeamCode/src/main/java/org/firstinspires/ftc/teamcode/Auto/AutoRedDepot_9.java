@@ -64,7 +64,8 @@ public class AutoRedDepot_9 extends LinearOpMode {
                                                                     .build()
                                                     ),
                                                     // Launch Preloads
-                                                    robot.spamAction(),
+                                                    robot.startSequenceAction(),
+                                                    robot.waitForSequenceEndAction(),
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
