@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Robot.Drives.MecanumDrive;
 
 @Config
 public class FlywheelController {
@@ -36,7 +37,7 @@ public class FlywheelController {
         upperWheel = new Flywheel();
 
         lowerWheel.init(hwMap, telem, "launcher", "launcher");
-        upperWheel.init(hwMap, telem, "launcher2", "leftBack");
+        upperWheel.init(hwMap, telem, "launcher2", MecanumDrive.LEFT_BACK_MOTOR);
         upperWheel.setEncoderReversed();
 
         lowerWheel.setParameters(LOWER_PID.P, LOWER_PID.I, LOWER_PID.D, LOWER_PID.F_MIN, LOWER_PID.F_MAX, 1);

@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Robot.IndexerFacade;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
+import org.firstinspires.ftc.teamcode.TestOpModes.IndexerTest;
 import org.firstinspires.ftc.teamcode.Utilities.DataLogger;
 import org.firstinspires.ftc.teamcode.Utilities.TBDGamepad;
 
@@ -17,7 +18,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-@TeleOp(name = "Teleop Red with Datalogger", group = "TeleopTest")
+@TeleOp(name = "Teleop Red with Datalogger", group = IndexerTest.TEST_TELEOP_GROUP)
 @Config
 public class Teleop_Red_DataLogger extends OpMode {
 
