@@ -282,7 +282,7 @@ public class ThunderBot2025 implements DataLoggable {
     }
 
     public boolean flip() {
-        if (launcher.isAtTargetRpm() && launcher.isAtTarget() && inLaunchZone()) {
+        if (launcher.isAtTargetRpm() && launcher.isAtTarget()) {
             return indexer.flipAndCycle();
         }
         return false;

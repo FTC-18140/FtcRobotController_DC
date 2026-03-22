@@ -144,6 +144,10 @@ public class AutoRedDepot_12 extends LinearOpMode {
                                     robot.cancelSequenceAction(),
                                     robot.intakeStopAction(),
                                     robot.launcher.pointToAction(0),
+                                    robot.drive.actionBuilder(launchPos3)
+                                            .setReversed(true)
+                                            .splineToSplineHeading(new Pose2d(launchPos3.position.x +2, launchPos3.position.y, launchPos3.heading.toDouble()), Math.toRadians(0))
+                                            .build(),
                                     new ParallelAction(
                                             robot.holdTurretAction(),
                                             robot.launcher.stopAction()

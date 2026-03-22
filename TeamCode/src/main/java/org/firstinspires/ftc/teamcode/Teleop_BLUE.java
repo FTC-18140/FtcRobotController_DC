@@ -116,7 +116,7 @@ public class Teleop_BLUE extends OpMode {
         if (theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.LEFT_TRIGGER)) {
             robot.charge();
         } else {
-            robot.launcher.stop();
+            robot.chargeLow();
         }
 
         if (theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.RIGHT_TRIGGER)) {
