@@ -91,10 +91,12 @@ public class FlywheelController {
     }
 
     public boolean isAtTargetRpm() {
-        if (lowerWheel.isAtTargetRpm() && upperWheel.isAtTargetRpm()) return true;
+        double meanSqr = (Math.pow(lowerWheel.getError(), 2) + Math.pow(upperWheel.getError(), 2)) / 2;
+        if (Math.sqrt(meanSqr) < 25) return true;
 
-        telemetry.addData("lower Flywheel at target RPM: ", lowerWheel.isAtTargetRpm());
-        telemetry.addData("upper Flywheel at target RPM: ", upperWheel.isAtTargetRpm());
+        telemetry.addData("lower Flywheel error: ", lowerWheel.getError());
+        telemetry.addData("upper Flywheel error: ", upperWheel.getError());
+        telemetry.addData("Flywheel mean: ", Math.sqrt(meanSqr));
         return false;
     }
 

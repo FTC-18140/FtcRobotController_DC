@@ -108,6 +108,9 @@ public class Flywheel {
     public double getTargetRpm() {
         return targetRpm;
     }
+    public double getError(){
+        return targetRpm - currentRpm;
+    }
 
 
     /**
