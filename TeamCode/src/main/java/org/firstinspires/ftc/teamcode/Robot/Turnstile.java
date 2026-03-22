@@ -12,10 +12,12 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Robot.Drives.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 
 @Config // Make this class tunable
 public class Turnstile {
+
 
     // --- Hardware & Utilities ---
     private CRServo indexerServo1;
@@ -69,7 +71,7 @@ public class Turnstile {
             indexerServo1.setDirection(DcMotorSimple.Direction.REVERSE);
             indexerServo2.setDirection(DcMotorSimple.Direction.REVERSE);
 
-            indexMotor = hwMap.get(DcMotorEx.class, "rightFront");
+            indexMotor = hwMap.get(DcMotorEx.class, MecanumDrive.RIGHT_FRONT_MOTOR);
             limitSwitch = hwMap.get(TouchSensor.class, "indexerLimit");
 
             indexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Use our own P
