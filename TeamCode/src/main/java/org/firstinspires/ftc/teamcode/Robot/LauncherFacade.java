@@ -41,6 +41,9 @@ public class LauncherFacade implements DataLoggable {
     private static double TURRET_OFFSET_X = -2.62074;
     private static double TURRET_OFFSET_Y = -3.22805;
     private static final double LIMELIGHT_FORWARD_POSITION = 6.175;
+    private Vector2d inertiaOffset = null;
+    private Vector2d offsetTarget = null;
+    public static double INERTIA_FACTOR = 1.0;
     private Vector2d trueTargetVector = fusedPose.position;
     private static double trust = 0.0;
 
@@ -148,13 +151,15 @@ public class LauncherFacade implements DataLoggable {
         // ------------- HOTFIX for AIMING
         fusedPose = currentOdoPose;
         // ------------- End HOTFIX for AIMING
+        inertiaOffset = currentOdoVelocity.linearVel.times(INERTIA_FACTOR);
+        offsetTarget = targetPos.minus(inertiaOffset);
 
         // --- 5. RUN SUBSYSTEMS ---
         // Use fusedPose for distance calculation
         getAutoAimAngle();
         double distanceToGoal = getGoalDistance();
 
-        turret.update(fusedPose, currentOdoVelocity, targetPos);
+        turret.update(fusedPose, currentOdoVelocity, offsetTarget);
         flywheel.update();
 
 //        setTurretOffset();
@@ -373,12 +378,12 @@ public class LauncherFacade implements DataLoggable {
         // --- 2. SENSOR PRIORITY: ODOMETRY ---
         // Fallback to Odometry if the Limelight is blocked or target is out of view.
         // We calculate the vector from our fused robot position to the field goal position.
-        if (null != trueTargetVector && null != targetPos) {
+        if (null != trueTargetVector && null != offsetTarget) {
             usingLimelight = false;
 
 
             // Vector from Turret offset pos to Goal
-            trueTargetVector = targetPos.minus(fusedPose.position.plus(getTurretOffsetPosInRobotSpace()));
+            trueTargetVector = offsetTarget.minus(fusedPose.position.plus(getTurretOffsetPosInRobotSpace()));
 
             // Calculate the absolute field-centric angle to the goal (Radians)
             double fieldAngleToGoal = Math.atan2(trueTargetVector.y, trueTargetVector.x);
@@ -550,7 +555,7 @@ public class LauncherFacade implements DataLoggable {
 
     private double getGoalDistance() {
         double distance = trueTargetVector.norm();
-        if (null == trueTargetVector || null == targetPos) distance = 0.0;
+        if (null == trueTargetVector || null == offsetTarget) distance = 0.0;
         // Use FUSED pose for distance calculation
         //        telemetry.addData("distance: ", distance);
         return distance;
