@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 @Config
 public class Flywheel {
     public static final double GOBILDA_MOTOR_STALL_CURRENT = 9.2;
+    public static final double ENCODER_TICKS_PER_REVOLUTION = 28.0;
 
     // Define the states as an enum
     private enum State {
@@ -45,6 +46,7 @@ public class Flywheel {
     public static final double SHOOTER_RADIUS = 0.072 / 2.0;
     public static double SPIN_EFFICIENCY = 1.0;
     public double FLYWHEEL_RATIO = (double) 0.9;
+    public static double FLYWHEEL_GEAR_RATIO = 1.5;
 
 
     private double targetRpm = (double) 0;
@@ -108,7 +110,8 @@ public class Flywheel {
     public double getTargetRpm() {
         return targetRpm;
     }
-    public double getError(){
+
+    public double getError() {
         return targetRpm - currentRpm;
     }
 
@@ -138,7 +141,7 @@ public class Flywheel {
         } else {
             tps = -launcher.getVelocity();
         }
-        return (tps * 60.0) / 28.0;
+        return (tps * 60.0 * FLYWHEEL_GEAR_RATIO) / ENCODER_TICKS_PER_REVOLUTION;
     }
 
     public double getRpmLowerBound() {
