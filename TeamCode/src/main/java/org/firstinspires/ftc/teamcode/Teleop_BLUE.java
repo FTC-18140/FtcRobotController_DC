@@ -6,7 +6,6 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.teamcode.Robot.IndexerFacade;
 import org.firstinspires.ftc.teamcode.Robot.LauncherFacade;
@@ -184,20 +183,7 @@ public class Teleop_BLUE extends OpMode {
 
         robot.drive.localizer.update();
 
-        telemetry.addData("Time since start", robot.runtime.seconds());
-        telemetry.addData("Battery Voltage", robot.getBatteryVoltage());
-        telemetry.addData("Total Motor Current Draw", robot.getTotalMotorCurrentDraw());
 
-        telemetry.addData("position X: ", robot.drive.localizer.getPose().position.x);
-        telemetry.addData("position Y: ", robot.drive.localizer.getPose().position.y);
-        telemetry.addData("heading: ", Math.toDegrees(robot.drive.localizer.getPose().heading.toDouble()));
-
-        telemetry.addData("Indexer Mode", isAutoLoading ? "AUTO-LOADING" : "MANUAL");
-
-        telemetry.addData("Flywheel RPM ", robot.launcher.getFlywheelRpm());
-        telemetry.addData("Flywheel Target ", robot.launcher.getFlywheelTargetRpm());
-        telemetry.addData("Turret aiming mode:", robot.launcher.isUsingLimelight());
-        telemetry.addData("Turret angle:", robot.launcher.getTurretAngle());
         dashboard.sendTelemetryPacket(p);
     }
 }

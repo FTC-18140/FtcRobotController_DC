@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.Auto;
 
-import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.RaceAction;
@@ -14,8 +13,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
-@Autonomous(group = AutoRedFar.AUTO_RED_FAR_GROUP)
-public class AutoRedFar extends LinearOpMode{
+@Autonomous(group = AutoRedFar_9.AUTO_RED_FAR_GROUP)
+public class AutoRedFar_9 extends LinearOpMode {
 
     public static final String AUTO_RED_FAR_GROUP = "AutoRedFar";
 

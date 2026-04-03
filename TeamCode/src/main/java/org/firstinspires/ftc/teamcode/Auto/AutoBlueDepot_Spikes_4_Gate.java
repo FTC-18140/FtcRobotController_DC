@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
 @Autonomous(group = AutoBlueDepot_Coop.AUTO_BLUE_DEPOT_GROUP)
-public class AutoBlueDepot_Spikes_4_Gate extends LinearOpMode{
+public class AutoBlueDepot_Spikes_4_Gate extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -65,9 +65,9 @@ public class AutoBlueDepot_Spikes_4_Gate extends LinearOpMode{
                                                                     .strafeToSplineHeading(launchPos1.position, Math.toRadians(90))
                                                                     .build()
                                                     ),
+                                                    robot.cancelSequenceAction(),
                                                     // Launch Preloads
-                                                    robot.startSequenceAction(),
-                                                    robot.waitForSequenceEndAction(),
+                                                    robot.spamAction(),
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
@@ -81,7 +81,7 @@ public class AutoBlueDepot_Spikes_4_Gate extends LinearOpMode{
 //                                                    robot.waitForTime(9.5),
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, 49), Math.toRadians(90)))
-                                                                    .setTangent(Math.toRadians(-90))
+                                                                    .setTangent(Math.toRadians(180))
                                                                     .splineToConstantHeading(gatePos.position, Math.toRadians(90))
                                                                     .build()
                                                     ),
@@ -94,8 +94,7 @@ public class AutoBlueDepot_Spikes_4_Gate extends LinearOpMode{
                                                     ),
                                                     robot.intakeStopAction(),
                                                     // Launch Preloads
-                                                    robot.startSequenceAction(),
-                                                    robot.waitForSequenceEndAction(),
+                                                    robot.spamAction(),
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
@@ -132,13 +131,7 @@ public class AutoBlueDepot_Spikes_4_Gate extends LinearOpMode{
                                                     // Launch 2nd set of Artifacts
                                                     robot.planSequenceAction(),
                                                     robot.startSequenceAction(),
-                                                    robot.waitForSequenceEndAction(),
-                                                    new RaceAction(
-                                                            robot.drive.actionBuilder(launchPos3)
-                                                                    .setTangent(180)
-                                                                    .splineToConstantHeading(gatePos.position, Math.toRadians(90))
-                                                                    .build()
-                                                    )
+                                                    robot.waitForSequenceEndAction()
 
                                             ),
                                             new SleepAction(27)
@@ -147,17 +140,13 @@ public class AutoBlueDepot_Spikes_4_Gate extends LinearOpMode{
                                     robot.intakeStopAction(),
                                     robot.launcher.pointToAction(0),
                                     new ParallelAction(
-                                            robot.drive.actionBuilder(gatePos)
-                                                    .setTangent(-90)
-                                                    .splineToConstantHeading(new Vector2d(12, 36), Math.toRadians(-90))
-                                                    .build(),
                                             robot.holdTurretAction(),
                                             robot.launcher.stopAction()
                                     )
                             )
                     )
             );
-        }finally{
+        } finally {
             robot.drive.updatePoseEstimate();
             blackboard.put(ThunderBot2025.STARTING_POSE_KEY, robot.drive.localizer.getPose());
             blackboard.put("TURRET_ENDING_ANGLE_AUTO", robot.launcher.getTurretAngle());

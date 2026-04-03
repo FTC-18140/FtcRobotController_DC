@@ -1,11 +1,10 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
-import static com.qualcomm.robotcore.eventloop.opmode.OpMode.blackboard;
-
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -44,12 +43,12 @@ public class Turret implements DataLoggable {
     private Telemetry telemetry;
 
     // Tunable constants from your original file
-    public static double P_TURRET = 0.0285, I_TURRET = 0.022, D_TURRET = 0.00135, F_TURRET_MIN = 0.0, F_TURRET_MAX = 0.023;
-    public static double MAX_TURRET_POS = 225.0;
+    public static double P_TURRET = 0.024, I_TURRET = 0.022, D_TURRET = 0.001, F_TURRET_MIN = 0.0, F_TURRET_MAX = 0.018;
+    public static double MAX_TURRET_POS = 270.0;
     public static double MIN_TURRET_POS = -90.0;
     public static double TURRET_ANGLE_TOLERANCE = 2.5;
 
-    public static double KV_ROT = 0.09; // Tunable: Gain for robot rotation
+    public static double KV_ROT = 0.17; // Tunable: Gain for robot rotation
     public static double KV_TRANS = 0.17; // Tunable: Gain for translational apparent rotation
     public static boolean TELEM = false;
 
@@ -66,7 +65,7 @@ public class Turret implements DataLoggable {
     private double manualPower = (double) 0;
     public double manualAngle = (double) 0;
     private double currentPosition = (double) 0;
-    private double currentdraw = 0.0;
+    private double currentDraw = 0.0;
     private double offsetAngle = (double) 0;
     private double seekingPower = (double) 0; // Member variable to be accessible for logging
     private double lastSeekingPower = (double) 0;
@@ -76,7 +75,7 @@ public class Turret implements DataLoggable {
     public void init(HardwareMap hwMap, Telemetry telem) {
 
         // touch sensor: Control hub Digital port 4
-        startingAngle = (double) blackboard.getOrDefault(STARTING_ANGLE, (double) 0);
+        startingAngle = (double) OpMode.blackboard.getOrDefault(STARTING_ANGLE, (double) 0);
 
         telemetry = telem;
         turretAimPID = new PIDController(P_TURRET, I_TURRET, D_TURRET);
@@ -115,7 +114,7 @@ public class Turret implements DataLoggable {
     /**
      * @param angle in degrees
      */
-    public void seekToAngle(double angle) {
+    void seekToAngle(double angle) {
         targetAngle = Range.clip(angle, MIN_TURRET_POS, MAX_TURRET_POS);
         currentState = State.SEEKING_ANGLE;
     }
@@ -196,7 +195,10 @@ public class Turret implements DataLoggable {
 
         isHomed = turretSwitch.isPressed();
 
-        currentdraw = getTotalCurrentDraw();
+        currentDraw = getTotalCurrentDraw();
+        if (Flywheel.GOBILDA_MOTOR_STALL_CURRENT <= currentDraw) {
+            telemetry.addData("TURRET STALLED", 0);
+        }
 
         // 1. Static Feedforward (Wires/Friction)
         double ffStatic = Range.clip(Range.scale(currentPosition, -90.0, -15.0, F_TURRET_MAX, F_TURRET_MIN), F_TURRET_MIN, F_TURRET_MAX);
@@ -215,14 +217,14 @@ public class Turret implements DataLoggable {
         switch (currentState) {
             case HOLDING:
             case SEEKING_ANGLE:
-//                setHardwarePower(totalPower);
+                setHardwarePower(totalPower);
                 if (State.SEEKING_ANGLE == currentState && isAtTarget()) {
                     currentState = State.HOLDING;
                 }
                 break;
 
             case MANUAL_CONTROL:
-//                setHardwarePower(manualPower);
+                setHardwarePower(manualPower);
                 if (0.01 > Math.abs(manualPower)) {
                     currentState = State.HOLDING;
                     setHardwarePower((double) 0);
@@ -336,6 +338,6 @@ public class Turret implements DataLoggable {
         logger.addField(I_TURRET);
         logger.addField(D_TURRET);
         logger.addField(seekingPower);
-        logger.addField(currentdraw);
+        logger.addField(currentDraw);
     }
 }

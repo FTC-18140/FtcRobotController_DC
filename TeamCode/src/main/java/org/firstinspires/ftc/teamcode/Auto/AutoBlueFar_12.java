@@ -13,8 +13,11 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
+/**
+ * @noinspection LawOfDemeter
+ */
 @Autonomous(group = AutoBlueFar_WAIT.AUTO_BLUE_FAR_GROUP)
-public class AutoBlueFar_12 extends LinearOpMode{
+public class AutoBlueFar_12 extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -64,6 +67,7 @@ public class AutoBlueFar_12 extends LinearOpMode{
                                                                     .build()
                                                             // Plan the first shot sequence while driving.
                                                     ),
+                                                    robot.cancelSequenceAction(),
                                                     // Launch Preloads
                                                     robot.spamAction(),
                                                     robot.intakeStartAction(),
@@ -162,7 +166,7 @@ public class AutoBlueFar_12 extends LinearOpMode{
                                             robot.launcher.stopAction()
                                     )
                             )
-                )
+                    )
             );
         } finally {
             // This block will always run, even if the opmode is stopped prematurely.

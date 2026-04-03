@@ -14,14 +14,14 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
 @Autonomous(group = AutoRedDepot_Coop.AUTO_RED_DEPOT_GROUP)
-public class AutoRedDepot_12 extends LinearOpMode{
+public class AutoRedDepot_12 extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
         Pose2d start = new Pose2d(AutoPositions.Positions.START_RED_DEPOT.position, Math.toRadians(45));
         Pose2d launchPos1 = new Pose2d(AutoPositions.Positions.CLOSE_LAUNCH_ZONE_RED.position, Math.toRadians(-90));
         Pose2d launchPos2 = new Pose2d(new Vector2d(6, -13), Math.toRadians(-90));
-        Pose2d launchPos3 = new Pose2d(AutoPositions.Positions.PARKING_LAUNCH_ZONE_RED.position, Math.toRadians(0));
+        Pose2d launchPos3 = new Pose2d(AutoPositions.Positions.PARKING_LAUNCH_ZONE_RED.position, Math.toRadians(180));
         Pose2d intakePos = new Pose2d(AutoPositions.Positions.ARTIFACT_GATE_RED.position, Math.toRadians(-90));
         Pose2d intakePos2 = new Pose2d(AutoPositions.Positions.ARTIFACT_CENTER_RED.position, Math.toRadians(-90));
         Pose2d intakePos3 = new Pose2d(AutoPositions.Positions.ARTIFACT_BASE_RED.position, Math.toRadians(-90));
@@ -65,6 +65,7 @@ public class AutoRedDepot_12 extends LinearOpMode{
                                                                     .strafeToSplineHeading(launchPos1.position, Math.toRadians(-90))
                                                                     .build()
                                                     ),
+                                                    robot.cancelSequenceAction(),
                                                     // Launch Preloads
                                                     robot.spamAction(),
                                                     robot.intakeStartAction(),
@@ -80,14 +81,12 @@ public class AutoRedDepot_12 extends LinearOpMode{
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, -51), Math.toRadians(-90)))
                                                                     .setReversed(true)
-                                                                    .splineToConstantHeading(launchPos2.position, Math.toRadians(90))
+                                                                    .splineTo(launchPos2.position, Math.toRadians(90))
                                                                     .build()
                                                     ),
                                                     robot.intakeStopAction(),
                                                     // Launch Preloads
-                                                    robot.planSequenceAction(),
-                                                    robot.startSequenceAction(),
-                                                    robot.waitForSequenceEndAction(),
+                                                    robot.spamAction(),
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
@@ -102,7 +101,7 @@ public class AutoRedDepot_12 extends LinearOpMode{
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos2.position.x, -57), Math.toRadians(-90)))
                                                                     .setReversed(true)
-                                                                    .splineTo(launchPos2.position, Math.toRadians(90))
+                                                                    .splineTo(launchPos2.position, Math.toRadians(0))
                                                                     .build()
 //                                                            ,
 //                                                            // Re-plan the shot sequence with the newly loaded balls
@@ -117,9 +116,9 @@ public class AutoRedDepot_12 extends LinearOpMode{
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
-                                                            robot.drive.actionBuilder(new Pose2d(launchPos2.position, Math.toRadians(-90)))
+                                                            robot.drive.actionBuilder(new Pose2d(launchPos2.position, Math.toRadians(180)))
                                                                     .setTangent(Math.toRadians(180))
-                                                                    .splineToConstantHeading(intakePos3.position, Math.toRadians(-90))
+                                                                    .splineTo(intakePos3.position, Math.toRadians(-90))
                                                                     .splineToConstantHeading(new Vector2d(intakePos3.position.x, -56), Math.toRadians(-90), new TranslationalVelConstraint(20))
                                                                     .build(),
                                                             robot.indexerFullAction()
@@ -128,7 +127,7 @@ public class AutoRedDepot_12 extends LinearOpMode{
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos3.position.x, -56), Math.toRadians(-90)))
                                                                     .setReversed(true)
-                                                                    .splineToSplineHeading(launchPos3, 0)
+                                                                    .splineTo(launchPos3.position, 0)
                                                                     .build()
 //                                                            ,
 //                                                            // Re-plan the shot sequence with the newly loaded balls
@@ -145,6 +144,10 @@ public class AutoRedDepot_12 extends LinearOpMode{
                                     robot.cancelSequenceAction(),
                                     robot.intakeStopAction(),
                                     robot.launcher.pointToAction(0),
+                                    robot.drive.actionBuilder(launchPos3)
+                                            .setReversed(true)
+                                            .splineToSplineHeading(new Pose2d(launchPos3.position.x +2, launchPos3.position.y, launchPos3.heading.toDouble()), Math.toRadians(0))
+                                            .build(),
                                     new ParallelAction(
                                             robot.holdTurretAction(),
                                             robot.launcher.stopAction()
@@ -152,7 +155,7 @@ public class AutoRedDepot_12 extends LinearOpMode{
                             )
                     )
             );
-        }finally{
+        } finally {
             robot.drive.updatePoseEstimate();
             blackboard.put(ThunderBot2025.STARTING_POSE_KEY, robot.drive.localizer.getPose());
             blackboard.put("TURRET_ENDING_ANGLE_AUTO", robot.launcher.getTurretAngle());
