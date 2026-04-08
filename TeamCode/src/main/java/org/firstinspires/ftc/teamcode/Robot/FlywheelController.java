@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -14,15 +16,17 @@ public class FlywheelController {
     private Flywheel upperWheel = null;
 
     private double last_distance = 0;
+    double angleToGoal;
+    PoseVelocity2d odoVelocity;
 
     public static class LowerPID {
         public double P = 0.00205, I = 0.05, D = 0.000001;
-        public double F_MAX = 0.73, F_MIN = 0.56;
+        public double F_MAX = 0.73, F_MIN = 0.56, F_VEL = 0, F_STATIC = .0;
     }
 
     public static class UpperPID {
         public double P = 0.00225, I = 0.03, D = 0.000001;
-        public double F_MAX = 0.56, F_MIN = 0.47;
+        public double F_MAX = 0.56, F_MIN = 0.47, F_VEL = 0, F_STATIC = .0;
     }
 
     public static LowerPID LOWER_PID = new LowerPID();
@@ -40,16 +44,18 @@ public class FlywheelController {
         upperWheel.init(hwMap, telem, "launcher2", MecanumDrive.LEFT_BACK_MOTOR);
         upperWheel.setEncoderReversed();
 
-        lowerWheel.setParameters(LOWER_PID.P, LOWER_PID.I, LOWER_PID.D, LOWER_PID.F_MIN, LOWER_PID.F_MAX, 1);
-        upperWheel.setParameters(UPPER_PID.P, UPPER_PID.I, UPPER_PID.D, UPPER_PID.F_MIN, UPPER_PID.F_MAX, FLYWHEEL_RATIO);
+        lowerWheel.setParameters(LOWER_PID.P, LOWER_PID.I, LOWER_PID.D, LOWER_PID.F_MIN, LOWER_PID.F_MAX, LOWER_PID.F_VEL, LOWER_PID.F_STATIC, 1);
+        upperWheel.setParameters(UPPER_PID.P, UPPER_PID.I, UPPER_PID.D, UPPER_PID.F_MIN, UPPER_PID.F_MAX, UPPER_PID.F_VEL, UPPER_PID.F_STATIC, FLYWHEEL_RATIO);
     }
 
-    public void update() {
-        lowerWheel.setParameters(LOWER_PID.P, LOWER_PID.I, LOWER_PID.D, LOWER_PID.F_MIN, LOWER_PID.F_MAX, 1);
-        upperWheel.setParameters(UPPER_PID.P, UPPER_PID.I, UPPER_PID.D, UPPER_PID.F_MIN, UPPER_PID.F_MAX, FLYWHEEL_RATIO);
+    public void update(PoseVelocity2d currentOdoVelocity, double fieldAngleToGoal) {
+        lowerWheel.setParameters(LOWER_PID.P, LOWER_PID.I, LOWER_PID.D, LOWER_PID.F_MIN, LOWER_PID.F_MAX, LOWER_PID.F_VEL, LOWER_PID.F_STATIC, 1);
+        upperWheel.setParameters(UPPER_PID.P, UPPER_PID.I, UPPER_PID.D, UPPER_PID.F_MIN, UPPER_PID.F_MAX, UPPER_PID.F_VEL, UPPER_PID.F_STATIC, FLYWHEEL_RATIO);
 
         lowerWheel.update();
         upperWheel.update();
+        angleToGoal = fieldAngleToGoal;
+        odoVelocity = currentOdoVelocity;
     }
 
 
@@ -112,7 +118,8 @@ public class FlywheelController {
         denominator = Math.max(denominator, 0.4);
 
         telemetry.addData("Denominator: ", denominator);
-        return Math.sqrt(numerator / denominator);
+        double ballVelocity = Math.sqrt(numerator / denominator);
+        return ballVelocity - odoVelocity.linearVel.dot(new Vector2d(Math.sin(angleToGoal), Math.cos(angleToGoal)));
     }
 
     public void setTargetRpmFromVelocity(double velocity) {

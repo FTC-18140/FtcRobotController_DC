@@ -36,7 +36,7 @@ public class Flywheel {
     // Tunable constants from your original file
 
     private double P = 0.0, I = 0.0, D = 0.0;
-    public double F_MAX = 0.0, F_MIN = 0.0;
+    public double F_MAX = 0.0, F_MIN = 0.0, F_VEL = 0, F_STATIC = 0;
 
     public double feedforward = 0.0;
 
@@ -86,10 +86,12 @@ public class Flywheel {
         this.D = d;
     }
 
-    public void setParameters(double p, double i, double d, double fMin, double fMax, double ratio) {
+    public void setParameters(double p, double i, double d, double fMin, double fMax, double fVel, double fStatic, double ratio) {
         setPID(p, i, d);
         this.F_MIN = fMin;
         this.F_MAX = fMax;
+        this.F_VEL = fVel;
+        this.F_STATIC = fStatic;
         this.FLYWHEEL_RATIO = ratio;
     }
 
@@ -141,7 +143,7 @@ public class Flywheel {
         } else {
             tps = -launcher.getVelocity();
         }
-        return (tps * 60.0 * FLYWHEEL_GEAR_RATIO) / ENCODER_TICKS_PER_REVOLUTION;
+        return (tps * 60.0) / (ENCODER_TICKS_PER_REVOLUTION * FLYWHEEL_GEAR_RATIO);
     }
 
     public double getRpmLowerBound() {
@@ -200,7 +202,7 @@ public class Flywheel {
                 // --- Step 1: Calculate the Feedforward value ---
 
                 scaledPower = Range.scale(targetRpm, MIN_SHOOTER_RPM * FLYWHEEL_RATIO, MAX_SHOOTER_RPM * FLYWHEEL_RATIO, F_MIN, F_MAX);
-                feedforward = Range.clip(scaledPower, F_MIN, F_MAX);
+                feedforward = Range.clip(scaledPower, F_MIN, F_MAX) + F_VEL * targetRpm + F_STATIC;
 
 
                 // --- Step 2: Calculate the PID correction ---
