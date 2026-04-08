@@ -120,15 +120,18 @@ public class Teleop_Red extends OpMode {
             robot.chargeLow();
         }
 
-        if (theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.RIGHT_TRIGGER)) {
-            robot.flip();
+        if (theGamepad2.getTriggerPressed(TBDGamepad.Trigger.RIGHT_TRIGGER)) {
+            robot.launchAll();
+        }
+        if (theGamepad2.getButtonPressed(TBDGamepad.Button.Y)) {
+            robot.indexer.prepSequence();
         }
 
-        if (theGamepad2.getButtonPressed(TBDGamepad.Button.Y)) {
-            robot.flipperUp();
-        } else if (theGamepad2.getButtonReleased(TBDGamepad.Button.Y)) {
-            robot.flipperDown();
-        }
+//        if (theGamepad2.getButtonPressed(TBDGamepad.Button.Y)) {
+//            robot.flipperUp();
+//        } else if (theGamepad2.getButtonReleased(TBDGamepad.Button.Y)) {
+//            robot.flipperDown();
+//        }
 
 
         // --- Intake Controls (Stateful Latch) ---
@@ -142,32 +145,32 @@ public class Teleop_Red extends OpMode {
 
         // --- Manual Overrides to CANCEL Auto-Loading ---
         // Driver can cancel by spitting.
-        if (theGamepad1.getButtonPressed(TBDGamepad.Button.A)) {
-            isAutoLoading = false;
-        }
-        // Operator can cancel by pressing any manual indexer button.
-        if (theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER) ||
-                theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER) ||
-                theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_LEFT) ||
-                theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_RIGHT) ||
-                theGamepad2.getButtonPressed(TBDGamepad.Button.LEFT_STICK_BUTTON)) {
-            isAutoLoading = false;
-        }
+//        if (theGamepad1.getButtonPressed(TBDGamepad.Button.A)) {
+//            isAutoLoading = false;
+//        }
+//        // Operator can cancel by pressing any manual indexer button.
+//        if (theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER) ||
+//                theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER) ||
+//                theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_LEFT) ||
+//                theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_RIGHT) ||
+//                theGamepad2.getButtonPressed(TBDGamepad.Button.LEFT_STICK_BUTTON)) {
+//            isAutoLoading = false;
+//        }
 
         if (isAutoLoading) {
             // --- AUTO-LOADING MODE ---
             // When a ball arrives in the slot we are watching, cycle to the next empty one.
-            if (-1 != slotToWatch && robot.indexer.getBallState(slotToWatch) != IndexerFacade.BallState.VACANT) {
-                robot.indexer.selectNextSlot(IndexerFacade.BallState.VACANT);
-                slotToWatch = robot.indexer.getCurrentTargetSlot();
-            }
+//            if (-1 != slotToWatch && robot.indexer.getBallState(slotToWatch) != IndexerFacade.BallState.VACANT) {
+//                robot.indexer.selectNextSlot(IndexerFacade.BallState.VACANT);
+//                slotToWatch = robot.indexer.getCurrentTargetSlot();
+//            }
 
         } else {
             // --- MANUAL INDEXER MODE ---
             if (theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER)) {
-                robot.indexer.spin(-INDEXER_SPEED);
-            } else if (theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER)) {
                 robot.indexer.spin(INDEXER_SPEED);
+            } else if (theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER)) {
+                robot.launch();
             } else {
 
                 // Then, check for discrete, one-shot commands.
@@ -177,7 +180,7 @@ public class Teleop_Red extends OpMode {
                     robot.indexer.cycle(-1);
                 } else if (theGamepad2.getButton(TBDGamepad.Button.LEFT_STICK_BUTTON)) {
                     robot.indexer.adjustToThird();
-                } else if (robot.indexer.getCurrentState() == IndexerFacade.State.IDLE || robot.indexer.getCurrentState() == IndexerFacade.State.AWAITING_FLIP) {
+                } else if (robot.indexer.getCurrentState() == IndexerFacade.State.IDLE || robot.indexer.getCurrentState() == IndexerFacade.State.AWAITING_LAUNCH) {
 
                     // If not manually spinning, send a spin(0) to allow the turnstile to auto-align.
                     robot.indexer.spin((double) 0);
