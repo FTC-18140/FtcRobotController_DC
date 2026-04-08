@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
-
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -12,20 +10,18 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Robot.Drives.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Utilities.DataLoggable;
 import org.firstinspires.ftc.teamcode.Utilities.DataLogger;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Iterator;
 
 @Config
 public class ThunderBot2025 implements DataLoggable {
@@ -52,10 +48,10 @@ public class ThunderBot2025 implements DataLoggable {
     public static final double MIN_SPEED = 0.3;
     public static final double DEFAULT_SPEED = 0.7;
     public static final double MAX_SPEED = 1.0;
-    private double speed = ThunderBot2025.DEFAULT_SPEED;
-    public static Pose2d starting_position;
+    private double speed = DEFAULT_SPEED;
+    public static Pose2d starting_position = null;
     public static double robot_width = 20;
-    private static String STARTING_POSE = ThunderBot2025.STARTING_POSE_KEY;
+    private static String STARTING_POSE = STARTING_POSE_KEY;
     public ElapsedTime runtime = new ElapsedTime();
     private Pose2d TELEOP_CORNER_RED = new Pose2d(-63, 60, 0);
     private Pose2d TELEOP_CORNER_BLUE = new Pose2d(-63, -60, 0);
@@ -63,12 +59,12 @@ public class ThunderBot2025 implements DataLoggable {
     public void init(HardwareMap hwMap, Telemetry telem, @Nullable Pose2d pose) {
         telemetry = new MultipleTelemetry(telem, FtcDashboard.getInstance().getTelemetry());
 
-        starting_position = (Pose2d) OpMode.blackboard.getOrDefault(ThunderBot2025.STARTING_POSE, null);
+        starting_position = (Pose2d) OpMode.blackboard.getOrDefault(STARTING_POSE, null);
         if (null == pose) {
             if (null == starting_position) {
                 pose = new Pose2d(0, 0, 0);
             } else {
-                pose = ThunderBot2025.starting_position;
+                pose = starting_position;
             }
         }
         try {
@@ -107,6 +103,8 @@ public class ThunderBot2025 implements DataLoggable {
         double seconds = runtime.seconds();
 
         PoseVelocity2d robotPoseVel = drive.updatePoseEstimate();
+
+        addTelemetry();
         launcher.update(drive.localizer.getPose(), robotPoseVel);
 
         boolean atTargetRpm = launcher.isAtTargetRpm();
@@ -118,7 +116,7 @@ public class ThunderBot2025 implements DataLoggable {
 
         IndexerFacade.BallState lastBallState = indexer.getLastBallState(2);
         double flywheelTargetRpm = launcher.getFlywheelTargetRpm();
-        double flywheelRpm = launcher.getFlywheelRpm();
+        double flywheelRpm = launcher.getLowerFlywheelRpm();
 
         boolean isIndexerFull = indexer.indexerIsFull();
         IndexerFacade.State state = indexer.getCurrentState();
@@ -137,6 +135,24 @@ public class ThunderBot2025 implements DataLoggable {
         }
     }
 
+    private void addTelemetry() {
+        telemetry.addData("Time since start", runtime.seconds());
+        telemetry.addData("Battery Voltage", getBatteryVoltage());
+        telemetry.addData("Total Motor Current Draw", getTotalMotorCurrentDraw());
+
+        telemetry.addData("position X: ", drive.localizer.getPose().position.x);
+        telemetry.addData("position Y: ", drive.localizer.getPose().position.y);
+        telemetry.addData("heading: ", Math.toDegrees(drive.localizer.getPose().heading.toDouble()));
+
+        telemetry.addData("Flywheel RPM ", launcher.getLowerFlywheelRpm());
+        telemetry.addData("Flywheel Target ", launcher.getFlywheelTargetRpm());
+
+        telemetry.addData("Upper Flywheel RPM ", launcher.getUpperFlywheelRpm());
+        telemetry.addData("Upper Flywheel Target ", launcher.getUpperFlywheelTargetRpm());
+        telemetry.addData("Turret aiming mode:", launcher.isUsingLimelight());
+        telemetry.addData("Turret angle:", launcher.getTurretAngle());
+    }
+
     public void setColor(Alliance_Color alliance) {
         color = alliance;
         launcher.setAlliance(color);
@@ -147,7 +163,7 @@ public class ThunderBot2025 implements DataLoggable {
     }
 
     public double getTotalMotorCurrentDraw() {
-        return launcher.getTotalCurrentDraw() + intake.getTotalCurrentDraw();
+        return launcher.getTotalCurrentDraw() + intake.getTotalCurrentDraw() + drive.getTotalCurrentDraw();
     }
 
     /**
@@ -159,7 +175,7 @@ public class ThunderBot2025 implements DataLoggable {
 
         // Step 1: Latch the official ID if we haven't already.
 
-        launcher.setPipeline((Alliance_Color.BLUE == this.color) ? 0 : 3);
+        launcher.setPipeline((Alliance_Color.BLUE == color) ? 0 : 3);
         int currentId = launcher.getDetectedAprilTagId();
         if (-1 != currentId) {
             latchedObeliskId = currentId;
@@ -176,15 +192,15 @@ public class ThunderBot2025 implements DataLoggable {
     }
 
     public void drive(double forward, double right, double clockwise, double in_speed, TelemetryPacket p) {
-        if (0 != intake.getIntakePower() && in_speed > ThunderBot2025.DEFAULT_SPEED) {
-            speed = ThunderBot2025.DEFAULT_SPEED;
+        if (0 != intake.getIntakePower() && in_speed > DEFAULT_SPEED) {
+            speed = DEFAULT_SPEED;
         } else {
             speed = in_speed;
         }
-        if (ThunderBot2025.field_centric) {
-            this.fieldCentricDrive(forward, right, clockwise, speed, p);
+        if (field_centric) {
+            fieldCentricDrive(forward, right, clockwise, speed, p);
         } else {
-            this.robotCentricDrive(forward, right, clockwise, speed);
+            robotCentricDrive(forward, right, clockwise, speed);
         }
     }
 
@@ -212,15 +228,10 @@ public class ThunderBot2025 implements DataLoggable {
 
         double half_width = robot_width / 2;
         if (x > -half_width) {
-            if (y < x + half_width && y > -x - half_width) {
-                return true;
-            }
+            return y < x + half_width && y > -x - half_width;
         } else {
-            if (y < (-x - 45 + half_width) && y > (x + 45 - half_width)) {
-                return true;
-            }
+            return y < (-x - 45 + half_width) && y > (x + 45 - half_width);
         }
-        return false;
     }
 
     public Action waitForTime(double time) {
@@ -246,7 +257,7 @@ public class ThunderBot2025 implements DataLoggable {
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                ThunderBot2025.this.intakeStart();
+                intakeStart();
                 return false;
             }
         };
@@ -256,7 +267,7 @@ public class ThunderBot2025 implements DataLoggable {
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                ThunderBot2025.this.intakeStop();
+                intakeStop();
                 return false;
             }
         };
@@ -298,7 +309,7 @@ public class ThunderBot2025 implements DataLoggable {
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                ThunderBot2025.this.update();
+                update();
                 telemetry.update();
                 return true;
             }
@@ -346,9 +357,10 @@ public class ThunderBot2025 implements DataLoggable {
 
     public Action spamAction() {
         return new SequentialAction(
-                this.launchAction(),
-                this.launchAction(),
-                this.launchAction()
+                launchAction(),
+                launchAction(),
+                launchAction(),
+                new SleepAction(0.2)
         );
     }
 
@@ -458,5 +470,6 @@ public class ThunderBot2025 implements DataLoggable {
         double headingDouble = pose.heading.toDouble();
         logger.addField(headingDouble);
         logger.addField(getBatteryVoltage());
+        logger.addField(getTotalMotorCurrentDraw());
     }
 }

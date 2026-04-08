@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
 @Autonomous(group = AutoBlueFar_WAIT.AUTO_BLUE_FAR_GROUP)
-public class AutoBlueFar_Loading extends LinearOpMode{
+public class AutoBlueFar_Loading extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -23,7 +23,7 @@ public class AutoBlueFar_Loading extends LinearOpMode{
         Pose2d intakePos = new Pose2d(AutoPositions.Positions.LOADING_ZONE_BLUE.position, Math.toRadians(110));
         Pose2d intakePos2 = new Pose2d(AutoPositions.Positions.LOADING_ZONE_BLUE.position, Math.toRadians(110));
         Pose2d preintakePos1 = new Pose2d(new Vector2d(AutoPositions.Positions.LOADING_ZONE_BLUE.position.x, 40), Math.toRadians(90));
-        Pose2d preintakePos2 = new Pose2d(new Vector2d(AutoPositions.Positions.LOADING_ZONE_BLUE.position.x+5, 51), Math.toRadians(90));
+        Pose2d preintakePos2 = new Pose2d(new Vector2d(AutoPositions.Positions.LOADING_ZONE_BLUE.position.x + 5, 51), Math.toRadians(90));
 
         ThunderBot2025 robot = new ThunderBot2025();
         blackboard.put("TURRET_ENDING_ANGLE_AUTO", (double) 0);
@@ -64,6 +64,7 @@ public class AutoBlueFar_Loading extends LinearOpMode{
                                                                     .build()
                                                             // Plan the first shot sequence while driving.
                                                     ),
+                                                    robot.cancelSequenceAction(),
                                                     // Launch Preloads
                                                     robot.spamAction(),
                                                     robot.intakeStartAction(),
@@ -156,7 +157,7 @@ public class AutoBlueFar_Loading extends LinearOpMode{
                                             robot.launcher.stopAction()
                                     )
                             )
-                )
+                    )
             );
         } finally {
             // This block will always run, even if the opmode is stopped prematurely.

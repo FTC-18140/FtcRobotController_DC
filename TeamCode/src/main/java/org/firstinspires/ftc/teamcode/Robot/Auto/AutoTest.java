@@ -1,8 +1,9 @@
 package org.firstinspires.ftc.teamcode.Robot.Auto;
 
+import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.RaceAction;
 import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -33,16 +34,15 @@ public class AutoTest extends LinearOpMode {
         robot.launcher.setPipeline(2);
 
         Actions.runBlocking(
-                new SequentialAction(
-                    new RaceAction(
-                            robot.updateAction(),
-                            robot.aimAction(),
-                            robot.launcher.prepShotAction(),
-                            new SequentialAction(
-                                    robot.spamAction()
-                            )
-                    ),
-                        robot.launcher.stopAction()
+                new ParallelAction(
+                        robot.updateAction(),
+                        robot.aimAction(),
+                        robot.launcher.prepShotAction(),
+                        new SequentialAction(
+                                robot.spamAction(),
+                                new SleepAction(2),
+                                robot.launcher.stopAction()
+                        )
                 )
         );
 

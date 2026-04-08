@@ -32,7 +32,7 @@ public class BallSensor {
     private Telemetry telemetry = null;
     private String sensorName = null;
 
-    private static final boolean TELEM = false;
+    public static boolean TELEM = false;
 
     // --- Tunable Constants via FTC Dashboard ---
 
@@ -42,7 +42,7 @@ public class BallSensor {
     private static final int PURPLE_HUE_MAX = 245;
 
 
-    private static final double[] presenceDistances = {4.0, 4.0, 4.2, 6.7, 5.0, 4.0};
+    public static double[] presenceDistances = {4.0, 4.0, 4.2, 6.7, 4.0, 4.0};
     private int id = 0;
 
     private static final float GAIN = 2.0f;

@@ -38,9 +38,12 @@ public class LauncherFacade implements DataLoggable {
 //    private KalmanPoseEstimator poseEstimator;
     private Pose2d fusedPose = new Pose2d(0.0, 0.0, 0.0); // This is the "Truth" we aim with
     private Pose2d lastOdoPose = null; // Used to calculate delta
-    private static final double TURRET_OFFSET_X = 3.22805;
-    private static final double TURRET_OFFSET_Y = -2.62074;
+    private static double TURRET_OFFSET_X = -2.62074;
+    private static double TURRET_OFFSET_Y = -3.22805;
     private static final double LIMELIGHT_FORWARD_POSITION = 6.175;
+    private Vector2d inertiaOffset = null;
+    Vector2d offsetTarget = null;
+    public static double INERTIA_FACTOR = 1.0;
     private Vector2d trueTargetVector = fusedPose.position;
     private static double trust = 0.0;
 
@@ -50,9 +53,10 @@ public class LauncherFacade implements DataLoggable {
 
     // Target and alliance properties
     private Vector2d targetPos = null;
-    private static final Vector2d targetPosBlue = new Vector2d(69.0, 68.0);
-    private static final Vector2d targetPosRed = new Vector2d(70.0, -68.0);
+    private static final Vector2d targetPosBlue = new Vector2d(67.0, 67.0);
+    private static final Vector2d targetPosRed = new Vector2d(67.0, -67.0);
     private ThunderBot2025.Alliance_Color allianceColor = ThunderBot2025.Alliance_Color.BLUE;
+    public double fieldAngleToGoal;
 
     public void init(HardwareMap hwMap, Telemetry telem, Pose2d startPose) {
         telemetry = telem;
@@ -148,16 +152,18 @@ public class LauncherFacade implements DataLoggable {
         // ------------- HOTFIX for AIMING
         fusedPose = currentOdoPose;
         // ------------- End HOTFIX for AIMING
+        inertiaOffset = currentOdoVelocity.linearVel.times(INERTIA_FACTOR);
+        offsetTarget = targetPos.minus(inertiaOffset);
 
         // --- 5. RUN SUBSYSTEMS ---
         // Use fusedPose for distance calculation
         getAutoAimAngle();
         double distanceToGoal = getGoalDistance();
 
-        turret.update(fusedPose, currentOdoVelocity, targetPos);
-        flywheel.update();
+        turret.update(fusedPose, currentOdoVelocity, offsetTarget);
+        flywheel.update(currentOdoVelocity, Math.toDegrees(fieldAngleToGoal));
 
-        setTurretOffset();
+//        setTurretOffset();
 
         telemetry.addData("Using Limelight: ", usingLimelight);
     }
@@ -187,12 +193,20 @@ public class LauncherFacade implements DataLoggable {
         return turret.getCurrentPositionRaw();
     }
 
-    public double getFlywheelRpm() {
+    public double getLowerFlywheelRpm() {
         return flywheel.getLowerFlywheelCurrentRPM();
+    }
+
+    public double getUpperFlywheelRpm() {
+        return flywheel.getUpperFlywheelCurrentRPM();
     }
 
     public double getFlywheelTargetRpm() {
         return flywheel.getLowerFlywheelTargetRPM();
+    }
+
+    public double getUpperFlywheelTargetRpm() {
+        return flywheel.getUpperFlywheelTargetRPM();
     }
 
     double getFlywheelLowerBoundRpm() {
@@ -214,9 +228,9 @@ public class LauncherFacade implements DataLoggable {
     boolean setTurretOffset() {
         // Calculate the vector (x, y) pointing from the robot to the goal
         boolean returnValue = false;
-        aimingMode = AimingMode.DIRECTIONAL;
-        if (limelight.hasTarget()) {
-            double offset = getLimelightAimAngle() - getAutoAimAngle();
+        setAimingMode(AimingMode.DIRECTIONAL);
+        if (turret.isHomed()) {
+            double offset = getTurretAngleRaw();
             turret.setOffset(offset);
             returnValue = true;
         }
@@ -342,7 +356,7 @@ public class LauncherFacade implements DataLoggable {
             // Add the vision offset to the current physical encoder position.
             targetTurretAngle = getTurretAngleRaw() + limelight.getX();
 
-            telemetry.addData("Aiming Mode LIMELIGHT -- target: ", "%.3f ", targetTurretAngle);
+//            telemetry.addData("Aiming Mode LIMELIGHT -- target: ", "%.3f ", targetTurretAngle);
         } else {
             usingLimelight = false;
         }
@@ -365,15 +379,15 @@ public class LauncherFacade implements DataLoggable {
         // --- 2. SENSOR PRIORITY: ODOMETRY ---
         // Fallback to Odometry if the Limelight is blocked or target is out of view.
         // We calculate the vector from our fused robot position to the field goal position.
-        if (null != trueTargetVector && null != targetPos) {
+        if (null != trueTargetVector && null != offsetTarget) {
             usingLimelight = false;
 
 
             // Vector from Turret offset pos to Goal
-            trueTargetVector = targetPos.minus(fusedPose.position.plus(getTurretOffsetPosInRobotSpace()));
+            trueTargetVector = offsetTarget.minus(fusedPose.position.plus(getTurretOffsetPosInRobotSpace()));
 
             // Calculate the absolute field-centric angle to the goal (Radians)
-            double fieldAngleToGoal = Math.atan2(trueTargetVector.y, trueTargetVector.x);
+            fieldAngleToGoal = Math.atan2(trueTargetVector.y, trueTargetVector.x);
 
             // HANDLE IMU WRAPPING:
             // We turn the raw angle into a Rotation2d and subtract our robot heading.
@@ -391,7 +405,7 @@ public class LauncherFacade implements DataLoggable {
             double currentTurret = turret.getCurrentPosition();
 
 
-            telemetry.addData("Aiming Mode ODOMETRY -- target: ", " %.3f", targetTurretAngle);
+//            telemetry.addData("Aiming Mode ODOMETRY -- target: ", " %.3f", targetTurretAngle);
             if (limelight.hasTarget()) {
                 usingLimelight = true;
                 double limeLightDistanceX = limelight.getDistance() * Math.sin(Math.toRadians(limelight.getX()));
@@ -464,7 +478,7 @@ public class LauncherFacade implements DataLoggable {
     void prepShot() {
         double distanceInches = getGoalDistance();
         double distanceMeters = distanceInches * INCH_TO_METER;
-        double targetVelocity = flywheel.calculateBallVelocity(distanceMeters, 0.6096, 48.0);
+        double targetVelocity = flywheel.calculateBallVelocity(distanceMeters, 0.6096, 55.0);
 
         flywheel.setTargetRpmFromVelocity(targetVelocity);
     }
@@ -536,13 +550,13 @@ public class LauncherFacade implements DataLoggable {
     private double getGoalDistanceFUSION() {
         if (null == trueTargetVector || null == targetPos) return 0.0;
         // Use FUSED pose for distance calculation
-        telemetry.addData("distance: ", targetPos.minus(trueTargetVector).norm());
+//        telemetry.addData("distance: ", targetPos.minus(trueTargetVector).norm());
         return targetPos.minus(trueTargetVector).norm();
     }
 
     private double getGoalDistance() {
         double distance = trueTargetVector.norm();
-        if (null == trueTargetVector || null == targetPos) distance = 0.0;
+        if (null == trueTargetVector || null == offsetTarget) distance = 0.0;
         // Use FUSED pose for distance calculation
         //        telemetry.addData("distance: ", distance);
         return distance;
