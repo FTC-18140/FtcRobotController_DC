@@ -71,7 +71,7 @@ public class Turnstile {
             indexerServo1.setDirection(DcMotorSimple.Direction.REVERSE);
             indexerServo2.setDirection(DcMotorSimple.Direction.REVERSE);
 
-            indexMotor = hwMap.get(DcMotorEx.class, MecanumDrive.RIGHT_FRONT_MOTOR);
+            indexMotor = hwMap.get(DcMotorEx.class, MecanumDrive.RIGHT_BACK_MOTOR);
             limitSwitch = hwMap.get(TouchSensor.class, "indexerLimit");
 
             indexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Use our own P
@@ -161,7 +161,7 @@ public class Turnstile {
     public void update() {
         // --- 1. Cache Hardware Reads ---
         currentAngle = -indexMotor.getCurrentPosition() / COUNTS_PER_DEGREE - startingAngle;
-        limitSwitchPressed = limitSwitch.isPressed();
+        limitSwitchPressed = false;
 
         // --- 2. Run State Machine ---
         double power;

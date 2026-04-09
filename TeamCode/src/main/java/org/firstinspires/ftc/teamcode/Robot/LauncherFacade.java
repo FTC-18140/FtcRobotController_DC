@@ -116,34 +116,8 @@ public class LauncherFacade implements DataLoggable {
 //        telemetry.addData("Megatag2 Angle",Math.toDegrees(currentOdoPose.heading.toDouble()) - getTurretAngle());
         double odometryHeading = Math.toDegrees(currentOdoPose.heading.toDouble());
         limelight.update(odometryHeading - getTurretAngle(), getTurretOffsetPosInRobotSpace());
-        Vector2d visionPose = limelight.getMegaTagPose();
+//        Vector2d visionPose = limelight.getMegaTagPose();
 //        telemetry.addData("MT2 calculated Pose", visionPose);
-
-        if (null != visionPose) {
-
-
-            double distToTag = limelight.getDistance();
-            if (0 > distToTag) {
-                // Negative distToTag from the limelight method means it did not
-                // see a valid AprilTag to use for the distance calculation.
-                // Fallback to using the visionPose to calculate the distance.
-                if (null != targetPos) {
-                    distToTag = targetPos.minus(visionPose).norm();
-                } else {
-                    // Emergency fallback if we don't know alliance color yet
-                    distToTag = 96.0; // Assume far away -> High uncertainty
-                }
-            }
-
-            // Tuning: If > 48 inches away, start trusting vision significantly less
-            // because depth accuracy drops off.
-            double trustFactor = 1.0 + Math.pow(distToTag / 48.0, 2.0);
-
-            //poseEstimator.update(visionPose, trustFactor);
-//            usingLimelight = true;
-        } else {
-//            usingLimelight = false;
-        }
 
         // --- 4. UPDATE FUSED POSE ---
         //this.fusedPose = poseEstimator.getFusedPose();

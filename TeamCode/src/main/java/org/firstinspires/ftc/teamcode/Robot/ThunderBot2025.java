@@ -281,20 +281,27 @@ public class ThunderBot2025 implements DataLoggable {
         launcher.prepShotLow();
     }
 
-    public boolean flip() {
+    public boolean launch() {
         if (launcher.isAtTargetRpm() && launcher.isAtTarget()) {
-            return indexer.flipAndCycle();
+            return indexer.launch();
+        }
+        return false;
+    }
+    public boolean launchAll() {
+        if (launcher.isAtTargetRpm() && launcher.isAtTarget()) {
+            indexer.launchAllInIndexer();
+            return true;
         }
         return false;
     }
 
-    public void flipperUp() {
-        indexer.flipOverride(true);
-    }
-
-    public void flipperDown() {
-        indexer.flipOverride(false);
-    }
+//    public void flipperUp() {
+//        indexer.flipOverride(true);
+//    }
+//
+//    public void flipperDown() {
+//        indexer.flipOverride(false);
+//    }
 
 
     public Action updateAction() {
@@ -432,7 +439,7 @@ public class ThunderBot2025 implements DataLoggable {
                 new Action() {
                     @Override
                     public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                        return !flip();
+                        return !launch();
                     }
                 }
         );

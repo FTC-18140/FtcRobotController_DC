@@ -36,6 +36,7 @@ public class Turret implements DataLoggable {
 
     // Hardware and Utilities
     private DcMotor turret;
+    private DcMotor turretEnc;
     private TouchSensor turretSwitch;
     private boolean isHomed;
     //private DcMotor turretEnc;
@@ -85,6 +86,9 @@ public class Turret implements DataLoggable {
             turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             turret.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+            turretEnc = hwMap.dcMotor.get("leftFront");
+            turretEnc.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         } catch (Exception e) {
             telemetry.addData("Motor\"turret\" not found", 0);
         }
@@ -193,7 +197,7 @@ public class Turret implements DataLoggable {
         updateCurrentPosition();
         turretAimPID.setPID(P_TURRET, I_TURRET, D_TURRET);
 
-        isHomed = turretSwitch.isPressed();
+        isHomed = false;
 
         currentDraw = getTotalCurrentDraw();
         if (Flywheel.GOBILDA_MOTOR_STALL_CURRENT <= currentDraw) {
@@ -304,7 +308,7 @@ public class Turret implements DataLoggable {
     }
 
     private void updateCurrentPosition() {
-        currentPosition = (double) turret.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK + startingAngle - offsetAngle;
+        currentPosition = (double) turretEnc.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK + startingAngle - offsetAngle;
 
     }
 

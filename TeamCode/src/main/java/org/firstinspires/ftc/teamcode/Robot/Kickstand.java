@@ -66,15 +66,15 @@ public class Kickstand {
     }
 
     public void update() {
-        currentServoPosition = kickstandServo.getPosition();
+//        currentServoPosition = kickstandServo.getPosition();
 
         if (currentState != null) {
             switch (currentState) {
                 case EXTENDED:
-                    kickstandServo.setPosition(EXTENDED_POSITION);
+//                    kickstandServo.setPosition(EXTENDED_POSITION);
                     break;
                 case RETRACTED:
-                    kickstandServo.setPosition(RETRACTED_POSITION);
+//                    kickstandServo.setPosition(RETRACTED_POSITION);
                     break;
             }
         }

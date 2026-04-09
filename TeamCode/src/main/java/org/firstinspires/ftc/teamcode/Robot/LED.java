@@ -125,8 +125,8 @@ public class LED {
     }
 
     private void writeToLeds() {
-        launcherLed.setPosition(hueLauncherLed);
-        rpmLed.setPosition(hueRpmLed);
+//        launcherLed.setPosition(hueLauncherLed);
+//        rpmLed.setPosition(hueRpmLed);
     }
 
     /**

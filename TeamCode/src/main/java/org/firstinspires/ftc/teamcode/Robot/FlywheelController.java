@@ -36,8 +36,8 @@ public class FlywheelController {
         lowerWheel = new Flywheel();
         upperWheel = new Flywheel();
 
-        lowerWheel.init(hwMap, telem, "launcher", "launcher");
-        upperWheel.init(hwMap, telem, "launcher2", MecanumDrive.LEFT_BACK_MOTOR);
+        lowerWheel.init(hwMap, telem, "launcher", "turret");
+        upperWheel.init(hwMap, telem, "launcher2", "launcher2");
         upperWheel.setEncoderReversed();
 
         lowerWheel.setParameters(LOWER_PID.P, LOWER_PID.I, LOWER_PID.D, LOWER_PID.F_MIN, LOWER_PID.F_MAX, 1);

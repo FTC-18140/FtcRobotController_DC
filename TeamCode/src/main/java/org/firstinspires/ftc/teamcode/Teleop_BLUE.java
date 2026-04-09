@@ -120,7 +120,7 @@ public class Teleop_BLUE extends OpMode {
         }
 
         if (theGamepad2.getTriggerPressed(TBDGamepad.Trigger.RIGHT_TRIGGER)) {
-            robot.launchAll();
+            robot.launch();
         }
         if (theGamepad2.getButtonPressed(TBDGamepad.Button.Y)) {
             robot.indexer.prepSequence();
@@ -136,20 +136,6 @@ public class Teleop_BLUE extends OpMode {
             robot.intake.spit();
         }
 
-        // --- Manual Overrides to CANCEL Auto-Loading ---
-        // Driver can cancel by spitting.
-//        if (theGamepad1.getButtonPressed(TBDGamepad.Button.A)) {
-//            isAutoLoading = false;
-//        }
-//        // Operator can cancel by pressing any manual indexer button.
-//        if (theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER) ||
-//                theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER) ||
-//                theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_LEFT) ||
-//                theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_RIGHT) ||
-//                theGamepad2.getButtonPressed(TBDGamepad.Button.LEFT_STICK_BUTTON)) {
-//            isAutoLoading = false;
-//        }
-
         if (isAutoLoading) {
             // --- AUTO-LOADING MODE ---
             // When a ball arrives in the slot we are watching, cycle to the next empty one.
@@ -163,7 +149,7 @@ public class Teleop_BLUE extends OpMode {
             if (theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER)) {
                 robot.indexer.spin(INDEXER_SPEED);
             } else if (theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER)) {
-                robot.launch();
+                robot.launchAll();
             } else {
 
                 // Then, check for discrete, one-shot commands.

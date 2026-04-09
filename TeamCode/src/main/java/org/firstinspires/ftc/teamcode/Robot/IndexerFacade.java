@@ -72,8 +72,8 @@ public class IndexerFacade {
         turnstile.init(hwMap, telem);
 
         for (int i = 0; 6 > i; i++) {
-            ballSensors[i] = new BallSensor();
-            ballSensors[i].init(hwMap, telem, "color" + i, i);
+//            ballSensors[i] = new BallSensor();
+//            ballSensors[i].init(hwMap, telem, "color" + i, i);
         }
         for (int i = 0; 3 > i; i++) {
             ballSlots[i] = BallState.VACANT;
@@ -84,8 +84,8 @@ public class IndexerFacade {
 
         beamBreak.init(hwMap, telem);
 
-        updateBallSensors();
-        updateBallStates();
+//        updateBallSensors();
+//        updateBallStates();
         for (int i = 0; 3 > i; i++) {
             positedBallStates[i] = ballSlots[i];
             if (BallState.GREEN == ballSlots[i] || BallState.PURPLE == ballSlots[i]) {
@@ -145,8 +145,8 @@ public class IndexerFacade {
         // Determine which color we need for this step of the sequence.
         BallState requiredColor = shotSequence.get(sequenceIndex);
         boolean ballFound = false;
-        updateBallSensors();
-        updateBallStates();
+//        updateBallSensors();
+//        updateBallStates();
 
         // Search all physical slots for a ball that matches the required color.
         for (int i = 2; -1 < i && !ballFound; i--) {
@@ -181,8 +181,8 @@ public class IndexerFacade {
 
     private boolean launchSafeBackup() {
         boolean ballFound = false;
-        updateBallSensors();
-        updateBallStates();
+//        updateBallSensors();
+//        updateBallStates();
 
         for (int i = 2; -1 < i && !ballFound; i--) {
             if (!slots_fired[i] && !usedLaterInSequence(ballSlots[i])) {
@@ -214,8 +214,8 @@ public class IndexerFacade {
 
     private boolean launchAnyBackup() {
         boolean ballFound = false;
-        updateBallSensors();
-        updateBallStates();
+//        updateBallSensors();
+//        updateBallStates();
 
         for (int i = 2; -1 < i && !ballFound; i--) {
             if (!slots_fired[i]) {
@@ -337,8 +337,8 @@ public class IndexerFacade {
             int startSlot = currentTargetSlot;
 
             for (int i = 3; 0 < i && !slotFound; i--) {
-                updateBallSensors();
-                updateBallStates();
+//                updateBallSensors();
+//                updateBallStates();
                 int slotToCheck = (startSlot + i) % 3;
                 if (ballSlots[slotToCheck] == ballState || (BallState.ALL == ballState && BallState.VACANT != ballSlots[slotToCheck])) {
 
@@ -359,8 +359,8 @@ public class IndexerFacade {
         if (State.IDLE == currentState || State.AWAITING_LAUNCH == currentState || isIntaking) {
             int startSlot = 0;
 
-            updateBallSensors();
-            updateBallStates();
+//            updateBallSensors();
+//            updateBallStates();
             for (int i = 3; 0 < i && !slotFound; i--) {
 
                 int slotToCheck = (startSlot + i) % 3;
@@ -515,7 +515,7 @@ public class IndexerFacade {
         ballSensors[slot * 2].update();
         ballSensors[slot * 2 + 1].update();
         updated = true;
-        updateBallStates();
+//        updateBallStates();
         return (0 <= slot && 3 > slot) ? ballSlots[slot] : BallState.VACANT;
     }
 
@@ -630,7 +630,7 @@ public class IndexerFacade {
         // Only update ball states from sensors if we are NOT in an active auto-sequence
         // This prevents a ball that has been logically "used" from being re-detected.
         if (null == shotSequence) {
-            updateBallStates();
+//            updateBallStates();
         }
         updateBallCount();
         previousBallStateIntake = ballSlots[0];
