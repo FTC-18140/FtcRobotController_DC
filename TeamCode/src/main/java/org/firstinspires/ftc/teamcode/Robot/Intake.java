@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.Utilities.DataLogger;
 
 @Config
 public class Intake {
-    public static final double REV_MOTOR_STALL_CURRENT = 8.5;
+    private static final double REV_MOTOR_STALL_CURRENT = 8.5;
     private Telemetry telemetry = null;
     private HardwareMap hardwareMap = null;
 
@@ -92,7 +92,7 @@ public class Intake {
         return intakeMotor.getPower();
     }
 
-    public double getTotalCurrentDraw() {
+    double getTotalCurrentDraw() {
         DcMotorEx intakeMotorEx = (DcMotorEx) intakeMotor;
         return intakeMotorEx.getCurrent(CurrentUnit.AMPS);
     }
@@ -112,7 +112,7 @@ public class Intake {
         current_speed = 0;
     }
 
-    public void logData(DataLogger logger) {
+    void logData(DataLogger logger) {
         logger.addField(currentDraw);
     }
 }

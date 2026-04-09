@@ -15,8 +15,8 @@ public class FlywheelController {
     private Flywheel upperWheel = null;
 
     private double last_distance = 0;
-    double angleToGoal;
-    PoseVelocity2d odoVelocity;
+    double angleToGoal = 0.0;
+    PoseVelocity2d odoVelocity = null;
 
     public static class LowerPID {
         public static double P = 0.00205, I = 0.05, D = 0.000001;
@@ -97,13 +97,18 @@ public class FlywheelController {
     }
 
     public boolean isAtTargetRpm() {
+        boolean atRpm;
         double meanSqr = (Math.pow(lowerWheel.getError(), 2) + Math.pow(upperWheel.getError(), 2)) / 2;
-        if (Math.sqrt(meanSqr) < 25) return true;
+        atRpm = 25 > Math.sqrt(meanSqr);
 
         telemetry.addData("lower Flywheel error: ", lowerWheel.getError());
         telemetry.addData("upper Flywheel error: ", upperWheel.getError());
         telemetry.addData("Flywheel mean: ", Math.sqrt(meanSqr));
-        return false;
+
+        return atRpm;
+
+
+
     }
 
     public double calculateBallVelocity(double distance, double height, double angleDegrees) {
@@ -121,7 +126,7 @@ public class FlywheelController {
         return ballVelocity - odoVelocity.linearVel.dot(new Vector2d(Math.sin(angleToGoal), Math.cos(angleToGoal)));
     }
 
-    public void setTargetRpmFromVelocity(double velocity) {
+    void setTargetRpmFromVelocity(double velocity) {
         double lowerWheelRpm = lowerWheel.calculateWheelRPM(velocity);
         double upperWheelRpm = upperWheel.calculateWheelRPM(velocity);
 

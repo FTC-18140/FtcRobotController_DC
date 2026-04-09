@@ -24,14 +24,14 @@ public class Flipper {
     private State currentState = null;
 
     public void init(HardwareMap hwMap, Telemetry telem) {
-        this.telemetry = telem;
+        telemetry = telem;
         try {
             flipperServo = hwMap.servo.get("flipper");
 
         } catch (RuntimeException e) {
             telemetry.addData("Servo \"flipper\" not found", 0);
         }
-        this.retract();
+        retract();
     }
 
     // --- High-Level Commands ---
@@ -40,14 +40,14 @@ public class Flipper {
         currentState = State.EXTENDED;
     }
 
-    void retract() {
+    private void retract() {
         currentState = State.RETRACTED;
     }
 
     // --- State Checking ---
 
     boolean isRetracted() {
-        return 0.05 > Math.abs(currentServoPosition - Flipper.RETRACTED_POSITION);
+        return 0.05 > Math.abs(currentServoPosition - RETRACTED_POSITION);
     }
 
     public void update() {
@@ -65,7 +65,7 @@ public class Flipper {
             }
         }
 
-        if (Flipper.TELEM) {
+        if (TELEM) {
             telemetry.addData("Flipper State", currentState);
             telemetry.addData("Flipper Servo Pos", currentServoPosition);
         }

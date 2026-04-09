@@ -23,10 +23,10 @@ public class Kickstand {
     private Kickstand.State currentState = null;
 
     public void init(HardwareMap hwMap, Telemetry telem) {
-        this.telemetry = telem;
+        telemetry = telem;
         try {
             kickstandServo = hwMap.servo.get("kickstand");
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             telemetry.addData("Servo \"kickstand\" not found", 0);
         }
         retract();
@@ -34,11 +34,11 @@ public class Kickstand {
 
     // --- High-Level Commands ---
 
-    public void extend() {
+    private void extend() {
         currentState = Kickstand.State.EXTENDED;
     }
 
-    public void retract() {
+    private void retract() {
         currentState = Kickstand.State.RETRACTED;
     }
 

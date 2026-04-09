@@ -46,11 +46,11 @@ public class BeamBreaker {
         }
     }
 
-    boolean ballDetectedInIndexer() {
+    boolean isBallDetectedInIndexer() {
         return inIndexer;
     }
 
-    boolean ballDetectedInIntake() {
+    boolean isBallDetectedInIntake() {
         return inIntake;
     }
 }
