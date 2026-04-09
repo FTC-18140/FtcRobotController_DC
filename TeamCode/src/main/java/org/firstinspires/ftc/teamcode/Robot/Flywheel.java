@@ -77,7 +77,7 @@ public class Flywheel {
     }
 
     public void setEncoderReversed() {
-        launcherEnc.setDirection(DcMotorSimple.Direction.REVERSE);
+//        launcherEnc.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     public void setPID(double p, double i, double d) {
