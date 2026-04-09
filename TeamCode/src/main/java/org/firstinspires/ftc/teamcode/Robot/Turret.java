@@ -7,6 +7,7 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
@@ -87,7 +88,8 @@ public class Turret implements DataLoggable {
             turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             turret.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-            turretEnc = hwMap.dcMotor.get("leftFront");
+            turretEnc = hwMap.dcMotor.get("rightBack");
+            turretEnc.setDirection(DcMotorSimple.Direction.REVERSE);
             turretEnc.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         } catch (Exception e) {
             telemetry.addData("Motor\"turret\" not found", 0);

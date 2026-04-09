@@ -41,12 +41,12 @@ public class Flywheel {
     public double feedforward = 0.0;
 
     public static boolean TELEM = false;
-    public static double MAX_SHOOTER_RPM = 1900.0;
-    public static double MIN_SHOOTER_RPM = 1200.0;
+    public static double MAX_SHOOTER_RPM = 3000.0;
+    public static double MIN_SHOOTER_RPM = 1600.0;
     public static final double SHOOTER_RADIUS = 0.072 / 2.0;
     public static double SPIN_EFFICIENCY = 1.0;
     public double FLYWHEEL_RATIO = (double) 0.9;
-    public static double FLYWHEEL_GEAR_RATIO = 1.5;
+    public static double FLYWHEEL_GEAR_RATIO = 0.5;
 
 
     private double targetRpm = (double) 0;
