@@ -19,13 +19,13 @@ public class FlywheelController {
     PoseVelocity2d odoVelocity;
 
     public static class LowerPID {
-        public static double P = 0.0045, I = 0.006, D = 0.00011;
-        public static double F_MAX = 0.62, F_MIN = 0.47, F_VEL = 0, F_STATIC = 0;
+        public static double P = 0.00205, I = 0.05, D = 0.000001;
+        public static double F_MAX = 0.5, F_MIN = 0.4, F_VEL = 0, F_STATIC = 0;
     }
 
     public static class UpperPID {
-        public static double P = 0.0045, I = 0.006, D = 0.00011;
-        public static double F_MAX = 0.62, F_MIN = 0.47, F_VEL = 0, F_STATIC = 0;
+        public double P = 0.00225, I = 0.03, D = 0.000001;
+        public double F_MAX = 0.45, F_MIN = 0.36, F_VEL = 0, F_STATIC = 0;
     }
 
     public static LowerPID LOWER_PID = new LowerPID();
@@ -126,7 +126,7 @@ public class FlywheelController {
         double upperWheelRpm = upperWheel.calculateWheelRPM(velocity);
 
         lowerWheel.setTargetRpm(lowerWheelRpm);
-        upperWheel.setTargetRpm(upperWheelRpm * FLYWHEEL_RATIO);
+        upperWheel.setTargetRpm(upperWheelRpm);
     }
 
 }
