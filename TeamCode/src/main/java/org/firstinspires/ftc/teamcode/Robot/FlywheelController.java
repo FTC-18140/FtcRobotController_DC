@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Robot;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -20,12 +21,12 @@ public class FlywheelController {
 
     public static class LowerPID {
         public static double P = 0.0045, I = 0.006, D = 0.00011;
-        public static double F_MAX = 0.62, F_MIN = 0.47;
+        public static double F_MAX = 0.62, F_MIN = 0.47, F_VEL = 0, F_STATIC = 0;
     }
 
     public static class UpperPID {
         public static double P = 0.0045, I = 0.006, D = 0.00011;
-        public static double F_MAX = 0.62, F_MIN = 0.47;
+        public static double F_MAX = 0.62, F_MIN = 0.47, F_VEL = 0, F_STATIC = 0;
     }
 
     public static LowerPID LOWER_PID = new LowerPID();
