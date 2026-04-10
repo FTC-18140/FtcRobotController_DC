@@ -6,7 +6,6 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
@@ -41,7 +40,7 @@ public class Turnstile {
     public static double HOMING_OFFSET = 0;
     private double current_offset = 0; // --- Non-tunable Constants ---
     private static final double COUNTS_PER_REVOLUTION = 8192;
-    private static final double GEAR_RATIO = 1.0;
+    private static final double GEAR_RATIO = (double) 32 / 31;
     private static final double COUNTS_PER_DEGREE = (COUNTS_PER_REVOLUTION * GEAR_RATIO) / 360;
     public static final String STARTING_ANGLE_KEY = "ENDING_ANGLE_INDEXER";
     public double startingAngle;
@@ -88,7 +87,8 @@ public class Turnstile {
         currentState = State.HOMING;
 
     }
-    public void launchSlots(int launches){
+
+    public void launchSlots(int launches) {
         targetAngle = currentAngle - (120 * launches);
 
         currentState = State.SEEKING_POSITION;
