@@ -40,8 +40,8 @@ public class Turnstile {
     public static double HOMING_OFFSET = 0;
     private double current_offset = 0; // --- Non-tunable Constants ---
     private static final double COUNTS_PER_REVOLUTION = 8192;
-    private static final double GEAR_RATIO = (double) 32 / 31;
-    private static final double COUNTS_PER_DEGREE = (COUNTS_PER_REVOLUTION * GEAR_RATIO) / 360;
+    private static final double GEAR_RATIO = (double) 31 / 32;
+    private static final double COUNTS_PER_DEGREE = COUNTS_PER_REVOLUTION / 360;
     public static final String STARTING_ANGLE_KEY = "ENDING_ANGLE_INDEXER";
     public double startingAngle;
 
@@ -166,7 +166,7 @@ public class Turnstile {
         // --- 2. Run State Machine ---
         double power;
         angleController.setPID(P, I, D); // Re-apply PID gains from Dashboard
-        power = angleController.calculate(currentAngle, targetAngle + current_offset);
+        power = angleController.calculate(currentAngle, targetAngle + current_offset) * GEAR_RATIO;
 
         if (power > THRESHOLD) power = Range.scale(power, THRESHOLD, 1, MIN_POWER_POS, 1);
         if (power < -THRESHOLD) power = Range.scale(power, -1, -THRESHOLD, -1, -MIN_POWER_NEG);
