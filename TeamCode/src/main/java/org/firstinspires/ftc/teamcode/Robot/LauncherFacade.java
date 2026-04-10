@@ -44,6 +44,7 @@ public class LauncherFacade implements DataLoggable {
     private Vector2d inertiaOffset = null;
     Vector2d offsetTarget = null;
     public static double INERTIA_FACTOR = 1.0;
+    private double last_time_ms = 0;
     private Vector2d trueTargetVector = fusedPose.position;
     public static double trust = 0.0;
 
@@ -99,6 +100,8 @@ public class LauncherFacade implements DataLoggable {
             return;
         }
 
+        double update_rate_seconds = (System.currentTimeMillis() - last_time_ms) / 1000;
+
         // --- 2. PREDICT: Calculate GLOBAL difference ---
         // We use global subtraction here because the Kalman Filter state vector
         // tracks global X/Y.
@@ -126,7 +129,7 @@ public class LauncherFacade implements DataLoggable {
         // ------------- HOTFIX for AIMING
         fusedPose = currentOdoPose;
         // ------------- End HOTFIX for AIMING
-        inertiaOffset = currentOdoVelocity.linearVel.times(INERTIA_FACTOR);
+        inertiaOffset = currentOdoVelocity.linearVel.times(INERTIA_FACTOR * update_rate_seconds);
         offsetTarget = targetPos.minus(inertiaOffset);
 
         // --- 5. RUN SUBSYSTEMS ---
@@ -137,9 +140,12 @@ public class LauncherFacade implements DataLoggable {
         turret.update(fusedPose, currentOdoVelocity, offsetTarget);
         flywheel.update(currentOdoVelocity, Math.toDegrees(fieldAngleToGoal));
 
+        last_time_ms = System.currentTimeMillis();
+
 //        setTurretOffset();
 
         telemetry.addData("Using Limelight: ", usingLimelight);
+        telemetry.addData("update rate (seconds): ", update_rate_seconds);
     }
 
     public void setAimingMode(AimingMode mode) {

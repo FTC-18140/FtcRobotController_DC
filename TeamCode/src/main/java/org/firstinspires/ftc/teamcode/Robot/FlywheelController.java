@@ -19,13 +19,13 @@ public class FlywheelController {
     PoseVelocity2d odoVelocity = null;
 
     public static class LowerPID {
-        public double P = 0.00001, I = 0.0, D = 0.00000;
+        public double P = 0.00002, I = 0.0, D = 0.00000;
         public double F_MAX = 0.47, F_MIN = 0.0, F_VEL = 0.00001, F_STATIC = 0.73;
     }
 
     public static class UpperPID {
-        public double P = 0.0000114, I = 0.0, D = 0.00000;
-        public double F_MAX = 0.53, F_MIN = 0.0, F_VEL = 0.0000114, F_STATIC = 0.832;
+        public double P = 0.0000228, I = 0.0, D = 0.00000;
+        public double F_MAX = 0.5, F_MIN = 0.0, F_VEL = 0.00001, F_STATIC = 0.81;
     }
 
     public static LowerPID LOWER_PID = new LowerPID();
