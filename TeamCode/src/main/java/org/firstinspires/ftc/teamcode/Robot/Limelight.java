@@ -54,7 +54,7 @@ public class Limelight implements DataLoggable {
             limelight.start();
             limelight.pipelineSwitch(4);
         } catch (RuntimeException e) {
-            throw new RuntimeException("Limelight init failed", e);
+            telemetry.addData("Limelight init failed", 0);
         }
         this.telemetry = telemetry;
         visionPose = null;
@@ -66,6 +66,7 @@ public class Limelight implements DataLoggable {
      * @param pipeline the pipeline you want it to read
      */
     public void setPipeline(int pipeline) {
+        if (limelight == null) return;
         limelight.pipelineSwitch(pipeline);
     }
 
@@ -73,6 +74,7 @@ public class Limelight implements DataLoggable {
      * Updates the values associated with the apriltags the limelight sees
      */
     public void update(double limelightAngle, Vector2d turretOffset) {
+        if (limelight == null) return;
         // Always update orientation with latest robot heading (critical for MegaTag2 accuracy)
 
         // Reset per-loop state
