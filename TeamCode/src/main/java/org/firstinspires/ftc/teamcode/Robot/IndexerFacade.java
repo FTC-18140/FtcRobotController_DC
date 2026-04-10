@@ -260,7 +260,7 @@ public class IndexerFacade {
 
 
     public void launchAllInIndexer() {
-        if (State.IDLE != currentState && State.AWAITING_LAUNCH != currentState && State.SELECTING_BALL != currentState) return;
+        if (State.IDLE != currentState && State.AWAITING_LAUNCH != currentState && State.LAUNCHING != currentState && State.SELECTING_BALL != currentState) return;
 
         turnstile.launchSlots(3);
     }
@@ -390,7 +390,7 @@ public class IndexerFacade {
      * @param slot The index of the target slot (0, 1, or 2).
      */
     public boolean selectSlot(int slot) {
-        if ((State.IDLE == currentState || State.AWAITING_LAUNCH == currentState || State.SELECTING_BALL == currentState) && 0 <= slot && 3 > slot) {
+        if ((State.IDLE == currentState || State.AWAITING_LAUNCH == currentState || State.SELECTING_BALL == currentState || State.LAUNCHING == currentState) && 0 <= slot && 3 > slot) {
             rotateBallStates((slot - currentTargetSlot + 3) % 3);
             currentTargetSlot = slot;
             turnstile.seekToAngle(SLOT_ANGLES[currentTargetSlot]);
@@ -402,7 +402,7 @@ public class IndexerFacade {
     }
 
     public boolean launch() {
-        if ((State.AWAITING_LAUNCH == currentState || State.IDLE == currentState || State.SELECTING_BALL == currentState)) {
+        if ((State.AWAITING_LAUNCH == currentState || State.IDLE == currentState || State.SELECTING_BALL == currentState || State.LAUNCHING == currentState)) {
             currentState = State.LAUNCHING;
             turnstile.launchSlots(1);
             return true;
