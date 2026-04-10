@@ -43,7 +43,7 @@ public class LauncherFacade implements DataLoggable {
     public static final double LIMELIGHT_FORWARD_POSITION = 6.175;
     private Vector2d inertiaOffset = null;
     Vector2d offsetTarget = null;
-    public static double INERTIA_FACTOR = 1.0;
+    public static double INERTIA_FACTOR = 15.0;
     private double last_time_ms = 0;
     private Vector2d trueTargetVector = fusedPose.position;
     public static double trust = 0.0;
