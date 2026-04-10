@@ -1,13 +1,11 @@
 package org.firstinspires.ftc.teamcode.Robot.Teleops;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.OpModeInfo;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.teamcode.Robot.IndexerFacade;
 import org.firstinspires.ftc.teamcode.Robot.LauncherFacade;
@@ -33,6 +31,7 @@ public class Teleop_BLUE extends OpMode {
 
     ThunderBot2025 robot = new ThunderBot2025();
     public static double INDEXER_SPEED = 0.8;
+    private boolean preSpinUp = true;
 
     @Override
     public void init() {
@@ -70,8 +69,8 @@ public class Teleop_BLUE extends OpMode {
             speed = ThunderBot2025.MAX_SPEED;
         }
 
-        if (robot.runtime.seconds() >= 115 && robot.runtime.seconds() < 125) {
-            if (Math.ceil(robot.runtime.seconds() * 2) % 2 == 1) {
+        if (115 <= robot.runtime.seconds() && 125 > robot.runtime.seconds()) {
+            if (1 == Math.ceil(robot.runtime.seconds() * 2) % 2) {
                 theGamepad1.blipDriver();
                 theGamepad2.blipDriver();
             }
@@ -93,32 +92,37 @@ public class Teleop_BLUE extends OpMode {
 
         // --- Launcher Controls ---
         if (theGamepad2.getButtonPressed(TBDGamepad.Button.RIGHT_STICK_BUTTON)) {
-            if (robot.launcher.getAimingMode() != LauncherFacade.AimingMode.MAIN) {
-                robot.launcher.setAimingMode(LauncherFacade.AimingMode.MAIN);
-            } else {
+            if (LauncherFacade.AimingMode.MAIN == robot.launcher.getAimingMode()) {
                 robot.launcher.setAimingMode(LauncherFacade.AimingMode.MANUAL);
+            } else {
+                robot.launcher.setAimingMode(LauncherFacade.AimingMode.MAIN);
             }
         }
 
-        if (robot.launcher.getAimingMode() == LauncherFacade.AimingMode.MANUAL) {
-            if (Math.abs(Math.sqrt(Math.pow(theGamepad2.getRightX(), 2) + Math.pow(theGamepad2.getRightY(), 2))) > 0.01) {
+        if (LauncherFacade.AimingMode.MANUAL == robot.launcher.getAimingMode()) {
+            if (0.01 < Math.abs(Math.sqrt(Math.pow(theGamepad2.getRightX(), 2) + Math.pow(theGamepad2.getRightY(), 2)))) {
                 robot.launcher.aimToAngleInFieldSpace(Math.toDegrees(Math.atan2(theGamepad2.getRightY(), theGamepad2.getRightX())));
             } else {
                 robot.launcher.holdTurretPosition();
             }
-        } else if (robot.launcher.getAimingMode() == LauncherFacade.AimingMode.DIRECTIONAL) {
+        } else if (LauncherFacade.AimingMode.DIRECTIONAL == robot.launcher.getAimingMode()) {
             robot.launcher.setTurretManualPower(theGamepad2.getRightX() * 0.5);
-        } else if (Math.abs(Math.sqrt(Math.pow(theGamepad2.getRightX(), 2) + Math.pow(theGamepad2.getRightY(), 2))) > 0.01) {
+        } else if (0.01 < Math.abs(Math.sqrt(Math.pow(theGamepad2.getRightX(), 2) + Math.pow(theGamepad2.getRightY(), 2)))) {
             robot.launcher.aimToAngleInFieldSpace(Math.toDegrees(Math.atan2(theGamepad2.getRightY(), theGamepad2.getRightX())));
         } else {
             robot.launcher.aim();
         }
 
+        if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_DOWN)) {
+            preSpinUp = !preSpinUp;
+        }
 
         if (theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.LEFT_TRIGGER)) {
             robot.charge();
         } else {
-            robot.chargeLow();
+            if (preSpinUp) {
+                robot.chargeLow();
+            }
         }
 
         if (theGamepad2.getTriggerPressed(TBDGamepad.Trigger.RIGHT_TRIGGER)) {
@@ -161,7 +165,7 @@ public class Teleop_BLUE extends OpMode {
                     robot.indexer.cycle(-1);
                 } else if (theGamepad2.getButton(TBDGamepad.Button.LEFT_STICK_BUTTON)) {
                     robot.indexer.adjustToThird();
-                } else if (robot.indexer.getCurrentState() == IndexerFacade.State.IDLE || robot.indexer.getCurrentState() == IndexerFacade.State.AWAITING_LAUNCH) {
+                } else if (IndexerFacade.State.IDLE == robot.indexer.getCurrentState() || IndexerFacade.State.AWAITING_LAUNCH == robot.indexer.getCurrentState()) {
 
                     // If not manually spinning, send a spin(0) to allow the turnstile to auto-align.
                     robot.indexer.spin(0);
