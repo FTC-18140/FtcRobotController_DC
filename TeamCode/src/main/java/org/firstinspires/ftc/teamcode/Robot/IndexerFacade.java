@@ -484,7 +484,7 @@ public class IndexerFacade {
     }
 
     public boolean isBallInIntake() {
-        return beamBreak.ballDetectedInIntake();
+        return beamBreak.isBallDetectedInIntake();
     }
 
     public boolean isAtTarget() {
@@ -573,7 +573,7 @@ public class IndexerFacade {
 
         updated = false;
 
-        if (beamBreak.ballDetectedInIndexer()) {
+        if (beamBreak.isBallDetectedInIndexer()) {
             beamBreakCounter++;
             beamBreakCounter = Math.min(beamBreakCounter, 5);
         } else {

@@ -118,7 +118,7 @@ public class ThunderBot2025 implements DataLoggable {
         double flywheelTargetRpm = launcher.getFlywheelTargetRpm();
         double flywheelRpm = launcher.getLowerFlywheelRpm();
 
-        boolean isIndexerFull = indexer.isIndexerFull();
+        boolean isIndexerFull = indexer.indexerIsFull();
         IndexerFacade.State state = indexer.getCurrentState();
 
         led.update(flywheelRpm, flywheelTargetRpm, seconds, lastBallState, isIndexerFull, state);
@@ -417,7 +417,7 @@ public class ThunderBot2025 implements DataLoggable {
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                return !indexer.isIndexerFull();
+                return !indexer.indexerIsFull();
             }
         };
     }
