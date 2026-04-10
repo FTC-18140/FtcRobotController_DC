@@ -86,13 +86,15 @@ public class Flywheel {
         D = d;
     }
 
-    void setParameters(double p, double i, double d, double fMin, double fMax, double fVel, double fStatic, double ratio) {
+    void setParameters(double p, double i, double d, double fMin, double fMax, double fVel, double fStatic, double gearRatio, double ratio) {
         setPID(p, i, d);
         F_MIN = fMin;
         F_MAX = fMax;
         F_VEL = fVel;
         F_STATIC = fStatic;
+        FLYWHEEL_GEAR_RATIO = gearRatio;
         FLYWHEEL_RATIO = ratio;
+
     }
 
     // --- High-Level Commands to Change State ---
