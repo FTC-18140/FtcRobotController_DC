@@ -672,8 +672,7 @@ public class IndexerFacade {
         telemetry.addData("Beam Break detection: ", ballInIndexer());
         telemetry.addLine(String.format("Slots: [0]: %s, [1]: %s, [2]: %s",
                 ballSlots[0], ballSlots[1], ballSlots[2]));
-        telemetry.addLine(String.format("Slots: [0]: %s, [1]: %s, [2]: %s",
-                positedBallStates[0], positedBallStates[1], positedBallStates[2]));
+        telemetry.addLine(String.format("Slots: [0]: %s, [1]: %s, [2]: %s", positedBallStates[0], positedBallStates[1], positedBallStates[2]));
         telemetry.addLine(String.format("Fired: [0]: %s, [1]: %s, [2]: %s",
                 slots_fired[0], slots_fired[1], slots_fired[2]));
         telemetry.addData("Ball Number", ballNumber);

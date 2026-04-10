@@ -108,7 +108,6 @@ public class FlywheelController {
         return atRpm;
 
 
-
     }
 
     public double calculateBallVelocity(double distance, double height, double angleDegrees) {
