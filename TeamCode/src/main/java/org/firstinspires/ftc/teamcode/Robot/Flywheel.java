@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.Robot;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
@@ -14,8 +13,8 @@ import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 
 @Config
 public class Flywheel {
-    public static final double GOBILDA_MOTOR_STALL_CURRENT = 9.2;
-    public static final double ENCODER_TICKS_PER_REVOLUTION = 28.0;
+    static final double GOBILDA_MOTOR_STALL_CURRENT = 9.2;
+    private static final double ENCODER_TICKS_PER_REVOLUTION = 28.0;
 
     // Define the states as an enum
     private enum State {
@@ -29,40 +28,40 @@ public class Flywheel {
     private DcMotorEx launcher = null;
     private DcMotorEx launcherEnc = null;
     private PIDController rpmController = null;
-    public static int FILTER_SIZE = 2;
+    private static int FILTER_SIZE = 2;
     private MovingAverageFilter rpmFilter = new MovingAverageFilter(FILTER_SIZE);
     private Telemetry telemetry = null;
 
     // Tunable constants from your original file
 
     private double P = 0.0, I = 0.0, D = 0.0;
-    public double F_MAX = 0.0, F_MIN = 0.0;
+    private double F_MAX = 0.0, F_MIN = 0.0, F_VEL = 0, F_STATIC = 0;
 
-    public double feedforward = 0.0;
+    private double feedforward = 0.0;
 
-    public static boolean TELEM = false;
-    public static double MAX_SHOOTER_RPM = 3000.0;
-    public static double MIN_SHOOTER_RPM = 1600.0;
-    public static final double SHOOTER_RADIUS = 0.072 / 2.0;
-    public static double SPIN_EFFICIENCY = 0.6;
-    public double FLYWHEEL_RATIO = (double) 0.9;
-    public static double FLYWHEEL_GEAR_RATIO = 0.5;
+    private static boolean TELEM = false;
+    private static double MAX_SHOOTER_RPM = 3000.0;
+    static double MIN_SHOOTER_RPM = 1600.0;
+    private static final double SHOOTER_RADIUS = 0.072 / 2.0;
+    private static double SPIN_EFFICIENCY = 1.0;
+    private double FLYWHEEL_RATIO = 0.9;
+    private static double FLYWHEEL_GEAR_RATIO = 0.5;
 
 
-    private double targetRpm = (double) 0;
+    private double targetRpm = 0;
 
-    public static double RPM_LOWER_BOUND = 25.0;
-    public static double RPM_UPPER_BOUND = 20.0;
+    static double RPM_LOWER_BOUND = 25.0;
+    static double RPM_UPPER_BOUND = 20.0;
 
-    private double currentRpm = (double) 0;
+    private double currentRpm = 0;
     private double previousRpm = 0;
     private double currentAccel = 0;
-    public static double ACCEL_RATE = 0;
-    double scaledPower = (double) 0;
+    private static double ACCEL_RATE = 50;
+    private double scaledPower = 0;
     private double currentDraw = 0.0;
 
     public void init(HardwareMap hwMap, Telemetry telem, String motorName, String encoderName) {
-        this.telemetry = telem;
+        telemetry = telem;
         rpmController = new PIDController(P, I, D);
 
         launcher = hwMap.get(DcMotorEx.class, motorName);
@@ -76,21 +75,23 @@ public class Flywheel {
         }
     }
 
-    public void setEncoderReversed() {
+    void setEncoderReversed() {
 //        launcherEnc.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
-    public void setPID(double p, double i, double d) {
-        this.P = p;
-        this.I = i;
-        this.D = d;
+    private void setPID(double p, double i, double d) {
+        P = p;
+        I = i;
+        D = d;
     }
 
-    public void setParameters(double p, double i, double d, double fMin, double fMax, double ratio) {
+    void setParameters(double p, double i, double d, double fMin, double fMax, double fVel, double fStatic, double ratio) {
         setPID(p, i, d);
-        this.F_MIN = fMin;
-        this.F_MAX = fMax;
-        this.FLYWHEEL_RATIO = ratio;
+        F_MIN = fMin;
+        F_MAX = fMax;
+        F_VEL = fVel;
+        F_STATIC = fStatic;
+        FLYWHEEL_RATIO = ratio;
     }
 
     // --- High-Level Commands to Change State ---
@@ -98,20 +99,20 @@ public class Flywheel {
     /**
      * Commands the flywheel to spin up to a target RPM.
      */
-    public void setTargetRpm(double rpm) {
-        this.targetRpm = Range.clip(rpm * FLYWHEEL_RATIO, MIN_SHOOTER_RPM * FLYWHEEL_RATIO, MAX_SHOOTER_RPM * FLYWHEEL_RATIO);
-        this.currentState = State.SPINNING_UP;
+    void setTargetRpm(double rpm) {
+        targetRpm = Range.clip(rpm * FLYWHEEL_RATIO, MIN_SHOOTER_RPM * FLYWHEEL_RATIO, MAX_SHOOTER_RPM * FLYWHEEL_RATIO);
+        currentState = State.SPINNING_UP;
     }
 
-    public double getCurrentRpm() {
+    double getCurrentRpm() {
         return currentRpm;
     }
 
-    public double getTargetRpm() {
+    double getTargetRpm() {
         return targetRpm;
     }
 
-    public double getError() {
+    double getError() {
         return targetRpm - currentRpm;
     }
 
@@ -123,25 +124,23 @@ public class Flywheel {
      */
     public boolean isAtTargetRpm() {
         // We are only "at target" if we are actively trying to spin up.
-        if (currentState != State.SPINNING_UP) {
-            return false;
+        boolean returnValue;
+        if (State.SPINNING_UP == currentState) {
+            returnValue = currentRpm - targetRpm < RPM_UPPER_BOUND && currentRpm - targetRpm > -RPM_LOWER_BOUND;
+        } else {
+            returnValue = false;
         }
-
-        // Check if the current RPM is within a reasonable tolerance (e.g., 50 RPM) of the target.
-        // This tolerance can be tuned.
-        //final double RPM_TOLERANCE = 20.0;
-
-        return currentRpm - targetRpm < RPM_UPPER_BOUND && currentRpm - targetRpm > -RPM_LOWER_BOUND;
+        return returnValue;
     }
 
-    public double getRPM() {
+    private double getRPM() {
         double tps;
-        if (launcherEnc != null) {
+        if (null != launcherEnc) {
             tps = launcherEnc.getVelocity();
         } else {
             tps = -launcher.getVelocity();
         }
-        return (tps * 60.0 * FLYWHEEL_GEAR_RATIO) / ENCODER_TICKS_PER_REVOLUTION;
+        return (tps * 60.0) / (ENCODER_TICKS_PER_REVOLUTION * FLYWHEEL_GEAR_RATIO);
     }
 
     public double getRpmLowerBound() {
@@ -152,7 +151,7 @@ public class Flywheel {
         return RPM_UPPER_BOUND;
     }
 
-    public double getCurrentDraw() {
+    double getCurrentDraw() {
         return launcher.getCurrent(CurrentUnit.AMPS);
     }
 
@@ -161,7 +160,7 @@ public class Flywheel {
      * Commands the flywheel to stop.
      */
     public void stop() {
-        this.currentState = State.IDLE;
+        currentState = State.IDLE;
     }
 
     // --- Main Update Method ---
@@ -178,29 +177,29 @@ public class Flywheel {
         }
 
         double detectedRpm = rpmFilter.addValue(getRPM());
-        if (previousRpm == 0) this.previousRpm = this.currentRpm;
+        if (0 == previousRpm) previousRpm = currentRpm;
 
-        if (detectedRpm == this.previousRpm) {
-            this.currentRpm += currentAccel;
+        if (detectedRpm == previousRpm) {
+            currentRpm += currentAccel;
         } else {
-            this.currentRpm = detectedRpm;
+            currentRpm = detectedRpm;
         }
-        this.previousRpm = detectedRpm;
+        previousRpm = detectedRpm;
 
 
         //telemetry.addData("launcherVel",launcher.getVelocity());
 
         switch (currentState) {
             case IDLE:
-                setPower((double) 0);
-                this.currentAccel = 0;
+                setPower(0);
+                currentAccel = 0;
                 break;
 
             case SPINNING_UP:
                 // --- Step 1: Calculate the Feedforward value ---
 
                 scaledPower = Range.scale(targetRpm, MIN_SHOOTER_RPM * FLYWHEEL_RATIO, MAX_SHOOTER_RPM * FLYWHEEL_RATIO, F_MIN, F_MAX);
-                feedforward = Range.clip(scaledPower, F_MIN, F_MAX);
+                feedforward = Range.clip(scaledPower, F_MIN, F_MAX) + F_VEL * targetRpm + F_STATIC;
 
 
                 // --- Step 2: Calculate the PID correction ---
@@ -209,7 +208,7 @@ public class Flywheel {
 
                 // --- Step 3: Combine and Set the Final Power ---
                 double finalPower = feedforward + clippedPidOutput;
-                this.currentAccel = clippedPidOutput * ACCEL_RATE;
+                currentAccel = clippedPidOutput * ACCEL_RATE;
                 setPower(finalPower);
 
                 // --- Telemetry for Debugging ---
@@ -233,7 +232,7 @@ public class Flywheel {
 
     // --- Calculation Methods ---
 
-    public double calculateWheelRPM(double ballVelocity) {
+    double calculateWheelRPM(double ballVelocity) {
         return (60.0 * ballVelocity) / (2.0 * Math.PI * SHOOTER_RADIUS * SPIN_EFFICIENCY);
     }
 

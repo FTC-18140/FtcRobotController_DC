@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-@Config // Make this class tunable
+@Config
 public class Flipper {
 
     private Servo flipperServo = null;
@@ -14,8 +14,8 @@ public class Flipper {
     private double currentServoPosition = 0.0;
 
     // --- Tunable Constants via FTC Dashboard ---
-    private static double EXTENDED_POSITION = 0.11;
-    private static double RETRACTED_POSITION = 0.025;
+    private static double EXTENDED_POSITION = 0.1;
+    private static double RETRACTED_POSITION = 0.015;
     private static boolean TELEM = false;
 
     // --- State Management ---
@@ -24,14 +24,14 @@ public class Flipper {
     private State currentState = null;
 
     public void init(HardwareMap hwMap, Telemetry telem) {
-        this.telemetry = telem;
+        telemetry = telem;
         try {
             flipperServo = hwMap.servo.get("flipper");
 
         } catch (RuntimeException e) {
             telemetry.addData("Servo \"flipper\" not found", 0);
         }
-        this.retract();
+        retract();
     }
 
     // --- High-Level Commands ---
@@ -40,14 +40,14 @@ public class Flipper {
         currentState = State.EXTENDED;
     }
 
-    void retract() {
+    private void retract() {
         currentState = State.RETRACTED;
     }
 
     // --- State Checking ---
 
     boolean isRetracted() {
-        return 0.05 > Math.abs(currentServoPosition - Flipper.RETRACTED_POSITION);
+        return 0.05 > Math.abs(currentServoPosition - RETRACTED_POSITION);
     }
 
     public void update() {
@@ -65,7 +65,7 @@ public class Flipper {
             }
         }
 
-        if (Flipper.TELEM) {
+        if (TELEM) {
             telemetry.addData("Flipper State", currentState);
             telemetry.addData("Flipper Servo Pos", currentServoPosition);
         }

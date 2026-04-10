@@ -72,7 +72,7 @@ public class ThunderBot2025 implements DataLoggable {
         } catch (RuntimeException e) {
             telemetry.addData("Could not init voltage sensor", 0);
         }
-        if (getBatteryVoltage() < 13) {
+        if (13 > getBatteryVoltage()) {
             telemetry.addData("Replace Battery please, I Beg you", 0);
         }
 
@@ -118,7 +118,7 @@ public class ThunderBot2025 implements DataLoggable {
         double flywheelTargetRpm = launcher.getFlywheelTargetRpm();
         double flywheelRpm = launcher.getLowerFlywheelRpm();
 
-        boolean isIndexerFull = indexer.indexerIsFull();
+        boolean isIndexerFull = indexer.isIndexerFull();
         IndexerFacade.State state = indexer.getCurrentState();
 
         led.update(flywheelRpm, flywheelTargetRpm, seconds, lastBallState, isIndexerFull, state);
@@ -191,12 +191,8 @@ public class ThunderBot2025 implements DataLoggable {
         return false;
     }
 
-    public void drive(double forward, double right, double clockwise, double in_speed, TelemetryPacket p) {
-        if (0 != intake.getIntakePower() && in_speed > DEFAULT_SPEED) {
-            speed = DEFAULT_SPEED;
-        } else {
-            speed = in_speed;
-        }
+    public void drive(double forward, double right, double clockwise, double inSpeed, TelemetryPacket p) {
+        speed = inSpeed;
         if (field_centric) {
             fieldCentricDrive(forward, right, clockwise, speed, p);
         } else {
@@ -226,11 +222,11 @@ public class ThunderBot2025 implements DataLoggable {
         double x = drive.localizer.getPose().position.x;
         double y = drive.localizer.getPose().position.y;
 
-        double half_width = robot_width / 2;
-        if (x > -half_width) {
-            return y < x + half_width && y > -x - half_width;
+        double halfWidth = robot_width / 2;
+        if (x > -halfWidth) {
+            return y < x + halfWidth && y > -x - halfWidth;
         } else {
-            return y < (-x - 45 + half_width) && y > (x + 45 - half_width);
+            return y < (-x - 45 + halfWidth) && y > (x + 45 - halfWidth);
         }
     }
 
@@ -287,6 +283,7 @@ public class ThunderBot2025 implements DataLoggable {
         }
         return false;
     }
+
     public boolean launchAll() {
         if (launcher.isAtTargetRpm() && launcher.isAtTarget()) {
             indexer.launchAllInIndexer();
@@ -420,7 +417,7 @@ public class ThunderBot2025 implements DataLoggable {
         return new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                return !indexer.indexerIsFull();
+                return !indexer.isIndexerFull();
             }
         };
     }

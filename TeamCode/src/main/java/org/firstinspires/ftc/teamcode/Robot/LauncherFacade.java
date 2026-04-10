@@ -42,7 +42,7 @@ public class LauncherFacade implements DataLoggable {
     private static double TURRET_OFFSET_Y = -3.22805;
     private static final double LIMELIGHT_FORWARD_POSITION = 6.175;
     private Vector2d inertiaOffset = null;
-    private Vector2d offsetTarget = null;
+    Vector2d offsetTarget = null;
     public static double INERTIA_FACTOR = 1.0;
     private Vector2d trueTargetVector = fusedPose.position;
     private static double trust = 0.0;
@@ -56,6 +56,7 @@ public class LauncherFacade implements DataLoggable {
     private static final Vector2d targetPosBlue = new Vector2d(67.0, 67.0);
     private static final Vector2d targetPosRed = new Vector2d(67.0, -67.0);
     private ThunderBot2025.Alliance_Color allianceColor = ThunderBot2025.Alliance_Color.BLUE;
+    public double fieldAngleToGoal;
 
     public void init(HardwareMap hwMap, Telemetry telem, Pose2d startPose) {
         telemetry = telem;
@@ -134,7 +135,7 @@ public class LauncherFacade implements DataLoggable {
         double distanceToGoal = getGoalDistance();
 
         turret.update(fusedPose, currentOdoVelocity, offsetTarget);
-        flywheel.update();
+        flywheel.update(currentOdoVelocity, Math.toDegrees(fieldAngleToGoal));
 
 //        setTurretOffset();
 
@@ -360,7 +361,7 @@ public class LauncherFacade implements DataLoggable {
             trueTargetVector = offsetTarget.minus(fusedPose.position.plus(getTurretOffsetPosInRobotSpace()));
 
             // Calculate the absolute field-centric angle to the goal (Radians)
-            double fieldAngleToGoal = Math.atan2(trueTargetVector.y, trueTargetVector.x);
+            fieldAngleToGoal = Math.atan2(trueTargetVector.y, trueTargetVector.x);
 
             // HANDLE IMU WRAPPING:
             // We turn the raw angle into a Rotation2d and subtract our robot heading.
