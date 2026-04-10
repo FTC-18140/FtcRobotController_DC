@@ -109,7 +109,7 @@ public class Teleop_BLUE extends OpMode {
         } else if (Math.abs(Math.sqrt(Math.pow(theGamepad2.getRightX(), 2) + Math.pow(theGamepad2.getRightY(), 2))) > 0.01) {
             robot.launcher.aimToAngleInFieldSpace(Math.toDegrees(Math.atan2(theGamepad2.getRightY(), theGamepad2.getRightX())));
         } else {
-//            robot.launcher.aim();
+            robot.launcher.aim();
         }
 
 

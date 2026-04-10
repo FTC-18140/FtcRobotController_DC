@@ -20,12 +20,12 @@ public class Intake {
     private Telemetry telemetry = null;
     private HardwareMap hardwareMap = null;
 
-    private static double INTAKE_SPEED = 1.0;
+    private static double INTAKE_SPEED = 0.7;
     private DcMotor intakeMotor = null;
 
     private double current_speed = 0;
     private double slow = 1;
-    private static double SLOWED_SPEED = 0.6;
+    private static double SLOWED_SPEED = 0.4;
     private double currentDraw = 0.0;
 
     public void init(HardwareMap hwMap, Telemetry telem) {
@@ -34,7 +34,6 @@ public class Intake {
 
         try {
             intakeMotor = hardwareMap.get(DcMotor.class, "intake");
-            intakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         } catch (RuntimeException e) {
             telemetry.addData("DC Motor \"intake\" not found", 0);
         }

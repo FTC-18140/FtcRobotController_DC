@@ -260,7 +260,7 @@ public class IndexerFacade {
 
 
     public void launchAllInIndexer() {
-        if (State.IDLE != currentState && State.AWAITING_LAUNCH != currentState) return;
+        if (State.IDLE != currentState && State.AWAITING_LAUNCH != currentState && State.SELECTING_BALL != currentState) return;
 
         turnstile.launchSlots(3);
     }
@@ -402,7 +402,7 @@ public class IndexerFacade {
     }
 
     public boolean launch() {
-        if ((State.AWAITING_LAUNCH == currentState || State.IDLE == currentState)) {
+        if ((State.AWAITING_LAUNCH == currentState || State.IDLE == currentState || State.SELECTING_BALL == currentState)) {
             currentState = State.LAUNCHING;
             turnstile.launchSlots(1);
             return true;
@@ -512,8 +512,8 @@ public class IndexerFacade {
     }
 
     public BallState getBallState(int slot) {
-        ballSensors[slot * 2].update();
-        ballSensors[slot * 2 + 1].update();
+//        ballSensors[slot * 2].update();
+//        ballSensors[slot * 2 + 1].update();
         updated = true;
 //        updateBallStates();
         return (0 <= slot && 3 > slot) ? ballSlots[slot] : BallState.VACANT;
@@ -541,7 +541,7 @@ public class IndexerFacade {
                 telemetry.addData("updating color sensors: ", true);
             }
             for (int i = 0; 6 > i; i++) {
-                ballSensors[i].update();
+//                ballSensors[i].update();
             }
             updated = true;
         }

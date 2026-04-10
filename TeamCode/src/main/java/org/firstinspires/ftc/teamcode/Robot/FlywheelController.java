@@ -16,28 +16,28 @@ public class FlywheelController {
     private double last_distance = 0;
 
     public static class LowerPID {
-        public double P = 0.00205, I = 0.05, D = 0.000001;
-        public double F_MAX = 0.5, F_MIN = 0.4;
+        public double P = 0.0009, I = 0.0, D = 0.0;
+        public double F_MAX = 0.85, F_MIN = 0.75;
     }
 
     public static class UpperPID {
-        public double P = 0.00225, I = 0.03, D = 0.000001;
-        public double F_MAX = 0.45, F_MIN = 0.36;
+        public double P = 0.0009, I = 0.0, D = 0.0;
+        public double F_MAX = 0.85, F_MIN = 0.75;
     }
 
     public static LowerPID LOWER_PID = new LowerPID();
     public static UpperPID UPPER_PID = new UpperPID();
 
 
-    public static double FLYWHEEL_RATIO = (double) 0.9;
+    public static double FLYWHEEL_RATIO = (double) 1.0;
 
     public void init(HardwareMap hwMap, Telemetry telem) {
         telemetry = telem;
         lowerWheel = new Flywheel();
         upperWheel = new Flywheel();
 
-        lowerWheel.init(hwMap, telem, "launcher", "turret");
-        upperWheel.init(hwMap, telem, "launcher2", "launcher2");
+        lowerWheel.init(hwMap, telem, "launcher2", "launcher2");
+        upperWheel.init(hwMap, telem, "launcher", "turret");
         upperWheel.setEncoderReversed();
 
         lowerWheel.setParameters(LOWER_PID.P, LOWER_PID.I, LOWER_PID.D, LOWER_PID.F_MIN, LOWER_PID.F_MAX, 1);

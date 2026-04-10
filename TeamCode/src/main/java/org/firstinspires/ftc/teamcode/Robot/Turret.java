@@ -89,8 +89,6 @@ public class Turret implements DataLoggable {
             turret.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
             turretEnc = hwMap.dcMotor.get("rightBack");
-            turretEnc.setDirection(DcMotorSimple.Direction.REVERSE);
-            turretEnc.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         } catch (Exception e) {
             telemetry.addData("Motor\"turret\" not found", 0);
         }
@@ -310,7 +308,7 @@ public class Turret implements DataLoggable {
     }
 
     private void updateCurrentPosition() {
-        currentPosition = (double) turretEnc.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK + startingAngle - offsetAngle;
+        currentPosition = (double) -turretEnc.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK + startingAngle - offsetAngle;
 
     }
 

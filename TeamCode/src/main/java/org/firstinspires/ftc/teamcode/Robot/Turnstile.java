@@ -30,10 +30,10 @@ public class Turnstile {
     public static boolean TELEM = false;
 
     // --- Tunable Constants via FTC Dashboard ---
-    public static double P = 0.0032, I = 0.01, D = 0.00015;
+    public static double P = 0.0015, I = 0.01, D = 0.00015;
     public static double THRESHOLD = 0.00;
-    public static double MIN_POWER_POS = 0.032;
-    public static double MIN_POWER_NEG = 0.015;
+    public static double MIN_POWER_POS = 0.0;
+    public static double MIN_POWER_NEG = 0.0;
     public static double HOMING_POWER = 0.15;
     public static double ANGLE_TOLERANCE = 5.0;// In degrees
     public static double BACKWARD_TOLERANCE = 30;
@@ -68,8 +68,8 @@ public class Turnstile {
             indexerServo1 = hwMap.crservo.get("indexer");
             indexerServo2 = hwMap.crservo.get("indexer2");
 
-            indexerServo1.setDirection(DcMotorSimple.Direction.REVERSE);
-            indexerServo2.setDirection(DcMotorSimple.Direction.REVERSE);
+//            indexerServo1.setDirection(DcMotorSimple.Direction.REVERSE);
+//            indexerServo2.setDirection(DcMotorSimple.Direction.REVERSE);
 
             indexMotor = hwMap.get(DcMotorEx.class, MecanumDrive.LEFT_FRONT_MOTOR);
             limitSwitch = hwMap.get(TouchSensor.class, "indexerLimit");
@@ -160,7 +160,7 @@ public class Turnstile {
 
     public void update() {
         // --- 1. Cache Hardware Reads ---
-        currentAngle = -indexMotor.getCurrentPosition() / COUNTS_PER_DEGREE - startingAngle;
+        currentAngle = indexMotor.getCurrentPosition() / COUNTS_PER_DEGREE - startingAngle;
         limitSwitchPressed = false;
 
         // --- 2. Run State Machine ---
