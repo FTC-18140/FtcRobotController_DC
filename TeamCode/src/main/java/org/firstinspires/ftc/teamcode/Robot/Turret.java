@@ -59,7 +59,7 @@ public class Turret implements DataLoggable {
     public static double MIN_POWER_NEGATIVE = -0.015;
 
     public static double TURN_SPEED = 208.3; // From original lockOn
-    public static double TURRET_DEGREES_PER_ENCODER_TICK = (double) 1 / 8192.0 * 360.0 * 24.24 / 190.5;
+    public static double TURRET_DEGREES_PER_ENCODER_TICK = (double) 1 / 8192.0 * 360.0 * 16 / 94;
 
 
     // State-specific variables

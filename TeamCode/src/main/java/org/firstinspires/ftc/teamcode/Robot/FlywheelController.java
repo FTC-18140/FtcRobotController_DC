@@ -19,28 +19,28 @@ public class FlywheelController {
     PoseVelocity2d odoVelocity = null;
 
     public static class LowerPID {
-        public static double P = 0.0, I = 0.0, D = 0.00000;
-        public static double F_MAX = 0.5, F_MIN = 0.4, F_VEL = 0, F_STATIC = 0;
+        public double P = 0.00001, I = 0.0, D = 0.00000;
+        public double F_MAX = 0.47, F_MIN = 0.0, F_VEL = 0.00001, F_STATIC = 0.73;
     }
 
     public static class UpperPID {
-        public double P = 0.0, I = 0.0, D = 0.00000;
-        public double F_MAX = 0.45, F_MIN = 0.36, F_VEL = 0, F_STATIC = 0;
+        public double P = 0.0000114, I = 0.0, D = 0.00000;
+        public double F_MAX = 0.53, F_MIN = 0.0, F_VEL = 0.0000114, F_STATIC = 0.832;
     }
 
     public static LowerPID LOWER_PID = new LowerPID();
     public static UpperPID UPPER_PID = new UpperPID();
 
 
-    public static double FLYWHEEL_RATIO = (double) 0.9;
+    public static double FLYWHEEL_RATIO = (double) 1.0;
 
     public void init(HardwareMap hwMap, Telemetry telem) {
         telemetry = telem;
         lowerWheel = new Flywheel();
         upperWheel = new Flywheel();
 
-        lowerWheel.init(hwMap, telem, "launcher", "turret");
-        upperWheel.init(hwMap, telem, "launcher2", "launcher2");
+        lowerWheel.init(hwMap, telem, "launcher2", "launcher2");
+        upperWheel.init(hwMap, telem, "launcher", "turret");
         upperWheel.setEncoderReversed();
 
         lowerWheel.setParameters(LOWER_PID.P, LOWER_PID.I, LOWER_PID.D, LOWER_PID.F_MIN, LOWER_PID.F_MAX, LOWER_PID.F_VEL, LOWER_PID.F_STATIC, 1);

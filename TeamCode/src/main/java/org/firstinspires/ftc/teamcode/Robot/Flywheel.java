@@ -41,11 +41,12 @@ public class Flywheel {
 
     public static boolean TELEM = false;
     public static double MAX_SHOOTER_RPM = 3000.0;
-    public static double MIN_SHOOTER_RPM = 1600.0;
+    public static double MIN_SHOOTER_RPM = 1800.0;
+    public static double STATIC_RPM = 1800.0;
     private static final double SHOOTER_RADIUS = 0.072 / 2.0;
-    public static double SPIN_EFFICIENCY = 0.6;
+    public static double SPIN_EFFICIENCY = 0.759;
     public double FLYWHEEL_RATIO = 1.0;
-    public static double FLYWHEEL_GEAR_RATIO = 0.5;
+    public static double FLYWHEEL_GEAR_RATIO = 2.0;
 
 
     private double targetRpm = 0;
@@ -199,7 +200,7 @@ public class Flywheel {
                 // --- Step 1: Calculate the Feedforward value ---
 
                 scaledPower = Range.scale(targetRpm, MIN_SHOOTER_RPM * FLYWHEEL_RATIO, MAX_SHOOTER_RPM * FLYWHEEL_RATIO, F_MIN, F_MAX);
-                feedforward = Range.clip(scaledPower, F_MIN, F_MAX) + F_VEL * targetRpm + F_STATIC;
+                feedforward = Range.clip(scaledPower + F_VEL * targetRpm + F_STATIC, F_MIN, 1.0);
 
 
                 // --- Step 2: Calculate the PID correction ---
