@@ -27,7 +27,7 @@ public class FlywheelController {
     public static class UpperPID {
         public double P = 0.0000114, I = 0.0, D = 0.00000;
         public double F_MAX = 0.53, F_MIN = 0.0, F_VEL = 0.0000114, F_STATIC = 0.832;
-        public double GEAR_RATIO = 32/15;
+        public double GEAR_RATIO = 32 / 15;
     }
 
     public static LowerPID LOWER_PID = new LowerPID();
