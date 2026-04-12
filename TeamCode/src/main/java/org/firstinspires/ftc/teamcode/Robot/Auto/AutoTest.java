@@ -21,7 +21,7 @@ public class AutoTest extends LinearOpMode {
         blackboard.put("ENDING_ANGLE_INDEXER", (double) 0);
 
         robot.init(hardwareMap, telemetry, start);
-        robot.setColor(ThunderBot2025.Alliance_Color.RED);
+        robot.setColor(ThunderBot2025.Alliance_Color.BLUE);
         while (opModeInInit()) {
             // Code here runs repeatedly during init phase.  Need to be looking at ObeliskID
             robot.launcher.updateVision();
@@ -31,7 +31,7 @@ public class AutoTest extends LinearOpMode {
         }
         waitForStart();
 
-        robot.launcher.setPipeline(2);
+        robot.launcher.setPipeline(1);
 
         Actions.runBlocking(
                 new ParallelAction(
@@ -39,9 +39,12 @@ public class AutoTest extends LinearOpMode {
                         robot.aimAction(),
                         robot.launcher.prepShotAction(),
                         new SequentialAction(
-                                robot.spamAction(),
+                                robot.launchAction(),
                                 new SleepAction(2),
-                                robot.launcher.stopAction()
+                                new ParallelAction(
+                                        robot.launcher.stopAction(),
+                                        new SleepAction(25)
+                                )
                         )
                 )
         );
