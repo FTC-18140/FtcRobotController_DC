@@ -18,7 +18,6 @@ public class Teleop_BLUE extends OpMode {
 
     public static final String MATCH_TELEOP_GROUP = "AAAMatchTeleops";
     public TelemetryPacket p = new TelemetryPacket(true);
-
     // --- Mode States ---
     private boolean isAutoLoading = false;
     private int slotToWatch = -1;
@@ -26,8 +25,8 @@ public class Teleop_BLUE extends OpMode {
     ThunderBot2025.Alliance_Color alliance = ThunderBot2025.Alliance_Color.BLUE;
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
-    private TBDGamepad theGamepad1;
-    private TBDGamepad theGamepad2;
+    private TBDGamepad theGamepad1 = null;
+    private TBDGamepad theGamepad2 = null;
 
     ThunderBot2025 robot = new ThunderBot2025();
     public static double INDEXER_SPEED = 0.8;
