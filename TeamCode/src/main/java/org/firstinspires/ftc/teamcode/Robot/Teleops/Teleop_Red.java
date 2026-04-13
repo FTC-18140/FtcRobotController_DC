@@ -69,8 +69,8 @@ public class Teleop_Red extends OpMode {
             speed = ThunderBot2025.MAX_SPEED;
         }
 
-        if (robot.runtime.seconds() >= 115.0 && robot.runtime.seconds() < 125.0) {
-            if (Math.ceil(robot.runtime.seconds() * 2.0) % 2.0 == 1.0) {
+        if (robot.runtime.seconds() >= 115 && robot.runtime.seconds() < 125) {
+            if (Math.ceil(robot.runtime.seconds() * 2) % 2 == 1) {
                 theGamepad1.blipDriver();
                 theGamepad2.blipDriver();
             }
@@ -100,15 +100,15 @@ public class Teleop_Red extends OpMode {
         }
 
         if (robot.launcher.getAimingMode() == LauncherFacade.AimingMode.MANUAL) {
-            if (Math.abs(Math.sqrt(Math.pow(theGamepad2.getRightX(), 2.0) + Math.pow(theGamepad2.getRightY(), 2.0))) > 0.01) {
-                robot.launcher.aimToAngleInFieldSpace(180.0 + Math.toDegrees(Math.atan2(theGamepad2.getRightY(), theGamepad2.getRightX())));
+            if (Math.abs(Math.sqrt(Math.pow(theGamepad2.getRightX(), 2) + Math.pow(theGamepad2.getRightY(), 2))) > 0.01) {
+                robot.launcher.aimToAngleInFieldSpace(Math.toDegrees(Math.atan2(theGamepad2.getRightY(), theGamepad2.getRightX())));
             } else {
                 robot.launcher.holdTurretPosition();
             }
         } else if (robot.launcher.getAimingMode() == LauncherFacade.AimingMode.DIRECTIONAL) {
             robot.launcher.setTurretManualPower(theGamepad2.getRightX() * 0.5);
-        } else if (Math.abs(Math.sqrt(Math.pow(theGamepad2.getRightX(), 2.0) + Math.pow(theGamepad2.getRightY(), 2.0))) > 0.01) {
-            robot.launcher.aimToAngleInFieldSpace(180.0 + Math.toDegrees(Math.atan2(theGamepad2.getRightY(), theGamepad2.getRightX())));
+        } else if (Math.abs(Math.sqrt(Math.pow(theGamepad2.getRightX(), 2) + Math.pow(theGamepad2.getRightY(), 2))) > 0.01) {
+            robot.launcher.aimToAngleInFieldSpace(Math.toDegrees(Math.atan2(theGamepad2.getRightY(), theGamepad2.getRightX())));
         } else {
             robot.launcher.aim();
         }
@@ -121,17 +121,11 @@ public class Teleop_Red extends OpMode {
         }
 
         if (theGamepad2.getTriggerPressed(TBDGamepad.Trigger.RIGHT_TRIGGER)) {
-            robot.launchAll();
+            robot.launch();
         }
         if (theGamepad2.getButtonPressed(TBDGamepad.Button.Y)) {
             robot.indexer.prepSequence();
         }
-
-//        if (theGamepad2.getButtonPressed(TBDGamepad.Button.Y)) {
-//            robot.flipperUp();
-//        } else if (theGamepad2.getButtonReleased(TBDGamepad.Button.Y)) {
-//            robot.flipperDown();
-//        }
 
 
         // --- Intake Controls (Stateful Latch) ---
@@ -143,24 +137,10 @@ public class Teleop_Red extends OpMode {
             robot.intake.spit();
         }
 
-        // --- Manual Overrides to CANCEL Auto-Loading ---
-        // Driver can cancel by spitting.
-//        if (theGamepad1.getButtonPressed(TBDGamepad.Button.A)) {
-//            isAutoLoading = false;
-//        }
-//        // Operator can cancel by pressing any manual indexer button.
-//        if (theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER) ||
-//                theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER) ||
-//                theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_LEFT) ||
-//                theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_RIGHT) ||
-//                theGamepad2.getButtonPressed(TBDGamepad.Button.LEFT_STICK_BUTTON)) {
-//            isAutoLoading = false;
-//        }
-
         if (isAutoLoading) {
             // --- AUTO-LOADING MODE ---
             // When a ball arrives in the slot we are watching, cycle to the next empty one.
-//            if (-1 != slotToWatch && robot.indexer.getBallState(slotToWatch) != IndexerFacade.BallState.VACANT) {
+//            if (slotToWatch != -1 && robot.indexer.getBallState(slotToWatch) != IndexerFacade.BallState.VACANT) {
 //                robot.indexer.selectNextSlot(IndexerFacade.BallState.VACANT);
 //                slotToWatch = robot.indexer.getCurrentTargetSlot();
 //            }
@@ -170,7 +150,7 @@ public class Teleop_Red extends OpMode {
             if (theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER)) {
                 robot.indexer.spin(INDEXER_SPEED);
             } else if (theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER)) {
-                robot.launch();
+                robot.launchAll();
             } else {
 
                 // Then, check for discrete, one-shot commands.
@@ -183,7 +163,7 @@ public class Teleop_Red extends OpMode {
                 } else if (robot.indexer.getCurrentState() == IndexerFacade.State.IDLE || robot.indexer.getCurrentState() == IndexerFacade.State.AWAITING_LAUNCH) {
 
                     // If not manually spinning, send a spin(0) to allow the turnstile to auto-align.
-                    robot.indexer.spin((double) 0);
+                    robot.indexer.spin(0);
                 }
             }
         }

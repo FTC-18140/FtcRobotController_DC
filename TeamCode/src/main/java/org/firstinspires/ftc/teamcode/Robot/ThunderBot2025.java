@@ -436,7 +436,7 @@ public class ThunderBot2025 implements DataLoggable {
                 new Action() {
                     @Override
                     public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                        return !launch();
+                        return !launchAll();
                     }
                 }
         );

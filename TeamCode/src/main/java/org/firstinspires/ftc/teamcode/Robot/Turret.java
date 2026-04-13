@@ -54,8 +54,8 @@ public class Turret implements DataLoggable {
     public static boolean TELEM = false;
 
     public static double MAX_POWER = 0.6;
-    public static double MIN_POWER_POSITIVE = 0.015;
-    public static double MIN_POWER_NEGATIVE = -0.015;
+    public static double MIN_POWER_POSITIVE = 0.01;
+    public static double MIN_POWER_NEGATIVE = -0.01;
     public static double TURRET_DEGREES_PER_ENCODER_TICK = (double) 1 / 8192.0 * 360.0 * 16 / 100;
 
 
@@ -86,6 +86,8 @@ public class Turret implements DataLoggable {
             turret.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
             turretEnc = hwMap.dcMotor.get("rightBack");
+            turretEnc.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            turretEnc.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         } catch (Exception e) {
             telemetry.addData("Motor\"turret\" not found", 0);
         }

@@ -17,17 +17,18 @@ public class FlywheelController {
     private double last_distance = 0;
     double angleToGoal = 0.0;
     PoseVelocity2d odoVelocity = null;
+    public static double INERTIA_FACTOR = 0.001;
 
     public static class LowerPID {
-        public double P = 0.0002, I = 0.0, D = 0.00000;
-        public double F_MAX = 0.47, F_MIN = 0.0, F_VEL = 0.00001, F_STATIC = 0.73;
+        public double P = 0.0003, I = 0.0, D = 0.00000;
+        public double F_MAX = 0.465, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.725;
         public double GEAR_RATIO = 2.0;
     }
 
     public static class UpperPID {
-        public double P = 0.000228, I = 0.0, D = 0.00000;
-        public double F_MAX = 0.5, F_MIN = 0.0, F_VEL = 0.00001, F_STATIC = 0.81;
-        public double GEAR_RATIO = 32 / 15;
+        public double P = 0.00031, I = 0.0, D = 0.00000;
+        public double F_MAX = 0.46, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.725;
+        public double GEAR_RATIO = 32.0 / 15.0;
     }
 
     public static LowerPID LOWER_PID = new LowerPID();
@@ -125,7 +126,7 @@ public class FlywheelController {
 
         telemetry.addData("Denominator: ", denominator);
         double ballVelocity = Math.sqrt(numerator / denominator);
-        return ballVelocity - odoVelocity.linearVel.dot(new Vector2d(Math.sin(angleToGoal), Math.cos(angleToGoal)));
+        return ballVelocity - (INERTIA_FACTOR * odoVelocity.linearVel.dot(new Vector2d(Math.sin(angleToGoal), Math.cos(angleToGoal))));
     }
 
     void setTargetRpmFromVelocity(double velocity) {
