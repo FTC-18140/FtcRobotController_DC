@@ -122,6 +122,8 @@ public class Teleop_BLUE extends OpMode {
         } else {
             if (preSpinUp) {
                 robot.chargeLow();
+            } else {
+                robot.launcher.stop();
             }
         }
 
