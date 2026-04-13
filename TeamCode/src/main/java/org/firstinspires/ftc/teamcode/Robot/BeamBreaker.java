@@ -37,13 +37,6 @@ public class BeamBreaker {
                 telemetry.addData("Indexer Beam Break sensor triggered: ", inIndexer);
             }
         }
-
-        if (null != beamBreakIntake) {
-            inIntake = !beamBreakIntake.getState();
-            if (TELEM) {
-                telemetry.addData("Intake Beam Break sensor triggered: ", inIntake);
-            }
-        }
     }
 
     boolean isBallDetectedInIndexer() {
