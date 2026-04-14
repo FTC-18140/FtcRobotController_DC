@@ -46,7 +46,7 @@ public class BallSensor {
     private int id = 0;
 
     private static final float GAIN = 2.0f;
-    private final float[] hsv = new float[3];
+    private final double[] hsv = new double[3];
     // --- Cached Hardware Values ---
     private NormalizedRGBA colors = null;
     private double distanceCm = 0.0;
@@ -138,31 +138,32 @@ public class BallSensor {
 
     }
 
-    private static void colorToHSV(double red, double green, double blue, @Size(3L) float[] hsv) {
+    private static void colorToHSV(float red, float green, float blue, @Size(3L) double[] hsv) {
         double greenBlueMax = Math.max(green, blue);
         double colorMax = Math.max(red, greenBlueMax);
         double greenBlueMin = Math.min(green, blue);
         double colorMin = Math.min(red, greenBlueMin);
         double delta = colorMax - colorMin;
-        float hue = 0;
-        float saturation;
-        float value = (float) colorMax;
+        double hue = 0;
+        double saturation;
+        double value = colorMax;
+
         if (0 == delta) {
             hue = 0;
         } else if (colorMax == red) {
-            hue = (float) (HSV_CONST * ((((green - blue) / delta)) % 6.0));
+            hue = (HSV_CONST * ((((green - blue) / delta)) % 6.0));
         } else if (colorMax == green) {
-            hue = (float) (HSV_CONST * ((((blue - red) / delta)) + 2.0));
+            hue = (HSV_CONST * ((((blue - red) / delta)) + 2.0));
         } else if (colorMax == blue) {
-            hue = (float) (HSV_CONST * ((((red - green) / delta)) + 4.0));
+            hue = (HSV_CONST * ((((red - green) / delta)) + 4.0));
         }
-        saturation = 0 == colorMax ? 0 : (float) (delta / colorMax);
+        saturation = 0 == colorMax ? 0 : (delta / colorMax);
         hsv[0] = hue;
         hsv[1] = saturation;
         hsv[2] = value;
     }
 
-    private float[] updateColorsToHSV() {
+    private double[] updateColorsToHSV() {
         colorToHSV(colors.red, colors.green, colors.blue, hsv);
         return hsv;
     }
