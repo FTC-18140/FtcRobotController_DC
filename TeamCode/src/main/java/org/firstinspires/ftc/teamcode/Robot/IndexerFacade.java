@@ -36,6 +36,7 @@ public class IndexerFacade {
 
     public static boolean TELEM = true;
     private boolean updated = false;
+    public static int TEST_TAG_ID = 21;
 
     // --- State Management ---
     public enum State {IDLE, HOMING, SELECTING_BALL, INTAKE, AWAITING_LAUNCH, LAUNCHING}
@@ -57,6 +58,7 @@ public class IndexerFacade {
 
     // --- Auto-Sequence Management ---
     private List<BallState> shotSequence = null;
+    private int sequence_id = -1;
     private boolean sequenceStarted = false;
     private int sequenceIndex = -1;
     private boolean[] slots_fired = new boolean[3];
@@ -119,142 +121,19 @@ public class IndexerFacade {
      * the same ball from being used twice to fulfill the sequence.
      */
     public boolean prepSequence() {
-        if (shotSequence == null) return false;
+        if (shotSequence == null) planShotSequence(TEST_TAG_ID);
         if (!shotSequence.contains(BallState.GREEN)) return true;
 
-        int index = shotSequence.indexOf(BallState.GREEN);
+        int index = (2 - shotSequence.indexOf(BallState.GREEN)) % 3;
         int green_pos;
         for (int i = 0; i < 3; i++) {
             if (getBallState(i) == BallState.GREEN) {
                 green_pos = i;
-                turnstile.seekToAngle(currentTargetSlot + (green_pos - index));
+                turnstile.seekToAngle(currentTargetSlot + (index - green_pos));
                 return true;
             }
         }
         return false;
-    }
-
-    private boolean executeNextInSequence() {
-        // Safety check: Do nothing if the sequence is not active.
-        if (null == shotSequence || 0 > sequenceIndex || sequenceIndex >= shotSequence.size())
-            return false;
-
-        sequenceStarted = true;
-
-        // Determine which color we need for this step of the sequence.
-        BallState requiredColor = shotSequence.get(sequenceIndex);
-        boolean ballFound = false;
-        updateBallSensors();
-        updateBallStates();
-
-        // Search all physical slots for a ball that matches the required color.
-        for (int i = 2; -1 < i && !ballFound; i--) {
-            if (ballSlots[i] == requiredColor || (BallState.ALL == requiredColor && BallState.VACANT != ballSlots[i])) {
-                // --- Critical Step ---
-                // Mark this ball as "used" by changing its state in our software model to VACANT.
-                // This prevents the system from re-selecting this same physical ball for a
-                // later step in the sequence (e.g., if the sequence requires two PURPLE balls).
-                ballSlots[i] = BallState.VACANT;
-                slots_fired[i] = true;
-
-                // Command the turnstile to rotate this slot into the firing position.
-                ballFound = true;
-                int slot = (currentTargetSlot + (2 - i)) % 3;
-                telemetry.addData("selected Sequence Slot: ", slot);
-                rotateBallStates(2 - i);
-                currentTargetSlot = slot;
-                turnstile.seekToAngle(SLOT_ANGLES[slot]);
-                beamBreakCounter = 0;
-                currentState = State.SELECTING_BALL;
-            }
-        }
-
-        // If no ball of the required color could be found, something is wrong.
-        // To prevent getting stuck, we cancel the entire autonomous sequence.
-        if (ballFound) {
-            return true;
-        } else {
-            return launchSafeBackup();
-        }
-    }
-
-    private boolean launchSafeBackup() {
-        boolean ballFound = false;
-        updateBallSensors();
-        updateBallStates();
-
-        for (int i = 2; -1 < i && !ballFound; i--) {
-            if (!slots_fired[i] && !usedLaterInSequence(ballSlots[i])) {
-
-                ballSlots[i] = BallState.VACANT;
-                slots_fired[i] = true;
-
-                // Command the turnstile to rotate this slot into the firing position.
-                ballFound = true;
-
-                int slot = (currentTargetSlot + (2 - i)) % 3;
-                telemetry.addData("selected Sequence Slot: ", slot);
-                rotateBallStates(2 - i);
-                currentTargetSlot = slot;
-                turnstile.seekToAngle(SLOT_ANGLES[slot]);
-                beamBreakCounter = 0;
-                currentState = State.SELECTING_BALL;
-            }
-        }
-
-        // If no ball of the required color could be found, something is wrong.
-        // To prevent getting stuck, we cancel the entire autonomous sequence.
-        if (ballFound) {
-            return true;
-        } else {
-            return launchAnyBackup();
-        }
-    }
-
-    private boolean launchAnyBackup() {
-        boolean ballFound = false;
-        updateBallSensors();
-        updateBallStates();
-
-        for (int i = 2; -1 < i && !ballFound; i--) {
-            if (!slots_fired[i]) {
-
-                ballSlots[i] = BallState.VACANT;
-                slots_fired[i] = true;
-
-                // Command the turnstile to rotate this slot into the firing position.
-                ballFound = true;
-
-                int slot = (currentTargetSlot + (2 - i)) % 3;
-                telemetry.addData("selected Sequence Slot: ", slot);
-                rotateBallStates(2 - i);
-                currentTargetSlot = slot;
-                turnstile.seekToAngle(SLOT_ANGLES[slot]);
-                beamBreakCounter = 0;
-                currentState = State.SELECTING_BALL;
-            }
-        }
-
-        // If no ball of the required color could be found, something is wrong.
-        // To prevent getting stuck, we cancel the entire autonomous sequence.
-        if (ballFound) {
-            return true;
-        } else {
-            beamBreakCounter = 0;
-            currentState = State.SELECTING_BALL;
-            return true;
-        }
-    }
-
-    public boolean usedLaterInSequence(BallState ballState) {
-        boolean returnValue = false;
-        for (int i = sequenceIndex + 1; 3 > i; i++) {
-            if (ballState == shotSequence.get(i)) {
-                returnValue = true;
-                break;
-            }
-        }
-        return returnValue;
     }
 
 
@@ -278,7 +157,7 @@ public class IndexerFacade {
                     started = true;
                 }
 
-                return !executeNextInSequence() && isInSequence();
+                return isInSequence();
             }
         };
     }
@@ -432,6 +311,7 @@ public class IndexerFacade {
     public String planShotSequence(int aprilTagId) {
         // Only start a new sequence if the facade is idle.
         if (State.IDLE != currentState && State.AWAITING_LAUNCH != currentState) return null;
+        sequence_id = aprilTagId;
 
         switch (aprilTagId) {
             case 21: // Motif: G-P-P

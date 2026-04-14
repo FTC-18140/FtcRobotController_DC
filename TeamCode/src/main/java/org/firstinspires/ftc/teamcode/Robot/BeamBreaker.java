@@ -17,11 +17,6 @@ public class BeamBreaker {
 
     public void init(HardwareMap hwMap, Telemetry telem) {
         telemetry = telem;
-        try {
-            beamBreakIntake = hwMap.digitalChannel.get("beamBreak");
-        } catch (RuntimeException e) {
-            telemetry.addData("Error", "Could not find digital channel 'beamBreak'");
-        }
 
         try {
             beamBreakIndexer = hwMap.digitalChannel.get("beamBreakIndexer");
@@ -43,7 +38,4 @@ public class BeamBreaker {
         return inIndexer;
     }
 
-    boolean isBallDetectedInIntake() {
-        return inIntake;
-    }
 }
