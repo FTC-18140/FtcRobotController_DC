@@ -53,7 +53,6 @@ public class AutoBlueFar extends LinearOpMode {
                             robot.aimAction(),
                             robot.launcher.prepShotAction(),
                             new SequentialAction(
-                                    robot.indexer.homeAction(),
                                     new RaceAction(
                                             new SequentialAction(
                                                     new ParallelAction(
@@ -63,14 +62,13 @@ public class AutoBlueFar extends LinearOpMode {
                                                             // Plan the first shot sequence while driving.
                                                     ),
                                                     // Launch Preloads
-                                                    robot.spamAction(),
+                                                    robot.sortAndLaunchAction(),
                                                     robot.intakeStartAction(),
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
                                                                     .splineTo(intakePos.position, Math.toRadians(90))
                                                                     .splineToConstantHeading(new Vector2d(intakePos.position.x, 49), Math.toRadians(90), new TranslationalVelConstraint(12))
-                                                                    .build(),
-                                                            robot.indexerFullAction()
+                                                                    .build()
                                                     ),
 
                                                     // Drive to launch spot
@@ -86,9 +84,7 @@ public class AutoBlueFar extends LinearOpMode {
 
                                                     robot.intakeStopAction(),
                                                     // Launch 2nd set of Artifacts
-                                                    robot.planSequenceAction(),
-                                                    robot.startSequenceAction(),
-                                                    robot.waitForSequenceEndAction(),
+                                                    robot.sortAndLaunchAction(),
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
@@ -112,10 +108,7 @@ public class AutoBlueFar extends LinearOpMode {
 
                                                     robot.intakeStopAction(),
                                                     // Launch 2nd set of Artifacts
-
-                                                    robot.planSequenceAction(),
-                                                    robot.startSequenceAction(),
-                                                    robot.waitForSequenceEndAction()
+                                                    robot.sortAndLaunchAction()
 
                                             ),
                                             new SleepAction(27)

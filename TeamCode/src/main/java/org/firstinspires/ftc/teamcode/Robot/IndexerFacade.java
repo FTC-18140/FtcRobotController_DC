@@ -130,6 +130,7 @@ public class IndexerFacade {
             if (getBallState(i) == BallState.GREEN) {
                 green_pos = i;
                 turnstile.seekToAngle(SLOT_ANGLES[currentTargetSlot + (index - green_pos)]);
+                setCurrentState(State.SELECTING_BALL);
                 return true;
             }
         }
@@ -142,6 +143,10 @@ public class IndexerFacade {
             return;
 
         turnstile.launchSlots(3);
+        setCurrentState(State.LAUNCHING);
+        for (int i = 0; i < 2; i++) {
+            ballSlots[i] = BallState.VACANT;
+        }
     }
 
     public Action runCurrentSequenceAction() {
@@ -279,6 +284,8 @@ public class IndexerFacade {
         if ((State.AWAITING_LAUNCH == currentState || State.IDLE == currentState || State.SELECTING_BALL == currentState || State.LAUNCHING == currentState)) {
             currentState = State.LAUNCHING;
             turnstile.launchSlots(1);
+            ballSlots[2] = BallState.VACANT;
+            rotateBallStates(1);
             return true;
         }
         return false;
@@ -449,16 +456,18 @@ public class IndexerFacade {
 
         updated = false;
 
-        if (inIntakeSlot() && isIntaking) {
-            beamBreakCounter++;
-            beamBreakCounter = Math.min(beamBreakCounter, 5);
-        } else {
-            beamBreakCounter--;
-            beamBreakCounter = Math.max(beamBreakCounter, 0);
-        }
+        if(isIntaking) {
+            if (inIntakeSlot()) {
+                beamBreakCounter++;
+                beamBreakCounter = Math.min(beamBreakCounter, 5);
+            } else {
+                beamBreakCounter--;
+                beamBreakCounter = Math.max(beamBreakCounter, 0);
+            }
 
-        if (isIntaking && turnstile.isOverSlot() && beamBreakCounter >= 5) {
-            readyNextIntakeSlot(BallState.VACANT);
+            if (turnstile.isOverSlot() && beamBreakCounter >= 3) {
+                readyNextIntakeSlot(BallState.VACANT);
+            }
         }
 
 
@@ -482,12 +491,8 @@ public class IndexerFacade {
                 break;
             case AWAITING_LAUNCH: // In position, ready to receive a flip() command from an external source.
                 // Do nothing. The system will wait here until flip() is called.
-                if (null != shotSequence && turnstile.isAtTarget() && sequenceStarted && isAtRpm) {
-                    launch();
-                    ballNumber--;
-                    if (0 > ballNumber) ballNumber = 0;
-
-                    sequenceStarted = false;
+                if (!turnstile.isAtTarget()) {
+                    currentState = State.SELECTING_BALL;
                 }
                 break;
             case LAUNCHING:
