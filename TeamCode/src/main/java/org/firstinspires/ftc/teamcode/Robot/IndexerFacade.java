@@ -30,7 +30,7 @@ public class IndexerFacade {
     private final ElapsedTime flipTimer = new ElapsedTime();
 
     // --- Constants ---
-    public static final double[] SLOT_ANGLES = {120.0, 240.0, (double) 0}; // Angles for slots 0, 1, and 2
+    public static final double[] SLOT_ANGLES = {240.0, 120.0, (double) 0}; // Angles for slots 0, 1, and 2
 
     public int beamBreakCounter = 0;
 
@@ -129,7 +129,7 @@ public class IndexerFacade {
         for (int i = 0; i < 3; i++) {
             if (getBallState(i) == BallState.GREEN) {
                 green_pos = i;
-                turnstile.seekToAngle(currentTargetSlot + (index - green_pos));
+                turnstile.seekToAngle(SLOT_ANGLES[currentTargetSlot + (index - green_pos)]);
                 return true;
             }
         }
@@ -382,6 +382,13 @@ public class IndexerFacade {
         isIntaking = false;
     }
 
+    public boolean inIntakeSlot(){
+        if(!updated) {
+            ballSensors[0].update();
+        }
+        boolean detected = (ballSensors[0].getDetectedColor() != BallSensor.BallColor.NONE);
+        return detected;
+    }
     public BallState getBallState(int slot) {
         ballSensors[slot * 2].update();
         ballSensors[slot * 2 + 1].update();
@@ -425,6 +432,9 @@ public class IndexerFacade {
                 ballNumber++;
             }
         }
+        if (beamBreak.isBallDetectedInIntake()){
+            ballNumber++;
+        }
     }
 
     public int getBallNumber() {
@@ -439,7 +449,7 @@ public class IndexerFacade {
 
         updated = false;
 
-        if (beamBreak.isBallDetectedInIndexer()) {
+        if (inIntakeSlot() && isIntaking) {
             beamBreakCounter++;
             beamBreakCounter = Math.min(beamBreakCounter, 5);
         } else {
@@ -447,11 +457,7 @@ public class IndexerFacade {
             beamBreakCounter = Math.max(beamBreakCounter, 0);
         }
 
-        if (isIntaking && turnstile.isOverSlot() && ballInIndexer()) {
-//            if (previousBallStateIntake == BallState.VACANT && ballSlots[0] != BallState.VACANT) {
-//                ballNumber++;
-//            }
-
+        if (isIntaking && turnstile.isOverSlot() && beamBreakCounter >= 5) {
             readyNextIntakeSlot(BallState.VACANT);
         }
 
