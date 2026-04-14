@@ -18,6 +18,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 public class BallSensor {
 
     private static final double HSV_CONST = 60.0;
+    private static double PRESENCE_HUE_MIN = 30;
 
     /**
      * Enum to represent the detected color of a ball.
@@ -32,20 +33,20 @@ public class BallSensor {
     private Telemetry telemetry = null;
     private String sensorName = null;
 
-    private static boolean TELEM = true;
+    public static boolean TELEM = true;
 
     // --- Tunable Constants via FTC Dashboard ---
 
-    private static final int GREEN_HUE_MIN = 110;
-    private static final int GREEN_HUE_MAX = 160;
-    private static final int PURPLE_HUE_MIN = 185;
-    private static final int PURPLE_HUE_MAX = 245;
+    public static int GREEN_HUE_MIN = 90;
+    public static int GREEN_HUE_MAX = 175;
+    public static int PURPLE_HUE_MIN = 185;
+    public static  int PURPLE_HUE_MAX = 295;
 
 
-    private static double[] presenceDistances = {4.0, 4.0, 4.2, 6.7, 4.0, 4.0};
-    private int id = 0;
+    public static double[] PRESENCE_DISTANCES = {4.2, 4.5, 6.3, 6.4, 4.0, 5.35};
+    public int id = 0;
 
-    private static final float GAIN = 2.0f;
+    public static final float GAIN = 2.0f;
     private final double[] hsv = new double[3];
     // --- Cached Hardware Values ---
     private NormalizedRGBA colors = null;
@@ -85,8 +86,14 @@ public class BallSensor {
             if (isBallPresentInternal()) {
                 if (isBallColorHSV(BallColor.PURPLE)) {
                     detectedColor = BallColor.PURPLE;
-                } else {
+                } else if (3 > id) {
                     detectedColor = BallColor.GREEN;
+                } else {
+                    if (isBallColorHSV(BallColor.GREEN)) {
+                        detectedColor = BallColor.GREEN;
+                    } else {
+                        detectedColor = BallColor.NONE;
+                    }
                 }
             } else {
                 detectedColor = BallColor.NONE;
@@ -117,7 +124,7 @@ public class BallSensor {
     // --- Internal Helper Methods ---
 
     private boolean isBallPresentInternal() {
-        return distanceCm < presenceDistances[id];
+        return distanceCm < PRESENCE_DISTANCES[id] && hsv[0] >= PRESENCE_HUE_MIN;
     }
 
     private boolean isBallColorHSV(BallColor ballColor) {
@@ -125,7 +132,6 @@ public class BallSensor {
         switch (ballColor) {
             case GREEN:
                 isBallColor = (GREEN_HUE_MIN <= hsv[0]) && (GREEN_HUE_MAX >= hsv[0]);
-
                 break;
             case PURPLE:
                 isBallColor = (PURPLE_HUE_MIN <= hsv[0]) && (PURPLE_HUE_MAX >= hsv[0]);
