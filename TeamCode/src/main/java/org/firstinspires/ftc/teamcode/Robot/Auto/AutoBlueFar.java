@@ -66,7 +66,7 @@ public class AutoBlueFar extends LinearOpMode {
                                                     robot.intakeStartAction(),
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
-                                                                    .splineTo(intakePos.position, Math.toRadians(90))
+                                                                    .splineToSplineHeading(intakePos, Math.toRadians(90))
                                                                     .splineToConstantHeading(new Vector2d(intakePos.position.x, 49), Math.toRadians(90), new TranslationalVelConstraint(12))
                                                                     .build()
                                                     ),

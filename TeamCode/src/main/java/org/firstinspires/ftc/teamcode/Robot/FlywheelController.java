@@ -18,6 +18,7 @@ public class FlywheelController {
     double angleToGoal = 0.0;
     PoseVelocity2d odoVelocity = null;
     public static double INERTIA_FACTOR = 0.007;
+    public static double RPM_TOLERANCE = 50;
 
     public static class LowerPID {
         public double P = 0.0004, I = 0.0005, D = 0.00000;
@@ -103,7 +104,7 @@ public class FlywheelController {
     public boolean isAtTargetRpm() {
         boolean atRpm;
         double meanSqr = (Math.pow(lowerWheel.getError(), 2) + Math.pow(upperWheel.getError(), 2)) / 2;
-        atRpm = 25 > Math.sqrt(meanSqr);
+        atRpm = RPM_TOLERANCE > Math.sqrt(meanSqr);
 
         telemetry.addData("lower Flywheel error: ", lowerWheel.getError());
         telemetry.addData("upper Flywheel error: ", upperWheel.getError());

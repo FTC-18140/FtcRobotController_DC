@@ -121,7 +121,7 @@ public class IndexerFacade {
      * the same ball from being used twice to fulfill the sequence.
      */
     public boolean prepSequence() {
-        if (shotSequence == null) planShotSequence(TEST_TAG_ID);
+        if (shotSequence == null) planShotSequence(sequence_id);
         if (!shotSequence.contains(BallState.GREEN)) return true;
 
         int index = (2 - shotSequence.indexOf(BallState.GREEN)) % 3;
@@ -129,12 +129,12 @@ public class IndexerFacade {
         for (int i = 0; i < 3; i++) {
             if (getBallState(i) == BallState.GREEN) {
                 green_pos = i;
-                turnstile.seekToAngle(SLOT_ANGLES[currentTargetSlot + (index - green_pos)]);
+                turnstile.seekToAngle(SLOT_ANGLES[(currentTargetSlot + (index - green_pos)) % 3]);
                 setCurrentState(State.SELECTING_BALL);
                 return true;
             }
         }
-        return false;
+        return true;
     }
 
 
@@ -435,7 +435,7 @@ public class IndexerFacade {
     public void updateBallCount() {
         ballNumber = 0;
         for (int i = 0; i < ballSlots.length; i++) {
-            if (BallState.GREEN == ballSlots[i] || BallState.PURPLE == ballSlots[i] || (0 == i && ballInIndexer())) {
+            if (BallState.GREEN == ballSlots[i] || BallState.PURPLE == ballSlots[i]) {
                 ballNumber++;
             }
         }
@@ -504,9 +504,7 @@ public class IndexerFacade {
 
         // Only update ball states from sensors if we are NOT in an active auto-sequence
         // This prevents a ball that has been logically "used" from being re-detected.
-        if (null == shotSequence) {
-            updateBallStates();
-        }
+        updateBallStates();
         updateBallCount();
         previousBallStateIntake = ballSlots[0];
 
