@@ -161,9 +161,9 @@ public class Teleop_Red extends OpMode {
 
                 // Then, check for discrete, one-shot commands.
                 if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_LEFT)) {
-                    robot.indexer.cycle(1);
-                } else if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_RIGHT)) {
                     robot.indexer.cycle(-1);
+                } else if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_RIGHT)) {
+                    robot.indexer.cycle(1);
                 } else if (theGamepad2.getButton(TBDGamepad.Button.LEFT_STICK_BUTTON)) {
                     robot.indexer.adjustToThird();
                 } else if (IndexerFacade.State.IDLE == robot.indexer.getCurrentState() || IndexerFacade.State.AWAITING_LAUNCH == robot.indexer.getCurrentState()) {

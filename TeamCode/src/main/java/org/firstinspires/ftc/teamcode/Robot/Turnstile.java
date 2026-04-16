@@ -40,7 +40,7 @@ public class Turnstile {
     public static double HOMING_OFFSET = 0;
     private double current_offset = 0; // --- Non-tunable Constants ---
     private static final double COUNTS_PER_REVOLUTION = 8192;
-    private static final double GEAR_RATIO = (double) 31 / 32;
+    private static final double GEAR_RATIO = (double) 2 / 1;
     private static final double COUNTS_PER_DEGREE = COUNTS_PER_REVOLUTION / 360;
     public static final String STARTING_ANGLE_KEY = "ENDING_ANGLE_INDEXER";
     public double startingAngle;

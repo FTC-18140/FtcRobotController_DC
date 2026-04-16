@@ -44,7 +44,7 @@ public class Turret implements DataLoggable {
     private Telemetry telemetry;
 
     // Tunable constants from your original file
-    public static double P_TURRET = 0.019, I_TURRET = 0.029, D_TURRET = 0.0012, F_TURRET_MIN = 0.0, F_TURRET_MAX = 0.018;
+    public static double P_TURRET = 0.015, I_TURRET = 0.029, D_TURRET = 0.0012, F_TURRET_MIN = 0.0, F_TURRET_MAX = 0.018;
     public static double MAX_TURRET_POS = 270.0;
     public static double MIN_TURRET_POS = -90.0;
     public static double TURRET_ANGLE_TOLERANCE = 2.5;
@@ -54,8 +54,8 @@ public class Turret implements DataLoggable {
     public static boolean TELEM = false;
 
     public static double MAX_POWER = 0.6;
-    public static double MIN_POWER_POSITIVE = 0.01;
-    public static double MIN_POWER_NEGATIVE = -0.01;
+    public static double MIN_POWER_POSITIVE = 0.02;
+    public static double MIN_POWER_NEGATIVE = -0.02;
     public static double TURRET_DEGREES_PER_ENCODER_TICK = (double) 1 / 8192.0 * 360.0 * 16 / 100;
 
 
