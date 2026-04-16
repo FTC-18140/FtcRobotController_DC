@@ -43,6 +43,7 @@ public class ThunderBot2025 implements DataLoggable {
     }
 
     private Alliance_Color color = Alliance_Color.BLUE;
+    public IndexerFacade.BallState lastBallState = null;
     private Telemetry telemetry = null;
     private static boolean field_centric = true;
     public static final double MIN_SPEED = 0.3;
@@ -114,7 +115,7 @@ public class ThunderBot2025 implements DataLoggable {
         intake.update();
 
 
-        IndexerFacade.BallState lastBallState = indexer.getLastBallState(2);
+        lastBallState = indexer.getLastBallState(2);
         double flywheelTargetRpm = launcher.getFlywheelTargetRpm();
         double flywheelRpm = launcher.getLowerFlywheelRpm();
 
@@ -123,7 +124,7 @@ public class ThunderBot2025 implements DataLoggable {
 
         led.update(flywheelRpm, flywheelTargetRpm, seconds, lastBallState, isIndexerFull, state);
 
-        kickstand.update();
+//        kickstand.update();
 
         if (0 < intake.getIntakePower() && !indexer.isNearSlot()) {
             //intake.slow();
@@ -133,6 +134,7 @@ public class ThunderBot2025 implements DataLoggable {
         } else {
             intake.unslow();
         }
+
     }
 
     private void addTelemetry() {
@@ -157,6 +159,60 @@ public class ThunderBot2025 implements DataLoggable {
         color = alliance;
         launcher.setAlliance(color);
     }
+
+    public double[] colorToRgb(LED.Colors color) {
+        double[] rgb = new double[3];
+        switch (color) {
+            case OFF:
+                rgb[0] = 0;
+                rgb[1] = 0;
+                rgb[2] = 0;
+                break;
+            case RED:
+                rgb[0] = 1;
+                rgb[1] = 0;
+                rgb[2] = 0;
+                break;
+            case ORANGE:
+                rgb[0] = 0;
+                rgb[1] = 0;
+                rgb[2] = 0;
+                break;
+            case YELLOW:
+                rgb[0] = 1;
+                rgb[1] = 1;
+                rgb[2] = 0;
+                break;
+            case GREEN:
+                rgb[0] = 0;
+                rgb[1] = 1;
+                rgb[2] = 0;
+                break;
+            case BLUE:
+                rgb[0] = 0;
+                rgb[1] = 0;
+                rgb[2] = 1;
+                break;
+            case INDIGO:
+                rgb[0] = 0;
+                rgb[1] = 0;
+                rgb[2] = 0;
+                break;
+            case PURPLE:
+                rgb[0] = 1;
+                rgb[1] = 0;
+                rgb[2] = 1;
+                break;
+            case WHITE:
+                rgb[0] = 1;
+                rgb[1] = 1;
+                rgb[2] = 1;
+                break;
+        }
+
+        return rgb;
+    }
+
 
     public double getBatteryVoltage() {
         return voltageSensor.getVoltage();
