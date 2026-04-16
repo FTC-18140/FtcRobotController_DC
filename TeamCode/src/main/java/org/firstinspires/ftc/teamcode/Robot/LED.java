@@ -14,7 +14,7 @@ public class LED {
 
     private final ElapsedTime ledTimer = new ElapsedTime();
 
-    enum Colors {
+    public enum Colors {
         OFF,
         RED,
         BLUE,
@@ -134,7 +134,7 @@ public class LED {
      *
      * @param color
      */
-    private double getColor(Colors color) {
+    public double getColor(Colors color) {
         switch (color) {
             case OFF:
                 hue = 0.0;

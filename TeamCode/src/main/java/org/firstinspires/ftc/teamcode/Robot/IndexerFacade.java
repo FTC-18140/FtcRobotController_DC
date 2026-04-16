@@ -64,7 +64,7 @@ public class IndexerFacade {
     private boolean[] slots_fired = new boolean[3];
 
     public void init(HardwareMap hwMap, Telemetry telem) {
-        this.telemetry = telem;
+        telemetry = telem;
 
 //        flipper = new Flipper();
 //        flipper.init(hwMap, telem);
@@ -78,8 +78,6 @@ public class IndexerFacade {
         }
         for (int i = 0; 3 > i; i++) {
             ballSlots[i] = BallState.VACANT;
-        }
-        for (int i = 0; 3 > i; i++) {
             slots_fired[i] = false;
         }
 
@@ -107,7 +105,7 @@ public class IndexerFacade {
 
     public void setInitialBallStates(BallState[] initialStates) {
         if (3 == initialStates.length) {
-            this.ballSlots = initialStates;
+            ballSlots = initialStates;
         }
     }
 
@@ -121,13 +119,13 @@ public class IndexerFacade {
      * the same ball from being used twice to fulfill the sequence.
      */
     public boolean prepSequence() {
-        if (shotSequence == null) planShotSequence(sequence_id);
+        if (null == shotSequence) planShotSequence(sequence_id);
         if (!shotSequence.contains(BallState.GREEN)) return true;
 
         int index = (2 - shotSequence.indexOf(BallState.GREEN)) % 3;
         int green_pos;
-        for (int i = 0; i < 3; i++) {
-            if (getBallState(i) == BallState.GREEN) {
+        for (int i = 0; 3 > i; i++) {
+            if (BallState.GREEN == getBallState(i)) {
                 green_pos = i;
                 int angle = (currentTargetSlot + (index - green_pos));
                 turnstile.seekToAngle(SLOT_ANGLES[Math.floorMod(angle, 3)]);
@@ -140,14 +138,18 @@ public class IndexerFacade {
 
 
     public void launchAllInIndexer() {
-        if (State.IDLE != currentState && State.AWAITING_LAUNCH != currentState && State.LAUNCHING != currentState && State.SELECTING_BALL != currentState)
-            return;
-
-        turnstile.launchSlots(3);
-        setCurrentState(State.LAUNCHING);
-        for (int i = 0; i < 2; i++) {
-            ballSlots[i] = BallState.VACANT;
+        if (canLaunchAll()) {
+            turnstile.launchSlots(3);
+            setCurrentState(State.LAUNCHING);
+            for (int i = 0; 2 > i; i++) {
+                ballSlots[i] = BallState.VACANT;
+            }
         }
+
+    }
+
+    private boolean canLaunchAll() {
+        return State.IDLE == currentState || State.AWAITING_LAUNCH == currentState || State.LAUNCHING == currentState || State.SELECTING_BALL == currentState;
     }
 
     public Action runCurrentSequenceAction() {
@@ -270,7 +272,7 @@ public class IndexerFacade {
      * @param slot The index of the target slot (0, 1, or 2).
      */
     public boolean selectSlot(int slot) {
-        if ((State.IDLE == currentState || State.AWAITING_LAUNCH == currentState || State.SELECTING_BALL == currentState || State.LAUNCHING == currentState) && 0 <= slot && 3 > slot) {
+        if (canSelectSlot(slot)) {
             rotateBallStates((slot - currentTargetSlot + 3) % 3);
             currentTargetSlot = slot;
             turnstile.seekToAngle(SLOT_ANGLES[currentTargetSlot]);
@@ -281,8 +283,12 @@ public class IndexerFacade {
         return false;
     }
 
+    private boolean canSelectSlot(int slot) {
+        return (State.IDLE == currentState || State.AWAITING_LAUNCH == currentState || State.SELECTING_BALL == currentState || State.LAUNCHING == currentState) && 0 <= slot && 3 > slot;
+    }
+
     public boolean launch() {
-        if ((State.AWAITING_LAUNCH == currentState || State.IDLE == currentState || State.SELECTING_BALL == currentState || State.LAUNCHING == currentState)) {
+        if (canLaunch()) {
             currentState = State.LAUNCHING;
             turnstile.launchSlots(1);
             ballSlots[2] = BallState.VACANT;
@@ -292,20 +298,9 @@ public class IndexerFacade {
         return false;
     }
 
-    public void manualFlip() {
-
+    private boolean canLaunch() {
+        return State.AWAITING_LAUNCH == currentState || State.IDLE == currentState || State.SELECTING_BALL == currentState || State.LAUNCHING == currentState;
     }
-
-//    public boolean flipAndCycle() {
-//        boolean returnValue = false;
-//        if ((State.AWAITING_LAUNCH == currentState || State.IDLE == currentState) && turnstile.isAtTarget()) {
-//            currentState = State.FLIP_TO_CYCLE;
-//            flipper.extend();
-//            flipTimer.reset();
-//            returnValue = true;
-//        }
-//        return returnValue;
-//    }
 
     /**
      * Plans and initiates an autonomous shot sequence based on a detected AprilTag ID.
@@ -318,34 +313,33 @@ public class IndexerFacade {
      */
     public String planShotSequence(int aprilTagId) {
         // Only start a new sequence if the facade is idle.
-        if (State.IDLE != currentState && State.AWAITING_LAUNCH != currentState) return null;
-        sequence_id = aprilTagId;
+        if (State.IDLE == currentState || State.AWAITING_LAUNCH == currentState) {
+            sequence_id = aprilTagId;
 
-        switch (aprilTagId) {
-            case 21: // Motif: G-P-P
-                shotSequence = Arrays.asList(BallState.GREEN, BallState.PURPLE, BallState.PURPLE);
-                break;
-            case 22: // Motif: P-G-P
-                shotSequence = Arrays.asList(BallState.PURPLE, BallState.GREEN, BallState.PURPLE);
-                break;
-            case 23: // Motif: P-P-G
-                shotSequence = Arrays.asList(BallState.PURPLE, BallState.PURPLE, BallState.GREEN);
-                break;
-            default:
-                // Invalid ID, do nothing.
-                return null;
-        }
+            switch (aprilTagId) {
+                case 21: // Motif: G-P-P
+                    shotSequence = Arrays.asList(BallState.GREEN, BallState.PURPLE, BallState.PURPLE);
+                    break;
+                case 22: // Motif: P-G-P
+                    shotSequence = Arrays.asList(BallState.PURPLE, BallState.GREEN, BallState.PURPLE);
+                    break;
+                case 23: // Motif: P-P-G
+                    shotSequence = Arrays.asList(BallState.PURPLE, BallState.PURPLE, BallState.GREEN);
+                    break;
+                default:
+                    // Invalid ID, do nothing.
+                    return null;
+            }
 
-        sequenceIndex = 0;
+            sequenceIndex = 0;
 
-        return shotSequence.toString();
-
+            return shotSequence.toString();
+        } else return null;
 
     }
 
 
     // --- Compatibility Shims for TeleOp (Corrected) ---
-    public void unflip() { /* The new state machine handles this automatically */ }
 
     public void adjustToThird() {
         setCurrentState(State.HOMING);
@@ -357,7 +351,7 @@ public class IndexerFacade {
 
     public boolean cycle(int direction) {
         // Corrected: This now cycles to the next adjacent slot.
-        int startSlot = (-1 != currentTargetSlot) ? currentTargetSlot : 0;
+        int startSlot = (-1 == currentTargetSlot) ? 0 : currentTargetSlot;
         int nextSlot = (startSlot + direction + 3) % 3; // Handles positive/negative direction and wrap-around
         return selectSlot(nextSlot);
     }
@@ -390,13 +384,13 @@ public class IndexerFacade {
         isIntaking = false;
     }
 
-    public boolean inIntakeSlot(){
-        if(!updated) {
+    public boolean inIntakeSlot() {
+        if (!updated) {
             ballSensors[0].update();
         }
-        boolean detected = (ballSensors[0].getDetectedColor() != BallSensor.BallColor.NONE);
-        return detected;
+        return (BallSensor.BallColor.NONE != ballSensors[0].getDetectedColor());
     }
+
     public BallState getBallState(int slot) {
         ballSensors[slot * 2].update();
         ballSensors[slot * 2 + 1].update();
@@ -440,7 +434,7 @@ public class IndexerFacade {
                 ballNumber++;
             }
         }
-        if (beamBreak.isBallDetectedInIntake()){
+        if (beamBreak.isBallDetectedInIntake()) {
             ballNumber++;
         }
     }
@@ -457,7 +451,7 @@ public class IndexerFacade {
 
         updated = false;
 
-        if(isIntaking) {
+        if (isIntaking) {
             if (inIntakeSlot()) {
                 beamBreakCounter++;
                 beamBreakCounter = Math.min(beamBreakCounter, 5);
@@ -466,7 +460,7 @@ public class IndexerFacade {
                 beamBreakCounter = Math.max(beamBreakCounter, 0);
             }
 
-            if (turnstile.isOverSlot() && beamBreakCounter >= 3) {
+            if (turnstile.isOverSlot() && 3 <= beamBreakCounter) {
                 readyNextIntakeSlot(BallState.VACANT);
             }
         }
