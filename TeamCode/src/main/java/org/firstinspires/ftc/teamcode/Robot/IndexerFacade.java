@@ -129,7 +129,8 @@ public class IndexerFacade {
         for (int i = 0; i < 3; i++) {
             if (getBallState(i) == BallState.GREEN) {
                 green_pos = i;
-                turnstile.seekToAngle(SLOT_ANGLES[(currentTargetSlot + (index - green_pos)) % 3]);
+                int angle = (currentTargetSlot + (index - green_pos));
+                turnstile.seekToAngle(SLOT_ANGLES[Math.floorMod(angle, 3)]);
                 setCurrentState(State.SELECTING_BALL);
                 return true;
             }
@@ -242,12 +243,12 @@ public class IndexerFacade {
             updateBallStates();
             for (int i = 3; 0 < i && !slotFound; i--) {
 
-                int slotToCheck = (startSlot + i) % 3;
+                int slotToCheck = (i) % 3;
 
                 if (ballSlots[slotToCheck] == ballState) {
 
-                    int slot = (currentTargetSlot + (3 - slotToCheck)) % 3;
-                    rotateBallStates(3 - slotToCheck);
+                    int slot = Math.floorMod(currentTargetSlot + (3-slotToCheck), 3);
+                    rotateBallStates(3-slotToCheck);
                     currentTargetSlot = slot;
                     turnstile.seekToAngle(SLOT_ANGLES[slot]);
                     beamBreakCounter = 0;
@@ -409,7 +410,7 @@ public class IndexerFacade {
     }
 
     public boolean indexerIsFull() {
-        return !((BallState.VACANT == ballSlots[0] || BallState.VACANT == ballSlots[1] || BallState.VACANT == ballSlots[2]) || State.SELECTING_BALL == currentState) || 3 <= ballNumber;
+        return !((BallState.VACANT == ballSlots[0] || BallState.VACANT == ballSlots[1] || BallState.VACANT == ballSlots[2]) || State.SELECTING_BALL == currentState || State.LAUNCHING == currentState || 3 <= ballNumber);
     }
 
     public int getCurrentTargetSlot() {
@@ -434,7 +435,7 @@ public class IndexerFacade {
 
     public void updateBallCount() {
         ballNumber = 0;
-        for (int i = 0; i < ballSlots.length; i++) {
+        for (int i = 0; i < 3; i++) {
             if (BallState.GREEN == ballSlots[i] || BallState.PURPLE == ballSlots[i]) {
                 ballNumber++;
             }
