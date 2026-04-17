@@ -106,7 +106,7 @@ public class ThunderBot2025 implements DataLoggable {
         PoseVelocity2d robotPoseVel = drive.updatePoseEstimate();
 
         addTelemetry();
-        launcher.update(drive.localizer.getPose(), robotPoseVel);
+        launcher.update(drive.localizer.getPose(), robotPoseVel, getBatteryVoltage());
 
         boolean atTargetRpm = launcher.isAtTargetRpm();
         boolean atTarget = launcher.isAtTarget();

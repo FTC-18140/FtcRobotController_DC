@@ -45,7 +45,7 @@ public class Turret implements DataLoggable {
 
     // Tunable constants from your original file
     public static double P_TURRET = 0.02, I_TURRET = 0.02, D_TURRET = 0.0012, F_TURRET_MIN = 0.0, F_TURRET_MAX = 0.018;
-    public static double MIN_TURRET_POS = -115;
+    public static double MIN_TURRET_POS = -90;
     public static double MAX_TURRET_POS = 360 + MIN_TURRET_POS;
     public static double TURRET_ANGLE_TOLERANCE = 2.5;
 

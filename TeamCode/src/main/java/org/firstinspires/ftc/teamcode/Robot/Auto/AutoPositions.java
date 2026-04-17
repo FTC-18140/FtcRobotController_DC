@@ -21,7 +21,7 @@ public class AutoPositions {
         PARKING_LAUNCH_ZONE_RED(new Vector2d(35.0, -12.0)),
         ARTIFACT_BASE_BLUE(new Vector2d(-42, 22.0)),
         ARTIFACT_BASE_RED(new Vector2d(-30, -22.0)),
-        ARTIFACT_CENTER_BLUE(new Vector2d(-12, 22.0)),
+        ARTIFACT_CENTER_BLUE(new Vector2d(-18, 22.0)),
         ARTIFACT_CENTER_RED(new Vector2d(-6, -22.0)),
         ARTIFACT_GATE_BLUE(new Vector2d(13.5, 22.0)),
         ARTIFACT_GATE_RED(new Vector2d(14.5, -26.0)),
