@@ -211,7 +211,7 @@ public class LauncherFacade implements DataLoggable {
         setAimingMode(AimingMode.DIRECTIONAL);
         if (turret.isHomed()) {
             double offset = getTurretAngleRaw();
-            turret.setOffset(offset);
+            turret.setOffsetAngle(offset);
             returnValue = true;
         }
         return returnValue;
