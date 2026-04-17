@@ -4,8 +4,11 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+
+import java.awt.font.NumericShaper;
 
 @Config
 public class FlywheelController {
@@ -48,14 +51,15 @@ public class FlywheelController {
         upperWheel.init(hwMap, telem, "launcher", "turret");
         upperWheel.setEncoderReversed();
 
-        lowerWheel.setParameters(LOWER_PID.P, LOWER_PID.I, LOWER_PID.D, LOWER_PID.F_MIN, LOWER_PID.F_MAX, LOWER_PID.F_VEL, LOWER_PID.F_STATIC, LOWER_PID.GEAR_RATIO, 1);
-        upperWheel.setParameters(UPPER_PID.P, UPPER_PID.I, UPPER_PID.D, UPPER_PID.F_MIN, UPPER_PID.F_MAX, UPPER_PID.F_VEL, UPPER_PID.F_STATIC, UPPER_PID.GEAR_RATIO, FLYWHEEL_RATIO);
+        lowerWheel.setParameters(LOWER_PID.P, LOWER_PID.I, LOWER_PID.D, LOWER_PID.F_MIN, LOWER_PID.F_MAX, LOWER_PID.F_VEL, LOWER_PID.F_STATIC, LOWER_PID.GEAR_RATIO, FLYWHEEL_RATIO);
+        upperWheel.setParameters(UPPER_PID.P, UPPER_PID.I, UPPER_PID.D, UPPER_PID.F_MIN, UPPER_PID.F_MAX, UPPER_PID.F_VEL, UPPER_PID.F_STATIC, UPPER_PID.GEAR_RATIO, 1 / FLYWHEEL_RATIO);
     }
 
     public void update(PoseVelocity2d currentOdoVelocity, double fieldAngleToGoal, double voltage) {
         double voltage_factor = 13.0 / voltage;
-        lowerWheel.setParameters(LOWER_PID.P, LOWER_PID.I, LOWER_PID.D, LOWER_PID.F_MIN, LOWER_PID.F_MAX * voltage_factor, LOWER_PID.F_VEL, LOWER_PID.F_STATIC * voltage_factor, LOWER_PID.GEAR_RATIO, 1);
-        upperWheel.setParameters(UPPER_PID.P, UPPER_PID.I, UPPER_PID.D, UPPER_PID.F_MIN, UPPER_PID.F_MAX * voltage_factor, UPPER_PID.F_VEL, UPPER_PID.F_STATIC * voltage_factor, UPPER_PID.GEAR_RATIO, FLYWHEEL_RATIO);
+
+        lowerWheel.setParameters(LOWER_PID.P, LOWER_PID.I, LOWER_PID.D, LOWER_PID.F_MIN, LOWER_PID.F_MAX * voltage_factor, LOWER_PID.F_VEL, LOWER_PID.F_STATIC * voltage_factor, LOWER_PID.GEAR_RATIO, FLYWHEEL_RATIO);
+        upperWheel.setParameters(UPPER_PID.P, UPPER_PID.I, UPPER_PID.D, UPPER_PID.F_MIN, UPPER_PID.F_MAX * voltage_factor, UPPER_PID.F_VEL, UPPER_PID.F_STATIC * voltage_factor, UPPER_PID.GEAR_RATIO, 1 / FLYWHEEL_RATIO);
 
         lowerWheel.update();
         upperWheel.update();
@@ -118,6 +122,7 @@ public class FlywheelController {
 
     public double calculateBallVelocity(double distance, double height, double angleDegrees) {
         last_distance = distance;
+
         double angleRad = Math.toRadians(angleDegrees);
         double g = 9.81;
 
