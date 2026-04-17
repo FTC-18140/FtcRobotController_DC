@@ -161,8 +161,6 @@ public class ThunderBot2025 implements DataLoggable {
     }
 
 
-
-
     public double getBatteryVoltage() {
         return voltageSensor.getVoltage();
     }
