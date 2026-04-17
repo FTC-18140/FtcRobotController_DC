@@ -347,6 +347,7 @@ public class IndexerFacade {
 
     public void spin(double power) {
         turnstile.spin(power);
+        currentState = State.IDLE;
     }
 
     public boolean cycle(int direction) {

@@ -65,20 +65,18 @@ public class AutoRedFar extends LinearOpMode {
                                                             // Plan the first shot sequence while driving.
                                                     ),
                                                     // Launch Preloads
-                                                    robot.startSequenceAction(),
-                                                    robot.waitForSequenceEndAction(),
+                                                    robot.sortAndLaunchAction(),
                                                     robot.intakeStartAction(),
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
-                                                                    .splineTo(intakePos.position, Math.toRadians(-90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x, -49), Math.toRadians(-90), new TranslationalVelConstraint(12))
+                                                                    .splineToSplineHeading(intakePos, Math.toRadians(-90))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x, -54), Math.toRadians(-90), new TranslationalVelConstraint(12))
                                                                     .build(),
                                                             robot.indexerFullAction()
                                                     ),
-
                                                     // Drive to launch spot
                                                     new ParallelAction(
-                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, -49), Math.toRadians(-90)))
+                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, -54), Math.toRadians(-90)))
                                                                     .setTangent(Math.toRadians(90))
                                                                     .splineTo(launchPos.position, Math.toRadians(180))
                                                                     .build()
@@ -89,22 +87,20 @@ public class AutoRedFar extends LinearOpMode {
 
                                                     robot.intakeStopAction(),
                                                     // Launch 2nd set of Artifacts
-                                                    robot.planSequenceAction(),
-                                                    robot.startSequenceAction(),
-                                                    robot.waitForSequenceEndAction(),
+                                                    robot.indexer.homeAction(),
+                                                    robot.sortAndLaunchAction(),
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
                                                                     .splineTo(intakePos2.position, Math.toRadians(-90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos2.position.x, -49), Math.toRadians(-90), new TranslationalVelConstraint(20))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos2.position.x, -54), Math.toRadians(-90), new TranslationalVelConstraint(12))
                                                                     .build(),
                                                             robot.indexerFullAction()
                                                     ),
-
                                                     // Drive to launch spot
                                                     new ParallelAction(
-                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos2.position.x, -49), Math.toRadians(-90)))
+                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos2.position.x, -54), Math.toRadians(-90)))
                                                                     .setTangent(Math.toRadians(90))
                                                                     .splineTo(launchPos.position, Math.toRadians(180))
                                                                     .build()
@@ -115,10 +111,8 @@ public class AutoRedFar extends LinearOpMode {
 
                                                     robot.intakeStopAction(),
                                                     // Launch 2nd set of Artifacts
-
-                                                    robot.planSequenceAction(),
-                                                    robot.startSequenceAction(),
-                                                    robot.waitForSequenceEndAction()
+                                                    robot.indexer.homeAction(),
+                                                    robot.sortAndLaunchAction()
 
                                             ),
                                             new SleepAction(27)

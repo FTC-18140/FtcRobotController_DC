@@ -29,24 +29,25 @@ public class Turnstile {
     public static boolean TELEM = false;
 
     // --- Tunable Constants via FTC Dashboard ---
-    public static double P = 0.0027, I = 0.01, D = 0.000001;
+    public static double P = 0.0057, I = 0.0, D = 0.0003;
     public static double THRESHOLD = 0.00;
-    public static double MIN_POWER_POS = 0.05;
-    public static double MIN_POWER_NEG = 0.05;
+    public static double MIN_POWER_POS = 0.01;
+    public static double MIN_POWER_NEG = 0.025;
     public static double HOMING_POWER = 0.075;
     public static double ANGLE_TOLERANCE = 12.5;// In degrees
     public static double BACKWARD_TOLERANCE = 30;
     public static double INTAKE_TOLERANCE = 15;
     public static double HOMING_OFFSET = 0;
+    public static double LAUNCHING_POWER = 0.8;
     private double current_offset = 0; // --- Non-tunable Constants ---
     private static final double COUNTS_PER_REVOLUTION = 8192;
-    private static final double GEAR_RATIO = (double) 2 / 1;
+    private static final double GEAR_RATIO = (double) 1 / 2;
     private static final double COUNTS_PER_DEGREE = COUNTS_PER_REVOLUTION / 360;
     public static final String STARTING_ANGLE_KEY = "ENDING_ANGLE_INDEXER";
     public double startingAngle;
 
     // --- State Management ---
-    public enum State {IDLE, HOMING, SEEKING_POSITION, HOLDING_POSITION, MANUAL_SPIN} // Added MANUAL_SPIN
+    public enum State {IDLE, HOMING, SEEKING_POSITION, HOLDING_POSITION, MANUAL_SPIN, LAUNCHING} // Added MANUAL_SPIN
 
     private State currentState = State.IDLE;
     private double targetAngle = 0;
@@ -91,7 +92,7 @@ public class Turnstile {
     public void launchSlots(int launches) {
         targetAngle = currentAngle - (120 * launches);
 
-        currentState = State.SEEKING_POSITION;
+        currentState = State.LAUNCHING;
     }
 
     public void seekToAngle(double angle) {
@@ -221,17 +222,20 @@ public class Turnstile {
 //                    indexerServo2.setPower(0);
                 }
                 break;
+            case LAUNCHING:
+                if (currentAngle <= targetAngle) {
+                    currentState = State.SEEKING_POSITION;
+                    // We have arrived. Stop the motor for this one cycle to prevent a "kick".
+                    // The next loop will execute the HOLDING_POSITION logic.
+                    indexerServo1.setPower(0);
+                    indexerServo2.setPower(0);
+                } else {
 
-                /* --- Old SEEKING_POSITION Implementation ---
-                if (isAtTarget()) {
-                    currentState = State.HOLDING_POSITION;
+                    // If not at target, continue seeking.
+                    indexerServo1.setPower(-LAUNCHING_POWER);
+                    indexerServo2.setPower(-LAUNCHING_POWER);
                 }
-                angleController.setPID(P, I, DFlywheel); // Re-apply PID gains from Dashboard
-                power = -angleController.calculate(currentAngle, targetAngle + current_offset);
-                indexerServo.setPower(power);
-                // Fall-through to HOLDING_POSITION to apply power
                 break;
-                */
 
             case HOLDING_POSITION:
                 // If a magnet is detected while holding, we use it to correct for encoder drift.

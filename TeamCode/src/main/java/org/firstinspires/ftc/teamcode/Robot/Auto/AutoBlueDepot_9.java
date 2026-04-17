@@ -62,7 +62,7 @@ public class AutoBlueDepot_9 extends LinearOpMode {
                                                                     .build()
                                                     ),
                                                     // Launch Preloads
-                                                    robot.spamAction(),
+                                                    robot.sortAndLaunchAction(),
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
@@ -81,9 +81,7 @@ public class AutoBlueDepot_9 extends LinearOpMode {
                                                     ),
                                                     robot.intakeStopAction(),
                                                     // Launch Preloads
-                                                    robot.planSequenceAction(),
-                                                    robot.startSequenceAction(),
-                                                    robot.waitForSequenceEndAction(),
+                                                    robot.sortAndLaunchAction(),
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
@@ -106,9 +104,7 @@ public class AutoBlueDepot_9 extends LinearOpMode {
                                                     ),
                                                     robot.intakeStopAction(),
                                                     // Launch 2nd set of Artifacts
-                                                    robot.planSequenceAction(),
-                                                    robot.startSequenceAction(),
-                                                    robot.waitForSequenceEndAction()
+                                                    robot.sortAndLaunchAction()
                                             ),
                                             new SleepAction(27)
                                     ),
