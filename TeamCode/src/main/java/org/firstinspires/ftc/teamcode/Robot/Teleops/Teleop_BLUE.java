@@ -25,7 +25,7 @@ public class Teleop_BLUE extends OpMode {
     private int slotToWatch = -1;
 
     ThunderBot2025.Alliance_Color alliance = ThunderBot2025.Alliance_Color.BLUE;
-    LED.Colors gamepadColor =  null;
+    LED.Colors gamepadColor = null;
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
     private TBDGamepad theGamepad1 = null;
@@ -34,7 +34,6 @@ public class Teleop_BLUE extends OpMode {
     ThunderBot2025 robot = new ThunderBot2025();
     public static double INDEXER_SPEED = 0.8;
     private boolean preSpinUp = true;
-
 
     @Override
     public void init() {
@@ -71,7 +70,6 @@ public class Teleop_BLUE extends OpMode {
         }
         gamepad2.setLedColor(robot.colorToRgb(gamepadColor)[0], robot.colorToRgb(gamepadColor)[1], robot.colorToRgb(gamepadColor)[2], Gamepad.LED_DURATION_CONTINUOUS);
 
-
         // --- Drive Controls ---
         double forward = theGamepad1.getLeftY();
         double strafe = theGamepad1.getLeftX();
@@ -83,8 +81,7 @@ public class Teleop_BLUE extends OpMode {
         } else if (theGamepad1.getTriggerBoolean(TBDGamepad.Trigger.LEFT_TRIGGER)) {
             speed = ThunderBot2025.MAX_SPEED;
         }
-
-
+        
         if (115 <= robot.runtime.seconds() && 125 > robot.runtime.seconds()) {
             if (1 == Math.ceil(robot.runtime.seconds() * 2) % 2) {
                 theGamepad1.blipDriver();

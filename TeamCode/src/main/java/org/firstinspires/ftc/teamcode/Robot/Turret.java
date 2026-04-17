@@ -44,9 +44,9 @@ public class Turret implements DataLoggable {
     private Telemetry telemetry;
 
     // Tunable constants from your original file
-    public static double P_TURRET = 0.016, I_TURRET = 0.018, D_TURRET = 0.0012, F_TURRET_MIN = 0.0, F_TURRET_MAX = 0.018;
-    public static double MAX_TURRET_POS = 270.0;
-    public static double MIN_TURRET_POS = -90.0;
+    public static double P_TURRET = 0.015, I_TURRET = 0.015, D_TURRET = 0.0012, F_TURRET_MIN = 0.0, F_TURRET_MAX = 0.018;
+    public static double MIN_TURRET_POS = -115;
+    public static double MAX_TURRET_POS = 360 + MIN_TURRET_POS;
     public static double TURRET_ANGLE_TOLERANCE = 2.5;
 
     public static double KV_ROT = 0.15; // Tunable: Gain for robot rotation
@@ -88,12 +88,12 @@ public class Turret implements DataLoggable {
             turretEnc = hwMap.dcMotor.get("rightBack");
             turretEnc.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             turretEnc.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             telemetry.addData("Motor\"turret\" not found", 0);
         }
         try {
             turretSwitch = hwMap.touchSensor.get("turretSwitch");
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             telemetry.addData("Touch Sensor\"turretSwitch\" not found", 0);
         }
 
@@ -108,7 +108,7 @@ public class Turret implements DataLoggable {
         return targetAngle;
     }
 
-    public void setOffset(double offset) {
+    public void setOffsetAngle(double offset) {
         offsetAngle = offset;
     }
 
@@ -135,26 +135,10 @@ public class Turret implements DataLoggable {
      */
     public double applyHardwareConstraints(double angle) {
         double finalAngle = angle % 360.0;
-
-        // If target is below the right-side limit (-90)
         if (finalAngle < MIN_TURRET_POS) {
-            // Check if rotating 360 degrees the other way puts us within the left limit (225)
-            double altPath = finalAngle + 360.0;
-            if (altPath <= MAX_TURRET_POS) {
-                finalAngle = altPath;
-            } else {
-                finalAngle = MIN_TURRET_POS; // Goal is in the dead zone behind the robot
-            }
-        }
-        // If target is above the left-side limit (225)
-        else if (finalAngle > MAX_TURRET_POS) {
-            // Check if rotating 360 degrees the other way puts us within the right limit (-90)
-            double altPath = finalAngle - 360.0;
-            if (altPath >= MIN_TURRET_POS && altPath <= MAX_TURRET_POS) {
-                finalAngle = altPath;
-            } else {
-                finalAngle = MAX_TURRET_POS; // Goal is in the dead zone behind the robot
-            }
+            finalAngle = finalAngle + 360;
+        } else if (finalAngle > MAX_TURRET_POS) {
+            finalAngle = finalAngle - 360;
         }
         return finalAngle;
     }

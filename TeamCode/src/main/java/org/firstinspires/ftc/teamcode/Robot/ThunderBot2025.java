@@ -174,8 +174,8 @@ public class ThunderBot2025 implements DataLoggable {
                 rgb[2] = 0;
                 break;
             case ORANGE:
-                rgb[0] = 0;
-                rgb[1] = 0;
+                rgb[0] = 1;
+                rgb[1] = .5;
                 rgb[2] = 0;
                 break;
             case YELLOW:
@@ -194,8 +194,8 @@ public class ThunderBot2025 implements DataLoggable {
                 rgb[2] = 1;
                 break;
             case INDIGO:
-                rgb[0] = 0;
-                rgb[1] = 0;
+                rgb[0] = 1;
+                rgb[1] = .5;
                 rgb[2] = 0;
                 break;
             case PURPLE:
@@ -209,7 +209,6 @@ public class ThunderBot2025 implements DataLoggable {
                 rgb[2] = 1;
                 break;
         }
-
         return rgb;
     }
 
