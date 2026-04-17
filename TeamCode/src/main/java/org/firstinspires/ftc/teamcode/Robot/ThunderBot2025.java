@@ -160,57 +160,7 @@ public class ThunderBot2025 implements DataLoggable {
         launcher.setAlliance(color);
     }
 
-    public double[] colorToRgb(LED.Colors color) {
-        double[] rgb = new double[3];
-        switch (color) {
-            case OFF:
-                rgb[0] = 0;
-                rgb[1] = 0;
-                rgb[2] = 0;
-                break;
-            case RED:
-                rgb[0] = 1;
-                rgb[1] = 0;
-                rgb[2] = 0;
-                break;
-            case ORANGE:
-                rgb[0] = 1;
-                rgb[1] = .5;
-                rgb[2] = 0;
-                break;
-            case YELLOW:
-                rgb[0] = 1;
-                rgb[1] = 1;
-                rgb[2] = 0;
-                break;
-            case GREEN:
-                rgb[0] = 0;
-                rgb[1] = 1;
-                rgb[2] = 0;
-                break;
-            case BLUE:
-                rgb[0] = 0;
-                rgb[1] = 0;
-                rgb[2] = 1;
-                break;
-            case INDIGO:
-                rgb[0] = 1;
-                rgb[1] = .5;
-                rgb[2] = 0;
-                break;
-            case PURPLE:
-                rgb[0] = 1;
-                rgb[1] = 0;
-                rgb[2] = 1;
-                break;
-            case WHITE:
-                rgb[0] = 1;
-                rgb[1] = 1;
-                rgb[2] = 1;
-                break;
-        }
-        return rgb;
-    }
+
 
 
     public double getBatteryVoltage() {
@@ -423,6 +373,7 @@ public class ThunderBot2025 implements DataLoggable {
             }
         };
     }
+
     public Action sortAndLaunchAction() {
         return new SequentialAction(
                 startSequenceAction(),
@@ -499,9 +450,10 @@ public class ThunderBot2025 implements DataLoggable {
         return new SequentialAction(
                 new Action() {
                     boolean started = false;
+
                     @Override
                     public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                        if(!started) {
+                        if (!started) {
                             started = launchAll();
                             return true;
                         } else {
