@@ -126,7 +126,7 @@ public class ThunderBot2025 implements DataLoggable {
 
 //        kickstand.update();
 
-        if (0 < intake.getIntakePower() && !indexer.isNearSlot()) {
+        if (0 < intake.getIntakeMotorPower() && !indexer.isNearSlot()) {
             //intake.slow();
         } else if (3 < indexer.getBallNumber()) {
             intake.unslow();

@@ -85,11 +85,7 @@ public class IndexerFacade {
 
         updateBallSensors();
         updateBallStates();
-        for (int i = 0; 3 > i; i++) {
-            if (BallState.GREEN == ballSlots[i] || BallState.PURPLE == ballSlots[i]) {
-                ballNumber++;
-            }
-        }
+        updateBallCount();
 
         currentState = State.IDLE;
         //turnstile.home();
@@ -249,8 +245,8 @@ public class IndexerFacade {
 
                 if (ballSlots[slotToCheck] == ballState) {
 
-                    int slot = Math.floorMod(currentTargetSlot + (3-slotToCheck), 3);
-                    rotateBallStates(3-slotToCheck);
+                    int slot = Math.floorMod(currentTargetSlot + (3 - slotToCheck), 3);
+                    rotateBallStates(3 - slotToCheck);
                     currentTargetSlot = slot;
                     turnstile.seekToAngle(SLOT_ANGLES[slot]);
                     beamBreakCounter = 0;
