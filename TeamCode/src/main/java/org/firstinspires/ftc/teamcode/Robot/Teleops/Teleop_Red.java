@@ -23,8 +23,8 @@ public class Teleop_Red extends OpMode {
     private int slotToWatch = -1;
 
     ThunderBot2025.Alliance_Color alliance = ThunderBot2025.Alliance_Color.RED;
-    TBDGamepad.Colors gamepadColor = null;
-
+    TBDGamepad.Colors gamepad2Color = null;
+    private TBDGamepad.Colors gamepad1Color = null;
     FtcDashboard dashboard = FtcDashboard.getInstance();
     private TBDGamepad theGamepad1 = null;
     private TBDGamepad theGamepad2 = null;
@@ -33,12 +33,15 @@ public class Teleop_Red extends OpMode {
     public static double INDEXER_SPEED = 0.8;
     private boolean preSpinUp = true;
 
+
     @Override
     public void init() {
         robot.init(hardwareMap, telemetry, null);
 
         theGamepad1 = new TBDGamepad(gamepad1);
         theGamepad2 = new TBDGamepad(gamepad2);
+        theGamepad1.setLedColor(TBDGamepad.Colors.ORANGE);
+        theGamepad2.setLedColor(TBDGamepad.Colors.BLUE);
         // Tell the driver that initialization is complete.
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -59,15 +62,21 @@ public class Teleop_Red extends OpMode {
 
         switch (robot.lastBallState) {
             case GREEN:
-                gamepadColor = TBDGamepad.Colors.GREEN;
+                gamepad2Color = TBDGamepad.Colors.GREEN;
                 break;
             case PURPLE:
-                gamepadColor = TBDGamepad.Colors.PURPLE;
+                gamepad2Color = TBDGamepad.Colors.PURPLE;
                 break;
             case VACANT:
-                gamepadColor = TBDGamepad.Colors.OFF;
+                gamepad2Color = TBDGamepad.Colors.OFF;
         }
-        theGamepad2.setLedColor(gamepadColor);
+        if (3 > robot.indexer.getBallNumber()) {
+            gamepad1Color = TBDGamepad.Colors.YELLOW;
+        } else {
+            gamepad1Color = TBDGamepad.Colors.RED;
+        }
+        theGamepad1.setLedColor(gamepad1Color);
+        theGamepad2.setLedColor(gamepad2Color);
 
         // --- Drive Controls ---
         double forward = -theGamepad1.getLeftY();

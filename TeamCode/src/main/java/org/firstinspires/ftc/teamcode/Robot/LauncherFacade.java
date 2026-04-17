@@ -10,6 +10,7 @@ import com.acmerobotics.roadrunner.Rotation2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Utilities.DataLoggable;
@@ -19,10 +20,16 @@ import java.util.Objects;
 
 @Config
 public class LauncherFacade implements DataLoggable {
-    public static final double JOYSTICK_SENSITIVITY = 45.0;
+    public static double LAUNCH_ANGLE_DEGREES = 45.0;
+    public static double JOYSTICK_SENSITIVITY = LAUNCH_ANGLE_DEGREES;
     private static final double INCH_TO_METER = 0.0254;
-    public static double TARGET_HEIGHT_INCHES = 36.5;
-
+    public static double TARGET_HEIGHT_INCHES_MIN = 32;
+    public static double TARGET_HEIGHT_INCHES_MAX = 46;
+    public static double LAUNCHER_HEIGHT_INCHES = 12.5;
+    public static double FRONT_PANEL_HEIGHT = 38.75;
+    public static double TARGET_POSITION_TO_FRONT_PANEL_DISTANCE = 16;
+    public static final double LAUNCH_DISTANCE_MIN = FRONT_PANEL_HEIGHT / Math.tan(LAUNCH_ANGLE_DEGREES) - LAUNCHER_HEIGHT_INCHES + TARGET_POSITION_TO_FRONT_PANEL_DISTANCE;
+    public static double LAUNCH_DISTANCE_MAX = 167;
     // Subsystems
     private Turret turret = null;
     private FlywheelController flywheel = null;
@@ -459,13 +466,19 @@ public class LauncherFacade implements DataLoggable {
     void prepShot() {
         double distanceInches = getGoalDistance();
         double distanceMeters = distanceInches * INCH_TO_METER;
-        double targetVelocity = flywheel.calculateBallVelocity(distanceMeters, TARGET_HEIGHT_INCHES * INCH_TO_METER, 45.0);
+        double targetVelocity = flywheel.calculateBallVelocity(distanceMeters, calculateLauncherHeightMeters(distanceMeters), LAUNCH_ANGLE_DEGREES);
 
         flywheel.setTargetRpmFromVelocity(targetVelocity);
     }
 
-    void prepShotLow() {
+    static double calculateLauncherHeightMeters(double distanceToGoalMeters) {
+        double distanceToGoalClip = Range.clip(distanceToGoalMeters / INCH_TO_METER, LAUNCH_DISTANCE_MIN, LAUNCH_DISTANCE_MAX);
+        double heightInches = Range.scale(distanceToGoalClip, LAUNCH_DISTANCE_MIN, LAUNCH_DISTANCE_MAX, TARGET_HEIGHT_INCHES_MIN, TARGET_HEIGHT_INCHES_MAX);
+        return heightInches * INCH_TO_METER;
 
+    }
+
+    void prepShotLow() {
         flywheel.setTargetRpm(Flywheel.STATIC_RPM);
     }
 
