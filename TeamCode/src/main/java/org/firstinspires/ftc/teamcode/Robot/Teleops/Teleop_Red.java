@@ -6,10 +6,8 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.Robot.IndexerFacade;
-import org.firstinspires.ftc.teamcode.Robot.LED;
 import org.firstinspires.ftc.teamcode.Robot.LauncherFacade;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 import org.firstinspires.ftc.teamcode.Utilities.TBDGamepad;
@@ -25,7 +23,7 @@ public class Teleop_Red extends OpMode {
     private int slotToWatch = -1;
 
     ThunderBot2025.Alliance_Color alliance = ThunderBot2025.Alliance_Color.RED;
-    LED.Colors gamepadColor = null;
+    TBDGamepad.Colors gamepadColor = null;
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
     private TBDGamepad theGamepad1 = null;
@@ -61,15 +59,15 @@ public class Teleop_Red extends OpMode {
 
         switch (robot.lastBallState) {
             case GREEN:
-                gamepadColor = LED.Colors.GREEN;
+                gamepadColor = TBDGamepad.Colors.GREEN;
                 break;
             case PURPLE:
-                gamepadColor = LED.Colors.PURPLE;
+                gamepadColor = TBDGamepad.Colors.PURPLE;
                 break;
             case VACANT:
-                gamepadColor = LED.Colors.OFF;
+                gamepadColor = TBDGamepad.Colors.OFF;
         }
-        gamepad2.setLedColor(robot.colorToRgb(gamepadColor)[0], robot.colorToRgb(gamepadColor)[1], robot.colorToRgb(gamepadColor)[2], Gamepad.LED_DURATION_CONTINUOUS);
+        theGamepad2.setLedColor(gamepadColor);
 
         // --- Drive Controls ---
         double forward = -theGamepad1.getLeftY();

@@ -21,6 +21,7 @@ import java.util.Objects;
 public class LauncherFacade implements DataLoggable {
     public static final double JOYSTICK_SENSITIVITY = 45.0;
     private static final double INCH_TO_METER = 0.0254;
+    public static final double TARGET_HEIGHT_METERS = .0254 * 42.5;
 
     // Subsystems
     private Turret turret = null;
@@ -458,7 +459,7 @@ public class LauncherFacade implements DataLoggable {
     void prepShot() {
         double distanceInches = getGoalDistance();
         double distanceMeters = distanceInches * INCH_TO_METER;
-        double targetVelocity = flywheel.calculateBallVelocity(distanceMeters, 0.6858, 45.0);
+        double targetVelocity = flywheel.calculateBallVelocity(distanceMeters, TARGET_HEIGHT_METERS, 45.0);
 
         flywheel.setTargetRpmFromVelocity(targetVelocity);
     }

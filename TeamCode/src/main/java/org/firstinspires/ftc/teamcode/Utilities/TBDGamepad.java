@@ -34,6 +34,22 @@ public class TBDGamepad {
         }
     }
 
+    public enum Colors {
+        OFF,
+        RED,
+        ORANGE,
+        YELLOW,
+        YELLOWGREEN,
+        GREEN,
+        GREENBLUE,
+
+        BLUE,
+        INDIGO,
+        VIOLET,
+        PURPLE,
+        WHITE
+    }
+
     public enum Trigger {
         LEFT_TRIGGER, RIGHT_TRIGGER
     }
@@ -102,6 +118,66 @@ public class TBDGamepad {
                 break;
         }
         return buttonValue;
+    }
+
+    public static double[] colorToRgb(Colors color) {
+        double[] rgb = new double[3];
+        switch (color) {
+            case OFF:
+                rgb[0] = 0;
+                rgb[1] = 0;
+                rgb[2] = 0;
+                break;
+            case RED:
+                rgb[0] = 1;
+                rgb[1] = 0;
+                rgb[2] = 0;
+                break;
+            case ORANGE:
+                rgb[0] = 1;
+                rgb[1] = 0.5;
+                rgb[2] = 0;
+                break;
+            case YELLOW:
+                rgb[0] = 1;
+                rgb[1] = 1;
+                rgb[2] = 0;
+                break;
+            case YELLOWGREEN:
+                rgb[0] = 0.5;
+                rgb[1] = 1;
+                rgb[2] = 0;
+            case GREEN:
+                rgb[0] = 0;
+                rgb[1] = 1;
+                rgb[2] = 0;
+                break;
+            case GREENBLUE:
+                rgb[0] = 0;
+                rgb[1] = 1;
+                rgb[2] = 1;
+            case BLUE:
+                rgb[0] = 0;
+                rgb[1] = 0;
+                rgb[2] = 1;
+                break;
+            case INDIGO:
+                rgb[0] = 0.5;
+                rgb[1] = 0;
+                rgb[2] = 1;
+                break;
+            case PURPLE:
+                rgb[0] = 1;
+                rgb[1] = 0;
+                rgb[2] = 1;
+                break;
+            case WHITE:
+                rgb[0] = 1;
+                rgb[1] = 1;
+                rgb[2] = 1;
+                break;
+        }
+        return rgb;
     }
 
     /**
@@ -201,6 +277,14 @@ public class TBDGamepad {
 
     public void notifyDriver(int numBlips) {
         gamepad.rumbleBlips(numBlips);
+    }
+
+    public void setLedColor(Colors color) {
+        setLedColorRGB(colorToRgb(color)[0], colorToRgb(color)[1], colorToRgb(color)[2]);
+    }
+
+    public void setLedColorRGB(double r, double g, double b) {
+        gamepad.setLedColor(r, g, b, Gamepad.LED_DURATION_CONTINUOUS);
     }
 
     public void blipDriver() {
