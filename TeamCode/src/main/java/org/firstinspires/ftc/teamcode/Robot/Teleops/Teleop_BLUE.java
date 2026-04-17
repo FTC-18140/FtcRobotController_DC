@@ -23,7 +23,8 @@ public class Teleop_BLUE extends OpMode {
     private int slotToWatch = -1;
 
     ThunderBot2025.Alliance_Color alliance = ThunderBot2025.Alliance_Color.BLUE;
-    TBDGamepad.Colors gamepadColor = null;
+    TBDGamepad.Colors gamepad1Color = null;
+    TBDGamepad.Colors gamepad2Color = null;
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
     private TBDGamepad theGamepad1 = null;
@@ -39,11 +40,14 @@ public class Teleop_BLUE extends OpMode {
 
         theGamepad1 = new TBDGamepad(gamepad1);
         theGamepad2 = new TBDGamepad(gamepad2);
+        theGamepad1.setLedColor(TBDGamepad.Colors.ORANGE);
+        theGamepad2.setLedColor(TBDGamepad.Colors.BLUE);
         // Tell the driver that initialization is complete.
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         telemetry.addData("Status", "Initialized");
         telemetry.update();
+        theGamepad1.setLedColor(TBDGamepad.Colors.YELLOW);
     }
 
     public void start() {
@@ -58,15 +62,21 @@ public class Teleop_BLUE extends OpMode {
         theGamepad2.update();
         switch (robot.lastBallState) {
             case GREEN:
-                gamepadColor = TBDGamepad.Colors.GREEN;
+                gamepad2Color = TBDGamepad.Colors.GREEN;
                 break;
             case PURPLE:
-                gamepadColor = TBDGamepad.Colors.PURPLE;
+                gamepad2Color = TBDGamepad.Colors.PURPLE;
                 break;
             case VACANT:
-                gamepadColor = TBDGamepad.Colors.OFF;
+                gamepad2Color = TBDGamepad.Colors.OFF;
         }
-        theGamepad2.setLedColor(gamepadColor);
+        if (3 > robot.indexer.getBallNumber()) {
+            gamepad1Color = TBDGamepad.Colors.YELLOW;
+        } else {
+            gamepad1Color = TBDGamepad.Colors.RED;
+        }
+        theGamepad2.setLedColor(gamepad2Color);
+        theGamepad1.setLedColor(gamepad1Color);
 
         // --- Drive Controls ---
         double forward = theGamepad1.getLeftY();
