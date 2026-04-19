@@ -130,12 +130,15 @@ public class Intake {
     public void motorStop() {
         intakeMotorPower = 0;
     }
+
     public void servoStop() {
         intakeServoPower = 0;
     }
+
     public void motorSpit() {
-        intakeMotorPower = - INTAKE_SERVO_POWER;
+        intakeMotorPower = -INTAKE_SERVO_POWER;
     }
+
     public void servoSpit() {
         intakeServoPower = -INTAKE_SERVO_POWER;
     }

@@ -48,13 +48,13 @@ public class LauncherFacade implements DataLoggable {
     private Pose2d lastOdoPose = null; // Used to calculate delta
     public static double TURRET_OFFSET_X = -0.04921;
     public static double TURRET_OFFSET_Y = -3.04528;
-    public static final double LIMELIGHT_FORWARD_POSITION = 6.175;
+    public static final double LIMELIGHT_FORWARD_POSITION = 5.5394752;
     private Vector2d inertiaOffset = null;
     Vector2d offsetTarget = null;
     public static double INERTIA_FACTOR = 15.0;
     private double last_time_ms = 0;
     private Vector2d trueTargetVector = fusedPose.position;
-    public static double trust = 0.0;
+    public static double trust = 0.1;
 
     private double smoothedTurretAngle = 0.0;
     private boolean firstAimRun = true;
@@ -210,7 +210,36 @@ public class LauncherFacade implements DataLoggable {
     }
 
     public void aim() {
-        augmentedAim(0.0);
+        double instantTarget = getAutoAimAngle();
+
+        if (firstAimRun) {
+            // Initialize memory on the first loop to prevent the turret from
+            // slowly "crawling" from 0 degrees at the start of the match.
+            smoothedTurretAngle = instantTarget;
+            firstAimRun = false;
+        } else {
+            // --- FILTER SHORT-PATH LOGIC ---
+            // Calculate the delta between where we are and where we want to be.
+            // We must normalize this delta to [-180, 180] so the filter always
+            // moves the turret the shortest distance around the circle.
+            double delta = instantTarget - smoothedTurretAngle;
+            while (180.0 < delta) delta -= 360.0;
+            while (-180.0 >= delta) delta += 360.0;
+
+            // Apply the Low-Pass Filter (Complementary Filter)
+            // smoothed = (OldValue) + (ShortestDelta * Beta)
+            smoothedTurretAngle += (delta * LPF_BETA);
+        }
+        double baseAngle = turret.applyHardwareConstraints(smoothedTurretAngle);
+
+        // --- FINAL COMMAND ---
+
+        // Command the turret subsystem to the calculated angle.
+        turret.seekToAngle(baseAngle);
+
+        double currentPosition = turret.getCurrentPosition();
+        telemetry.addData("Turret Current", currentPosition);
+        telemetry.addData("Turret Target", baseAngle);
     }
 
     boolean setTurretOffset() {
@@ -236,47 +265,6 @@ public class LauncherFacade implements DataLoggable {
      * @param joystickAugmentation A normalized input (-1.0 to 1.0) from the driver
      *                             to manually offset the automated aim.
      */
-    public void augmentedAim(double joystickAugmentation) {
-        // 1. Get the raw "Instant" target from the best available sensor source.
-        // This value is field-relative but normalized to be near the turret's current position.
-        double instantTarget = getAutoAimAngle();
-
-        if (firstAimRun) {
-            // Initialize memory on the first loop to prevent the turret from
-            // slowly "crawling" from 0 degrees at the start of the match.
-            smoothedTurretAngle = instantTarget;
-            firstAimRun = false;
-        } else {
-            // --- FILTER SHORT-PATH LOGIC ---
-            // Calculate the delta between where we are and where we want to be.
-            // We must normalize this delta to [-180, 180] so the filter always
-            // moves the turret the shortest distance around the circle.
-            double delta = instantTarget - smoothedTurretAngle;
-            while (180.0 < delta) delta -= 360.0;
-            while (-180.0 >= delta) delta += 360.0;
-
-            // Apply the Low-Pass Filter (Complementary Filter)
-            // smoothed = (OldValue) + (ShortestDelta * Beta)
-            smoothedTurretAngle += (delta * LPF_BETA);
-        }
-
-        // --- HARDWARE CONSTRAINTS ---
-        // Apply mechanical limits (-90 to 225) to the smoothed target.
-        // This ensures the turret never tries to rotate through the "Dead Zone."
-        double baseAngle = turret.applyHardwareConstraints(smoothedTurretAngle);
-
-        // --- FINAL COMMAND ---
-        // Combine the automated smoothed target with the manual joystick offset.
-        double finalTargetAngle = baseAngle + (joystickAugmentation * JOYSTICK_SENSITIVITY);
-
-        // Command the turret subsystem to the calculated angle.
-        turret.seekToAngle(finalTargetAngle);
-
-        // Diagnostic Telemetry
-        double currentPosition = turret.getCurrentPosition();
-        telemetry.addData("Turret Current", currentPosition);
-        telemetry.addData("Turret Target", finalTargetAngle);
-    }
 
     public void augmentedAimLimelight(double joystickAugmentation) {
         // 1. Get the raw "Instant" target from the best available sensor source.
