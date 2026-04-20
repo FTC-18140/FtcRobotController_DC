@@ -5,9 +5,9 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -20,12 +20,17 @@ public class Intake {
     private Telemetry telemetry = null;
     private HardwareMap hardwareMap = null;
 
-    private static double INTAKE_SPEED = 0.75;
-    private DcMotor intakeMotor = null;
+    private static double INTAKE_MOTOR_POWER = 0.75;
+    private static double INTAKE_SERVO_POWER = 0.75;
 
-    private double current_speed = 0;
+    private DcMotor intakeMotor = null;
+    public CRServo intakeServo = null;
+
+    private double intakeMotorPower = 0;
+    private double intakeServoPower = 0;
+
     private double slow = 1;
-    private static double SLOWED_SPEED = 0.4;
+    private static double SLOWED_POWER_FACTOR = 0.4;
     private double currentDraw = 0.0;
 
     public void init(HardwareMap hwMap, Telemetry telem) {
@@ -37,14 +42,19 @@ public class Intake {
         } catch (RuntimeException e) {
             telemetry.addData("DC Motor \"intake\" not found", 0);
         }
+        try {
+            intakeServo = hardwareMap.get(CRServo.class, "intakeServo");
+        } catch (RuntimeException e) {
+            telemetry.addData("CR Servo \"intake\" not found", 0);
+        }
     }
 
     /**
      * Update method for Intake
      */
     public void update() {
-
-        intakeMotor.setPower(current_speed * slow);
+        intakeServo.setPower(intakeServoPower);
+        intakeMotor.setPower(intakeMotorPower * slow);
         currentDraw = getTotalCurrentDraw();
         if (REV_MOTOR_STALL_CURRENT <= currentDraw) {
             telemetry.addData("INTAKE STALLED", 0);
@@ -56,16 +66,21 @@ public class Intake {
      * sets the intake motor to the preset intake speed
      */
     public void intake() {
-        current_speed = INTAKE_SPEED;
+        motorIntake();
+        servoIntake();
         telemetry.addData("Intaking", 0);
     }
 
-    public void DEBUG_intakeMotor() {
-        intakeMotor.setPower(0.5);
+    public void servoIntake() {
+        intakeServoPower = INTAKE_SERVO_POWER;
+    }
+
+    public void motorIntake() {
+        intakeMotorPower = INTAKE_MOTOR_POWER;
     }
 
     void slow() {
-        slow = SLOWED_SPEED;
+        slow = SLOWED_POWER_FACTOR;
 //        telemetry.addData("Intaking", 0);
     }
 
@@ -79,7 +94,6 @@ public class Intake {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 stop();
-
                 return false;
             }
         };
@@ -90,7 +104,7 @@ public class Intake {
      *
      * @return the intake power
      */
-    double getIntakePower() {
+    double getIntakeMotorPower() {
         return intakeMotor.getPower();
     }
 
@@ -103,16 +117,32 @@ public class Intake {
      * Sets the intake motor to the opposite of the preset intake speed
      */
     public void spit() {
-        current_speed = -INTAKE_SPEED;
+        motorSpit();
+        servoStop();
         telemetry.addData("Spitting", 0);
     }
 
-    /**
-     * Stops the intake motor
-     */
     public void stop() {
-        current_speed = 0;
+        motorStop();
+        servoStop();
     }
+
+    public void motorStop() {
+        intakeMotorPower = 0;
+    }
+
+    public void servoStop() {
+        intakeServoPower = 0;
+    }
+
+    public void motorSpit() {
+        intakeMotorPower = -INTAKE_SERVO_POWER;
+    }
+
+    public void servoSpit() {
+        intakeServoPower = -INTAKE_SERVO_POWER;
+    }
+
 
     void logData(DataLogger logger) {
         logger.addField(currentDraw);
