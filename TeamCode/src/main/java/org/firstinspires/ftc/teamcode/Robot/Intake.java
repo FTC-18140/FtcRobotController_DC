@@ -60,6 +60,9 @@ public class Intake {
         telemetry.addData("Intaking", 0);
     }
 
+    public void DEBUG_intakeMotor() {
+        intakeMotor.setPower(0.5);
+    }
 
     void slow() {
         slow = SLOWED_SPEED;

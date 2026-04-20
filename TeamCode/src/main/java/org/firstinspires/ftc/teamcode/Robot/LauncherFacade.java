@@ -32,7 +32,7 @@ public class LauncherFacade implements DataLoggable {
     public static double LAUNCH_DISTANCE_MAX = 167;
     // Subsystems
     private Turret turret = null;
-    private FlywheelController flywheel = null;
+    public FlywheelController flywheel = null;
     private Limelight limelight = null;
     private Telemetry telemetry = null;
 

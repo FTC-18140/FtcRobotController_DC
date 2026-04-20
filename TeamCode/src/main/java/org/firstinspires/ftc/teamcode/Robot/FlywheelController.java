@@ -144,4 +144,11 @@ public class FlywheelController {
         upperWheel.setTargetRpm(upperWheelRpm);
     }
 
+    public void DEBUG_upperFlywheel(){
+        upperWheel.setPower(0.5);
+    }
+    public void DEBUG_lowerFlywheel(){
+        lowerWheel.setPower(0.5);
+    }
+
 }

@@ -229,7 +229,7 @@ public class Flywheel {
 
     }
 
-    private void setPower(double power) {
+    public void setPower(double power) {
         launcher.setPower(power);
     }
 
