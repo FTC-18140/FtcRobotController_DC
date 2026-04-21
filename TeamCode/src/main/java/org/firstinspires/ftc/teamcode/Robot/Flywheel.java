@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Robot;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
@@ -44,7 +45,7 @@ public class Flywheel {
     public static double MIN_SHOOTER_RPM = 1800.0;
     public static double STATIC_RPM = 1800.0;
     private static final double SHOOTER_RADIUS = 0.072 / 2.0;
-    public static double SPIN_EFFICIENCY = 0.9;
+    public static double SPIN_EFFICIENCY = 0.845;
     public double FLYWHEEL_RATIO = 1.0;
     public double FLYWHEEL_GEAR_RATIO = 2.0;
 
@@ -66,6 +67,7 @@ public class Flywheel {
         rpmController = new PIDController(P, I, D);
 
         launcher = hwMap.get(DcMotorEx.class, motorName);
+        launcher.setDirection(DcMotorSimple.Direction.REVERSE);
         launcher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         launcher.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         launcher.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -141,7 +143,7 @@ public class Flywheel {
         if (null != launcherEnc) {
             tps = launcherEnc.getVelocity();
         } else {
-            tps = -launcher.getVelocity();
+            tps = launcher.getVelocity();
         }
         return (tps * 60.0) / (ENCODER_TICKS_PER_REVOLUTION * FLYWHEEL_GEAR_RATIO);
     }

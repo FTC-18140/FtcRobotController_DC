@@ -137,7 +137,7 @@ public class IndexerFacade {
         if (canLaunchAll()) {
             turnstile.launchSlots(3);
             setCurrentState(State.LAUNCHING);
-            for (int i = 0; 2 > i; i++) {
+            for (int i = 0; 3 > i; i++) {
                 ballSlots[i] = BallState.VACANT;
             }
         }
@@ -382,10 +382,7 @@ public class IndexerFacade {
     }
 
     public boolean inIntakeSlot() {
-        if (!updated) {
-            ballSensors[0].update();
-        }
-        return (BallSensor.BallColor.NONE != ballSensors[0].getDetectedColor());
+        return beamBreak.isBallDetectedInIndexer();
     }
 
     public BallState getBallState(int slot) {
@@ -401,7 +398,7 @@ public class IndexerFacade {
     }
 
     public boolean indexerIsFull() {
-        return !((BallState.VACANT == ballSlots[0] || BallState.VACANT == ballSlots[1] || BallState.VACANT == ballSlots[2]) || State.SELECTING_BALL == currentState || State.LAUNCHING == currentState || 3 <= ballNumber);
+        return !(State.SELECTING_BALL == currentState || State.LAUNCHING == currentState) && 3 <= ballNumber;
     }
 
     public int getCurrentTargetSlot() {
@@ -457,7 +454,7 @@ public class IndexerFacade {
                 beamBreakCounter = Math.max(beamBreakCounter, 0);
             }
 
-            if (turnstile.isOverSlot() && 3 <= beamBreakCounter) {
+            if (turnstile.isOverSlot() && 3 <= beamBreakCounter && !indexerIsFull()) {
                 readyNextIntakeSlot(BallState.VACANT);
             }
         }

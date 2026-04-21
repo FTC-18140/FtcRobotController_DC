@@ -22,18 +22,32 @@ public class BeamBreaker {
         } catch (RuntimeException e) {
             telemetry.addData("Error", "Could not find digital channel 'beamBreak'");
         }
+        try {
+            beamBreakIndexer = hwMap.digitalChannel.get("beamBreakIndexer");
+        } catch (RuntimeException e) {
+            telemetry.addData("Error", "Could not find digital channel 'beamBreakIndexer'");
+        }
     }
 
     public void update() {
         if (null != beamBreakIntake) {
             inIntake = !beamBreakIntake.getState();
             if (TELEM) {
-                telemetry.addData("Indexer Beam Break sensor triggered: ", inIntake);
+                telemetry.addData("Intake Beam Break sensor triggered: ", inIntake);
+            }
+        }
+        if (null != beamBreakIndexer) {
+            inIndexer = !beamBreakIndexer.getState();
+            if (TELEM) {
+                telemetry.addData("Indexer Beam Break sensor triggered: ", inIndexer);
             }
         }
     }
 
     boolean isBallDetectedInIntake() {
         return inIntake;
+    }
+    boolean isBallDetectedInIndexer() {
+        return inIndexer;
     }
 }

@@ -33,7 +33,7 @@ public class BallSensor {
     private Telemetry telemetry = null;
     private String sensorName = null;
 
-    public static boolean TELEM = true;
+    public static boolean TELEM = false;
 
     // --- Tunable Constants via FTC Dashboard ---
 

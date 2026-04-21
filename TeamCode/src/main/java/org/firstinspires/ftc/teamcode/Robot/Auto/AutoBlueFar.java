@@ -85,7 +85,6 @@ public class AutoBlueFar extends LinearOpMode {
 
                                                     robot.intakeStopAction(),
                                                     // Launch 2nd set of Artifacts
-                                                    robot.indexer.homeAction(),
                                                     robot.sortAndLaunchAction(),
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
@@ -109,7 +108,6 @@ public class AutoBlueFar extends LinearOpMode {
 
                                                     robot.intakeStopAction(),
                                                     // Launch 2nd set of Artifacts
-                                                    robot.indexer.homeAction(),
                                                     robot.sortAndLaunchAction()
 
                                             ),

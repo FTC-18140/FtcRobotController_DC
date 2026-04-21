@@ -129,9 +129,9 @@ public class Teleop_Red_DataLogger extends OpMode {
 
         // --- Launcher Controls ---
         if (Math.abs(theGamepad2.getRightX()) > 0.01) {
-            robot.launcher.augmentedAim();
+//            robot.launcher.augmentedAim();
         } else if (Math.abs(theGamepad1.getRightX()) > 0.01) {
-            robot.launcher.augmentedAim();
+//            robot.launcher.augmentedAim();
         } else {
             robot.launcher.aim();
         }

@@ -52,8 +52,12 @@ public class Intake {
     /**
      * Update method for Intake
      */
-    public void update() {
-        intakeServo.setPower(intakeServoPower);
+    public void update(boolean indexing) {
+        if (indexing) {
+            intakeServo.setPower(INTAKE_SERVO_POWER);
+        } else {
+            intakeServo.setPower(intakeServoPower);
+        }
         intakeMotor.setPower(intakeMotorPower * slow);
         currentDraw = getTotalCurrentDraw();
         if (REV_MOTOR_STALL_CURRENT <= currentDraw) {
@@ -141,6 +145,10 @@ public class Intake {
 
     public void servoSpit() {
         intakeServoPower = -INTAKE_SERVO_POWER;
+    }
+
+    public void DEBUG_intakeMotor(){
+        intakeMotor.setPower(0.5);
     }
 
 

@@ -25,13 +25,13 @@ public class FlywheelController {
 
     public static class LowerPID {
         public double P = 0.00045, I = 0.00, D = 0.00000;
-        public double F_MAX = 0.4, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.7;
+        public double F_MAX = 0.4, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.745;
         public double GEAR_RATIO = 2.0;
     }
 
     public static class UpperPID {
         public double P = 0.00046, I = 0.00, D = 0.00000;
-        public double F_MAX = 0.4, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.7;
+        public double F_MAX = 0.4, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.735;
         public double GEAR_RATIO = 32.0 / 15.0;
     }
 
@@ -50,6 +50,7 @@ public class FlywheelController {
         lowerWheel.init(hwMap, telem, "launcher2", "launcher2");
         upperWheel.init(hwMap, telem, "launcher", "turret");
         upperWheel.setEncoderReversed();
+        lowerWheel.setEncoderReversed();
 
         lowerWheel.setParameters(LOWER_PID.P, LOWER_PID.I, LOWER_PID.D, LOWER_PID.F_MIN, LOWER_PID.F_MAX, LOWER_PID.F_VEL, LOWER_PID.F_STATIC, LOWER_PID.GEAR_RATIO, FLYWHEEL_RATIO);
         upperWheel.setParameters(UPPER_PID.P, UPPER_PID.I, UPPER_PID.D, UPPER_PID.F_MIN, UPPER_PID.F_MAX, UPPER_PID.F_VEL, UPPER_PID.F_STATIC, UPPER_PID.GEAR_RATIO, 1 / FLYWHEEL_RATIO);
