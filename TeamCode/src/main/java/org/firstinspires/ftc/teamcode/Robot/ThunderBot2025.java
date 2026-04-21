@@ -85,6 +85,7 @@ public class ThunderBot2025 implements DataLoggable {
 
         indexer = new IndexerFacade();
         indexer.init(hwMap, telemetry);
+        indexer.intakeStop();
 
         launcher = new LauncherFacade();
         launcher.init(hwMap, telemetry, pose);
@@ -374,7 +375,6 @@ public class ThunderBot2025 implements DataLoggable {
 
     public Action sortAndLaunchAction() {
         return new SequentialAction(
-                startSequenceAction(),
                 launchAction()
         );
     }

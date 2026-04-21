@@ -375,10 +375,12 @@ public class IndexerFacade {
 
     public void intake() {
         isIntaking = true;
+        turnstile.intakeStart();
     }
 
     public void intakeStop() {
         isIntaking = false;
+        turnstile.intakeStop();
     }
 
     public boolean inIntakeSlot() {

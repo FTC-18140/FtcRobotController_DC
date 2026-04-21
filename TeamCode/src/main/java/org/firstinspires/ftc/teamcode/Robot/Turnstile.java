@@ -29,7 +29,7 @@ public class Turnstile {
     public static boolean TELEM = false;
 
     // --- Tunable Constants via FTC Dashboard ---
-    public static double P = 0.005, I = 0.0, D = 0.0003;
+    public static double P = 0.007, I = 0.0, D = 0.0003;
     public static double THRESHOLD = 0.00;
     public static double MIN_POWER_POS = 0.01;
     public static double MIN_POWER_NEG = 0.01;
@@ -45,6 +45,8 @@ public class Turnstile {
     private static final double COUNTS_PER_DEGREE = COUNTS_PER_REVOLUTION / 360;
     public static final String STARTING_ANGLE_KEY = "ENDING_ANGLE_INDEXER";
     public double startingAngle;
+    private double launching_offset = 0;
+    public static double LAUNCHING_OFFSET_ANGLE = 15;
 
     // --- State Management ---
     public enum State {IDLE, HOMING, SEEKING_POSITION, HOLDING_POSITION, MANUAL_SPIN, LAUNCHING} // Added MANUAL_SPIN
@@ -87,6 +89,12 @@ public class Turnstile {
     public void home() {
         currentState = State.HOMING;
 
+    }
+    public void intakeStart(){
+        launching_offset = 0;
+    }
+    public void intakeStop(){
+        launching_offset = LAUNCHING_OFFSET_ANGLE;
     }
 
     public void launchSlots(int launches) {
@@ -161,7 +169,7 @@ public class Turnstile {
 
     public void update() {
         // --- 1. Cache Hardware Reads ---
-        currentAngle = indexMotor.getCurrentPosition() / COUNTS_PER_DEGREE - startingAngle;
+        currentAngle = indexMotor.getCurrentPosition() / COUNTS_PER_DEGREE - startingAngle - launching_offset;
         limitSwitchPressed = limitSwitch.isPressed();
 
         // --- 2. Run State Machine ---

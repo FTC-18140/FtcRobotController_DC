@@ -56,7 +56,7 @@ public class Turret implements DataLoggable {
     public static double MAX_POWER = 0.6;
     public static double MIN_POWER_POSITIVE = 0.03;
     public static double MIN_POWER_NEGATIVE = -0.03;
-    public static double TURRET_DEGREES_PER_ENCODER_TICK = (double) (1 / 8192.0) * 360.0 * (16 / 100);
+    public static double TURRET_DEGREES_PER_ENCODER_TICK = (double) 1 / 8192.0 * 360.0 * 16 / 100;
 
 
     // State-specific variables
