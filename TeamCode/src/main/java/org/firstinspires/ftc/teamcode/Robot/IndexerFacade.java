@@ -239,7 +239,7 @@ public class IndexerFacade {
 
             updateBallSensors();
             updateBallStates();
-            for (int i = 3; 0 < i && !slotFound; i--) {
+            for (int i = 0; i < 3 && !slotFound; i++) {
 
                 int slotToCheck = (i) % 3;
 

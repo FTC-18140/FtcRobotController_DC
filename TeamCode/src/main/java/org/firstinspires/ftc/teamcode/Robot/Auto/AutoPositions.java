@@ -23,7 +23,7 @@ public class AutoPositions {
         ARTIFACT_BASE_RED(new Vector2d(-30, -22.0)),
         ARTIFACT_CENTER_BLUE(new Vector2d(-18, 22.0)),
         ARTIFACT_CENTER_RED(new Vector2d(-6, -22.0)),
-        ARTIFACT_GATE_BLUE(new Vector2d(13.5, 22.0)),
+        ARTIFACT_GATE_BLUE(new Vector2d(6, 22.0)),
         ARTIFACT_GATE_RED(new Vector2d(14.5, -26.0)),
         GATE_RED(new Vector2d(5.0, -54.0)),
         GATE_BLUE(new Vector2d(5.0, 54.0)),

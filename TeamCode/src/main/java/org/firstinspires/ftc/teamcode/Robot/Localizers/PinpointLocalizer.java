@@ -16,8 +16,8 @@ import java.util.Objects;
 @Config
 public final class PinpointLocalizer implements Localizer {
     public static class Params {
-        public double parYTicks = -2124.455288373208; // y position of the parallel encoder (in tick units)
-        public double perpXTicks = -2668.187429722258; // x position of the perpendicular encoder (in tick units)
+        public double parYTicks = -1982.9675298421303; // y position of the parallel encoder (in tick units)
+        public double perpXTicks = -2636.369978724768; // x position of the perpendicular encoder (in tick units)
     }
 
     public static Params PARAMS = new Params();

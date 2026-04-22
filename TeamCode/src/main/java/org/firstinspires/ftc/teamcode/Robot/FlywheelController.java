@@ -25,13 +25,13 @@ public class FlywheelController {
 
     public static class LowerPID {
         public double P = 0.00045, I = 0.00, D = 0.00000;
-        public double F_MAX = 0.4, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.745;
+        public double F_MAX = 0.45, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.745;
         public double GEAR_RATIO = 2.0;
     }
 
     public static class UpperPID {
         public double P = 0.00046, I = 0.00, D = 0.00000;
-        public double F_MAX = 0.4, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.735;
+        public double F_MAX = 0.45, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.735;
         public double GEAR_RATIO = 32.0 / 15.0;
     }
 
