@@ -23,8 +23,8 @@ public class LauncherFacade implements DataLoggable {
     public static double LAUNCH_ANGLE_DEGREES = 45.0;
     public static double JOYSTICK_SENSITIVITY = LAUNCH_ANGLE_DEGREES;
     private static final double INCH_TO_METER = 0.0254;
-    public static double TARGET_HEIGHT_INCHES_MIN = 32;
-    public static double TARGET_HEIGHT_INCHES_MAX = 46;
+    public static double TARGET_HEIGHT_INCHES_MIN = 40;
+    public static double TARGET_HEIGHT_INCHES_MAX = 36;
     public static double LAUNCHER_HEIGHT_INCHES = 12.5;
     public static double FRONT_PANEL_HEIGHT = 38.75;
     public static double TARGET_POSITION_TO_FRONT_PANEL_DISTANCE = 16;
@@ -46,7 +46,7 @@ public class LauncherFacade implements DataLoggable {
 //    private KalmanPoseEstimator poseEstimator;
     private Pose2d fusedPose = new Pose2d(0.0, 0.0, 0.0); // This is the "Truth" we aim with
     private Pose2d lastOdoPose = null; // Used to calculate delta
-    public static double TURRET_OFFSET_X = -0.04921;
+    public static double TURRET_OFFSET_X = -0.94488;
     public static double TURRET_OFFSET_Y = -3.04528;
     public static final double LIMELIGHT_FORWARD_POSITION = 5.5394752;
     private Vector2d inertiaOffset = null;
@@ -54,7 +54,7 @@ public class LauncherFacade implements DataLoggable {
     public static double INERTIA_FACTOR = 15.0;
     private double last_time_ms = 0;
     private Vector2d trueTargetVector = fusedPose.position;
-    public static double trust = 0.1;
+    public static double trust = 0.0;
 
     private double smoothedTurretAngle = 0.0;
     private boolean firstAimRun = true;
@@ -423,7 +423,7 @@ public class LauncherFacade implements DataLoggable {
         );
 
         // Vector from Robot to Goal
-        Vector2d vector = fusedPose.position.minus(offsetPos);
+        Vector2d vector = fusedPose.position.plus(offsetPos);
         trueTargetVector = targetPos.minus(vector);
 
         // Absolute Field Angle to Goal (atan2 returns -PI to PI)

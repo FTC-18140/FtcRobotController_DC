@@ -239,7 +239,7 @@ public class IndexerFacade {
 
             updateBallSensors();
             updateBallStates();
-            for (int i = 3; 0 < i && !slotFound; i--) {
+            for (int i = 0; i < 3 && !slotFound; i++) {
 
                 int slotToCheck = (i) % 3;
 
@@ -426,7 +426,11 @@ public class IndexerFacade {
     public void updateBallCount() {
         ballNumber = 0;
         for (int i = 0; i < 3; i++) {
-            if (BallState.GREEN == ballSlots[i] || BallState.PURPLE == ballSlots[i]) {
+            if (i == 0) {
+                if((BallState.GREEN == ballSlots[i] || BallState.PURPLE == ballSlots[i]) && ballInIndexer()) {
+                    ballNumber++;
+                }
+            } else if (BallState.GREEN == ballSlots[i] || BallState.PURPLE == ballSlots[i]) {
                 ballNumber++;
             }
         }
