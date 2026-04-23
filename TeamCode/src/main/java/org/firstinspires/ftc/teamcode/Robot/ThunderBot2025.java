@@ -124,7 +124,7 @@ public class ThunderBot2025 implements DataLoggable {
         boolean isIntakeFull = indexer.getBallNumber() > 3;
         IndexerFacade.State state = indexer.getCurrentState();
 
-        led.update(flywheelRpm, flywheelTargetRpm, seconds, lastBallState, isIndexerFull, isIntakeFull, state);
+        led.update(launcher.getGoalDistance(), seconds, lastBallState, isIndexerFull, isIntakeFull, state);
 
 //        kickstand.update();
 

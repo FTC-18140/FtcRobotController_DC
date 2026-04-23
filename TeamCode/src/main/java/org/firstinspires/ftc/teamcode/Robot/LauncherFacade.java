@@ -23,8 +23,8 @@ public class LauncherFacade implements DataLoggable {
     public static double LAUNCH_ANGLE_DEGREES = 45.0;
     public static double JOYSTICK_SENSITIVITY = LAUNCH_ANGLE_DEGREES;
     private static final double INCH_TO_METER = 0.0254;
-    public static double TARGET_HEIGHT_INCHES_MIN = 40;
-    public static double TARGET_HEIGHT_INCHES_MAX = 36;
+    public static double TARGET_HEIGHT_INCHES_MIN = 32;
+    public static double TARGET_HEIGHT_INCHES_MAX = 48;
     public static double LAUNCHER_HEIGHT_INCHES = 12.5;
     public static double FRONT_PANEL_HEIGHT = 38.75;
     public static double TARGET_POSITION_TO_FRONT_PANEL_DISTANCE = 16;
@@ -50,7 +50,7 @@ public class LauncherFacade implements DataLoggable {
     public static double TURRET_OFFSET_Y = -3.04528;
     public static final double LIMELIGHT_FORWARD_POSITION = 5.5394752;
     private Vector2d inertiaOffset = null;
-    Vector2d offsetTarget = null;
+    Vector2d offsetTarget = new Vector2d(0, 0);
     public static double INERTIA_FACTOR = 15.0;
     private double last_time_ms = 0;
     private Vector2d trueTargetVector = fusedPose.position;
@@ -58,6 +58,7 @@ public class LauncherFacade implements DataLoggable {
 
     private double smoothedTurretAngle = 0.0;
     private boolean firstAimRun = true;
+    public static boolean TELEM = true;
     public static double LPF_BETA = 1.0; // Higher value = more responsive
 
     // Target and alliance properties
@@ -355,7 +356,7 @@ public class LauncherFacade implements DataLoggable {
         // --- 2. SENSOR PRIORITY: ODOMETRY ---
         // Fallback to Odometry if the Limelight is blocked or target is out of view.
         // We calculate the vector from our fused robot position to the field goal position.
-        if (null != trueTargetVector && null != offsetTarget) {
+        if (null != offsetTarget) {
             usingLimelight = false;
 
 
@@ -410,42 +411,42 @@ public class LauncherFacade implements DataLoggable {
     }
 
 
-    private double getAutoAimAngleFUSION() {
-        if (null == targetPos) return turret.getCurrentPosition();
-
-        // Robot Heading (from fused pose)
-        double robotHeading = fusedPose.heading.toDouble();
-
-        //Offset Turret center of rotation
-        Vector2d offsetPos = new Vector2d(
-                TURRET_OFFSET_Y * Math.cos(-robotHeading) - (TURRET_OFFSET_X) * Math.sin(-robotHeading),
-                TURRET_OFFSET_Y * Math.sin(-robotHeading) + (TURRET_OFFSET_X) * Math.cos(-robotHeading)
-        );
-
-        // Vector from Robot to Goal
-        Vector2d vector = fusedPose.position.plus(offsetPos);
-        trueTargetVector = targetPos.minus(vector);
-
-        // Absolute Field Angle to Goal (atan2 returns -PI to PI)
-        double fieldAngleToGoal = Math.atan2(trueTargetVector.y, trueTargetVector.x);
-
-        // Relative Angle = FieldAngle - RobotHeading
-        double relativeAngleRad = robotHeading - fieldAngleToGoal;
-
-        // Convert to degrees
-        double relativeAngleDeg = Math.toDegrees(relativeAngleRad);
-
-//        // Normalize to Turret's range so the turret takes shortest path
-//        while (relativeAngleDeg > Turret.MAX_TURRET_POS) relativeAngleDeg -= 360;
-//        while (relativeAngleDeg < Turret.MIN_TURRET_POS) relativeAngleDeg += 360;
-
-        // Note: You might need to add turret.getCurrentPosition() offset here depending
-        // on if your turret acts in absolute mode or relative mode.
-        // Based on previous code: "seekToAngle" seemed to take a relative target?
-        // If seekToAngle expects -90 to 90 relative to ROBOT FRONT, return relativeAngleDeg.
-
-        return relativeAngleDeg;
-    }
+//    private double getAutoAimAngleFUSION() {
+//        if (null == targetPos) return turret.getCurrentPosition();
+//
+//        // Robot Heading (from fused pose)
+//        double robotHeading = fusedPose.heading.toDouble();
+//
+//        //Offset Turret center of rotation
+//        Vector2d offsetPos = new Vector2d(
+//                TURRET_OFFSET_Y * Math.cos(-robotHeading) - (TURRET_OFFSET_X) * Math.sin(-robotHeading),
+//                TURRET_OFFSET_Y * Math.sin(-robotHeading) + (TURRET_OFFSET_X) * Math.cos(-robotHeading)
+//        );
+//
+//        // Vector from Robot to Goal
+//        Vector2d vector = fusedPose.position.plus(offsetPos);
+//        trueTargetVector = targetPos.minus(vector);
+//
+//        // Absolute Field Angle to Goal (atan2 returns -PI to PI)
+//        double fieldAngleToGoal = Math.atan2(trueTargetVector.y, trueTargetVector.x);
+//
+//        // Relative Angle = FieldAngle - RobotHeading
+//        double relativeAngleRad = robotHeading - fieldAngleToGoal;
+//
+//        // Convert to degrees
+//        double relativeAngleDeg = Math.toDegrees(relativeAngleRad);
+//
+////        // Normalize to Turret's range so the turret takes shortest path
+////        while (relativeAngleDeg > Turret.MAX_TURRET_POS) relativeAngleDeg -= 360;
+////        while (relativeAngleDeg < Turret.MIN_TURRET_POS) relativeAngleDeg += 360;
+//
+//        // Note: You might need to add turret.getCurrentPosition() offset here depending
+//        // on if your turret acts in absolute mode or relative mode.
+//        // Based on previous code: "seekToAngle" seemed to take a relative target?
+//        // If seekToAngle expects -90 to 90 relative to ROBOT FRONT, return relativeAngleDeg.
+//
+//        return relativeAngleDeg;
+//    }
 
     public void holdTurretPosition() {
         turret.holdPosition();
@@ -529,18 +530,18 @@ public class LauncherFacade implements DataLoggable {
         limelight.setPipeline(Objects.equals(allianceColor, ThunderBot2025.Alliance_Color.RED) ? 2 : 1);
     }
 
-    private double getGoalDistanceFUSION() {
-        if (null == trueTargetVector || null == targetPos) return 0.0;
-        // Use FUSED pose for distance calculation
-//        telemetry.addData("distance: ", targetPos.minus(trueTargetVector).norm());
-        return targetPos.minus(trueTargetVector).norm();
-    }
+//    private double getGoalDistanceFUSION() {
+//        if (null == trueTargetVector || null == targetPos) return 0.0;
+//        // Use FUSED pose for distance calculation
+////        telemetry.addData("distance: ", targetPos.minus(trueTargetVector).norm());
+//        return targetPos.minus(trueTargetVector).norm();
+//    }
 
-    private double getGoalDistance() {
+    public double getGoalDistance() {
         double distance = trueTargetVector.norm();
         if (null == trueTargetVector || null == offsetTarget) distance = 0.0;
         // Use FUSED pose for distance calculation
-        //        telemetry.addData("distance: ", distance);
+        if (TELEM) telemetry.addData("distance: ", distance);
         return distance;
     }
 

@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
@@ -26,14 +27,14 @@ public class Turnstile {
     private PIDController angleController;
     private Telemetry telemetry;
 
-    public static boolean TELEM = false;
+    public static boolean TELEM = true;
 
     // --- Tunable Constants via FTC Dashboard ---
     public static double P = 0.007, I = 0.0, D = 0.0003;
     public static double THRESHOLD = 0.00;
     public static double MIN_POWER_POS = 0.01;
     public static double MIN_POWER_NEG = 0.01;
-    public static double HOMING_POWER = 0.1;
+    public static double HOMING_POWER = 0.075;
     public static double ANGLE_TOLERANCE = 12.5;// In degrees
     public static double BACKWARD_TOLERANCE = 30;
     public static double INTAKE_TOLERANCE = 10;
@@ -47,6 +48,7 @@ public class Turnstile {
     public double startingAngle;
     private double launching_offset = 0;
     public static double LAUNCHING_OFFSET_ANGLE = 15;
+    public static double INTAKE_OFFSET_ANGLE = -15;
 
     // --- State Management ---
     public enum State {IDLE, HOMING, SEEKING_POSITION, HOLDING_POSITION, MANUAL_SPIN, LAUNCHING} // Added MANUAL_SPIN
@@ -70,12 +72,13 @@ public class Turnstile {
             indexerServo1 = hwMap.crservo.get("indexer");
             indexerServo2 = hwMap.crservo.get("indexer2");
 
-//            indexerServo1.setDirection(DcMotorSimple.Direction.REVERSE);
-//            indexerServo2.setDirection(DcMotorSimple.Direction.REVERSE);
+            indexerServo1.setDirection(DcMotorSimple.Direction.REVERSE);
+            indexerServo2.setDirection(DcMotorSimple.Direction.REVERSE);
 
             indexMotor = hwMap.get(DcMotorEx.class, MecanumDrive.LEFT_FRONT_MOTOR);
             limitSwitch = hwMap.get(TouchSensor.class, "indexerLimit");
 
+            indexMotor.setDirection(DcMotorSimple.Direction.REVERSE);
             indexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Use our own P
             indexMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); // Use our own PID
         } catch (Exception e) {
@@ -88,17 +91,17 @@ public class Turnstile {
 
     public void home() {
         currentState = State.HOMING;
-
+        isHomed = false;
     }
     public void intakeStart(){
-        launching_offset = 0;
+        launching_offset = INTAKE_OFFSET_ANGLE;
     }
     public void intakeStop(){
         launching_offset = LAUNCHING_OFFSET_ANGLE;
     }
 
     public void launchSlots(int launches) {
-        targetAngle = currentAngle - (120 * launches);
+        targetAngle = currentAngle + (120 * launches);
 
         currentState = State.LAUNCHING;
     }
@@ -169,7 +172,7 @@ public class Turnstile {
 
     public void update() {
         // --- 1. Cache Hardware Reads ---
-        currentAngle = indexMotor.getCurrentPosition() / COUNTS_PER_DEGREE - startingAngle - launching_offset;
+        currentAngle = -indexMotor.getCurrentPosition() / COUNTS_PER_DEGREE - startingAngle + launching_offset;
         limitSwitchPressed = limitSwitch.isPressed();
 
         // --- 2. Run State Machine ---

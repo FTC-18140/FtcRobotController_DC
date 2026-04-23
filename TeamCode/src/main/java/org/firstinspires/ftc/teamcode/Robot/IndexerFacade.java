@@ -280,7 +280,7 @@ public class IndexerFacade {
     }
 
     private boolean canSelectSlot(int slot) {
-        return (State.IDLE == currentState || State.AWAITING_LAUNCH == currentState || State.SELECTING_BALL == currentState || State.LAUNCHING == currentState) && 0 <= slot && 3 > slot;
+        return (State.IDLE == currentState || State.AWAITING_LAUNCH == currentState || State.SELECTING_BALL == currentState || State.LAUNCHING == currentState || State.HOMING == currentState) && 0 <= slot && 3 > slot;
     }
 
     public boolean launch() {
@@ -295,7 +295,7 @@ public class IndexerFacade {
     }
 
     private boolean canLaunch() {
-        return State.AWAITING_LAUNCH == currentState || State.IDLE == currentState || State.SELECTING_BALL == currentState || State.LAUNCHING == currentState;
+        return State.AWAITING_LAUNCH == currentState || State.IDLE == currentState || State.SELECTING_BALL == currentState || State.LAUNCHING == currentState || State.HOMING == currentState;
     }
 
     /**
@@ -339,6 +339,7 @@ public class IndexerFacade {
 
     public void adjustToThird() {
         setCurrentState(State.HOMING);
+        turnstile.home();
     } // Corrected: This is now a manual homing trigger.
 
     public void spin(double power) {
@@ -434,9 +435,13 @@ public class IndexerFacade {
                 ballNumber++;
             }
         }
+        if(getBallState(2) != BallState.VACANT){
+            ballNumber = 3;
+        }
         if (beamBreak.isBallDetectedInIntake()) {
             ballNumber++;
         }
+
     }
 
     public int getBallNumber() {
@@ -468,7 +473,6 @@ public class IndexerFacade {
 
         switch (currentState) {
             case HOMING:
-                turnstile.home();
                 if (turnstile.isHomed()) {
                     updateBallSensors();
                     beamBreakCounter = 0;
@@ -478,8 +482,8 @@ public class IndexerFacade {
             case IDLE: // Waiting for a command
                 break;
             case SELECTING_BALL:
+                beamBreakCounter = 0;
                 if (turnstile.isAtTarget()) {
-                    beamBreakCounter = 0;
                     updateBallSensors();
                     currentState = State.AWAITING_LAUNCH;
                 }
