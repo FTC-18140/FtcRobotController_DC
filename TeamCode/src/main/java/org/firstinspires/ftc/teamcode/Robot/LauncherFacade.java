@@ -23,8 +23,8 @@ public class LauncherFacade implements DataLoggable {
     public static double LAUNCH_ANGLE_DEGREES = 45.0;
     public static double JOYSTICK_SENSITIVITY = LAUNCH_ANGLE_DEGREES;
     private static final double INCH_TO_METER = 0.0254;
-    public static double TARGET_HEIGHT_INCHES_MIN = 32;
-    public static double TARGET_HEIGHT_INCHES_MAX = 46;
+    public static double TARGET_HEIGHT_INCHES_MIN = 40;
+    public static double TARGET_HEIGHT_INCHES_MAX = 36;
     public static double LAUNCHER_HEIGHT_INCHES = 12.5;
     public static double FRONT_PANEL_HEIGHT = 38.75;
     public static double TARGET_POSITION_TO_FRONT_PANEL_DISTANCE = 16;

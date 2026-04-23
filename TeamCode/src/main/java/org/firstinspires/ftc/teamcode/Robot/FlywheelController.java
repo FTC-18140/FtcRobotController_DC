@@ -21,17 +21,17 @@ public class FlywheelController {
     double angleToGoal = 0.0;
     PoseVelocity2d odoVelocity = null;
     public static double INERTIA_FACTOR = 0.007;
-    public static double RPM_TOLERANCE = 30;
+    public static double RPM_TOLERANCE = 40;
 
     public static class LowerPID {
         public double P = 0.00045, I = 0.00, D = 0.00000;
-        public double F_MAX = 0.45, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.745;
+        public double F_MAX = 0.53, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.615;
         public double GEAR_RATIO = 2.0;
     }
 
     public static class UpperPID {
         public double P = 0.00046, I = 0.00, D = 0.00000;
-        public double F_MAX = 0.45, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.735;
+        public double F_MAX = 0.53, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.605;
         public double GEAR_RATIO = 32.0 / 15.0;
     }
 

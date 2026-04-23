@@ -69,14 +69,15 @@ public class AutoBlueFar_12 extends LinearOpMode {
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
                                                                     .splineTo(intakePos.position, Math.toRadians(90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x, 53), Math.toRadians(90), new TranslationalVelConstraint(20))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x, 57), Math.toRadians(90))
                                                                     .build(),
                                                             robot.indexerFullAction()
                                                     ),
+                                                    robot.intakeStopAction(),
 
                                                     // Drive to launch spot
                                                     new ParallelAction(
-                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, 53), Math.toRadians(90)))
+                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, 57), Math.toRadians(90)))
                                                                     .setReversed(true)
                                                                     .splineTo(launchPos.position, Math.toRadians(180))
                                                                     .build()
@@ -85,7 +86,6 @@ public class AutoBlueFar_12 extends LinearOpMode {
                                                             //                                        robot.planSequenceAction()
                                                     ),
 
-                                                    robot.intakeStopAction(),
                                                     // Launch 2nd set of Artifacts
                                                     robot.launchAction(),
                                                     robot.intakeStartAction(),
@@ -93,14 +93,15 @@ public class AutoBlueFar_12 extends LinearOpMode {
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
                                                                     .splineTo(intakePos2.position, Math.toRadians(90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos2.position.x, 53), Math.toRadians(90), new TranslationalVelConstraint(20))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos2.position.x, 57), Math.toRadians(90))
                                                                     .build(),
                                                             robot.indexerFullAction()
                                                     ),
+                                                    robot.intakeStopAction(),
 
                                                     // Drive to launch spot
                                                     new ParallelAction(
-                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos2.position.x, 53), Math.toRadians(90)))
+                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos2.position.x, 57), Math.toRadians(90)))
                                                                     .setReversed(true)
                                                                     .splineToSplineHeading(launchPos2, Math.toRadians(0))
                                                                     .build()
@@ -109,7 +110,6 @@ public class AutoBlueFar_12 extends LinearOpMode {
                                                             //                                            robot.planSequenceAction()
                                                     ),
 
-                                                    robot.intakeStopAction(),
                                                     // Launch 2nd set of Artifacts
 
                                                     robot.launchAction(),
@@ -119,14 +119,15 @@ public class AutoBlueFar_12 extends LinearOpMode {
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos2)
                                                                     .splineToSplineHeading(intakePos3, Math.toRadians(90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos3.position.x, 53), Math.toRadians(90), new TranslationalVelConstraint(20))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos3.position.x, 49), Math.toRadians(90), new TranslationalVelConstraint(20))
                                                                     .build(),
                                                             robot.indexerFullAction()
                                                     ),
+                                                    robot.intakeStopAction(),
 
                                                     // Drive to launch spot
                                                     new ParallelAction(
-                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos3.position.x, 53), Math.toRadians(90)))
+                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos3.position.x, 49), Math.toRadians(90)))
                                                                     .setReversed(true)
                                                                     .splineToSplineHeading(launchPos2, Math.toRadians(0))
                                                                     .build()
@@ -135,7 +136,6 @@ public class AutoBlueFar_12 extends LinearOpMode {
                                                             //                                            robot.planSequenceAction()
                                                     ),
 
-                                                    robot.intakeStopAction(),
                                                     // Launch 2nd set of Artifacts
 
                                                     robot.launchAction()

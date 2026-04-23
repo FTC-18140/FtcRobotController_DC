@@ -10,7 +10,8 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class LED {
     private Telemetry telemetry = null;
     private Servo rpmLed = null;
-    private Servo launcherLed = null;
+    private Servo colorLed = null;
+    private Servo intakeLed = null;
 
     private final ElapsedTime ledTimer = new ElapsedTime();
 
@@ -30,6 +31,7 @@ public class LED {
     private double hue = 1.0;
     private double hueLauncherLed = 1.0;
     private double hueRpmLed = 1.0;
+    private double hueIntakeLed = 1.0;
     private double lowerBoundRpm = 0.0;
     private double upperBoundRpm = 0.0;
 
@@ -43,16 +45,22 @@ public class LED {
             telemetry.addData("led not found in configuration", 0);
         }
         try {
-            launcherLed = hwMap.servo.get("led2");
+            colorLed = hwMap.servo.get("led2");
             setLauncherLedToColor(Colors.RED);
         } catch (RuntimeException e) {
             telemetry.addData("led2 not found in configuration", 0);
+        }
+        try {
+            intakeLed = hwMap.servo.get("led3");
+            setLauncherLedToColor(Colors.RED);
+        } catch (RuntimeException e) {
+            telemetry.addData("led3 not found in configuration", 0);
         }
         lowerBoundRpm = lowerBoundRpmIn;
         upperBoundRpm = upperBoundRpmIn;
     }
 
-    public void update(double measuredRpm, double targetRpm, double runtime, IndexerFacade.BallState loadedColor, boolean isIndexerFull, IndexerFacade.State indexerState) {
+    public void update(double measuredRpm, double targetRpm, double runtime, IndexerFacade.BallState loadedColor, boolean isIndexerFull, boolean isIntakeFull, IndexerFacade.State indexerState) {
         double differenceTps = measuredRpm - targetRpm;
 
         if (differenceTps < -lowerBoundRpm) {
@@ -105,6 +113,11 @@ public class LED {
                     setLauncherLedToColor(Colors.OFF);
             }
         }
+        if (isIntakeFull) {
+            setIntakeLedToColor(Colors.RED);
+        } else {
+            setIntakeLedToColor(Colors.GREEN);
+        }
         setColorsIfHoming(indexerState);
         writeToLeds();
     }
@@ -113,11 +126,15 @@ public class LED {
         if (IndexerFacade.State.HOMING == indexerState) {
             setRPMLedToColor(Colors.BLUE);
             setLauncherLedToColor(Colors.BLUE);
+            setIntakeLedToColor(Colors.BLUE);
         }
     }
 
     private void setRPMLedToColor(Colors color) {
         hueRpmLed = getColor(color);
+    }
+    private void setIntakeLedToColor(Colors color) {
+        hueIntakeLed = getColor(color);
     }
 
     void setLauncherLedToColor(Colors color) {
@@ -125,8 +142,9 @@ public class LED {
     }
 
     private void writeToLeds() {
-//        launcherLed.setPosition(hueLauncherLed);
-//        rpmLed.setPosition(hueRpmLed);
+        colorLed.setPosition(hueLauncherLed);
+        rpmLed.setPosition(hueRpmLed);
+        intakeLed.setPosition(hueIntakeLed);
     }
 
     /**

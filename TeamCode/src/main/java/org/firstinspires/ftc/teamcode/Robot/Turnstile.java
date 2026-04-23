@@ -36,7 +36,7 @@ public class Turnstile {
     public static double HOMING_POWER = 0.1;
     public static double ANGLE_TOLERANCE = 12.5;// In degrees
     public static double BACKWARD_TOLERANCE = 30;
-    public static double INTAKE_TOLERANCE = 15;
+    public static double INTAKE_TOLERANCE = 10;
     public static double HOMING_OFFSET = 0;
     public static double LAUNCHING_POWER = 0.8;
     private double current_offset = 0; // --- Non-tunable Constants ---

@@ -65,7 +65,7 @@ public class AutoBlueDepot_12 extends LinearOpMode {
                                                                     .build()
                                                     ),
                                                     // Launch Preloads
-                                                    robot.spamAction(),
+                                                    robot.launchAction(),
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
@@ -76,15 +76,15 @@ public class AutoBlueDepot_12 extends LinearOpMode {
                                                                     .build(),
                                                             robot.indexerFullAction()
                                                     ),
+                                                    robot.intakeStopAction(),
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, 49), Math.toRadians(90)))
                                                                     .setReversed(true)
                                                                     .splineToConstantHeading(launchPos2.position, Math.toRadians(-90))
                                                                     .build()
                                                     ),
-                                                    robot.intakeStopAction(),
                                                     // Launch Preloads
-                                                    robot.spamAction(),
+                                                    robot.launchAction(),
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
@@ -94,6 +94,7 @@ public class AutoBlueDepot_12 extends LinearOpMode {
                                                                     .build(),
                                                             robot.indexerFullAction()
                                                     ),
+                                                    robot.intakeStopAction(),
                                                     // Drive to launch spot
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos2.position.x, 53), Math.toRadians(90)))
@@ -104,11 +105,8 @@ public class AutoBlueDepot_12 extends LinearOpMode {
 //                                                            // Re-plan the shot sequence with the newly loaded balls
 //                                                            robot.planSequenceAction()
                                                     ),
-                                                    robot.intakeStopAction(),
                                                     // Launch 2nd set of Artifacts
-                                                    robot.planSequenceAction(),
-                                                    robot.startSequenceAction(),
-                                                    robot.waitForSequenceEndAction(),
+                                                    robot.launchAction(),
 
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
@@ -119,6 +117,7 @@ public class AutoBlueDepot_12 extends LinearOpMode {
                                                                     .build(),
                                                             robot.indexerFullAction()
                                                     ),
+                                                    robot.intakeStopAction(),
                                                     // Drive to launch spot
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos3.position.x, 53), Math.toRadians(90)))
@@ -129,11 +128,8 @@ public class AutoBlueDepot_12 extends LinearOpMode {
 //                                                            // Re-plan the shot sequence with the newly loaded balls
 //                                                            robot.planSequenceAction()
                                                     ),
-                                                    robot.intakeStopAction(),
                                                     // Launch 3rd set of Artifacts
-                                                    robot.planSequenceAction(),
-                                                    robot.startSequenceAction(),
-                                                    robot.waitForSequenceEndAction()
+                                                    robot.launchAction()
                                             ),
                                             new SleepAction(27)
                                     ),

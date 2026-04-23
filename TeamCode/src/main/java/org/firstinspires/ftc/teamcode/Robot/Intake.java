@@ -30,6 +30,7 @@ public class Intake {
     private double intakeServoPower = 0;
 
     private double slow = 1;
+    private double reversed = 1;
     private static double SLOWED_POWER_FACTOR = 0.4;
     private double currentDraw = 0.0;
 
@@ -58,7 +59,11 @@ public class Intake {
         } else {
             intakeServo.setPower(intakeServoPower);
         }
-        intakeMotor.setPower(intakeMotorPower * slow);
+        if(reversed == -1) {
+            intakeMotor.setPower(INTAKE_MOTOR_POWER * slow * reversed);
+        } else {
+            intakeMotor.setPower(intakeMotorPower * slow * reversed);
+        }
         currentDraw = getTotalCurrentDraw();
         if (REV_MOTOR_STALL_CURRENT <= currentDraw) {
             telemetry.addData("INTAKE STALLED", 0);
@@ -81,6 +86,7 @@ public class Intake {
 
     public void motorIntake() {
         intakeMotorPower = INTAKE_MOTOR_POWER;
+        reversed = 1;
     }
 
     void slow() {
@@ -125,6 +131,9 @@ public class Intake {
         servoStop();
         telemetry.addData("Spitting", 0);
     }
+    public void unSpit() {
+        reversed = 1;
+    }
 
     public void stop() {
         motorStop();
@@ -140,7 +149,7 @@ public class Intake {
     }
 
     public void motorSpit() {
-        intakeMotorPower = -INTAKE_SERVO_POWER;
+        reversed = -1;
     }
 
     public void servoSpit() {
