@@ -52,7 +52,7 @@ public class LED {
         }
         try {
             intakeLed = hwMap.servo.get("led3");
-            setLauncherLedToColor(Colors.RED);
+            setIntakeLedToColor(Colors.RED);
         } catch (RuntimeException e) {
             telemetry.addData("led3 not found in configuration", 0);
         }
@@ -60,63 +60,44 @@ public class LED {
         upperBoundRpm = upperBoundRpmIn;
     }
 
-    public void update(double measuredRpm, double targetRpm, double runtime, IndexerFacade.BallState loadedColor, boolean isIndexerFull, boolean isIntakeFull, IndexerFacade.State indexerState) {
-        double differenceTps = measuredRpm - targetRpm;
-
-        if (differenceTps < -lowerBoundRpm) {
+    public void update(double distance, double runtime, IndexerFacade.BallState loadedColor, boolean isIndexerFull, boolean isIntakeFull, IndexerFacade.State indexerState) {
+        if (distance < 58) {
             setRPMLedToColor(Colors.RED);
-        } else if (differenceTps > upperBoundRpm) {
-            setRPMLedToColor(Colors.BLUE);
         } else {
-            setRPMLedToColor(Colors.GREEN);
+            setRPMLedToColor(Colors.OFF);
         }
         double alertTimeEnd = 10.0;
         if (5.0 > (120.0 - runtime)) {
             if (1.0 == (Math.ceil(runtime * 2.0) % 2.0)) {
-                setRPMLedToColor(Colors.OFF);
             } else {
-                setRPMLedToColor(Colors.RED);
+                setAllLedsToColor(Colors.RED);
             }
         } else if ((120.0 - runtime) < alertTimeEnd) {
             if (1.0 == Math.ceil(runtime * 2.0) % 2.0) {
-                setRPMLedToColor(Colors.OFF);
             } else {
-                setRPMLedToColor(Colors.ORANGE);
+                setAllLedsToColor(Colors.ORANGE);
             }
 
         }
-        if (isIndexerFull) {
-            if (1.0 == Math.ceil(runtime * 2.0) % 2.0) {
-                setLauncherLedToColor(Colors.WHITE);
-            } else {
-                switch (loadedColor) {
-                    case GREEN:
-                        setLauncherLedToColor(Colors.GREEN);
-                        break;
-                    case PURPLE:
-                        setLauncherLedToColor(Colors.PURPLE);
-                        break;
-                    default:
-                        setLauncherLedToColor(Colors.OFF);
-                }
-            }
-
-        } else {
-            switch (loadedColor) {
-                case GREEN:
-                    setLauncherLedToColor(Colors.GREEN);
-                    break;
-                case PURPLE:
-                    setLauncherLedToColor(Colors.PURPLE);
-                    break;
-                default:
-                    setLauncherLedToColor(Colors.OFF);
-            }
+        switch (loadedColor) {
+            case GREEN:
+                setLauncherLedToColor(Colors.GREEN);
+                break;
+            case PURPLE:
+                setLauncherLedToColor(Colors.PURPLE);
+                break;
+            default:
+                setLauncherLedToColor(Colors.OFF);
+                break;
         }
+        if (isIndexerFull && (1.0 == Math.ceil(runtime * 2.0) % 2.0)) {
+            setLauncherLedToColor(Colors.WHITE);
+        }
+
         if (isIntakeFull) {
             setIntakeLedToColor(Colors.RED);
         } else {
-            setIntakeLedToColor(Colors.GREEN);
+            setIntakeLedToColor(Colors.OFF);
         }
         setColorsIfHoming(indexerState);
         writeToLeds();
@@ -124,9 +105,7 @@ public class LED {
 
     private void setColorsIfHoming(IndexerFacade.State indexerState) {
         if (IndexerFacade.State.HOMING == indexerState) {
-            setRPMLedToColor(Colors.BLUE);
-            setLauncherLedToColor(Colors.BLUE);
-            setIntakeLedToColor(Colors.BLUE);
+            setAllLedsToColor(Colors.BLUE);
         }
     }
 
@@ -141,6 +120,11 @@ public class LED {
         hueLauncherLed = getColor(color);
     }
 
+    private void setAllLedsToColor(Colors color) {
+        setRPMLedToColor(color);
+        setLauncherLedToColor(color);
+        setIntakeLedToColor(color);
+    }
     private void writeToLeds() {
         colorLed.setPosition(hueLauncherLed);
         rpmLed.setPosition(hueRpmLed);

@@ -45,7 +45,7 @@ public class Flywheel {
     public static double MIN_SHOOTER_RPM = 1500.0;
     public static double STATIC_RPM = 1800.0;
     private static final double SHOOTER_RADIUS = 0.072 / 2.0;
-    public static double SPIN_EFFICIENCY = 0.8;
+    public static double SPIN_EFFICIENCY = 0.83;
     public double FLYWHEEL_RATIO = 1.0;
     public double FLYWHEEL_GEAR_RATIO = 2.0;
 
