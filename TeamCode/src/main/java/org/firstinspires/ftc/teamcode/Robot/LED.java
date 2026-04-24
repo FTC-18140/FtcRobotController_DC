@@ -61,7 +61,7 @@ public class LED {
     }
 
     public void update(double distance, double runtime, IndexerFacade.BallState loadedColor, boolean isIndexerFull, boolean isIntakeFull, IndexerFacade.State indexerState) {
-        if (distance < 58) {
+        if (LauncherFacade.LAUNCH_DISTANCE_MIN > distance) {
             setRPMLedToColor(Colors.RED);
         } else {
             setRPMLedToColor(Colors.OFF);
@@ -112,6 +112,7 @@ public class LED {
     private void setRPMLedToColor(Colors color) {
         hueRpmLed = getColor(color);
     }
+
     private void setIntakeLedToColor(Colors color) {
         hueIntakeLed = getColor(color);
     }
@@ -125,6 +126,7 @@ public class LED {
         setLauncherLedToColor(color);
         setIntakeLedToColor(color);
     }
+
     private void writeToLeds() {
         colorLed.setPosition(hueLauncherLed);
         rpmLed.setPosition(hueRpmLed);

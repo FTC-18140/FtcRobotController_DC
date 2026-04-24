@@ -459,7 +459,7 @@ public class IndexerFacade {
 
         updated = false;
 
-        if(turnstile.isAtTarget()){
+        if (turnstile.isAtTarget()) {
             atTarget = turnstile.isAtTargetTime();
         }
         if (isIntaking) {

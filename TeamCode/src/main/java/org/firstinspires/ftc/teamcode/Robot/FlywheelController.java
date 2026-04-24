@@ -4,7 +4,6 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -24,6 +23,20 @@ public class FlywheelController {
     public static double[] distances = {50, 94, 167};
     public static double[] rpms = {1800, 1920, 2500};
 
+    static class DistRPM {
+        double x, y;
+
+        DistRPM(double x, double y) {
+            super();
+            this.x = x;
+            this.y = y;
+        }
+    }
+
+    public static DistRPM distRPMs[] = null;
+
+    ;
+
     public static class LowerPID {
         public double P = 0.00045, I = 0.00, D = 0.00000;
         public double F_MAX = 0.55, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.615;
@@ -40,11 +53,12 @@ public class FlywheelController {
     public static UpperPID UPPER_PID = new UpperPID();
 
 
-    public static double FLYWHEEL_RATIO = (double) 1.0;
+    public static double FLYWHEEL_RATIO = 1.0;
 
 
     public void init(HardwareMap hwMap, Telemetry telem) {
         telemetry = telem;
+        initDistRPMs();
         lowerWheel = new Flywheel();
         upperWheel = new Flywheel();
 
@@ -67,6 +81,12 @@ public class FlywheelController {
         upperWheel.update();
         angleToGoal = fieldAngleToGoal;
         odoVelocity = currentOdoVelocity;
+    }
+
+    private void initDistRPMs() {
+        for (int i = 0; i < distances.length; i++) {
+            distRPMs[i] = new DistRPM(distances[i], rpms[i]);
+        }
     }
 
 
@@ -122,6 +142,32 @@ public class FlywheelController {
 
     }
 
+    /**
+     * function to interpolate the given data points using Lagrange's formula
+     * https://www.geeksforgeeks.org/dsa/lagranges-interpolation/
+     *
+     * @param distRPMs
+     * @param xi       corresponds to the new data point whose value is to be obtained
+     * @return
+     */
+    public static double interpolateDistRPM(double xi) {
+        double result = 0; // Initialize result
+        int n = distRPMs.length; //represents the number of known data points
+        for (int i = 0; i < n; i++) {
+            // Compute individual terms of above formula
+            double term = distRPMs[i].y;
+            for (int j = 0; j < n; j++) {
+                if (j != i)
+                    term = term * (xi - distRPMs[j].x) / (distRPMs[i].x - distRPMs[j].x);
+            }
+
+            // Add current term to result
+            result += term;
+        }
+
+        return result;
+    }
+
     public double calculateBallVelocity(double distance, double height, double angleDegrees) {
         last_distance = distance;
 
@@ -147,23 +193,11 @@ public class FlywheelController {
     }
 
     void setTargetRpmFromDistance(double distance) {
-        double rpm = Flywheel.STATIC_RPM;
-        for(int i = 0; i < distances.length; i++){
-            if(distance > distances[distances.length-1]){
-                rpm = rpms[rpms.length-1];
-                lowerWheel.setTargetRpm(rpm);
-                upperWheel.setTargetRpm(rpm);
-                return;
-            }
-            if(distance <= distances[i + 1]){
-                rpm = Range.scale(distance, distances[i], distances[i + 1], rpms[i], rpms[i + 1]);
-                lowerWheel.setTargetRpm(rpm);
-                upperWheel.setTargetRpm(rpm);
-                return;
-            }
-        }
-
+        double rpm = interpolateDistRPM(distance);
+        lowerWheel.setTargetRpm(rpm);
+        upperWheel.setTargetRpm(rpm);
     }
+
     public void DEBUG_upperFlywheel() {
         upperWheel.setPower(0.5);
     }

@@ -35,18 +35,18 @@ public class Turret implements DataLoggable {
     private State currentState = State.HOLDING; // Initial state
 
     // Hardware and Utilities
-    private DcMotor turret;
-    private DcMotor turretEnc;
-    private TouchSensor turretSwitch;
-    private boolean isHomed;
+    private DcMotor turret = null;
+    private DcMotor turretEnc = null;
+    private TouchSensor turretSwitch = null;
+    private boolean isHomed = false;
     //private DcMotor turretEnc;
-    private PIDController turretAimPID;
-    private Telemetry telemetry;
+    private PIDController turretAimPID = null;
+    private Telemetry telemetry = null;
 
     // Tunable constants from your original file
     public static double P_TURRET = 0.0128, I_TURRET = 0.05, D_TURRET = 0.0011, F_TURRET_MIN = 0.0, F_TURRET_MAX = 0.02;
-    public static double MIN_TURRET_POS = -90;
-    public static double MAX_TURRET_POS = 360 + MIN_TURRET_POS;
+    public static double MIN_TURRET_POS = -100;
+    public static double MAX_TURRET_POS = 365 + MIN_TURRET_POS;
 
     public static double TURRET_ANGLE_TOLERANCE = 2.5;
 
@@ -70,7 +70,7 @@ public class Turret implements DataLoggable {
     private double seekingPower = (double) 0; // Member variable to be accessible for logging
     private double lastSeekingPower = (double) 0;
     public static String STARTING_ANGLE = "TURRET_ENDING_ANGLE_AUTO";
-    double startingAngle;
+    double startingAngle = 0.0;
 
     public void init(HardwareMap hwMap, Telemetry telem) {
 
