@@ -43,6 +43,7 @@ public class IndexerFacade {
 
     private State currentState = State.IDLE;
     private boolean isIntaking = false;
+    private boolean atTarget = true;
 
 
     /**
@@ -58,7 +59,7 @@ public class IndexerFacade {
 
     // --- Auto-Sequence Management ---
     private List<BallState> shotSequence = null;
-    private int sequence_id = -1;
+    private int sequence_id = 22;
     private boolean sequenceStarted = false;
     private int sequenceIndex = -1;
     private boolean[] slots_fired = new boolean[3];
@@ -125,6 +126,7 @@ public class IndexerFacade {
                 green_pos = i;
                 int angle = (currentTargetSlot + (index - green_pos));
                 turnstile.seekToAngle(SLOT_ANGLES[Math.floorMod(angle, 3)]);
+                atTarget = false;
                 setCurrentState(State.SELECTING_BALL);
                 return true;
             }
@@ -224,6 +226,7 @@ public class IndexerFacade {
                     turnstile.seekToAngle(SLOT_ANGLES[slotToCheck]);
                     beamBreakCounter = 0;
                     currentState = State.SELECTING_BALL;
+                    atTarget = false;
                     slotFound = true;
                 }
             }
@@ -251,6 +254,7 @@ public class IndexerFacade {
                     turnstile.seekToAngle(SLOT_ANGLES[slot]);
                     beamBreakCounter = 0;
                     currentState = State.SELECTING_BALL;
+                    atTarget = false;
                     slotFound = true;
                 }
             }
@@ -274,6 +278,7 @@ public class IndexerFacade {
             turnstile.seekToAngle(SLOT_ANGLES[currentTargetSlot]);
             beamBreakCounter = 0;
             currentState = State.SELECTING_BALL;
+            atTarget = false;
             return true;
         }
         return false;
@@ -286,6 +291,7 @@ public class IndexerFacade {
     public boolean launch() {
         if (canLaunch()) {
             currentState = State.LAUNCHING;
+            atTarget = false;
             turnstile.launchSlots(1);
             ballSlots[2] = BallState.VACANT;
             rotateBallStates(1);
@@ -453,6 +459,9 @@ public class IndexerFacade {
 
         updated = false;
 
+        if(turnstile.isAtTarget() && turnstile.isAtTargetTime()){
+            atTarget = true;
+        }
         if (isIntaking) {
             if (inIntakeSlot()) {
                 beamBreakCounter++;
@@ -462,7 +471,7 @@ public class IndexerFacade {
                 beamBreakCounter = Math.max(beamBreakCounter, 0);
             }
 
-            if (turnstile.isOverSlot() && 3 <= beamBreakCounter && !indexerIsFull() && turnstile.isAtTargetTime()) {
+            if (atTarget && 3 <= beamBreakCounter && !indexerIsFull()) {
                 readyNextIntakeSlot(BallState.VACANT);
             }
         }
@@ -536,6 +545,7 @@ public class IndexerFacade {
     private void addTelemetry() {
         if (!TELEM) return;
         telemetry.addData("Indexer Facade State", currentState.name());
+        telemetry.addData("Indexer at Target: ", atTarget);
         telemetry.addData("Beam Break detection: ", ballInIndexer());
         telemetry.addLine(String.format("Slots: [0]: %s, [1]: %s, [2]: %s",
                 ballSlots[0], ballSlots[1], ballSlots[2]));

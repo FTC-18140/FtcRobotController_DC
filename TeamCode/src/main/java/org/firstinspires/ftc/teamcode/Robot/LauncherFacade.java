@@ -58,7 +58,7 @@ public class LauncherFacade implements DataLoggable {
 
     private double smoothedTurretAngle = 0.0;
     private boolean firstAimRun = true;
-    public static boolean TELEM = true;
+    public static boolean TELEM = false;
     public static double LPF_BETA = 1.0; // Higher value = more responsive
 
     // Target and alliance properties

@@ -36,6 +36,7 @@ public class Turnstile {
     public static double MIN_POWER_NEG = 0.01;
     public static double HOMING_POWER = 0.075;
     public static double ANGLE_TOLERANCE = 12.5;// In degrees
+    public static double CYCLE_TIME = 50;
     public static double BACKWARD_TOLERANCE = 30;
     public static double INTAKE_TOLERANCE = 10;
     public static double HOMING_OFFSET = 0;
@@ -178,7 +179,7 @@ public class Turnstile {
     }
 
     public boolean isTimerReady() {
-        return (250 < debounce.milliseconds());
+        return (CYCLE_TIME < debounce.milliseconds());
     }
 
     public boolean isOverSlot() {
@@ -291,8 +292,10 @@ public class Turnstile {
 //        telemetry.addData("Turnstile State", currentState.name());
             telemetry.addData("Turnstile Angle", currentAngle);
             telemetry.addData("Turnstile Target", targetAngle + current_offset);
+            telemetry.addData("Turnstile Error: ", targetAngle + current_offset - currentAngle);
             telemetry.addData("Turnstile Power", power);
             telemetry.addData("Limit Switch Pressed", limitSwitchPressed);
+            telemetry.addData("At target time: ", isAtTargetTime());
         }
     }
 }
