@@ -113,7 +113,7 @@ public class ThunderBot2025 implements DataLoggable {
         boolean atTarget = launcher.isAtTarget();
 
         indexer.update(atTargetRpm && atTarget);
-        intake.update(!(indexer.getCurrentState() == IndexerFacade.State.IDLE || indexer.getCurrentState() == IndexerFacade.State.AWAITING_LAUNCH));
+        intake.update(!(IndexerFacade.State.IDLE == indexer.getCurrentState() || IndexerFacade.State.AWAITING_LAUNCH == indexer.getCurrentState()));
 
 
         lastBallState = indexer.getLastBallState(2);
@@ -125,8 +125,6 @@ public class ThunderBot2025 implements DataLoggable {
         IndexerFacade.State state = indexer.getCurrentState();
 
         led.update(launcher.getGoalDistance(), seconds, lastBallState, isIndexerFull, isIntakeFull, state);
-
-//        kickstand.update();
 
         if (3 < indexer.getBallNumber()) {
             intake.unslow();

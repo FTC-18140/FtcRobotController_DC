@@ -483,7 +483,7 @@ public class IndexerFacade {
                     beamBreakCounter = 0;
                     updateBallSensors();
                     currentState = State.AWAITING_LAUNCH;
-                    
+
                 }
                 break;
             case AWAITING_LAUNCH: // In position, ready to receive a flip() command from an external source.
