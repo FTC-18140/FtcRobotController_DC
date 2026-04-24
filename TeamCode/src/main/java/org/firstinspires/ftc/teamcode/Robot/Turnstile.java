@@ -6,9 +6,9 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -49,6 +49,9 @@ public class Turnstile {
     private double launching_offset = 0;
     public static double LAUNCHING_OFFSET_ANGLE = 15;
     public static double INTAKE_OFFSET_ANGLE = -5;
+    private boolean nearTarget;
+    public ElapsedTime debounce = new ElapsedTime();
+
 
     // --- State Management ---
     public enum State {IDLE, HOMING, SEEKING_POSITION, HOLDING_POSITION, MANUAL_SPIN, LAUNCHING} // Added MANUAL_SPIN
@@ -93,10 +96,12 @@ public class Turnstile {
         currentState = State.HOMING;
         isHomed = false;
     }
-    public void intakeStart(){
+
+    public void intakeStart() {
         launching_offset = INTAKE_OFFSET_ANGLE;
     }
-    public void intakeStop(){
+
+    public void intakeStop() {
         launching_offset = LAUNCHING_OFFSET_ANGLE;
     }
 
@@ -123,6 +128,7 @@ public class Turnstile {
 
 
         currentState = State.SEEKING_POSITION;
+        nearTarget = false;
         /* --- Old Implementation ---
         // Refactored to have a single exit point
         //if (isHomed) {
@@ -155,6 +161,24 @@ public class Turnstile {
 
     public boolean isAtTarget() {
         return (Math.abs(currentAngle - (targetAngle + current_offset)) < ANGLE_TOLERANCE);
+    }
+
+    public boolean isAtTargetTime() {
+        if (false == nearTarget) {
+            debounce.reset();
+            nearTarget = true;
+            return false;
+        } else {
+            if (isTimerReady()) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    public boolean isTimerReady() {
+        return (250 < debounce.milliseconds());
     }
 
     public boolean isOverSlot() {
