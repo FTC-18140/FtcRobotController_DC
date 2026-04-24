@@ -462,7 +462,7 @@ public class LauncherFacade implements DataLoggable {
 
     static double calculateLauncherHeightMeters(double distanceToGoalMeters) {
         double distanceToGoalClip = Range.clip(distanceToGoalMeters / INCH_TO_METER, LAUNCH_DISTANCE_MIN, LAUNCH_DISTANCE_MAX);
-        double heightInches = Range.scale(distanceToGoalClip, LAUNCH_DISTANCE_MIN, LAUNCH_DISTANCE_MAX, TARGET_HEIGHT_INCHES_MIN, TARGET_HEIGHT_INCHES_MAX);
+        double heightInches = Range.scale(distanceToGoalClip, LAUNCH_DISTANCE_MIN, LAUNCH_DISTANCE_MAX, TARGET_HEIGHT_INCHES_MAX, TARGET_HEIGHT_INCHES_MIN);
         return heightInches * INCH_TO_METER;
 
     }
