@@ -20,7 +20,7 @@ public class Intake {
     private Telemetry telemetry = null;
     private HardwareMap hardwareMap = null;
 
-    public static double INTAKE_MOTOR_POWER = 0.75;
+    public static double INTAKE_MOTOR_POWER = 0.85;
     public static double INTAKE_SERVO_POWER = 1.0;
 
     private DcMotor intakeMotor = null;
@@ -31,7 +31,7 @@ public class Intake {
 
     private double slow = 1;
     private double reversed = 1;
-    private static double SLOWED_POWER_FACTOR = 0.4;
+    private static double SLOWED_POWER_FACTOR = 0.7;
     private double currentDraw = 0.0;
 
     public void init(HardwareMap hwMap, Telemetry telem) {
