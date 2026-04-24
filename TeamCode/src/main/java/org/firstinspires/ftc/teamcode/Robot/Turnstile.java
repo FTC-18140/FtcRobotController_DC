@@ -69,7 +69,7 @@ public class Turnstile {
     private boolean limitSwitchPressed;
 
     public void init(HardwareMap hwMap, Telemetry telem) {
-        this.telemetry = telem;
+        telemetry = telem;
         angleController = new PIDController(P, I, D);
 
 
@@ -144,16 +144,16 @@ public class Turnstile {
         // Refactored to have a single exit point
         //if (isHomed) {
 
-        if (Math.abs(power) == 0 && currentState != State.SEEKING_POSITION && currentState != State.HOLDING_POSITION) {
+        if (0 == Math.abs(power) && State.SEEKING_POSITION != currentState && State.HOLDING_POSITION != currentState) {
             // When driver lets go, find the nearest physical slot and seek to it.
-            double nearestSlotAngle = ((int) Math.round(currentAngle / 120.0)) * 120.0;
-            this.seekToAngle(nearestSlotAngle);
-            this.currentState = State.SEEKING_POSITION;
-        } else if (Math.abs(power) > 0) {
-            this.manualPower = power;
-            this.currentState = State.MANUAL_SPIN;
+            double nearestSlotAngle = (Math.round(currentAngle / 120.0)) * 120.0;
+            seekToAngle(nearestSlotAngle);
+            currentState = State.SEEKING_POSITION;
+        } else if (0 < Math.abs(power)) {
+            manualPower = power;
+            currentState = State.MANUAL_SPIN;
         } else {
-            this.currentState = State.SEEKING_POSITION;
+            currentState = State.SEEKING_POSITION;
         }
 
         //}
@@ -166,16 +166,12 @@ public class Turnstile {
     }
 
     public boolean isAtTargetTime() {
-        if (false == nearTarget) {
+        if (nearTarget) {
+            return isTimerReady();
+        } else {
             debounce.reset();
             nearTarget = true;
             return false;
-        } else {
-            if (isTimerReady()) {
-                return true;
-            } else {
-                return false;
-            }
         }
     }
 
@@ -188,7 +184,7 @@ public class Turnstile {
     }
 
     public boolean isHomed() {
-        return this.isHomed;
+        return isHomed;
     }
 
 
@@ -201,11 +197,11 @@ public class Turnstile {
         currentAngle = indexMotor.getCurrentPosition() / COUNTS_PER_DEGREE - startingAngle - launching_offset;
         limitSwitchPressed = limitSwitch.isPressed();
 
-        count = Math.min(count, 3);
+        int minCount = Math.min(count, 3);
         // --- 2. Run State Machine ---
         double power;
-        double p_total = P + P_PER_BALL_FACTOR * count;
-        angleController.setPID(p_total, I, D); // Re-apply PID gains from Dashboard
+        double pTotal = P + P_PER_BALL_FACTOR * minCount;
+        angleController.setPID(pTotal, I, D); // Re-apply PID gains from Dashboard
         power = angleController.calculate(currentAngle, targetAngle + current_offset) * GEAR_RATIO;
 
         if (power > THRESHOLD) power = Range.scale(power, THRESHOLD, 1, MIN_POWER_POS, 1);
@@ -239,10 +235,10 @@ public class Turnstile {
             case MANUAL_SPIN:
                 indexerServo1.setPower(manualPower);
                 indexerServo2.setPower(manualPower);
-                if (Math.abs(manualPower) < 0.01) {
+                if (0.01 > Math.abs(manualPower)) {
                     // When driver lets go, find the nearest physical slot and seek to it.
-                    double nearestSlotAngle = ((int) Math.round(currentAngle / 120.0)) * 120.0;
-                    this.seekToAngle(nearestSlotAngle);
+                    double nearestSlotAngle = (Math.round(currentAngle / 120.0)) * 120.0;
+                    seekToAngle(nearestSlotAngle);
                     currentState = State.SEEKING_POSITION;
                 }
                 break;
