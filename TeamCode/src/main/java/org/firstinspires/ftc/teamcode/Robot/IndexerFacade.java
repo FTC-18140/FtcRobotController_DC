@@ -435,9 +435,6 @@ public class IndexerFacade {
                 ballNumber++;
             }
         }
-        if(getBallState(2) != BallState.VACANT){
-            ballNumber = 3;
-        }
         if (beamBreak.isBallDetectedInIntake()) {
             ballNumber++;
         }
@@ -482,8 +479,8 @@ public class IndexerFacade {
             case IDLE: // Waiting for a command
                 break;
             case SELECTING_BALL:
-                beamBreakCounter = 0;
                 if (turnstile.isAtTarget()) {
+                    beamBreakCounter = 0;
                     updateBallSensors();
                     currentState = State.AWAITING_LAUNCH;
                 }
