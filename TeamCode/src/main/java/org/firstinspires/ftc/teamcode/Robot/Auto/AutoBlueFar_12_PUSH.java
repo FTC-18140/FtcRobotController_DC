@@ -5,7 +5,6 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.RaceAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
-import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -14,11 +13,11 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
 @Autonomous(group = AutoBlueFar_WAIT.AUTO_BLUE_FAR_GROUP)
-public class AutoBlueFar_12 extends LinearOpMode {
+public class AutoBlueFar_12_PUSH extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        Pose2d start = new Pose2d(AutoPositions.Positions.START_BLUE_FAR.position, Math.toRadians(0));
+        Pose2d start = new Pose2d(AutoPositions.Positions.START_BLUE_FAR.position, Math.toRadians(-90));
         Pose2d launchPos = new Pose2d(AutoPositions.Positions.FAR_LAUNCH_ZONE_BLUE.position, Math.toRadians(0));
         Pose2d launchPos2 = new Pose2d(AutoPositions.Positions.CENTER_LAUNCH_ZONE_BLUE.position, Math.toRadians(0));
         Pose2d intakePos = new Pose2d(AutoPositions.Positions.ARTIFACT_BASE_BLUE.position, Math.toRadians(90));
@@ -31,6 +30,7 @@ public class AutoBlueFar_12 extends LinearOpMode {
 
         robot.init(hardwareMap, telemetry, start);
         robot.setColor(ThunderBot2025.Alliance_Color.BLUE);
+        robot.launcher.setTurretStart(-90);
 
 
         // This is the equivalent of init_loop()
@@ -59,12 +59,15 @@ public class AutoBlueFar_12 extends LinearOpMode {
                                             new SequentialAction(
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(start)
-                                                                    .splineTo(launchPos.position, 0)
+                                                                    .setReversed(true)
+                                                                    .splineTo(new Vector2d(start.position.x, start.position.y + 26), Math.toRadians(90))
+                                                                    .setReversed(false)
+                                                                    .splineTo(launchPos.position, Math.toRadians(0))
                                                                     .build()
                                                             // Plan the first shot sequence while driving.
                                                     ),
                                                     // Launch Preloads
-                                                    robot.launchAction(),
+                                                    robot.sortAndLaunchAction(),
                                                     robot.intakeStartAction(),
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
@@ -87,7 +90,7 @@ public class AutoBlueFar_12 extends LinearOpMode {
                                                     robot.intakeStopAction(),
 
                                                     // Launch 2nd set of Artifacts
-                                                    robot.launchAction(),
+                                                    robot.sortAndLaunchAction(),
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
@@ -113,7 +116,7 @@ public class AutoBlueFar_12 extends LinearOpMode {
 
                                                     // Launch 2nd set of Artifacts
 
-                                                    robot.launchAction(),
+                                                    robot.sortAndLaunchAction(),
 
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions

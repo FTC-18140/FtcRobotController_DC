@@ -8,6 +8,7 @@ public class AutoPositions {
     @Config
     public enum Positions {
         START_BLUE_FAR(new Vector2d(-63.0, 16.5)),
+        START_BLUE_FAR_SIDE(new Vector2d(-63.0, 16.5)),
         START_BLUE_DEPOT(new Vector2d(58.0, 46.0)),
         START_RED_FAR(new Vector2d(-63.0, -16.5)),
         START_RED_DEPOT(new Vector2d(57.5, -45.5)),

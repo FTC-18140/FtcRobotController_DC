@@ -377,6 +377,7 @@ public class ThunderBot2025 implements DataLoggable {
 
     public Action sortAndLaunchAction() {
         return new SequentialAction(
+                startSequenceAction(),
                 launchAction()
         );
     }

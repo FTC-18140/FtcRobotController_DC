@@ -55,7 +55,6 @@ public class AutoRedFar_12 extends LinearOpMode {
                             robot.aimAction(),
                             robot.launcher.prepShotAction(),
                             new SequentialAction(
-                                    robot.indexer.homeAction(),
                                     new RaceAction(
                                             new SequentialAction(
                                                     new ParallelAction(
@@ -64,21 +63,20 @@ public class AutoRedFar_12 extends LinearOpMode {
                                                                     .build()
                                                             // Plan the first shot sequence while driving.
                                                     ),
-                                                    robot.cancelSequenceAction(),
                                                     // Launch Preloads
-                                                    robot.spamAction(),
+                                                    robot.launchAction(),
                                                     robot.intakeStartAction(),
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
                                                                     .splineTo(intakePos.position, Math.toRadians(-90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x, -53), Math.toRadians(-90), new TranslationalVelConstraint(20))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x, -59), Math.toRadians(-90))
                                                                     .build(),
                                                             robot.indexerFullAction()
                                                     ),
 
                                                     // Drive to launch spot
                                                     new ParallelAction(
-                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, -53), Math.toRadians(-90)))
+                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, -55), Math.toRadians(-90)))
                                                                     .setReversed(true)
                                                                     .splineTo(launchPos.position, Math.toRadians(180))
                                                                     .build()
@@ -86,65 +84,62 @@ public class AutoRedFar_12 extends LinearOpMode {
                                                             //                                        // Re-plan the shot sequence with the newly loaded balls
                                                             //                                        robot.planSequenceAction()
                                                     ),
-
                                                     robot.intakeStopAction(),
+
                                                     // Launch 2nd set of Artifacts
-                                                    robot.spamAction(),
+                                                    robot.launchAction(),
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
                                                                     .splineTo(intakePos2.position, Math.toRadians(-90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos2.position.x, -53), Math.toRadians(-90), new TranslationalVelConstraint(20))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos2.position.x, -59), Math.toRadians(-90))
                                                                     .build(),
                                                             robot.indexerFullAction()
                                                     ),
 
                                                     // Drive to launch spot
                                                     new ParallelAction(
-                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos2.position.x, -53), Math.toRadians(-90)))
-                                                                    .setTangent(Math.toRadians(90))
-                                                                    .splineToSplineHeading(launchPos2, 0)
+                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos2.position.x, -55), Math.toRadians(-90)))
+                                                                    .setReversed(true)
+                                                                    .splineToConstantHeading(intakePos2.position, Math.toRadians(90))
+                                                                    .splineToConstantHeading(launchPos2.position, Math.toRadians(0))
                                                                     .build()
                                                             //                                            ,
                                                             //                                            // Re-plan the shot sequence with the newly loaded balls
                                                             //                                            robot.planSequenceAction()
                                                     ),
-
                                                     robot.intakeStopAction(),
+
                                                     // Launch 2nd set of Artifacts
 
-                                                    robot.planSequenceAction(),
-                                                    robot.startSequenceAction(),
-                                                    robot.waitForSequenceEndAction(),
+                                                    robot.launchAction(),
 
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
-                                                            robot.drive.actionBuilder(launchPos2)
-                                                                    .splineToSplineHeading(intakePos3, Math.toRadians(-90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos3.position.x, -53), Math.toRadians(-90), new TranslationalVelConstraint(20))
+                                                            robot.drive.actionBuilder(new Pose2d(launchPos2.position, Math.toRadians(-90)))
+                                                                    .splineToConstantHeading(intakePos3.position, Math.toRadians(-90))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos3.position.x, -51), Math.toRadians(-90))
                                                                     .build(),
                                                             robot.indexerFullAction()
                                                     ),
 
                                                     // Drive to launch spot
                                                     new ParallelAction(
-                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos3.position.x, -53), Math.toRadians(-90)))
+                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos3.position.x, 51), Math.toRadians(-90)))
                                                                     .setReversed(true)
-                                                                    .splineToSplineHeading(launchPos2, Math.toRadians(0))
+                                                                    .splineToConstantHeading(launchPos2.position, Math.toRadians(90))
                                                                     .build()
                                                             //                                            ,
                                                             //                                            // Re-plan the shot sequence with the newly loaded balls
                                                             //                                            robot.planSequenceAction()
                                                     ),
-
                                                     robot.intakeStopAction(),
+
                                                     // Launch 2nd set of Artifacts
 
-                                                    robot.planSequenceAction(),
-                                                    robot.startSequenceAction(),
-                                                    robot.waitForSequenceEndAction()
+                                                    robot.launchAction()
 
                                             ),
                                             new SleepAction(27)
@@ -155,9 +150,9 @@ public class AutoRedFar_12 extends LinearOpMode {
 
                                     robot.launcher.pointToAction(0),
                                     new ParallelAction(
-                                            robot.drive.actionBuilder(launchPos2)
-                                                    .setReversed(true)
-                                                    .splineTo(new Vector2d(-12, -12), Math.toRadians(180))
+                                            robot.drive.actionBuilder(new Pose2d(launchPos2.position, Math.toRadians(-90)))
+                                                    .setTangent(Math.toRadians(180))
+                                                    .splineToSplineHeading(new Pose2d(-12, -12, 0), Math.toRadians(180))
                                                     .build(),
                                             robot.holdTurretAction(),
                                             robot.launcher.stopAction()
