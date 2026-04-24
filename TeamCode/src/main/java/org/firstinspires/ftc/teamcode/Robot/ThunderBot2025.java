@@ -126,12 +126,16 @@ public class ThunderBot2025 implements DataLoggable {
 
         led.update(launcher.getGoalDistance(), seconds, lastBallState, isIndexerFull, isIntakeFull, state);
 
+//        kickstand.update();
+
+        if(indexer.getCurrentState() == IndexerFacade.State.SELECTING_BALL) {
+            intake.slow();
+        }
         if (3 < indexer.getBallNumber()) {
             intake.unslow();
             intake.spit();
         } else {
             intake.unSpit();
-            intake.unslow();
         }
 
     }
