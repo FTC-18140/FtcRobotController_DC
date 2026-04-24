@@ -4,11 +4,8 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-
-import java.awt.font.NumericShaper;
 
 @Config
 public class FlywheelController {
@@ -145,10 +142,11 @@ public class FlywheelController {
         upperWheel.setTargetRpm(upperWheelRpm);
     }
 
-    public void DEBUG_upperFlywheel(){
+    public void DEBUG_upperFlywheel() {
         upperWheel.setPower(0.5);
     }
-    public void DEBUG_lowerFlywheel(){
+
+    public void DEBUG_lowerFlywheel() {
         lowerWheel.setPower(0.5);
     }
 

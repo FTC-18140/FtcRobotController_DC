@@ -47,6 +47,7 @@ public class Turret implements DataLoggable {
     public static double P_TURRET = 0.017, I_TURRET = 0.05, D_TURRET = 0.0015, F_TURRET_MIN = 0.0, F_TURRET_MAX = 0.02;
     public static double MIN_TURRET_POS = -90;
     public static double MAX_TURRET_POS = 360 + MIN_TURRET_POS;
+
     public static double TURRET_ANGLE_TOLERANCE = 2.5;
 
     public static double KV_ROT = 0.08; // Tunable: Gain for robot rotation
@@ -136,9 +137,17 @@ public class Turret implements DataLoggable {
     public double applyHardwareConstraints(double angle) {
         double finalAngle = angle % 360.0;
         if (finalAngle < MIN_TURRET_POS) {
-            finalAngle = finalAngle + 360;
+            if (finalAngle < MIN_TURRET_POS - TURRET_ANGLE_TOLERANCE) {
+                finalAngle = finalAngle + 360;
+            } else {
+                finalAngle = MIN_TURRET_POS;
+            }
         } else if (finalAngle > MAX_TURRET_POS) {
-            finalAngle = finalAngle - 360;
+            if (finalAngle > MAX_TURRET_POS + TURRET_ANGLE_TOLERANCE) {
+                finalAngle = finalAngle - 360;
+            } else {
+                finalAngle = MAX_TURRET_POS;
+            }
         }
         return finalAngle;
     }

@@ -47,6 +47,7 @@ public class BeamBreaker {
     boolean isBallDetectedInIntake() {
         return inIntake;
     }
+
     boolean isBallDetectedInIndexer() {
         return inIndexer;
     }
