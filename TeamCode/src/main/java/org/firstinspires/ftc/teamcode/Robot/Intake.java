@@ -20,7 +20,7 @@ public class Intake {
     private Telemetry telemetry = null;
     private HardwareMap hardwareMap = null;
 
-    public static double INTAKE_MOTOR_POWER = 0.8;
+    public static double INTAKE_MOTOR_POWER = 0.75;
     public static double INTAKE_SERVO_POWER = 1.0;
 
     private DcMotor intakeMotor = null;

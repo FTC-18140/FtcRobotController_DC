@@ -30,11 +30,12 @@ public class Turnstile {
     public static boolean TELEM = true;
 
     // --- Tunable Constants via FTC Dashboard ---
-    public static double P = 0.007, I = 0.0, D = 0.00025;
+    public static double P = 0.0055, I = 0.0, D = 0.00025;
+    public static double P_PER_BALL_FACTOR = 0.00032;
     public static double THRESHOLD = 0.00;
-    public static double MIN_POWER_POS = 0.01;
-    public static double MIN_POWER_NEG = 0.01;
-    public static double HOMING_POWER = 0.075;
+    public static double MIN_POWER_POS = 0.015;
+    public static double MIN_POWER_NEG = 0.015;
+    public static double HOMING_POWER = 0.065;
     public static double ANGLE_TOLERANCE = 12.5;// In degrees
     public static double CYCLE_TIME = 50;
     public static double BACKWARD_TOLERANCE = 30;
@@ -195,14 +196,16 @@ public class Turnstile {
         return currentAngle;
     }
 
-    public void update() {
+    public void update(int count) {
         // --- 1. Cache Hardware Reads ---
         currentAngle = indexMotor.getCurrentPosition() / COUNTS_PER_DEGREE - startingAngle - launching_offset;
         limitSwitchPressed = limitSwitch.isPressed();
 
+        count = Math.min(count, 3);
         // --- 2. Run State Machine ---
         double power;
-        angleController.setPID(P, I, D); // Re-apply PID gains from Dashboard
+        double p_total = P + P_PER_BALL_FACTOR * count;
+        angleController.setPID(p_total, I, D); // Re-apply PID gains from Dashboard
         power = angleController.calculate(currentAngle, targetAngle + current_offset) * GEAR_RATIO;
 
         if (power > THRESHOLD) power = Range.scale(power, THRESHOLD, 1, MIN_POWER_POS, 1);
@@ -295,7 +298,6 @@ public class Turnstile {
             telemetry.addData("Turnstile Error: ", targetAngle + current_offset - currentAngle);
             telemetry.addData("Turnstile Power", power);
             telemetry.addData("Limit Switch Pressed", limitSwitchPressed);
-            telemetry.addData("At target time: ", isAtTargetTime());
         }
     }
 }

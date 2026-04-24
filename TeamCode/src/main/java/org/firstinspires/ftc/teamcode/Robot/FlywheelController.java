@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -20,15 +21,18 @@ public class FlywheelController {
     public static double INERTIA_FACTOR = 0.007;
     public static double RPM_TOLERANCE = 40;
 
+    public static double[] distances = {50, 94, 167};
+    public static double[] rpms = {1800, 1920, 2500};
+
     public static class LowerPID {
         public double P = 0.00045, I = 0.00, D = 0.00000;
-        public double F_MAX = 0.545, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.61;
+        public double F_MAX = 0.55, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.615;
         public double GEAR_RATIO = 2.0;
     }
 
     public static class UpperPID {
         public double P = 0.00046, I = 0.00, D = 0.00000;
-        public double F_MAX = 0.53, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.60;
+        public double F_MAX = 0.54, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.61;
         public double GEAR_RATIO = 32.0 / 15.0;
     }
 
@@ -142,6 +146,24 @@ public class FlywheelController {
         upperWheel.setTargetRpm(upperWheelRpm);
     }
 
+    void setTargetRpmFromDistance(double distance) {
+        double rpm = Flywheel.STATIC_RPM;
+        for(int i = 0; i < distances.length; i++){
+            if(distance > distances[distances.length-1]){
+                rpm = rpms[rpms.length-1];
+                lowerWheel.setTargetRpm(rpm);
+                upperWheel.setTargetRpm(rpm);
+                return;
+            }
+            if(distance <= distances[i + 1]){
+                rpm = Range.scale(distance, distances[i], distances[i + 1], rpms[i], rpms[i + 1]);
+                lowerWheel.setTargetRpm(rpm);
+                upperWheel.setTargetRpm(rpm);
+                return;
+            }
+        }
+
+    }
     public void DEBUG_upperFlywheel() {
         upperWheel.setPower(0.5);
     }

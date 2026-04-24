@@ -240,7 +240,7 @@ public class IndexerFacade {
         if (State.IDLE == currentState || State.AWAITING_LAUNCH == currentState || isIntaking) {
             int startSlot = 0;
 
-            updateBallSensors();
+//            updateBallSensors();
             updateBallStates();
             for (int i = 0; i < 3 && !slotFound; i++) {
 
@@ -454,13 +454,13 @@ public class IndexerFacade {
     public void update(boolean isAtRpm) {
 
 //        flipper.update();
-        turnstile.update();
+        turnstile.update(ballNumber);
         beamBreak.update();
 
         updated = false;
 
-        if(turnstile.isAtTarget() && turnstile.isAtTargetTime()){
-            atTarget = true;
+        if(turnstile.isAtTarget()){
+            atTarget = turnstile.isAtTargetTime();
         }
         if (isIntaking) {
             if (inIntakeSlot()) {
