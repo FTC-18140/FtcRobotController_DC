@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
 @Autonomous(group = AutoBlueFar_WAIT.AUTO_BLUE_FAR_GROUP)
-public class AutoBlueFar extends LinearOpMode {
+public class AutoBlueFar_9_SORTING extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -62,7 +62,7 @@ public class AutoBlueFar extends LinearOpMode {
                                                             // Plan the first shot sequence while driving.
                                                     ),
                                                     // Launch Preloads
-                                                    robot.launchAction(),
+                                                    robot.sortAndLaunchAction(),
                                                     robot.intakeStartAction(),
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
@@ -82,7 +82,7 @@ public class AutoBlueFar extends LinearOpMode {
                                                             //                                        robot.planSequenceAction()
                                                     ),
 
-                                                    robot.intakeStopAction(),
+                                                    robot.sortAndLaunchAction(),
                                                     // Launch 2nd set of Artifacts
                                                     robot.launchAction(),
                                                     robot.intakeStartAction(),
@@ -107,7 +107,7 @@ public class AutoBlueFar extends LinearOpMode {
 
                                                     robot.intakeStopAction(),
                                                     // Launch 2nd set of Artifacts
-                                                    robot.launchAction()
+                                                    robot.sortAndLaunchAction()
 
                                             ),
                                             new SleepAction(27)

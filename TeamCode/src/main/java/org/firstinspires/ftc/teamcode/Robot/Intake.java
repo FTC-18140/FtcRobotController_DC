@@ -31,7 +31,7 @@ public class Intake {
 
     private double slow = 1;
     private double reversed = 1;
-    private static double SLOWED_POWER_FACTOR = 0.7;
+    private static double SLOWED_POWER_FACTOR = 0.95;
     private double currentDraw = 0.0;
 
     public void init(HardwareMap hwMap, Telemetry telem) {

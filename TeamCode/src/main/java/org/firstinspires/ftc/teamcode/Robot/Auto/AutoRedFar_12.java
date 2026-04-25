@@ -127,7 +127,7 @@ public class AutoRedFar_12 extends LinearOpMode {
 
                                                     // Drive to launch spot
                                                     new ParallelAction(
-                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos3.position.x, 51), Math.toRadians(-90)))
+                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos3.position.x, -51), Math.toRadians(-90)))
                                                                     .setReversed(true)
                                                                     .splineToConstantHeading(launchPos2.position, Math.toRadians(90))
                                                                     .build()
