@@ -45,7 +45,7 @@ public class Turret implements DataLoggable {
 
     // Tunable constants from your original file
     public static double P_TURRET = 0.0128, I_TURRET = 0.05, D_TURRET = 0.0011, F_TURRET_MIN = 0.0, F_TURRET_MAX = 0.02;
-    public static double MIN_TURRET_POS = -100;
+    public static double MIN_TURRET_POS = -90;
     public static double MAX_TURRET_POS = 365 + MIN_TURRET_POS;
 
     public static double TURRET_ANGLE_TOLERANCE = 2.5;
@@ -61,21 +61,21 @@ public class Turret implements DataLoggable {
 
 
     // State-specific variables
-    private double targetAngle = (double) 0;
-    private double manualPower = (double) 0;
-    public double manualAngle = (double) 0;
-    private double currentPosition = (double) 0;
+    private double targetAngle = 0;
+    private double manualPower = 0;
+    public double manualAngle = 0;
+    private double currentPosition = 0;
     private double currentDraw = 0.0;
-    private double offsetAngle = (double) 0;
-    private double seekingPower = (double) 0; // Member variable to be accessible for logging
-    private double lastSeekingPower = (double) 0;
+    private double offsetAngle = 0;
+    private double seekingPower = 0; // Member variable to be accessible for logging
+    private double lastSeekingPower = 0;
     public static String STARTING_ANGLE = "TURRET_ENDING_ANGLE_AUTO";
     double startingAngle = 0.0;
 
     public void init(HardwareMap hwMap, Telemetry telem) {
 
         // touch sensor: Control hub Digital port 4
-        startingAngle = (double) OpMode.blackboard.getOrDefault(STARTING_ANGLE, (double) 0);
+        startingAngle = (Double) OpMode.blackboard.getOrDefault(STARTING_ANGLE, (double) 0);
 
         telemetry = telem;
         turretAimPID = new PIDController(P_TURRET, I_TURRET, D_TURRET);
@@ -223,12 +223,12 @@ public class Turret implements DataLoggable {
                 setHardwarePower(manualPower);
                 if (0.01 > Math.abs(manualPower)) {
                     currentState = State.HOLDING;
-                    setHardwarePower((double) 0);
+                    setHardwarePower(0);
                 }
                 ;
                 break;
             case STOP:
-                setHardwarePower((double) 0);
+                setHardwarePower(0);
                 break;
         }
 
@@ -290,9 +290,9 @@ public class Turret implements DataLoggable {
 ////                turretAimPID.reset();
 //            }
         if ((double) 0 > powerClipped) {
-            powerClipped = Range.scale(powerClipped, -MAX_POWER, (double) 0, -MAX_POWER, MIN_POWER_NEGATIVE);
+            powerClipped = Range.scale(powerClipped, -MAX_POWER, 0, -MAX_POWER, MIN_POWER_NEGATIVE);
         } else if ((double) 0 < powerClipped) {
-            powerClipped = Range.scale(powerClipped, (double) 0, MAX_POWER, MIN_POWER_POSITIVE, MAX_POWER);
+            powerClipped = Range.scale(powerClipped, 0, MAX_POWER, MIN_POWER_POSITIVE, MAX_POWER);
         }
 //            telemetry.addData("Turret Power sent to hardware", power);
         turret.setPower(powerClipped);

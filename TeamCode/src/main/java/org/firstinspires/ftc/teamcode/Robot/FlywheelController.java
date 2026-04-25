@@ -33,7 +33,7 @@ public class FlywheelController {
         }
     }
 
-    public static DistRPM distRPMs[] = null;
+    public static DistRPM distRPMs[];
 
     ;
 

@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.Utilities.TBDGamepad;
 @Config
 public class Teleop_Red extends OpMode {
 
-    public static final String MATCH_TELEOP_GROUP = "AAAMatchTeleops";
+
     public TelemetryPacket p = new TelemetryPacket(true);
     // --- Mode States ---
     private boolean isAutoLoading = false;

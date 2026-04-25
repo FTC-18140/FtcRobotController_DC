@@ -66,7 +66,7 @@ public class LauncherFacade implements DataLoggable {
     private static final Vector2d targetPosBlue = new Vector2d(67.0, 67.0);
     private static final Vector2d targetPosRed = new Vector2d(67.0, -67.0);
     private ThunderBot2025.Alliance_Color allianceColor = ThunderBot2025.Alliance_Color.BLUE;
-    public double fieldAngleToGoal;
+    public double fieldAngleToGoal = 0.0;
 
     public void init(HardwareMap hwMap, Telemetry telem, Pose2d startPose) {
         telemetry = telem;

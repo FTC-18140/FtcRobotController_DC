@@ -81,8 +81,8 @@ public class AutoRedFar extends LinearOpMode {
                                                                     .splineTo(launchPos.position, Math.toRadians(180))
                                                                     .build()
                                                             //                                        ,
-                                                            //                                        // Re-plan the shot sequence with the newly loaded balls
-                                                            //                                        robot.planSequenceAction()
+                                                            //// Re-plan the shot sequence with the newly loaded balls
+                                                            //robot.planSequenceAction()
                                                     ),
 
                                                     robot.intakeStopAction(),
