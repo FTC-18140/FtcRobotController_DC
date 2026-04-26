@@ -22,8 +22,8 @@ public class AutoRedFar_12_Loading_Spike extends LinearOpMode {
         Pose2d launchPos = new Pose2d(AutoPositions.Positions.FAR_LAUNCH_ZONE_RED.position, Math.toRadians(0));
         Pose2d launchPos2 = new Pose2d(AutoPositions.Positions.CENTER_LAUNCH_ZONE_RED.position, Math.toRadians(0));
         Pose2d intakePos = new Pose2d(AutoPositions.Positions.ARTIFACT_BASE_RED.position, Math.toRadians(-90));
-        Pose2d intakePos2 = new Pose2d(AutoPositions.Positions.LOADING_ZONE_RED.position, Math.toRadians(-110));
-        Pose2d intakePos3 = new Pose2d(AutoPositions.Positions.LOADING_ZONE_RED.position, Math.toRadians(-110));
+        Pose2d intakePos2 = new Pose2d(AutoPositions.Positions.LOADING_ZONE_RED.position, Math.toRadians(-90));
+        Pose2d intakePos3 = new Pose2d(AutoPositions.Positions.LOADING_ZONE_RED.position, Math.toRadians(-90));
 
         ThunderBot2025 robot = new ThunderBot2025();
         blackboard.put("TURRET_ENDING_ANGLE_AUTO", (double) 0);
@@ -63,22 +63,19 @@ public class AutoRedFar_12_Loading_Spike extends LinearOpMode {
                                                                     .build()
                                                             // Plan the first shot sequence while driving.
                                                     ),
-                                                    robot.cancelSequenceAction(),
-
-                                                    // Launch Preloads
-                                                    robot.spamAction(),
+                                                    robot.launchAction(),
                                                     robot.intakeStartAction(),
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
                                                                     .splineTo(intakePos.position, Math.toRadians(-90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x, -51), Math.toRadians(-90), new TranslationalVelConstraint(20))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x, -59), Math.toRadians(-90))
                                                                     .build(),
                                                             robot.indexerFullAction()
                                                     ),
 
                                                     // Drive to launch spot
                                                     new ParallelAction(
-                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, -51), Math.toRadians(-90)))
+                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, -59), Math.toRadians(-90)))
                                                                     .setReversed(true)
                                                                     .splineTo(launchPos.position, Math.toRadians(180))
                                                                     .build()
@@ -89,13 +86,12 @@ public class AutoRedFar_12_Loading_Spike extends LinearOpMode {
 
                                                     robot.intakeStopAction(),
                                                     // Launch 2nd set of Artifacts
-                                                    robot.spamAction(),
+                                                    robot.launchAction(),
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
-                                                                    .splineTo(new Vector2d(intakePos2.position.x + 5, -50), Math.toRadians(-90))
-                                                                    .splineTo(intakePos2.position, Math.toRadians(-110), new TranslationalVelConstraint(20))
+                                                                    .splineTo(intakePos2.position, Math.toRadians(-90))
                                                                     .build(),
                                                             robot.indexerFullAction()
                                                     ),
@@ -114,16 +110,13 @@ public class AutoRedFar_12_Loading_Spike extends LinearOpMode {
                                                     robot.intakeStopAction(),
                                                     // Launch 2nd set of Artifacts
 
-                                                    robot.planSequenceAction(),
-                                                    robot.startSequenceAction(),
-                                                    robot.waitForSequenceEndAction(),
+                                                    robot.launchAction(),
 
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(new Pose2d(launchPos.position, Math.toRadians(-90)))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos3.position.x + 5, -50), Math.toRadians(-90))
-                                                                    .splineTo(intakePos3.position, Math.toRadians(-110), new TranslationalVelConstraint(20))
+                                                                    .splineTo(intakePos3.position, Math.toRadians(-90))
                                                                     .build(),
                                                             robot.indexerFullAction()
                                                     ),
@@ -142,9 +135,7 @@ public class AutoRedFar_12_Loading_Spike extends LinearOpMode {
                                                     robot.intakeStopAction(),
                                                     // Launch 2nd set of Artifacts
 
-                                                    robot.planSequenceAction(),
-                                                    robot.startSequenceAction(),
-                                                    robot.waitForSequenceEndAction()
+                                                    robot.launchAction()
 
                                             ),
                                             new SleepAction(27)
@@ -153,7 +144,7 @@ public class AutoRedFar_12_Loading_Spike extends LinearOpMode {
                                     robot.cancelSequenceAction(),
                                     robot.intake.intakeStopAction(),
                                     robot.drive.actionBuilder(launchPos)
-                                            .splineTo(new Vector2d(-50, -38), Math.toRadians(-90))
+                                            .splineToSplineHeading(new Pose2d(-50, -38, 0), Math.toRadians(-90))
                                             .build(),
                                     robot.launcher.pointToAction(0),
                                     new ParallelAction(

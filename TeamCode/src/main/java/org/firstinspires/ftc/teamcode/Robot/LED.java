@@ -60,9 +60,9 @@ public class LED {
         upperBoundRpm = upperBoundRpmIn;
     }
 
-    public void update(double distance, double runtime, IndexerFacade.BallState loadedColor, boolean isIndexerFull, boolean isIntakeFull, IndexerFacade.State indexerState) {
-        if (LauncherFacade.LAUNCH_DISTANCE_MIN > distance) {
-            setRPMLedToColor(Colors.RED);
+    public void update(boolean inLaunchZone, double runtime, IndexerFacade.BallState loadedColor, boolean isIndexerFull, boolean isIntakeFull, IndexerFacade.State indexerState) {
+        if (inLaunchZone) {
+            setRPMLedToColor(Colors.YELLOW);
         } else {
             setRPMLedToColor(Colors.OFF);
         }
@@ -100,6 +100,7 @@ public class LED {
             setIntakeLedToColor(Colors.OFF);
         }
         setColorsIfHoming(indexerState);
+        if(runtime > 125) setAllLedsToColor(Colors.OFF);
         writeToLeds();
     }
 

@@ -29,8 +29,8 @@ public class AutoPositions {
         ARTIFACT_GATE_RED(new Vector2d(12, -22.0)),
         GATE_RED(new Vector2d(5.0, -54.0)),
         GATE_BLUE(new Vector2d(5.0, 54.0)),
-        LOADING_ZONE_BLUE(new Vector2d(-61.0, 62.0)),
-        LOADING_ZONE_RED(new Vector2d(-61.0, -62.0)),
+        LOADING_ZONE_BLUE(new Vector2d(-61.0, 61.0)),
+        LOADING_ZONE_RED(new Vector2d(-61.0, -61.0)),
         OBSERVATION_ZONE(new Vector2d(58.0, -59.0));
         public final Vector2d position;
 

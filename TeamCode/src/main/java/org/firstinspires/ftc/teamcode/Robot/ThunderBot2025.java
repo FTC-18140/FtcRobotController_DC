@@ -51,7 +51,18 @@ public class ThunderBot2025 implements DataLoggable {
     public static final double MAX_SPEED = 1.0;
     private double speed = DEFAULT_SPEED;
     public static Pose2d starting_position = null;
-    public static double robot_width = 21;
+    public static double robot_width = 18;
+    double halfWidth = robot_width / 2;
+    /*         _left__
+              [0]   [1]
+              |       | front
+              [2]   [3]
+     */
+    double[][] corners = {
+            {halfWidth, -halfWidth}, {halfWidth, -halfWidth},
+            {-halfWidth, -halfWidth}, {-halfWidth, halfWidth}
+    };
+    boolean inZone = false;
     private static String STARTING_POSE = STARTING_POSE_KEY;
     public ElapsedTime runtime = new ElapsedTime();
     private Pose2d TELEOP_CORNER_RED = new Pose2d(-63, 60, 0);
@@ -112,6 +123,8 @@ public class ThunderBot2025 implements DataLoggable {
         boolean atTargetRpm = launcher.isAtTargetRpm();
         boolean atTarget = launcher.isAtTarget();
 
+        inZone = inLaunchZone();
+
         indexer.update(atTargetRpm && atTarget);
         intake.update(!(IndexerFacade.State.IDLE == indexer.getCurrentState() || IndexerFacade.State.AWAITING_LAUNCH == indexer.getCurrentState()));
 
@@ -124,7 +137,7 @@ public class ThunderBot2025 implements DataLoggable {
         boolean isIntakeFull = indexer.getBallNumber() > 3;
         IndexerFacade.State state = indexer.getCurrentState();
 
-        led.update(launcher.getGoalDistance(), seconds, lastBallState, isIndexerFull, isIntakeFull, state);
+        led.update(inZone, seconds, lastBallState, isIndexerFull, isIntakeFull, state);
 
 //        kickstand.update();
 
@@ -225,15 +238,27 @@ public class ThunderBot2025 implements DataLoggable {
     }
 
     public boolean inLaunchZone() {
-        double x = drive.localizer.getPose().position.x;
-        double y = drive.localizer.getPose().position.y;
+        double bot_x = drive.localizer.getPose().position.x;
+        double bot_y = drive.localizer.getPose().position.y;
+        double h = drive.localizer.getPose().heading.toDouble();
 
-        double halfWidth = robot_width / 2;
-        if (x > -halfWidth) {
-            return y < x + halfWidth && y > -x - halfWidth;
-        } else {
-            return y < (-x - 45 + halfWidth) && y > (x + 45 - halfWidth);
+        for (int i = 0; i < corners.length; i++){
+            corners[i][0] = corners[i][1] * Math.sin(-h) + (corners[i][0]) * Math.cos(-h);
+            corners[i][1] = corners[i][1] * Math.cos(-h) - (corners[i][0]) * Math.sin(-h);
         }
+
+        for (int i = 0; i < corners.length; i++){
+            double x = corners[i][0] + bot_x;
+            double y = corners[i][1] + bot_y;
+
+            if(x > 0) {
+                if(y < x && y > -x) return true;
+            } else {
+                if(y < (-x - 48) && y > (x + 48)) return true;
+            }
+        }
+
+        return false;
     }
 
     public Action waitForTime(double time) {
@@ -284,14 +309,14 @@ public class ThunderBot2025 implements DataLoggable {
     }
 
     public boolean launch() {
-        if (launcher.isAtTargetRpm() && launcher.isAtTarget()) {
+        if (launcher.isAtTargetRpm() && launcher.isAtTarget() && inZone) {
             return indexer.launch();
         }
         return false;
     }
 
     public boolean launchAll() {
-        if (launcher.isAtTargetRpm() && launcher.isAtTarget()) {
+        if (launcher.isAtTargetRpm() && launcher.isAtTarget() && inZone) {
             indexer.launchAllInIndexer();
             return true;
         }

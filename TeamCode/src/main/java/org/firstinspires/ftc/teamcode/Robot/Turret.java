@@ -44,24 +44,23 @@ public class Turret implements DataLoggable {
     private Telemetry telemetry = null;
 
     // Tunable constants from your original file
-    public static double P_TURRET = 0.0145, I_TURRET = 0.05, D_TURRET = 0.0011, F_TURRET_MIN = 0.0, F_TURRET_MAX = 0.02;
+    public static double P_TURRET = 0.0138, I_TURRET = 0.05, D_TURRET = 0.00098, F_ACCEL = 0.01, F_STATIC = 0.02;
     public static double MIN_TURRET_POS = -90;
     public static double MAX_TURRET_POS = 360 + MIN_TURRET_POS;
 
     public static double TURRET_ANGLE_TOLERANCE = 2.5;
 
     public static double KV_ROT = 0.18; // Tunable: Gain for robot rotation
-    public static double KV_TRANS = 0.14; // Tunable: Gain for translational apparent rotation
+    public static double KV_TRANS = 0.12; // Tunable: Gain for translational apparent rotation
     public static boolean TELEM = false;
 
     public static double MAX_POWER = 0.6;
-    public static double MIN_POWER_POSITIVE = 0.013;
-    public static double MIN_POWER_NEGATIVE = -0.013;
     public static double TURRET_DEGREES_PER_ENCODER_TICK = (double) 1 / 8192.0 * 360.0 * 16 / 100;
 
 
     // State-specific variables
     private double targetAngle = (double) 0;
+    private double lastTargetAngle = 0;
     private double manualPower = (double) 0;
     public double manualAngle = (double) 0;
     private double currentPosition = (double) 0;
@@ -188,6 +187,7 @@ public class Turret implements DataLoggable {
                        Vector2d targetPos) {
         updateCurrentPosition();
         turretAimPID.setPID(P_TURRET, I_TURRET, D_TURRET);
+        double target_shift = targetAngle - lastTargetAngle;
 
         isHomed = turretSwitch.isPressed();
 
@@ -197,7 +197,7 @@ public class Turret implements DataLoggable {
         }
 
         // 1. Static Feedforward (Wires/Friction)
-        double ffStatic = Range.clip(Range.scale(currentPosition, -90.0, -15.0, F_TURRET_MAX, F_TURRET_MIN), F_TURRET_MIN, F_TURRET_MAX);
+        double ffStatic = F_STATIC * Math.signum(seekingPower);
 
         // 2. Robot Rotation Feedforward
         double ffRobotRot = robotVel.angVel * KV_ROT;
@@ -207,15 +207,28 @@ public class Turret implements DataLoggable {
 
         seekingPower = turretAimPID.calculate(currentPosition, targetAngle);
 
+        double ffAccel = F_ACCEL * target_shift;
+
+        double ff_total = ffStatic + ffRobotRot + ffAccel;
+
         // Combine all terms
-        double totalPower = seekingPower + (ffStatic * Math.signum(seekingPower)) + ffRobotRot + ffTrans;
+        double totalPower = seekingPower + ff_total;
 
         switch (currentState) {
             case HOLDING:
+                if(!isAtTarget()) {
+                    setHardwarePower(totalPower);
+                    currentState = State.SEEKING_ANGLE;
+                } else {
+                    setHardwarePower(0);
+                }
+                break;
             case SEEKING_ANGLE:
-                setHardwarePower(totalPower);
-                if (State.SEEKING_ANGLE == currentState && isAtTarget()) {
+                if (isAtTarget()) {
+                    setHardwarePower(0);
                     currentState = State.HOLDING;
+                } else {
+                    setHardwarePower(totalPower);
                 }
                 break;
 
@@ -240,7 +253,7 @@ public class Turret implements DataLoggable {
             telemetry.addData("Turret Target", "%.2f", targetAngle);
             // Add these lines to see the "Blend" of control:
             telemetry.addData("PID Power", "%.3f", seekingPower);
-            telemetry.addData("FF Total", "%.3f", (ffStatic * Math.signum(seekingPower)) + ffRobotRot + ffTrans);
+            telemetry.addData("FF Total", "%.3f", ff_total);
             telemetry.addData("Total current draw", "%.3f", getTotalCurrentDraw());
             telemetry.addData("Turret State", currentState);
         }
@@ -274,8 +287,8 @@ public class Turret implements DataLoggable {
         // We need the world-frame velocity.
         // RoadRunner 1.0 PoseVelocity2d usually contains robot-relative v.
         // Convert to world-frame v for this calculation:
-        double vxWorld = robotVel.linearVel.x * Math.cos(robotPose.heading.toDouble()) - robotVel.linearVel.y * Math.sin(robotPose.heading.toDouble());
-        double vyWorld = robotVel.linearVel.x * Math.sin(robotPose.heading.toDouble()) + robotVel.linearVel.y * Math.cos(robotPose.heading.toDouble());
+        double vxWorld = robotVel.linearVel.x * Math.cos(-robotPose.heading.toDouble()) - robotVel.linearVel.y * Math.sin(-robotPose.heading.toDouble());
+        double vyWorld = robotVel.linearVel.x * Math.sin(-robotPose.heading.toDouble()) + robotVel.linearVel.y * Math.cos(-robotPose.heading.toDouble());
 
         // Cross product: (dx * vy - dy * vx) / r^2
         double translationalRate = (dx * vyWorld - dy * vxWorld) / rSquared;
@@ -289,11 +302,6 @@ public class Turret implements DataLoggable {
 //            if (Math.signum(power) != Math.signum(lastSeekingPower)){
 ////                turretAimPID.reset();
 //            }
-        if ((double) 0 > powerClipped) {
-            powerClipped = Range.scale(powerClipped, -MAX_POWER, (double) 0, -MAX_POWER, MIN_POWER_NEGATIVE);
-        } else if ((double) 0 < powerClipped) {
-            powerClipped = Range.scale(powerClipped, (double) 0, MAX_POWER, MIN_POWER_POSITIVE, MAX_POWER);
-        }
 //            telemetry.addData("Turret Power sent to hardware", power);
         turret.setPower(powerClipped);
         lastSeekingPower = powerClipped;

@@ -21,7 +21,7 @@ public class FlywheelController {
     public static double RPM_TOLERANCE = 40;
 
     public static double[] distances = {50, 94, 167};
-    public static double[] rpms = {1800, 1920, 2500};
+    public static double[] rpms = {1800, 1870, 2530};
 
     static class DistRPM {
         double x, y;
@@ -38,14 +38,14 @@ public class FlywheelController {
     ;
 
     public static class LowerPID {
-        public double P = 0.00045, I = 0.00, D = 0.00000;
-        public double F_MAX = 0.55, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.615;
+        public double P = 0.00045, I = 0.00, D = 0.000023;
+        public double F_MAX = 0.51, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.633;
         public double GEAR_RATIO = 2.0;
     }
 
     public static class UpperPID {
-        public double P = 0.00046, I = 0.00, D = 0.00000;
-        public double F_MAX = 0.54, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.61;
+        public double P = 0.00045, I = 0.00, D = 0.000023;
+        public double F_MAX = 0.505, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.63;
         public double GEAR_RATIO = 32.0 / 15.0;
     }
 

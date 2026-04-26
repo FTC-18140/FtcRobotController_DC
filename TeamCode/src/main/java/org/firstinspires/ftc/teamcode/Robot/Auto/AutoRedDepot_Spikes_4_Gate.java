@@ -66,16 +66,15 @@ public class AutoRedDepot_Spikes_4_Gate extends LinearOpMode {
                                                                     .strafeToSplineHeading(launchPos1.position, Math.toRadians(-90))
                                                                     .build()
                                                     ),
-                                                    robot.cancelSequenceAction(),
                                                     // Launch Preloads
-                                                    robot.spamAction(),
+                                                    robot.launchAction(),
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos1)
                                                                     .setTangent(90)
                                                                     .splineToConstantHeading(intakePos.position, Math.toRadians(-90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x, -51), Math.toRadians(-90), new TranslationalVelConstraint(20))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x, -51), Math.toRadians(-90))
                                                                     .build(),
                                                             robot.indexerFullAction()
                                                     ),
@@ -95,7 +94,7 @@ public class AutoRedDepot_Spikes_4_Gate extends LinearOpMode {
                                                     ),
                                                     robot.intakeStopAction(),
                                                     // Launch Preloads
-                                                    robot.spamAction(),
+                                                    robot.launchAction(),
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
@@ -108,12 +107,12 @@ public class AutoRedDepot_Spikes_4_Gate extends LinearOpMode {
                                                                     .setReversed(true)
                                                                     .splineToConstantHeading(new Vector2d(gatePos.position.x, intakePos2.position.y), Math.toRadians(90))
                                                                     .splineToConstantHeading(intakePos2.position, Math.toRadians(-90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos2.position.x, -56), Math.toRadians(-90), new TranslationalVelConstraint(20))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos2.position.x, -59), Math.toRadians(-90))
                                                                     .build(),
                                                             robot.indexerFullAction()
                                                     ),
                                                     new RaceAction(
-                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos2.position.x, -56), Math.toRadians(-90)))
+                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos2.position.x, -59), Math.toRadians(-90)))
                                                                     .setTangent(Math.toRadians(90))
                                                                     .splineToConstantHeading(gatePos.position, Math.toRadians(-90))
                                                                     .build()
@@ -130,9 +129,7 @@ public class AutoRedDepot_Spikes_4_Gate extends LinearOpMode {
                                                     ),
                                                     robot.intakeStopAction(),
                                                     // Launch 2nd set of Artifacts
-                                                    robot.planSequenceAction(),
-                                                    robot.startSequenceAction(),
-                                                    robot.waitForSequenceEndAction()
+                                                    robot.launchAction()
 
                                             ),
                                             new SleepAction(27)

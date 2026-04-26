@@ -244,17 +244,16 @@ public class Turnstile {
                 break;
 
             case SEEKING_POSITION:
-
-                // If not at target, continue seeking.
-                indexerServo1.setPower(power);
-                indexerServo2.setPower(power);
-
                 if (isAtTarget()) {
                     currentState = State.HOLDING_POSITION;
                     // We have arrived. Stop the motor for this one cycle to prevent a "kick".
                     // The next loop will execute the HOLDING_POSITION logic.
-//                    indexerServo1.setPower(0);
-//                    indexerServo2.setPower(0);
+                    indexerServo1.setPower(0);
+                    indexerServo2.setPower(0);
+                } else {
+                    // If not at target, continue seeking.
+                    indexerServo1.setPower(power);
+                    indexerServo2.setPower(power);
                 }
                 break;
             case LAUNCHING:
@@ -274,15 +273,14 @@ public class Turnstile {
 
             case HOLDING_POSITION:
                 // If a magnet is detected while holding, we use it to correct for encoder drift.
-                if (limitSwitchPressed) {
-                    // Find the nearest ideal slot angle (0, 120, 240) to our current position.
-                    double nearestSlotAngle = Math.round(currentAngle / 120.0) * 120.0;
-                    // Snap our PID target to that perfect, calibrated angle.
-//                    targetAngle = nearestSlotAngle;
+                if (!isAtTarget()) {
+                    indexerServo1.setPower(power);
+                    indexerServo2.setPower(power);
+                    currentState = State.SEEKING_POSITION;
+                } else {
+                    indexerServo1.setPower(0);
+                    indexerServo2.setPower(0);
                 }
-
-                indexerServo1.setPower(power);
-                indexerServo2.setPower(power);
                 break;
         }
 

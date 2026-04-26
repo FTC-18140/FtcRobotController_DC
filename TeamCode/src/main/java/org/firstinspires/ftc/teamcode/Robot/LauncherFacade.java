@@ -51,7 +51,7 @@ public class LauncherFacade implements DataLoggable {
     public static final double LIMELIGHT_FORWARD_POSITION = 5.5394752;
     private Vector2d inertiaOffset = null;
     Vector2d offsetTarget = new Vector2d(0, 0);
-    public static double INERTIA_FACTOR = 15.0;
+    public static double INERTIA_FACTOR = 0.01;
     private double last_time_ms = 0;
     private Vector2d trueTargetVector = fusedPose.position;
     public static double trust = 0.0;
@@ -138,7 +138,7 @@ public class LauncherFacade implements DataLoggable {
         // ------------- HOTFIX for AIMING
         fusedPose = currentOdoPose;
         // ------------- End HOTFIX for AIMING
-        inertiaOffset = currentOdoVelocity.linearVel.times(INERTIA_FACTOR * update_rate_seconds);
+        inertiaOffset = currentOdoVelocity.linearVel.times(INERTIA_FACTOR);
         offsetTarget = targetPos.minus(inertiaOffset);
 
         // --- 5. RUN SUBSYSTEMS ---
