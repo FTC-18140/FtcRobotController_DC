@@ -145,7 +145,7 @@ public class IndexerFacade {
     }
 
     private boolean canLaunchAll() {
-        return State.IDLE == currentState || State.AWAITING_LAUNCH == currentState || State.LAUNCHING == currentState || State.SELECTING_BALL == currentState;
+        return State.IDLE == currentState || State.AWAITING_LAUNCH == currentState || State.SELECTING_BALL == currentState;
     }
 
     public Action runCurrentSequenceAction() {
@@ -236,7 +236,7 @@ public class IndexerFacade {
 
 //            updateBallSensors();
 //            updateBallStates();
-            for (int i = 0; i < 3 && !slotFound; i++) {
+            for (int i = 1; i < 3 && !slotFound; i++) {
 
                 int slotToCheck = (i) % 3;
 
@@ -291,7 +291,7 @@ public class IndexerFacade {
     }
 
     private boolean canLaunch() {
-        return State.AWAITING_LAUNCH == currentState || State.IDLE == currentState || State.SELECTING_BALL == currentState || State.LAUNCHING == currentState || State.HOMING == currentState;
+        return State.AWAITING_LAUNCH == currentState || State.IDLE == currentState || State.SELECTING_BALL == currentState || State.HOMING == currentState;
     }
 
     /**

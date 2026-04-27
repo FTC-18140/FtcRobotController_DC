@@ -21,7 +21,7 @@ public class FlywheelController {
     public static double RPM_TOLERANCE = 40;
 
     public static double[] distances = {50, 94, 167};
-    public static double[] rpms = {1800, 1870, 2530};
+    public static double[] rpms = {1790, 1870, 2530};
 
     static class DistRPM {
         double x, y;

@@ -44,13 +44,14 @@ public class Turret implements DataLoggable {
     private Telemetry telemetry = null;
 
     // Tunable constants from your original file
-    public static double P_TURRET = 0.0138, I_TURRET = 0.05, D_TURRET = 0.00098, F_ACCEL = 0.01, F_STATIC = 0.02;
+    public static double P_TURRET = 0.017, I_TURRET = 0.0, D_TURRET = 0.00165, F_ACCEL = 0.06, F_ACCEL_MAX = 0.007, F_STATIC = 0.018, F_RES_MIN = 0.025, F_RES_MAX = 0.085;
+    public static double F_RANGE_MIN = -90, F_RANGE_MAX = 0;
     public static double MIN_TURRET_POS = -90;
     public static double MAX_TURRET_POS = 360 + MIN_TURRET_POS;
 
     public static double TURRET_ANGLE_TOLERANCE = 2.5;
 
-    public static double KV_ROT = 0.18; // Tunable: Gain for robot rotation
+    public static double KV_ROT = 0.215; // Tunable: Gain for robot rotation
     public static double KV_TRANS = 0.12; // Tunable: Gain for translational apparent rotation
     public static boolean TELEM = false;
 
@@ -118,6 +119,7 @@ public class Turret implements DataLoggable {
      * @param angle in degrees
      */
     void seekToAngle(double angle) {
+        lastTargetAngle = targetAngle;
         targetAngle = Range.clip(angle, MIN_TURRET_POS, MAX_TURRET_POS);
         currentState = State.SEEKING_ANGLE;
     }
@@ -188,6 +190,8 @@ public class Turret implements DataLoggable {
         updateCurrentPosition();
         turretAimPID.setPID(P_TURRET, I_TURRET, D_TURRET);
         double target_shift = targetAngle - lastTargetAngle;
+        double angleErrorAbs = Math.abs(targetAngle - currentPosition);
+        double lowerErrorScalar = (angleErrorAbs) / (TURRET_ANGLE_TOLERANCE);
 
         isHomed = turretSwitch.isPressed();
 
@@ -197,19 +201,21 @@ public class Turret implements DataLoggable {
         }
 
         // 1. Static Feedforward (Wires/Friction)
-        double ffStatic = F_STATIC * Math.signum(seekingPower);
 
         // 2. Robot Rotation Feedforward
         double ffRobotRot = robotVel.angVel * KV_ROT;
 
         // 3. Robot Translation Feedforward
         double ffTrans = calculateTranslationalFF(robotPose, robotVel, targetPos);
+        double ffResistance = Range.scale(Range.clip(targetAngle, F_RANGE_MIN, F_RANGE_MAX), F_RANGE_MIN, F_RANGE_MAX, F_RES_MAX, F_RES_MIN);
 
         seekingPower = turretAimPID.calculate(currentPosition, targetAngle);
 
-        double ffAccel = F_ACCEL * target_shift;
+        double ffStatic = F_STATIC * Math.signum(seekingPower);
 
-        double ff_total = ffStatic + ffRobotRot + ffAccel;
+        double ffAccel = ( target_shift > 0.025 ?  Math.min(F_ACCEL / target_shift, F_ACCEL_MAX) : 0);
+
+        double ff_total = ffStatic + ffRobotRot + ffAccel + ffAccel + ffResistance;
 
         // Combine all terms
         double totalPower = seekingPower + ff_total;
@@ -220,12 +226,12 @@ public class Turret implements DataLoggable {
                     setHardwarePower(totalPower);
                     currentState = State.SEEKING_ANGLE;
                 } else {
-                    setHardwarePower(0);
+                    setHardwarePower(totalPower * lowerErrorScalar);
                 }
                 break;
             case SEEKING_ANGLE:
                 if (isAtTarget()) {
-                    setHardwarePower(0);
+                    setHardwarePower(totalPower * lowerErrorScalar);
                     currentState = State.HOLDING;
                 } else {
                     setHardwarePower(totalPower);
@@ -245,6 +251,7 @@ public class Turret implements DataLoggable {
                 break;
         }
 
+
         if (TELEM) {
             telemetry.addLine(" ------------- TURRET TELEM -------------");
             telemetry.addData("Turret Starting Angle: ", startingAngle);
@@ -253,6 +260,7 @@ public class Turret implements DataLoggable {
             telemetry.addData("Turret Target", "%.2f", targetAngle);
             // Add these lines to see the "Blend" of control:
             telemetry.addData("PID Power", "%.3f", seekingPower);
+            telemetry.addData("Target Shift", "%.3f", target_shift);
             telemetry.addData("FF Total", "%.3f", ff_total);
             telemetry.addData("Total current draw", "%.3f", getTotalCurrentDraw());
             telemetry.addData("Turret State", currentState);

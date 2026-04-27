@@ -70,12 +70,12 @@ public class LED {
         if (5.0 > (120.0 - runtime)) {
             if (1.0 == (Math.ceil(runtime * 2.0) % 2.0)) {
             } else {
-                setAllLedsToColor(Colors.RED);
+//                setAllLedsToColor(Colors.RED);
             }
         } else if ((120.0 - runtime) < alertTimeEnd) {
             if (1.0 == Math.ceil(runtime * 2.0) % 2.0) {
             } else {
-                setAllLedsToColor(Colors.ORANGE);
+//                setAllLedsToColor(Colors.ORANGE);
             }
 
         }
@@ -100,7 +100,7 @@ public class LED {
             setIntakeLedToColor(Colors.OFF);
         }
         setColorsIfHoming(indexerState);
-        if(runtime > 125) setAllLedsToColor(Colors.OFF);
+//        if(runtime > 125) setAllLedsToColor(Colors.OFF);
         writeToLeds();
     }
 

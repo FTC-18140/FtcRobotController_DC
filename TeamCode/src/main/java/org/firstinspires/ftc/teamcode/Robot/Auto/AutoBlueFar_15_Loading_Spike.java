@@ -5,7 +5,6 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.RaceAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
-import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -14,12 +13,12 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
 @Autonomous(group = AutoBlueFar_WAIT.AUTO_BLUE_FAR_GROUP)
-public class AutoBlueFar_12_Loading_Spike extends LinearOpMode {
+public class AutoBlueFar_15_Loading_Spike extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
         Pose2d start = new Pose2d(AutoPositions.Positions.START_BLUE_FAR.position, Math.toRadians(0));
-        Pose2d launchPos = new Pose2d(AutoPositions.Positions.FAR_LAUNCH_ZONE_BLUE.position, Math.toRadians(0));
+        Pose2d launchPos = new Pose2d(AutoPositions.Positions.FAR_LAUNCH_ZONE_BLUE.position, Math.toRadians(90));
         Pose2d launchPos2 = new Pose2d(AutoPositions.Positions.CENTER_LAUNCH_ZONE_BLUE.position, Math.toRadians(0));
         Pose2d intakePos = new Pose2d(AutoPositions.Positions.ARTIFACT_BASE_BLUE.position, Math.toRadians(90));
         Pose2d intakePos2 = new Pose2d(AutoPositions.Positions.LOADING_ZONE_BLUE.position, Math.toRadians(110));
@@ -59,7 +58,7 @@ public class AutoBlueFar_12_Loading_Spike extends LinearOpMode {
                                             new SequentialAction(
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(start)
-                                                                    .splineTo(launchPos.position, 0)
+                                                                    .strafeToSplineHeading(launchPos.position, Math.toRadians(90))
                                                                     .build()
                                                             // Plan the first shot sequence while driving.
                                                     ),
@@ -78,7 +77,7 @@ public class AutoBlueFar_12_Loading_Spike extends LinearOpMode {
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, 49), Math.toRadians(90)))
                                                                     .setTangent(Math.toRadians(-90))
-                                                                    .splineTo(launchPos.position, Math.toRadians(180))
+                                                                    .splineToConstantHeading(launchPos.position, Math.toRadians(-90))
                                                                     .build()
                                                             //                                        ,
                                                             //                                        // Re-plan the shot sequence with the newly loaded balls
@@ -92,7 +91,7 @@ public class AutoBlueFar_12_Loading_Spike extends LinearOpMode {
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
-                                                                    .splineTo(intakePos2.position, Math.toRadians(90))
+                                                                    .splineToConstantHeading(intakePos2.position, Math.toRadians(90))
                                                                     .build(),
                                                             robot.indexerFullAction()
                                                     ),
@@ -100,6 +99,31 @@ public class AutoBlueFar_12_Loading_Spike extends LinearOpMode {
                                                     // Drive to launch spot
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(intakePos2)
+                                                                    .setReversed(true)
+                                                                    .splineToConstantHeading(launchPos.position, Math.toRadians(-90))
+                                                                    .build()
+                                                            //                                            ,
+                                                            //                                            // Re-plan the shot sequence with the newly loaded balls
+                                                            //                                            robot.planSequenceAction()
+                                                    ),
+
+                                                    robot.intakeStopAction(),
+                                                    // Launch 2nd set of Artifacts
+
+                                                    robot.launchAction(),
+
+                                                    robot.intakeStartAction(),
+                                                    // Grab next 3 artifacts using intelligent, sensor-based actions
+                                                    new RaceAction(
+                                                            robot.drive.actionBuilder(new Pose2d(launchPos.position, Math.toRadians(90)))
+                                                                    .splineTo(intakePos3.position, Math.toRadians(90))
+                                                                    .build(),
+                                                            robot.indexerFullAction()
+                                                    ),
+
+                                                    // Drive to launch spot
+                                                    new ParallelAction(
+                                                            robot.drive.actionBuilder(intakePos3)
                                                                     .setReversed(true)
                                                                     .splineTo(launchPos.position, Math.toRadians(-90))
                                                                     .build()

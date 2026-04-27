@@ -51,13 +51,17 @@ public class ThunderBot2025 implements DataLoggable {
     public static final double MAX_SPEED = 1.0;
     private double speed = DEFAULT_SPEED;
     public static Pose2d starting_position = null;
-    public static double robot_width = 18;
+    public static double robot_width = 14;
     double halfWidth = robot_width / 2;
     /*         _left__
               [0]   [1]
               |       | front
               [2]   [3]
      */
+    double[][] starting_corners = {
+            {halfWidth, -halfWidth}, {halfWidth, halfWidth},
+            {-halfWidth, -halfWidth}, {-halfWidth, halfWidth}
+    };
     double[][] corners = {
             {halfWidth, -halfWidth}, {halfWidth, -halfWidth},
             {-halfWidth, -halfWidth}, {-halfWidth, halfWidth}
@@ -243,10 +247,14 @@ public class ThunderBot2025 implements DataLoggable {
         double h = drive.localizer.getPose().heading.toDouble();
 
         for (int i = 0; i < corners.length; i++){
-            corners[i][0] = corners[i][1] * Math.sin(-h) + (corners[i][0]) * Math.cos(-h);
-            corners[i][1] = corners[i][1] * Math.cos(-h) - (corners[i][0]) * Math.sin(-h);
+            double x = starting_corners[i][0];
+            double y = starting_corners[i][1];
+            corners[i][0] = y * Math.sin(-h) + (x) * Math.cos(-h);
+            corners[i][1] = y * Math.cos(-h) - (x) * Math.sin(-h);
         }
-
+        if (bot_y < halfWidth && bot_y > -halfWidth) {
+            if (bot_x + halfWidth > 0 || bot_x - halfWidth < -48) return true;
+        }
         for (int i = 0; i < corners.length; i++){
             double x = corners[i][0] + bot_x;
             double y = corners[i][1] + bot_y;

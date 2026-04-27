@@ -30,7 +30,7 @@ public class Turnstile {
     public static boolean TELEM = true;
 
     // --- Tunable Constants via FTC Dashboard ---
-    public static double P = 0.0055, I = 0.0, D = 0.00025;
+    public static double P = 0.004, I = 0.0, D = 0.00034;
     public static double P_PER_BALL_FACTOR = 0.00032;
     public static double THRESHOLD = 0.00;
     public static double MIN_POWER_POS = 0.015;
@@ -195,6 +195,8 @@ public class Turnstile {
     public void update(int count) {
         // --- 1. Cache Hardware Reads ---
         currentAngle = indexMotor.getCurrentPosition() / COUNTS_PER_DEGREE - startingAngle - launching_offset;
+        double angleErrorAbs = Math.abs(targetAngle + current_offset - currentAngle);
+        double lowerErrorScalar = (angleErrorAbs * angleErrorAbs) / (ANGLE_TOLERANCE * ANGLE_TOLERANCE);
         limitSwitchPressed = limitSwitch.isPressed();
 
         int minCount = Math.min(count, 3);
@@ -222,8 +224,8 @@ public class Turnstile {
                     targetAngle = 0;
                     current_offset = HOMING_OFFSET;
 
-                    indexerServo1.setPower(0);
-                    indexerServo2.setPower(0);
+                    indexerServo1.setPower(power * lowerErrorScalar);
+                    indexerServo2.setPower(power * lowerErrorScalar);
                     currentState = State.HOLDING_POSITION;
                 } else {
                     indexerServo1.setPower(HOMING_POWER);
@@ -248,8 +250,8 @@ public class Turnstile {
                     currentState = State.HOLDING_POSITION;
                     // We have arrived. Stop the motor for this one cycle to prevent a "kick".
                     // The next loop will execute the HOLDING_POSITION logic.
-                    indexerServo1.setPower(0);
-                    indexerServo2.setPower(0);
+                    indexerServo1.setPower(power * lowerErrorScalar);
+                    indexerServo2.setPower(power * lowerErrorScalar);
                 } else {
                     // If not at target, continue seeking.
                     indexerServo1.setPower(power);
@@ -278,8 +280,8 @@ public class Turnstile {
                     indexerServo2.setPower(power);
                     currentState = State.SEEKING_POSITION;
                 } else {
-                    indexerServo1.setPower(0);
-                    indexerServo2.setPower(0);
+                    indexerServo1.setPower(power/2);
+                    indexerServo2.setPower(power/2);
                 }
                 break;
         }
