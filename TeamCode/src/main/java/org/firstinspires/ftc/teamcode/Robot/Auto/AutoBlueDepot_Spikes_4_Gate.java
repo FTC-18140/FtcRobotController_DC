@@ -66,7 +66,7 @@ public class AutoBlueDepot_Spikes_4_Gate extends LinearOpMode {
                                                                     .build()
                                                     ),
                                                     // Launch Preloads
-                                                    robot.spamAction(),
+                                                    robot.launchAction(),
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
@@ -93,7 +93,7 @@ public class AutoBlueDepot_Spikes_4_Gate extends LinearOpMode {
                                                     ),
                                                     robot.intakeStopAction(),
                                                     // Launch Preloads
-                                                    robot.spamAction(),
+                                                    robot.launchAction(),
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
@@ -128,9 +128,7 @@ public class AutoBlueDepot_Spikes_4_Gate extends LinearOpMode {
                                                     ),
                                                     robot.intakeStopAction(),
                                                     // Launch 2nd set of Artifacts
-                                                    robot.planSequenceAction(),
-                                                    robot.startSequenceAction(),
-                                                    robot.waitForSequenceEndAction(),
+                                                    robot.launchAction(),
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos3)
                                                                     .setTangent(180)
