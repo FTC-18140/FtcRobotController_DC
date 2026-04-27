@@ -23,8 +23,6 @@ public class Teleop_Red extends OpMode {
     private int slotToWatch = -1;
 
     ThunderBot2025.Alliance_Color alliance = ThunderBot2025.Alliance_Color.RED;
-    TBDGamepad.Colors gamepad2Color = null;
-    private TBDGamepad.Colors gamepad1Color = null;
     FtcDashboard dashboard = FtcDashboard.getInstance();
     private TBDGamepad theGamepad1 = null;
     private TBDGamepad theGamepad2 = null;
@@ -62,21 +60,19 @@ public class Teleop_Red extends OpMode {
 
         switch (robot.lastBallState) {
             case GREEN:
-                gamepad2Color = TBDGamepad.Colors.GREEN;
+                theGamepad2.setLedColor(TBDGamepad.Colors.GREEN);
                 break;
             case PURPLE:
-                gamepad2Color = TBDGamepad.Colors.PURPLE;
+                theGamepad2.setLedColor(TBDGamepad.Colors.PURPLE);
                 break;
             case VACANT:
-                gamepad2Color = TBDGamepad.Colors.OFF;
+                theGamepad2.setLedColor(TBDGamepad.Colors.OFF);
         }
         if (3 > robot.indexer.getBallNumber()) {
-            gamepad1Color = TBDGamepad.Colors.YELLOW;
+            theGamepad1.setLedColor(TBDGamepad.Colors.YELLOW);
         } else {
-            gamepad1Color = TBDGamepad.Colors.RED;
+            theGamepad1.setLedColor(TBDGamepad.Colors.RED);
         }
-        theGamepad1.setLedColor(gamepad1Color);
-        theGamepad2.setLedColor(gamepad2Color);
 
         // --- Drive Controls ---
         double forward = -theGamepad1.getLeftY();
