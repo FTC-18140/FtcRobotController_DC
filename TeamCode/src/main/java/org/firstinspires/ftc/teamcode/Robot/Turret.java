@@ -44,14 +44,14 @@ public class Turret implements DataLoggable {
     private Telemetry telemetry = null;
 
     // Tunable constants from your original file
-    public static double P_TURRET = 0.017, I_TURRET = 0.0, D_TURRET = 0.00165, F_ACCEL = 0.06, F_ACCEL_MAX = 0.007, F_STATIC = 0.018, F_RES_MIN = 0.025, F_RES_MAX = 0.085;
+    public static double P_TURRET = 0.0167, I_TURRET = 0.0, D_TURRET = 0.00165, F_ACCEL = 0.05, F_ACCEL_MAX = 0.007, F_STATIC = 0.016, F_RES_MIN = 0.01, F_RES_MAX = 0.085;
     public static double F_RANGE_MIN = -90, F_RANGE_MAX = 0;
     public static double MIN_TURRET_POS = -90;
     public static double MAX_TURRET_POS = 360 + MIN_TURRET_POS;
 
     public static double TURRET_ANGLE_TOLERANCE = 2.5;
 
-    public static double KV_ROT = 0.215; // Tunable: Gain for robot rotation
+    public static double KV_ROT = 0.21; // Tunable: Gain for robot rotation
     public static double KV_TRANS = 0.12; // Tunable: Gain for translational apparent rotation
     public static boolean TELEM = false;
 

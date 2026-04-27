@@ -67,7 +67,8 @@ public class AutoBlueFar_15_Loading_Spike extends LinearOpMode {
                                                     robot.intakeStartAction(),
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
-                                                                    .splineTo(intakePos.position, Math.toRadians(90))
+                                                                    .setTangent(0)
+                                                                    .splineToConstantHeading(intakePos.position, Math.toRadians(90))
                                                                     .splineToConstantHeading(new Vector2d(intakePos.position.x, 59), Math.toRadians(90))
                                                                     .build(),
                                                             robot.indexerFullAction()
