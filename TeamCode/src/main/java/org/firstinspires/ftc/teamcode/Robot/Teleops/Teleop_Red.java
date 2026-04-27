@@ -58,21 +58,21 @@ public class Teleop_Red extends OpMode {
         theGamepad1.update();
         theGamepad2.update();
 
-        switch (robot.lastBallState) {
-            case GREEN:
-                theGamepad2.setLedColor(TBDGamepad.Colors.GREEN);
-                break;
-            case PURPLE:
-                theGamepad2.setLedColor(TBDGamepad.Colors.PURPLE);
-                break;
-            case VACANT:
-                theGamepad2.setLedColor(TBDGamepad.Colors.OFF);
-        }
-        if (3 > robot.indexer.getBallNumber()) {
-            theGamepad1.setLedColor(TBDGamepad.Colors.YELLOW);
-        } else {
-            theGamepad1.setLedColor(TBDGamepad.Colors.RED);
-        }
+//        switch (robot.lastBallState) {
+//            case GREEN:
+//                theGamepad2.setLedColor(TBDGamepad.Colors.GREEN);
+//                break;
+//            case PURPLE:
+//                theGamepad2.setLedColor(TBDGamepad.Colors.PURPLE);
+//                break;
+//            case VACANT:
+//                theGamepad2.setLedColor(TBDGamepad.Colors.OFF);
+//        }
+//        if (3 > robot.indexer.getBallNumber()) {
+//            theGamepad1.setLedColor(TBDGamepad.Colors.YELLOW);
+//        } else {
+//            theGamepad1.setLedColor(TBDGamepad.Colors.RED);
+//        }
 
         // --- Drive Controls ---
         double forward = -theGamepad1.getLeftY();
@@ -172,7 +172,7 @@ public class Teleop_Red extends OpMode {
         } else {
             // --- MANUAL INDEXER MODE ---
             if (theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER)) {
-                robot.indexer.spin(INDEXER_SPEED);
+//                robot.indexer.spin(INDEXER_SPEED);
             } else if (theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER)) {
                 robot.launchAll();
             } else {
@@ -184,10 +184,10 @@ public class Teleop_Red extends OpMode {
                     robot.indexer.cycle(1);
                 } else if (theGamepad2.getButton(TBDGamepad.Button.LEFT_STICK_BUTTON)) {
                     robot.indexer.adjustToThird();
-                } else if (IndexerFacade.State.IDLE == robot.indexer.getCurrentState() || IndexerFacade.State.AWAITING_LAUNCH == robot.indexer.getCurrentState()) {
+                } else if (IndexerFacade.State.IDLE == robot.indexer.getCurrentState()) {
 
                     // If not manually spinning, send a spin(0) to allow the turnstile to auto-align.
-                    robot.indexer.spin(0);
+//                    robot.indexer.spin(0);
                 }
             }
         }

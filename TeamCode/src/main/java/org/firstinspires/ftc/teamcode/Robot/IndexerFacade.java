@@ -84,7 +84,7 @@ public class IndexerFacade {
 
         beamBreak.init(hwMap, telem);
 
-        updateBallSensors();
+//        updateBallSensors();
 //        updateBallStates();
         updateBallCount();
 
@@ -407,9 +407,6 @@ public class IndexerFacade {
 
     public void updateBallSensors() {
         if (!updated) {
-            if (TELEM) {
-                telemetry.addData("updating color sensors: ", true);
-            }
             for (int i = 0; 2 > i; i++) {
                 ballSensors[i].update();
             }
@@ -422,7 +419,7 @@ public class IndexerFacade {
         ballNumber = 0;
         for (int i = 0; i < 3; i++) {
             if (i == 0) {
-                if ((BallState.GREEN == ballSlots[i] || BallState.PURPLE == ballSlots[i]) && ballInIndexer()) {
+                if (ballInIndexer()) {
                     ballNumber++;
                 }
             } else if (BallState.GREEN == ballSlots[i] || BallState.PURPLE == ballSlots[i]) {
@@ -444,7 +441,9 @@ public class IndexerFacade {
 //        flipper.update();
         turnstile.update(ballNumber);
         beamBreak.update();
-
+        if (TELEM) {
+            telemetry.addData("updating color sensors: ", updated);
+        }
         updated = false;
 
         if (turnstile.isAtTarget()) {
@@ -473,8 +472,6 @@ public class IndexerFacade {
                     currentState = State.IDLE;
                 }
                 break;
-            case IDLE: // Waiting for a command
-                break;
             case SELECTING_BALL:
                 if (turnstile.isAtTarget()) {
                     beamBreakCounter = 0;
@@ -482,6 +479,8 @@ public class IndexerFacade {
                     currentState = State.AWAITING_LAUNCH;
 
                 }
+                break;
+            case IDLE: // Waiting for a command
                 break;
             case AWAITING_LAUNCH: // In position, ready to receive a flip() command from an external source.
                 // Do nothing. The system will wait here until flip() is called.
@@ -499,6 +498,7 @@ public class IndexerFacade {
         // Only update ball states from sensors if we are NOT in an active auto-sequence
         // This prevents a ball that has been logically "used" from being re-detected.
 //        updateBallStates();
+
         updateBallCount();
         previousBallStateIntake = ballSlots[0];
 

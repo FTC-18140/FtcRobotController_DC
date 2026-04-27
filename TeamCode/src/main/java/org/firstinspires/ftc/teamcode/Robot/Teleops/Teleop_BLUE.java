@@ -58,21 +58,21 @@ public class Teleop_BLUE extends OpMode {
         robot.update();
         theGamepad1.update();
         theGamepad2.update();
-        switch (robot.lastBallState) {
-            case GREEN:
-                theGamepad2.setLedColor(TBDGamepad.Colors.GREEN);
-                break;
-            case PURPLE:
-                theGamepad2.setLedColor(TBDGamepad.Colors.PURPLE);
-                break;
-            case VACANT:
-                theGamepad2.setLedColor(TBDGamepad.Colors.OFF);
-        }
-        if (3 > robot.indexer.getBallNumber()) {
-            theGamepad1.setLedColor(TBDGamepad.Colors.YELLOW);
-        } else {
-            theGamepad1.setLedColor(TBDGamepad.Colors.RED);
-        }
+//        switch (robot.lastBallState) {
+//            case GREEN:
+//                theGamepad2.setLedColor(TBDGamepad.Colors.GREEN);
+//                break;
+//            case PURPLE:
+//                theGamepad2.setLedColor(TBDGamepad.Colors.PURPLE);
+//                break;
+//            case VACANT:
+//                theGamepad2.setLedColor(TBDGamepad.Colors.OFF);
+//        }
+//        if (3 > robot.indexer.getBallNumber()) {
+//            theGamepad1.setLedColor(TBDGamepad.Colors.YELLOW);
+//        } else {
+//            theGamepad1.setLedColor(TBDGamepad.Colors.RED);
+//        }
 
         // --- Drive Controls ---
         double forward = theGamepad1.getLeftY();

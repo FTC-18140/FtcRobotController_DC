@@ -171,7 +171,6 @@ public class ThunderBot2025 implements DataLoggable {
 
         telemetry.addData("Upper Flywheel RPM ", launcher.getUpperFlywheelRpm());
         telemetry.addData("Upper Flywheel Target ", launcher.getUpperFlywheelTargetRpm());
-        telemetry.addData("Turret aiming mode:", launcher.isUsingLimelight());
         telemetry.addData("Turret angle:", launcher.getTurretAngle());
     }
 

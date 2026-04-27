@@ -44,14 +44,15 @@ public class Turret implements DataLoggable {
     private Telemetry telemetry = null;
 
     // Tunable constants from your original file
-    public static double P_TURRET = 0.0167, I_TURRET = 0.0, D_TURRET = 0.00165, F_ACCEL = 0.05, F_ACCEL_MAX = 0.007, F_STATIC = 0.016, F_RES_MIN = 0.01, F_RES_MAX = 0.085;
-    public static double F_RANGE_MIN = -90, F_RANGE_MAX = 0;
+    public static double P_TURRET = 0.016, I_TURRET = 0.0, D_TURRET = 0.00162, F_ACCEL = 0.03, F_ACCEL_MAX = 0.018, F_STATIC = 0.02, F_RES_POS_MIN = 0.0, F_RES_POS_MAX = 0.03, F_RES_NEG_MIN = 0.03, F_RES_NEG_MAX = 0.06;
+    public static double F_RANGE_MIN = -20, F_RANGE_MAX = 180;
     public static double MIN_TURRET_POS = -90;
     public static double MAX_TURRET_POS = 360 + MIN_TURRET_POS;
 
     public static double TURRET_ANGLE_TOLERANCE = 2.5;
+    public static double TURRET_ANGLE_SOFT_TOLERANCE = 10;
 
-    public static double KV_ROT = 0.21; // Tunable: Gain for robot rotation
+    public static double KV_ROT = 0.24; // Tunable: Gain for robot rotation
     public static double KV_TRANS = 0.12; // Tunable: Gain for translational apparent rotation
     public static boolean TELEM = false;
 
@@ -191,7 +192,8 @@ public class Turret implements DataLoggable {
         turretAimPID.setPID(P_TURRET, I_TURRET, D_TURRET);
         double target_shift = targetAngle - lastTargetAngle;
         double angleErrorAbs = Math.abs(targetAngle - currentPosition);
-        double lowerErrorScalar = (angleErrorAbs) / (TURRET_ANGLE_TOLERANCE);
+        double lowerErrorScalar = (angleErrorAbs * angleErrorAbs) / (TURRET_ANGLE_TOLERANCE * TURRET_ANGLE_TOLERANCE);
+        double mediumErrorScalar = (angleErrorAbs * angleErrorAbs) / (TURRET_ANGLE_SOFT_TOLERANCE * TURRET_ANGLE_SOFT_TOLERANCE);
 
         isHomed = turretSwitch.isPressed();
 
@@ -207,15 +209,22 @@ public class Turret implements DataLoggable {
 
         // 3. Robot Translation Feedforward
         double ffTrans = calculateTranslationalFF(robotPose, robotVel, targetPos);
-        double ffResistance = Range.scale(Range.clip(targetAngle, F_RANGE_MIN, F_RANGE_MAX), F_RANGE_MIN, F_RANGE_MAX, F_RES_MAX, F_RES_MIN);
 
         seekingPower = turretAimPID.calculate(currentPosition, targetAngle);
+
+        double ffResistance = 0;
+        if (targetAngle > F_RANGE_MAX) {
+            ffResistance = Range.scale(Range.clip(targetAngle, F_RANGE_MAX, MAX_TURRET_POS), F_RANGE_MAX, MAX_TURRET_POS, F_RES_POS_MIN, F_RES_POS_MAX);
+        } else if (targetAngle < F_RANGE_MIN) {
+            ffResistance = Range.scale(Range.clip(targetAngle, F_RANGE_MIN, MIN_TURRET_POS), F_RANGE_MIN, MIN_TURRET_POS, F_RES_NEG_MIN, F_RES_NEG_MAX);
+        }
+        ffResistance = Math.signum(seekingPower) * ffResistance;
 
         double ffStatic = F_STATIC * Math.signum(seekingPower);
 
         double ffAccel = ( target_shift > 0.025 ?  Math.min(F_ACCEL / target_shift, F_ACCEL_MAX) : 0);
 
-        double ff_total = ffStatic + ffRobotRot + ffAccel + ffAccel + ffResistance;
+        double ff_total = ffStatic + ffRobotRot + ffAccel + ffResistance;
 
         // Combine all terms
         double totalPower = seekingPower + ff_total;
@@ -233,6 +242,8 @@ public class Turret implements DataLoggable {
                 if (isAtTarget()) {
                     setHardwarePower(totalPower * lowerErrorScalar);
                     currentState = State.HOLDING;
+                } else if(inSmoothZone()){
+                    setHardwarePower(totalPower * mediumErrorScalar);
                 } else {
                     setHardwarePower(totalPower);
                 }
@@ -340,6 +351,9 @@ public class Turret implements DataLoggable {
 
     public boolean isAtTarget() {
         return Math.abs(currentPosition - targetAngle) < TURRET_ANGLE_TOLERANCE;
+    }
+    public boolean inSmoothZone() {
+        return Math.abs(currentPosition - targetAngle) < TURRET_ANGLE_SOFT_TOLERANCE;
     }
 
     @Override
