@@ -17,7 +17,7 @@ public class FlywheelController {
     private double last_distance = 0;
     double angleToGoal = 0.0;
     PoseVelocity2d odoVelocity = null;
-    public static double INERTIA_FACTOR = 0.007;
+    public static double INERTIA_FACTOR = 0.009;
     public static double RPM_TOLERANCE = 40;
     public static double voltage_comp = 12.987;
 

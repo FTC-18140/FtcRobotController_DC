@@ -20,7 +20,7 @@ public class Turnstile {
 
 
     public static double SPEEDUP_ANGLE = 120 ;
-    public static double THIRD_BALL_BOOST = 1.25;
+    public static double THIRD_BALL_BOOST = 1.33;
     // --- Hardware & Utilities ---
     private CRServo indexerServo1;
     private CRServo indexerServo2;
@@ -39,9 +39,9 @@ public class Turnstile {
     public static double MIN_POWER_NEG = 0.015;
     public static double HOMING_POWER = 0.065;
     public static double ANGLE_TOLERANCE = 12.5;// In degrees
-    public static double CYCLE_TIME = 25;
+    public static double CYCLE_TIME = 50;
     public static double BACKWARD_TOLERANCE = 30;
-    public static double INTAKE_TOLERANCE = 10;
+    public static double INTAKE_TOLERANCE = 30;
     public static double HOMING_OFFSET = 0;
     public static double LAUNCHING_POWER = 0.75;
     private double current_offset = 0; // --- Non-tunable Constants ---
@@ -269,10 +269,10 @@ public class Turnstile {
                     // The next loop will execute the HOLDING_POSITION logic.
                     indexerServo1.setPower(0);
                     indexerServo2.setPower(0);
-                } else if (numLaunches == 3 && currentAngle <= targetAngle - SPEEDUP_ANGLE)
+                } else if (numLaunches == 3 && currentAngle <= targetAngle + SPEEDUP_ANGLE)
                 {
                     // If not at target, continue seeking.
-                    double fasterPower = Range.clip(-LAUNCHING_POWER*THIRD_BALL_BOOST, -1, 1);
+                    double fasterPower = Range.clip(-LAUNCHING_POWER * THIRD_BALL_BOOST, -1, 1);
                     indexerServo1.setPower(fasterPower);
                     indexerServo2.setPower(fasterPower);
                 } else {
@@ -290,8 +290,8 @@ public class Turnstile {
                     indexerServo2.setPower(power);
                     currentState = State.SEEKING_POSITION;
                 } else {
-                    indexerServo1.setPower(power/2);
-                    indexerServo2.setPower(power/2);
+                    indexerServo1.setPower(power * lowerErrorScalar);
+                    indexerServo2.setPower(power * lowerErrorScalar);
                 }
                 break;
         }

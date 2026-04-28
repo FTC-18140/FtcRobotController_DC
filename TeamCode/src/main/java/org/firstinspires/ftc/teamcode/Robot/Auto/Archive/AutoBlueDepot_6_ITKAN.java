@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Robot.Auto;
+package org.firstinspires.ftc.teamcode.Robot.Auto.Archive;
 
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
@@ -12,18 +12,20 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.Robot.Auto.AutoPositions;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
 @Autonomous(group = AutoBlueDepot_Coop.AUTO_BLUE_DEPOT_GROUP)
 @Disabled
-public class AutoBlueDepot_6_OPENSOURCE extends LinearOpMode {
+public class AutoBlueDepot_6_ITKAN extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
         Pose2d start = new Pose2d(AutoPositions.Positions.START_BLUE_DEPOT.position, Math.toRadians(-45));
-        Pose2d launchPos = new Pose2d(new Vector2d(58, 13), Math.toRadians(90));
-        Pose2d launchPos2 = new Pose2d(AutoPositions.Positions.FAR_LAUNCH_ZONE_BLUE.position, Math.toRadians(90));
-        Pose2d intakePos = new Pose2d(AutoPositions.Positions.LOADING_ZONE_BLUE.position, Math.toRadians(90));
+        Pose2d launchPos = new Pose2d(AutoPositions.Positions.CLOSE_LAUNCH_ZONE_BLUE.position, Math.toRadians(90));
+        Pose2d launchPos2 = new Pose2d(AutoPositions.Positions.CENTER_LAUNCH_ZONE_BLUE.position, Math.toRadians(180));
+        Pose2d intakePos = new Pose2d(AutoPositions.Positions.ARTIFACT_GATE_BLUE.position, Math.toRadians(90));
+        Pose2d intakePos2 = new Pose2d(AutoPositions.Positions.ARTIFACT_CENTER_BLUE.position, Math.toRadians(90));
 
         ThunderBot2025 robot = new ThunderBot2025();
         blackboard.put("TURRET_ENDING_ANGLE_AUTO", (double) 0);
@@ -68,59 +70,36 @@ public class AutoBlueDepot_6_OPENSOURCE extends LinearOpMode {
                                                     robot.waitForSequenceEndAction(),
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
-                                                    robot.waitForTime(11),
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
-                                                                    .turnTo(Math.toRadians(180))
-                                                                    .splineTo(new Vector2d(intakePos.position.x + 18, 12), Math.toRadians(180))
-                                                                    .splineTo(new Vector2d(intakePos.position.x, 18), Math.toRadians(90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x + 5, 48), Math.toRadians(90))
-                                                                    .splineTo(intakePos.position, Math.toRadians(110))
+                                                                    .setTangent(Math.toRadians(-90))
+                                                                    .splineToConstantHeading(intakePos.position, Math.toRadians(90))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x, 49), Math.toRadians(90), new TranslationalVelConstraint(12))
                                                                     .build(),
                                                             robot.indexerFullAction()
                                                     ),
                                                     new ParallelAction(
-                                                            robot.drive.actionBuilder(new Pose2d(intakePos.position, Math.toRadians(110)))
+                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, 49), Math.toRadians(90)))
                                                                     .setReversed(true)
-                                                                    .splineTo(launchPos2.position, Math.toRadians(-90))
+                                                                    .splineTo(launchPos2.position, Math.toRadians(0))
                                                                     .build()
                                                     ),
                                                     robot.intakeStopAction(),
                                                     // Launch Preloads
                                                     robot.planSequenceAction(),
 
+                                                    robot.waitForTime(13),
                                                     robot.startSequenceAction(),
                                                     robot.waitForSequenceEndAction(),
-                                                    robot.intakeStartAction(),
-                                                    new RaceAction(
-                                                            robot.drive.actionBuilder(launchPos2)
-                                                                    .splineTo(new Vector2d(intakePos.position.x, 50), Math.toRadians(90))
-                                                                    .splineTo(intakePos.position, Math.toRadians(90), new TranslationalVelConstraint(30))
-                                                                    .build(),
-                                                            robot.indexerFullAction()
-                                                    ),
-
-                                                    // Drive to launch spot
-                                                    new ParallelAction(
-                                                            robot.drive.actionBuilder(intakePos)
-                                                                    .setReversed(true)
-                                                                    .splineTo(launchPos2.position, Math.toRadians(-90))
-                                                                    .build()
-                                                    ),
-
-                                                    robot.intakeStopAction(),
-                                                    // Launch 2nd set of Artifacts
-                                                    robot.planSequenceAction(),
-                                                    robot.startSequenceAction(),
-                                                    robot.waitForSequenceEndAction()
+                                                    robot.intakeStartAction()
                                             ),
-                                            new SleepAction(24)
+                                            new SleepAction(27)
                                     ),
                                     robot.cancelSequenceAction(),
                                     robot.intakeStopAction(),
-                                    robot.waitForTime(27),
                                     robot.drive.actionBuilder(launchPos2)
-                                            .splineToConstantHeading(new Vector2d(-36, 24), Math.toRadians(90))
+                                            .setReversed(true)
+                                            .splineTo(new Vector2d(38, 12), Math.toRadians(0))
                                             .build(),
                                     robot.launcher.pointToAction(0),
                                     new ParallelAction(

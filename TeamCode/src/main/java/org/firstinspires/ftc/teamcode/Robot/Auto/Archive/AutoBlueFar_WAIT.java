@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Robot.Auto;
+package org.firstinspires.ftc.teamcode.Robot.Auto.Archive;
 
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
@@ -10,34 +10,34 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.Robot.Auto.AutoPositions;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
-@Autonomous(group = AutoRedFar.AUTO_RED_FAR_GROUP)
+@Autonomous(group = AutoBlueFar_WAIT.AUTO_BLUE_FAR_GROUP)
 @Disabled
-public class AutoRedFar_WAIT extends LinearOpMode {
+public class AutoBlueFar_WAIT extends LinearOpMode {
+
+    public static final String AUTO_BLUE_FAR_GROUP = "AutoBlueFar";
 
     @Override
     public void runOpMode() throws InterruptedException {
-        Pose2d start = new Pose2d(AutoPositions.Positions.START_RED_FAR.position, Math.toRadians(0));
-        Pose2d launchPos = new Pose2d(AutoPositions.Positions.FAR_LAUNCH_ZONE_RED.position, Math.toRadians(-23));
-        Pose2d intakePos = new Pose2d(AutoPositions.Positions.ARTIFACT_BASE_RED.position, Math.toRadians(90));
+        Pose2d start = new Pose2d(AutoPositions.Positions.START_BLUE_FAR.position, Math.toRadians(0));
+        Pose2d launchPos = new Pose2d(AutoPositions.Positions.FAR_LAUNCH_ZONE_BLUE.position, Math.toRadians(23));
+        Pose2d intakePos = new Pose2d(AutoPositions.Positions.ARTIFACT_BASE_BLUE.position, Math.toRadians(90));
 
         ThunderBot2025 robot = new ThunderBot2025();
 
         robot.init(hardwareMap, telemetry, start);
         waitForStart();
 
-        robot.setColor(ThunderBot2025.Alliance_Color.RED);
+        robot.setColor(ThunderBot2025.Alliance_Color.BLUE);
         Actions.runBlocking(
                 new ParallelAction(
-                        robot.updateAction(),
-                        robot.aimAction(),
-
                         new SequentialAction(
                                 new SleepAction(22),
                                 new ParallelAction(
                                         robot.drive.actionBuilder(start)
-                                                .strafeToSplineHeading(new Vector2d(launchPos.position.x, -12), Math.toRadians(-23))
+                                                .strafeToSplineHeading(new Vector2d(launchPos.position.x, 12), Math.toRadians(23))
                                                 .build()
                                 ),
                                 robot.intakeStartAction(),
@@ -45,23 +45,30 @@ public class AutoRedFar_WAIT extends LinearOpMode {
 
 
                                 new SequentialAction(
+                                        robot.intake.intakeStopAction(),
                                         robot.launchAction(),
+                                        robot.intakeStartAction(),
 
+                                        robot.intake.intakeStopAction(),
                                         robot.launchAction(),
+                                        robot.intakeStartAction(),
 
-                                        robot.launchAction()
+                                        robot.intake.intakeStopAction(),
+                                        robot.launchAction(),
+                                        robot.intakeStartAction()
                                 ),
                                 robot.launcher.stopAction(),
                                 robot.intake.intakeStopAction(),
                                 robot.drive.actionBuilder(launchPos)
-                                        .strafeToSplineHeading(new Vector2d(-16, -12), Math.toRadians(0))
+                                        .strafeToSplineHeading(new Vector2d(-12, 12), Math.toRadians(0))
                                         .build(),
                                 robot.launcher.pointToAction(0),
                                 robot.launcher.stopAction()
 
                         ),
-                        robot.launcher.prepShotAction()
-
+                        robot.launcher.prepShotAction(),
+                        robot.aimAction(),
+                        robot.updateAction()
                 )
         );
     }

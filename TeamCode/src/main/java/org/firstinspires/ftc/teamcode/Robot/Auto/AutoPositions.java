@@ -8,17 +8,17 @@ public class AutoPositions {
     @Config
     public enum Positions {
         START_BLUE_FAR(new Vector2d(-63.0, 16.5)),
-        START_BLUE_FAR_SIDE(new Vector2d(-63.0, 12)),
+        START_BLUE_FAR_SIDE(new Vector2d(-63.0, 11.5)),
         START_BLUE_DEPOT(new Vector2d(58.0, 46.0)),
         START_RED_FAR(new Vector2d(-63.0, -16.5)),
         START_RED_FAR_SIDE(new Vector2d(-63.0, -12)),
         START_RED_DEPOT(new Vector2d(57.5, -45.5)),
-        FAR_LAUNCH_ZONE_BLUE(new Vector2d(-56.0, 16.5)),
+        FAR_LAUNCH_ZONE_BLUE(new Vector2d(-53.0, 16.5)),
         FAR_LAUNCH_ZONE_RED(new Vector2d(-56.0, -16.5)),
-        CLOSE_LAUNCH_ZONE_BLUE(new Vector2d(26.0, 24.0)),
-        CENTER_LAUNCH_ZONE_BLUE(new Vector2d(18.0, 14.0)),
+        CLOSE_LAUNCH_ZONE_BLUE(new Vector2d(20.0, 20.0)),
+        CENTER_LAUNCH_ZONE_BLUE(new Vector2d(11.0, 16.0)),
         PARKING_LAUNCH_ZONE_BLUE(new Vector2d(34.0, 10.0)),
-        CLOSE_LAUNCH_ZONE_RED(new Vector2d(26.0, -24.0)),
+        CLOSE_LAUNCH_ZONE_RED(new Vector2d(18.0, -18.0)),
         CENTER_LAUNCH_ZONE_RED(new Vector2d(18.0, -14.0)),
         PARKING_LAUNCH_ZONE_RED(new Vector2d(34.0, -10.0)),
         ARTIFACT_BASE_BLUE(new Vector2d(-36, 22.0)),
@@ -29,8 +29,8 @@ public class AutoPositions {
         ARTIFACT_GATE_RED(new Vector2d(12, -22.0)),
         GATE_RED(new Vector2d(5.0, -54.0)),
         GATE_BLUE(new Vector2d(5.0, 54.0)),
-        LOADING_ZONE_BLUE(new Vector2d(-61.0, 61.0)),
-        LOADING_ZONE_RED(new Vector2d(-61.0, -61.0)),
+        LOADING_ZONE_BLUE(new Vector2d(-60.5, 61.0)),
+        LOADING_ZONE_RED(new Vector2d(-60.5, -61.0)),
         OBSERVATION_ZONE(new Vector2d(58.0, -59.0));
         public final Vector2d position;
 

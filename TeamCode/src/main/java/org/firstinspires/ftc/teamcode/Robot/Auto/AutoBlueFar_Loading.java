@@ -5,12 +5,12 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.RaceAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
-import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.Robot.Auto.Archive.AutoBlueFar_WAIT;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
 @Autonomous(group = AutoBlueFar_WAIT.AUTO_BLUE_FAR_GROUP)
@@ -82,6 +82,50 @@ public class AutoBlueFar_Loading extends LinearOpMode {
                                                     robot.intakeStopAction(),
                                                     // Launch 2nd set of Artifacts
                                                     robot.launchAction(),
+                                                    robot.intakeStartAction(),
+                                                    // Grab next 3 artifacts using intelligent, sensor-based actions
+                                                    new RaceAction(
+                                                            robot.drive.actionBuilder(launchPos)
+                                                                    .splineTo(intakePos.position, Math.toRadians(90))
+                                                                    .build(),
+                                                            robot.indexerFullAction()
+                                                    ),
+
+                                                    // Drive to launch spot
+                                                    new ParallelAction(
+                                                            robot.drive.actionBuilder(intakePos)
+                                                                    .setReversed(true)
+                                                                    .splineTo(launchPos.position, Math.toRadians(-90))
+                                                                    .build()
+                                                    ),
+
+                                                    robot.intakeStopAction(),
+                                                    // Launch 2nd set of Artifacts
+
+                                                    robot.launchAction(),
+
+                                                    robot.intakeStartAction(),
+                                                    // Grab next 3 artifacts using intelligent, sensor-based actions
+                                                    new RaceAction(
+                                                            robot.drive.actionBuilder(launchPos)
+                                                                    .splineTo(intakePos.position, Math.toRadians(90))
+                                                                    .build(),
+                                                            robot.indexerFullAction()
+                                                    ),
+
+                                                    // Drive to launch spot
+                                                    new ParallelAction(
+                                                            robot.drive.actionBuilder(intakePos)
+                                                                    .setReversed(true)
+                                                                    .splineTo(launchPos.position, Math.toRadians(-90))
+                                                                    .build()
+                                                    ),
+
+                                                    robot.intakeStopAction(),
+                                                    // Launch 2nd set of Artifacts
+
+                                                    robot.launchAction(),
+
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
