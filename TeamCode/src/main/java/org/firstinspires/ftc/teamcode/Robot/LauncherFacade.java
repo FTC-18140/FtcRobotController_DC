@@ -129,9 +129,9 @@ public class LauncherFacade implements DataLoggable {
 //        telemetry.addData("Megatag2 Angle",Math.toDegrees(currentOdoPose.heading.toDouble()) - getTurretAngle());
         double odometryHeading = Math.toDegrees(currentOdoPose.heading.toDouble());
 
-        double beforeUpdate = System.currentTimeMillis();
+//        double beforeUpdate = System.currentTimeMillis();
 //        limelight.update(odometryHeading - getTurretAngle(), getTurretOffsetPosInRobotSpace());
-        telemetry.addData("limelight update time: ", (System.currentTimeMillis() - beforeUpdate) / 1000);
+//        telemetry.addData("limelight update time: ", (System.currentTimeMillis() - beforeUpdate) / 1000);
 //        Vector2d visionPose = limelight.getMegaTagPose();
 //        telemetry.addData("MT2 calculated Pose", visionPose);
 
@@ -146,24 +146,26 @@ public class LauncherFacade implements DataLoggable {
 
         // --- 5. RUN SUBSYSTEMS ---
         // Use fusedPose for distance calculation
-        beforeUpdate = System.currentTimeMillis();
+//        beforeUpdate = System.currentTimeMillis();
         getAutoAimAngle();
-        telemetry.addData("aiming time: ", (System.currentTimeMillis() - beforeUpdate) / 1000);
+//        telemetry.addData("aiming time: ", (System.currentTimeMillis() - beforeUpdate) / 1000);
         double distanceToGoal = getGoalDistance();
 
-        beforeUpdate = System.currentTimeMillis();
+//        beforeUpdate = System.currentTimeMillis();
         turret.update(fusedPose, currentOdoVelocity, offsetTarget);
-        telemetry.addData("turret update time: ", (System.currentTimeMillis() - beforeUpdate) / 1000);
-        beforeUpdate = System.currentTimeMillis();
+//        telemetry.addData("turret update time: ", (System.currentTimeMillis() - beforeUpdate) / 1000);
+//        beforeUpdate = System.currentTimeMillis();
         flywheel.update(currentOdoVelocity, Math.toDegrees(fieldAngleToGoal), voltage);
-        telemetry.addData("flywheel update time: ", (System.currentTimeMillis() - beforeUpdate) / 1000);
+//        telemetry.addData("flywheel update time: ", (System.currentTimeMillis() - beforeUpdate) / 1000);
 
         last_time_ms = System.currentTimeMillis();
 
 //        setTurretOffset();
 
-        telemetry.addData("Using Limelight: ", usingLimelight);
-        telemetry.addData("update rate (seconds): ", update_rate_seconds);
+        if(TELEM) {
+            telemetry.addData("Using Limelight: ", usingLimelight);
+            telemetry.addData("update rate (seconds): ", update_rate_seconds);
+        }
     }
 
     public void setAimingMode(AimingMode mode) {
@@ -248,8 +250,10 @@ public class LauncherFacade implements DataLoggable {
         turret.seekToAngle(baseAngle);
 
         double currentPosition = turret.getCurrentPosition();
-        telemetry.addData("Turret Current", currentPosition);
-        telemetry.addData("Turret Target", baseAngle);
+        if(TELEM) {
+            telemetry.addData("Turret Current", currentPosition);
+            telemetry.addData("Turret Target", baseAngle);
+        }
     }
 
     boolean setTurretOffset() {

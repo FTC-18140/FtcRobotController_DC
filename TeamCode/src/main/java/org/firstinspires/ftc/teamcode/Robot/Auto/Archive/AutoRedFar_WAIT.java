@@ -11,7 +11,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Robot.Auto.AutoPositions;
-import org.firstinspires.ftc.teamcode.Robot.Auto.AutoRedFar;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
 @Autonomous(group = AutoRedFar.AUTO_RED_FAR_GROUP)

@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 @Autonomous(group = AutoRedFar_9.AUTO_RED_FAR_GROUP)
 public class AutoRedFar_9 extends LinearOpMode {
 
-    public static final String AUTO_RED_FAR_GROUP = "org.firstinspires.ftc.teamcode.Robot.Auto.AutoRedFar";
+    public static final String AUTO_RED_FAR_GROUP = "AutoRedFar";
 
     @Override
     public void runOpMode() throws InterruptedException {

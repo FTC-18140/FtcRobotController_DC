@@ -14,7 +14,6 @@ import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
 @Autonomous(group = AutoRedFar_9.AUTO_RED_FAR_GROUP)
 public class AutoRedFar_12_3S extends LinearOpMode {
-
     @Override
     public void runOpMode() throws InterruptedException {
         Pose2d start = new Pose2d(AutoPositions.Positions.START_RED_FAR.position, Math.toRadians(0));

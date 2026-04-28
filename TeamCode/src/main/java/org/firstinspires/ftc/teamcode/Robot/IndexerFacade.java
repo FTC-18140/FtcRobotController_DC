@@ -34,7 +34,7 @@ public class IndexerFacade {
 
     public int beamBreakCounter = 0;
 
-    public static boolean TELEM = true;
+    public static boolean TELEM = false;
     private boolean updated = false;
     public static int TEST_TAG_ID = 21;
 

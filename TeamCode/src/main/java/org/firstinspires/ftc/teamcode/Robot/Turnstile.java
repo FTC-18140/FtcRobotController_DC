@@ -29,7 +29,7 @@ public class Turnstile {
     private PIDController angleController;
     private Telemetry telemetry;
 
-    public static boolean TELEM = true;
+    public static boolean TELEM = false;
 
     // --- Tunable Constants via FTC Dashboard ---
     public static double P = 0.0042, I = 0.0, D = 0.00034;
@@ -46,7 +46,7 @@ public class Turnstile {
     public static double LAUNCHING_POWER = 0.75;
     private double current_offset = 0; // --- Non-tunable Constants ---
     private static final double COUNTS_PER_REVOLUTION = 8192;
-    private static final double GEAR_RATIO = (double) 1 / 2;
+    private static final double GEAR_RATIO = (double) 22 / 41;
     private static final double COUNTS_PER_DEGREE = COUNTS_PER_REVOLUTION / 360;
     public static final String STARTING_ANGLE_KEY = "ENDING_ANGLE_INDEXER";
     public double startingAngle;
