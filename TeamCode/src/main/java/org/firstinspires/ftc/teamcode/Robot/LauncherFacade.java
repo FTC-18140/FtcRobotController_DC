@@ -128,7 +128,10 @@ public class LauncherFacade implements DataLoggable {
         // --- 3. MEASURE: Check Vision ---
 //        telemetry.addData("Megatag2 Angle",Math.toDegrees(currentOdoPose.heading.toDouble()) - getTurretAngle());
         double odometryHeading = Math.toDegrees(currentOdoPose.heading.toDouble());
-        limelight.update(odometryHeading - getTurretAngle(), getTurretOffsetPosInRobotSpace());
+
+        double beforeUpdate = System.currentTimeMillis();
+//        limelight.update(odometryHeading - getTurretAngle(), getTurretOffsetPosInRobotSpace());
+        telemetry.addData("limelight update time: ", (System.currentTimeMillis() - beforeUpdate) / 1000);
 //        Vector2d visionPose = limelight.getMegaTagPose();
 //        telemetry.addData("MT2 calculated Pose", visionPose);
 
@@ -143,11 +146,17 @@ public class LauncherFacade implements DataLoggable {
 
         // --- 5. RUN SUBSYSTEMS ---
         // Use fusedPose for distance calculation
+        beforeUpdate = System.currentTimeMillis();
         getAutoAimAngle();
+        telemetry.addData("aiming time: ", (System.currentTimeMillis() - beforeUpdate) / 1000);
         double distanceToGoal = getGoalDistance();
 
+        beforeUpdate = System.currentTimeMillis();
         turret.update(fusedPose, currentOdoVelocity, offsetTarget);
+        telemetry.addData("turret update time: ", (System.currentTimeMillis() - beforeUpdate) / 1000);
+        beforeUpdate = System.currentTimeMillis();
         flywheel.update(currentOdoVelocity, Math.toDegrees(fieldAngleToGoal), voltage);
+        telemetry.addData("flywheel update time: ", (System.currentTimeMillis() - beforeUpdate) / 1000);
 
         last_time_ms = System.currentTimeMillis();
 
@@ -383,19 +392,19 @@ public class LauncherFacade implements DataLoggable {
 
 
 //            telemetry.addData("Aiming Mode ODOMETRY -- target: ", " %.3f", targetTurretAngle);
-            if (limelight.hasTarget()) {
-                usingLimelight = true;
-                double limeLightDistanceX = limelight.getDistance() * Math.sin(Math.toRadians(limelight.getX()));
-                double limeLightDistanceY = -limelight.getDistance() * Math.cos(Math.toRadians(limelight.getX())) + LIMELIGHT_FORWARD_POSITION;
-
-                double modifiedLimeLightX = Math.toDegrees(Math.atan2(limeLightDistanceX, ((double) 0 == limeLightDistanceY) ? 0.01 : limeLightDistanceY));
-
-                double limelightAngle = turret.getCurrentPosition() - modifiedLimeLightX;
-
-                // Add the vision offset to the current physical encoder position.
-                targetTurretAngle = targetTurretAngle + trust * (limelightAngle - targetTurretAngle);
-
-            }
+//            if (limelight.hasTarget()) {
+//                usingLimelight = true;
+//                double limeLightDistanceX = limelight.getDistance() * Math.sin(Math.toRadians(limelight.getX()));
+//                double limeLightDistanceY = -limelight.getDistance() * Math.cos(Math.toRadians(limelight.getX())) + LIMELIGHT_FORWARD_POSITION;
+//
+//                double modifiedLimeLightX = Math.toDegrees(Math.atan2(limeLightDistanceX, ((double) 0 == limeLightDistanceY) ? 0.01 : limeLightDistanceY));
+//
+//                double limelightAngle = turret.getCurrentPosition() - modifiedLimeLightX;
+//
+//                // Add the vision offset to the current physical encoder position.
+//                targetTurretAngle = targetTurretAngle + trust * (limelightAngle - targetTurretAngle);
+//
+//            }
 
             while (180.0 < targetTurretAngle - currentTurret) targetTurretAngle -= 360.0;
             while (-180.0 >= targetTurretAngle - currentTurret) targetTurretAngle += 360.0;

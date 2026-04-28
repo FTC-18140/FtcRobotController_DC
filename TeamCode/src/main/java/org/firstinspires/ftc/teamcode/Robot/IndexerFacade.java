@@ -458,7 +458,7 @@ public class IndexerFacade {
                 beamBreakCounter = Math.max(beamBreakCounter, 0);
             }
 
-            if (atTarget && 3 <= beamBreakCounter && !indexerIsFull()) {
+            if (atTarget && 2 <= beamBreakCounter && !indexerIsFull()) {
                 readyNextIntakeSlot(BallState.VACANT);
             }
         }

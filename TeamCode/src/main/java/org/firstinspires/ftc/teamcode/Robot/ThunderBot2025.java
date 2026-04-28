@@ -130,6 +130,7 @@ public class ThunderBot2025 implements DataLoggable {
         inZone = inLaunchZone();
 
         indexer.update(atTargetRpm && atTarget);
+
         intake.update(!(IndexerFacade.State.IDLE == indexer.getCurrentState() || IndexerFacade.State.AWAITING_LAUNCH == indexer.getCurrentState()));
 
 

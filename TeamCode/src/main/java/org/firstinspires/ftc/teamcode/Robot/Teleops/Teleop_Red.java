@@ -54,7 +54,9 @@ public class Teleop_Red extends OpMode {
 
     @Override
     public void loop() {
+        double beforeUpdate = getRuntime();
         robot.update();
+        telemetry.addData("total update rate: ", getRuntime() - beforeUpdate);
         theGamepad1.update();
         theGamepad2.update();
 

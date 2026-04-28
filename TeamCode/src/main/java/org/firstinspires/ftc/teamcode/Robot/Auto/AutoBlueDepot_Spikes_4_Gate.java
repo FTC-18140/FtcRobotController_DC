@@ -38,10 +38,8 @@ public class AutoBlueDepot_Spikes_4_Gate extends LinearOpMode {
         // This is the equivalent of init_loop()
         while (opModeInInit()) {
             // Code here runs repeatedly during init phase.  Need to be looking at ObeliskID
-            robot.launcher.updateVision();
             robot.indexer.updateBallSensors();
             robot.indexer.updateBallStates();
-            robot.registerObeliskID();
             telemetry.addData("Status", "Waiting for start");
             telemetry.update();
         }
@@ -88,8 +86,7 @@ public class AutoBlueDepot_Spikes_4_Gate extends LinearOpMode {
                                                             robot.drive.actionBuilder(new Pose2d(gatePos.position, Math.toRadians(90)))
                                                                     .setReversed(true)
                                                                     .splineTo(launchPos2.position, Math.toRadians(0))
-                                                                    .build(),
-                                                            robot.planSequenceAction()
+                                                                    .build()
                                                     ),
                                                     robot.intakeStopAction(),
                                                     // Launch Preloads
@@ -113,6 +110,7 @@ public class AutoBlueDepot_Spikes_4_Gate extends LinearOpMode {
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos2.position.x, 52), Math.toRadians(90)))
                                                                     .setTangent(Math.toRadians(-90))
+                                                                    .splineToConstantHeading(intakePos2.position, Math.toRadians(-90))
                                                                     .splineToConstantHeading(gatePos.position, Math.toRadians(90))
                                                                     .build()
                                                     ),
