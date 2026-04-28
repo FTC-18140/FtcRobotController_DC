@@ -19,6 +19,8 @@ import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 public class Turnstile {
 
 
+    public static double SPEEDUP_ANGLE = 120 ;
+    public static double THIRD_BALL_BOOST = 1.25;
     // --- Hardware & Utilities ---
     private CRServo indexerServo1;
     private CRServo indexerServo2;
@@ -53,6 +55,7 @@ public class Turnstile {
     public static double INTAKE_OFFSET_ANGLE = -5;
     private boolean nearTarget;
     public ElapsedTime debounce = new ElapsedTime();
+    private int numLaunches = 3;
 
 
     // --- State Management ---
@@ -109,6 +112,7 @@ public class Turnstile {
 
     public void launchSlots(int launches) {
         targetAngle = currentAngle - (120 * launches);
+        numLaunches = launches;
 
         currentState = State.LAUNCHING;
     }
@@ -265,6 +269,11 @@ public class Turnstile {
                     // The next loop will execute the HOLDING_POSITION logic.
                     indexerServo1.setPower(0);
                     indexerServo2.setPower(0);
+                } else if (numLaunches == 3 && currentAngle <= targetAngle - SPEEDUP_ANGLE)
+                {
+                    // If not at target, continue seeking.
+                    indexerServo1.setPower(-LAUNCHING_POWER * THIRD_BALL_BOOST);
+                    indexerServo2.setPower(-LAUNCHING_POWER * THIRD_BALL_BOOST);
                 } else {
 
                     // If not at target, continue seeking.
