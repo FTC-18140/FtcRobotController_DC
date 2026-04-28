@@ -69,12 +69,12 @@ public class AutoBlueDepot_12 extends LinearOpMode {
                                                             robot.drive.actionBuilder(launchPos1)
                                                                     .setTangent(Math.toRadians(-90))
                                                                     .splineToConstantHeading(intakePos.position, Math.toRadians(90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x, 51), Math.toRadians(90), new TranslationalVelConstraint(20))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos.position.x, 51.5), Math.toRadians(90), new TranslationalVelConstraint(20))
                                                                     .build(),
                                                             robot.indexerFullAction()
                                                     ),
                                                     new ParallelAction(
-                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, 49), Math.toRadians(90)))
+                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, 51.5), Math.toRadians(90)))
                                                                     .setReversed(true)
                                                                     .splineToConstantHeading(launchPos2.position, Math.toRadians(-90))
                                                                     .build()
@@ -87,13 +87,13 @@ public class AutoBlueDepot_12 extends LinearOpMode {
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos2)
                                                                     .splineToConstantHeading(intakePos2.position, Math.toRadians(90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos2.position.x, 53), Math.toRadians(90), new TranslationalVelConstraint(20))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos2.position.x, 58), Math.toRadians(90))
                                                                     .build(),
                                                             robot.indexerFullAction()
                                                     ),
                                                     // Drive to launch spot
                                                     new ParallelAction(
-                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos2.position.x, 53), Math.toRadians(90)))
+                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos2.position.x, 58), Math.toRadians(90)))
                                                                     .setReversed(true)
                                                                     .splineTo(launchPos2.position, Math.toRadians(0))
                                                                     .build()
@@ -110,13 +110,13 @@ public class AutoBlueDepot_12 extends LinearOpMode {
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(new Pose2d(launchPos2.position, Math.toRadians(180)))
                                                                     .splineTo(intakePos3.position, Math.toRadians(90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos3.position.x, 53), Math.toRadians(90), new TranslationalVelConstraint(20))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos3.position.x, 58), Math.toRadians(90))
                                                                     .build(),
                                                             robot.indexerFullAction()
                                                     ),
                                                     // Drive to launch spot
                                                     new ParallelAction(
-                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos3.position.x, 53), Math.toRadians(90)))
+                                                            robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos3.position.x, 58), Math.toRadians(90)))
                                                                     .setReversed(true)
                                                                     .splineTo(launchPos3.position, Math.toRadians(0))
                                                                     .build()

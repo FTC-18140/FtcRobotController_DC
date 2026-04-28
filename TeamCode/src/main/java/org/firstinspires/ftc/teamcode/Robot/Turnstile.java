@@ -37,11 +37,11 @@ public class Turnstile {
     public static double MIN_POWER_NEG = 0.015;
     public static double HOMING_POWER = 0.065;
     public static double ANGLE_TOLERANCE = 12.5;// In degrees
-    public static double CYCLE_TIME = 50;
+    public static double CYCLE_TIME = 25;
     public static double BACKWARD_TOLERANCE = 30;
     public static double INTAKE_TOLERANCE = 10;
     public static double HOMING_OFFSET = 0;
-    public static double LAUNCHING_POWER = 0.8;
+    public static double LAUNCHING_POWER = 0.75;
     private double current_offset = 0; // --- Non-tunable Constants ---
     private static final double COUNTS_PER_REVOLUTION = 8192;
     private static final double GEAR_RATIO = (double) 1 / 2;

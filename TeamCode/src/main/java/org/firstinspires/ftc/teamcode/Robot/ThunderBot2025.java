@@ -129,7 +129,7 @@ public class ThunderBot2025 implements DataLoggable {
 
         inZone = inLaunchZone();
 
-        indexer.update(atTargetRpm && atTarget);
+        indexer.update(atTargetRpm);
 
         intake.update(!(IndexerFacade.State.IDLE == indexer.getCurrentState() || IndexerFacade.State.AWAITING_LAUNCH == indexer.getCurrentState()));
 
@@ -317,14 +317,14 @@ public class ThunderBot2025 implements DataLoggable {
     }
 
     public boolean launch() {
-        if (launcher.isAtTargetRpm() && launcher.isAtTarget() && inZone) {
+        if (launcher.isAtTargetRpm() && inZone) {
             return indexer.launch();
         }
         return false;
     }
 
     public boolean launchAll() {
-        if (launcher.isAtTargetRpm() && launcher.isAtTarget() && inZone) {
+        if (launcher.isAtTargetRpm() && inZone) {
             indexer.launchAllInIndexer();
             return true;
         }

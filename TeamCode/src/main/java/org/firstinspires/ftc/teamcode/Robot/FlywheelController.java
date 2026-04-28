@@ -19,7 +19,7 @@ public class FlywheelController {
     PoseVelocity2d odoVelocity = null;
     public static double INERTIA_FACTOR = 0.007;
     public static double RPM_TOLERANCE = 40;
-    public static double voltage_comp = 12.96;
+    public static double voltage_comp = 12.987;
 
     public static double[] distances = {50, 70, 94, 167};
     public static double[] rpms = {1750, 1730, 1850, 2390};
