@@ -44,38 +44,39 @@ public class Turret implements DataLoggable {
     private Telemetry telemetry = null;
 
     // Tunable constants from your original file
-    public static double P_TURRET = 0.0128, I_TURRET = 0.05, D_TURRET = 0.0011, F_TURRET_MIN = 0.0, F_TURRET_MAX = 0.02;
+    public static double P_TURRET = 0.0133, I_TURRET = 0.0, D_TURRET = 0.00161, F_ACCEL = 0.00105, F_ACCEL_MAX = 0.0095, F_STATIC = 0.034, F_RES_POS_MIN = 0.01, F_RES_POS_MAX = 0.05, F_RES_NEG_MIN = 0.045, F_RES_NEG_MAX = 0.095;
+    public static double F_RANGE_MIN = 20, F_RANGE_MAX = 180;
     public static double MIN_TURRET_POS = -90;
-    public static double MAX_TURRET_POS = 365 + MIN_TURRET_POS;
+    public static double MAX_TURRET_POS = 360 + MIN_TURRET_POS;
 
     public static double TURRET_ANGLE_TOLERANCE = 2.5;
+    public static double TURRET_ANGLE_SOFT_TOLERANCE = 0;
 
-    public static double KV_ROT = 0.18; // Tunable: Gain for robot rotation
-    public static double KV_TRANS = 0.14; // Tunable: Gain for translational apparent rotation
+    public static double KV_ROT = 0.269; // Tunable: Gain for robot rotation
+    public static double KV_TRANS = 0.12; // Tunable: Gain for translational apparent rotation
     public static boolean TELEM = false;
 
     public static double MAX_POWER = 0.6;
-    public static double MIN_POWER_POSITIVE = 0.013;
-    public static double MIN_POWER_NEGATIVE = -0.013;
     public static double TURRET_DEGREES_PER_ENCODER_TICK = (double) 1 / 8192.0 * 360.0 * 16 / 100;
 
 
     // State-specific variables
-    private double targetAngle = 0;
-    private double manualPower = 0;
-    public double manualAngle = 0;
-    private double currentPosition = 0;
+    private double targetAngle = (double) 0;
+    private double lastTargetAngle = 0;
+    private double manualPower = (double) 0;
+    public double manualAngle = (double) 0;
+    private double currentPosition = (double) 0;
     private double currentDraw = 0.0;
-    private double offsetAngle = 0;
-    private double seekingPower = 0; // Member variable to be accessible for logging
-    private double lastSeekingPower = 0;
+    private double offsetAngle = (double) 0;
+    private double seekingPower = (double) 0; // Member variable to be accessible for logging
+    private double lastSeekingPower = (double) 0;
     public static String STARTING_ANGLE = "TURRET_ENDING_ANGLE_AUTO";
     double startingAngle = 0.0;
 
     public void init(HardwareMap hwMap, Telemetry telem) {
 
         // touch sensor: Control hub Digital port 4
-        startingAngle = (Double) OpMode.blackboard.getOrDefault(STARTING_ANGLE, (double) 0);
+        startingAngle = (double) OpMode.blackboard.getOrDefault(STARTING_ANGLE, (double) 0);
 
         telemetry = telem;
         turretAimPID = new PIDController(P_TURRET, I_TURRET, D_TURRET);
@@ -119,6 +120,7 @@ public class Turret implements DataLoggable {
      * @param angle in degrees
      */
     void seekToAngle(double angle) {
+        lastTargetAngle = targetAngle;
         targetAngle = Range.clip(angle, MIN_TURRET_POS, MAX_TURRET_POS);
         currentState = State.SEEKING_ANGLE;
     }
@@ -188,6 +190,10 @@ public class Turret implements DataLoggable {
                        Vector2d targetPos) {
         updateCurrentPosition();
         turretAimPID.setPID(P_TURRET, I_TURRET, D_TURRET);
+        double target_shift = targetAngle - lastTargetAngle;
+        double angleErrorAbs = Math.abs(targetAngle - currentPosition);
+        double lowerErrorScalar = (angleErrorAbs * angleErrorAbs) / (TURRET_ANGLE_TOLERANCE * TURRET_ANGLE_TOLERANCE);
+        double mediumErrorScalar = (angleErrorAbs) / (TURRET_ANGLE_SOFT_TOLERANCE);
 
         isHomed = turretSwitch.isPressed();
 
@@ -197,7 +203,6 @@ public class Turret implements DataLoggable {
         }
 
         // 1. Static Feedforward (Wires/Friction)
-        double ffStatic = Range.clip(Range.scale(currentPosition, -90.0, -15.0, F_TURRET_MAX, F_TURRET_MIN), F_TURRET_MIN, F_TURRET_MAX);
 
         // 2. Robot Rotation Feedforward
         double ffRobotRot = robotVel.angVel * KV_ROT;
@@ -207,15 +212,40 @@ public class Turret implements DataLoggable {
 
         seekingPower = turretAimPID.calculate(currentPosition, targetAngle);
 
+        double ffResistance = 0;
+        if (targetAngle > F_RANGE_MAX) {
+            ffResistance = Range.scale(Range.clip(targetAngle, F_RANGE_MAX, MAX_TURRET_POS), F_RANGE_MAX, MAX_TURRET_POS, F_RES_POS_MIN, F_RES_POS_MAX);
+        } else if (targetAngle < F_RANGE_MIN) {
+            ffResistance = Range.scale(Range.clip(targetAngle, F_RANGE_MIN, MIN_TURRET_POS), F_RANGE_MIN, MIN_TURRET_POS, F_RES_NEG_MIN, F_RES_NEG_MAX);
+        }
+        ffResistance = Math.signum(seekingPower) * ffResistance;
+
+        double ffStatic = F_STATIC * Math.signum(seekingPower);
+
+        double ffAccel = ( target_shift > 0.025 ?  Math.min(F_ACCEL / target_shift, F_ACCEL_MAX) : 0);
+
+        double ff_total = ffStatic + ffRobotRot + ffAccel + ffResistance;
+
         // Combine all terms
-        double totalPower = seekingPower + (ffStatic * Math.signum(seekingPower)) + ffRobotRot + ffTrans;
+        double totalPower = seekingPower + ff_total;
 
         switch (currentState) {
             case HOLDING:
+                if(!isAtTarget()) {
+                    setHardwarePower(totalPower);
+                    currentState = State.SEEKING_ANGLE;
+                } else {
+                    setHardwarePower(totalPower * lowerErrorScalar);
+                }
+                break;
             case SEEKING_ANGLE:
-                setHardwarePower(totalPower);
-                if (State.SEEKING_ANGLE == currentState && isAtTarget()) {
+                if (isAtTarget()) {
+                    setHardwarePower(totalPower * lowerErrorScalar);
                     currentState = State.HOLDING;
+                } else if(inSmoothZone()){
+                    setHardwarePower(totalPower * mediumErrorScalar);
+                } else {
+                    setHardwarePower(totalPower);
                 }
                 break;
 
@@ -223,14 +253,15 @@ public class Turret implements DataLoggable {
                 setHardwarePower(manualPower);
                 if (0.01 > Math.abs(manualPower)) {
                     currentState = State.HOLDING;
-                    setHardwarePower(0);
+                    setHardwarePower((double) 0);
                 }
                 ;
                 break;
             case STOP:
-                setHardwarePower(0);
+                setHardwarePower((double) 0);
                 break;
         }
+
 
         if (TELEM) {
             telemetry.addLine(" ------------- TURRET TELEM -------------");
@@ -240,7 +271,8 @@ public class Turret implements DataLoggable {
             telemetry.addData("Turret Target", "%.2f", targetAngle);
             // Add these lines to see the "Blend" of control:
             telemetry.addData("PID Power", "%.3f", seekingPower);
-            telemetry.addData("FF Total", "%.3f", (ffStatic * Math.signum(seekingPower)) + ffRobotRot + ffTrans);
+            telemetry.addData("Target Shift", "%.3f", target_shift);
+            telemetry.addData("FF Total", "%.3f", ff_total);
             telemetry.addData("Total current draw", "%.3f", getTotalCurrentDraw());
             telemetry.addData("Turret State", currentState);
         }
@@ -274,8 +306,8 @@ public class Turret implements DataLoggable {
         // We need the world-frame velocity.
         // RoadRunner 1.0 PoseVelocity2d usually contains robot-relative v.
         // Convert to world-frame v for this calculation:
-        double vxWorld = robotVel.linearVel.x * Math.cos(robotPose.heading.toDouble()) - robotVel.linearVel.y * Math.sin(robotPose.heading.toDouble());
-        double vyWorld = robotVel.linearVel.x * Math.sin(robotPose.heading.toDouble()) + robotVel.linearVel.y * Math.cos(robotPose.heading.toDouble());
+        double vxWorld = robotVel.linearVel.x * Math.cos(-robotPose.heading.toDouble()) - robotVel.linearVel.y * Math.sin(-robotPose.heading.toDouble());
+        double vyWorld = robotVel.linearVel.x * Math.sin(-robotPose.heading.toDouble()) + robotVel.linearVel.y * Math.cos(-robotPose.heading.toDouble());
 
         // Cross product: (dx * vy - dy * vx) / r^2
         double translationalRate = (dx * vyWorld - dy * vxWorld) / rSquared;
@@ -289,11 +321,6 @@ public class Turret implements DataLoggable {
 //            if (Math.signum(power) != Math.signum(lastSeekingPower)){
 ////                turretAimPID.reset();
 //            }
-        if ((double) 0 > powerClipped) {
-            powerClipped = Range.scale(powerClipped, -MAX_POWER, 0, -MAX_POWER, MIN_POWER_NEGATIVE);
-        } else if ((double) 0 < powerClipped) {
-            powerClipped = Range.scale(powerClipped, 0, MAX_POWER, MIN_POWER_POSITIVE, MAX_POWER);
-        }
 //            telemetry.addData("Turret Power sent to hardware", power);
         turret.setPower(powerClipped);
         lastSeekingPower = powerClipped;
@@ -324,6 +351,9 @@ public class Turret implements DataLoggable {
 
     public boolean isAtTarget() {
         return Math.abs(currentPosition - targetAngle) < TURRET_ANGLE_TOLERANCE;
+    }
+    public boolean inSmoothZone() {
+        return Math.abs(currentPosition - targetAngle) < TURRET_ANGLE_SOFT_TOLERANCE;
     }
 
     @Override

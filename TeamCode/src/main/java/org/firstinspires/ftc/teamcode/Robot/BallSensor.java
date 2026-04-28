@@ -43,7 +43,7 @@ public class BallSensor {
     public static  int PURPLE_HUE_MAX = 295;
 
 
-    public static double[] PRESENCE_DISTANCES = {4.2, 4.5, 6.3, 6.4, 4.0, 5.35};
+    public static double[] PRESENCE_DISTANCES = {3.8, 3.8};
     public int id = 0;
 
     public static final float GAIN = 2.0f;
@@ -100,7 +100,7 @@ public class BallSensor {
             }
 
             // 3. Telemetry (optional, for tuning)
-            //addTelemetry(); // Good to have this on during tuning sessions
+//            addTelemetry(); // Good to have this on during tuning sessions
         } else {
             telemetry.addData(sensorName + " Not initialized", 0);
         }

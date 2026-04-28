@@ -17,11 +17,12 @@ public class FlywheelController {
     private double last_distance = 0;
     double angleToGoal = 0.0;
     PoseVelocity2d odoVelocity = null;
-    public static double INERTIA_FACTOR = 0.007;
+    public static double INERTIA_FACTOR = 0.009;
     public static double RPM_TOLERANCE = 40;
+    public static double voltage_comp = 12.987;
 
-    public static double[] distances = {50, 94, 167};
-    public static double[] rpms = {1800, 1920, 2500};
+    public static double[] distances = {50, 70, 94, 167};
+    public static double[] rpms = {1750, 1730, 1850, 2390};
 
     static class DistRPM {
         double x, y;
@@ -33,19 +34,19 @@ public class FlywheelController {
         }
     }
 
-    public static DistRPM distRPMs[];
+    public static DistRPM distRPMs[] = new DistRPM[distances.length];
 
     ;
 
     public static class LowerPID {
-        public double P = 0.00045, I = 0.00, D = 0.00000;
-        public double F_MAX = 0.55, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.615;
+        public double P = 0.00042, I = 0.00, D = 0.000023;
+        public double F_MAX = 0.5, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.63;
         public double GEAR_RATIO = 2.0;
     }
 
     public static class UpperPID {
-        public double P = 0.00046, I = 0.00, D = 0.00000;
-        public double F_MAX = 0.54, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.61;
+        public double P = 0.00042, I = 0.00, D = 0.000023;
+        public double F_MAX = 0.49, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.628;
         public double GEAR_RATIO = 32.0 / 15.0;
     }
 
@@ -72,7 +73,7 @@ public class FlywheelController {
     }
 
     public void update(PoseVelocity2d currentOdoVelocity, double fieldAngleToGoal, double voltage) {
-        double voltage_factor = 13.0 / voltage;
+        double voltage_factor = voltage_comp / voltage + (voltage_comp - 13);
 
         lowerWheel.setParameters(LOWER_PID.P, LOWER_PID.I, LOWER_PID.D, LOWER_PID.F_MIN, LOWER_PID.F_MAX * voltage_factor, LOWER_PID.F_VEL, LOWER_PID.F_STATIC * voltage_factor, LOWER_PID.GEAR_RATIO, FLYWHEEL_RATIO);
         upperWheel.setParameters(UPPER_PID.P, UPPER_PID.I, UPPER_PID.D, UPPER_PID.F_MIN, UPPER_PID.F_MAX * voltage_factor, UPPER_PID.F_VEL, UPPER_PID.F_STATIC * voltage_factor, UPPER_PID.GEAR_RATIO, 1 / FLYWHEEL_RATIO);

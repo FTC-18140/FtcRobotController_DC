@@ -5,12 +5,12 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.RaceAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
-import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.Robot.Auto.Archive.AutoBlueFar_WAIT;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
 @Autonomous(group = AutoBlueFar_WAIT.AUTO_BLUE_FAR_GROUP)
@@ -20,7 +20,7 @@ public class AutoBlueFar_Loading extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         Pose2d start = new Pose2d(AutoPositions.Positions.START_BLUE_FAR.position, Math.toRadians(0));
         Pose2d launchPos = new Pose2d(AutoPositions.Positions.FAR_LAUNCH_ZONE_BLUE.position, Math.toRadians(90));
-        Pose2d intakePos = new Pose2d(AutoPositions.Positions.LOADING_ZONE_BLUE.position, Math.toRadians(110));
+        Pose2d intakePos = new Pose2d(AutoPositions.Positions.LOADING_ZONE_BLUE.position, Math.toRadians(90));
         Pose2d intakePos2 = new Pose2d(AutoPositions.Positions.LOADING_ZONE_BLUE.position, Math.toRadians(110));
         Pose2d preintakePos1 = new Pose2d(new Vector2d(AutoPositions.Positions.LOADING_ZONE_BLUE.position.x, 40), Math.toRadians(90));
         Pose2d preintakePos2 = new Pose2d(new Vector2d(AutoPositions.Positions.LOADING_ZONE_BLUE.position.x + 5, 51), Math.toRadians(90));
@@ -36,10 +36,8 @@ public class AutoBlueFar_Loading extends LinearOpMode {
         // This is the equivalent of init_loop()
         while (opModeInInit()) {
             // Code here runs repeatedly during init phase.  Need to be looking at ObeliskID
-            robot.launcher.updateVision();
             robot.indexer.updateBallSensors();
             robot.indexer.updateBallStates();
-            robot.registerObeliskID();
             telemetry.addData("Status", "Waiting for start");
             telemetry.update();
         }
@@ -55,7 +53,6 @@ public class AutoBlueFar_Loading extends LinearOpMode {
                             robot.aimAction(),
                             robot.launcher.prepShotAction(),
                             new SequentialAction(
-                                    robot.indexer.homeAction(),
                                     new RaceAction(
                                             new SequentialAction(
                                                     new ParallelAction(
@@ -64,15 +61,12 @@ public class AutoBlueFar_Loading extends LinearOpMode {
                                                                     .build()
                                                             // Plan the first shot sequence while driving.
                                                     ),
-                                                    robot.cancelSequenceAction(),
                                                     // Launch Preloads
-                                                    robot.spamAction(),
+                                                    robot.launchAction(),
                                                     robot.intakeStartAction(),
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
-                                                                    .splineTo(preintakePos1.position, Math.toRadians(90))
-                                                                    .splineToConstantHeading(preintakePos2.position, Math.toRadians(90))
-                                                                    .splineTo(intakePos.position, Math.toRadians(110), new TranslationalVelConstraint(20))
+                                                                    .splineTo(intakePos.position, Math.toRadians(90))
                                                                     .build(),
                                                             robot.indexerFullAction()
                                                     ),
@@ -87,14 +81,12 @@ public class AutoBlueFar_Loading extends LinearOpMode {
 
                                                     robot.intakeStopAction(),
                                                     // Launch 2nd set of Artifacts
-                                                    robot.spamAction(),
+                                                    robot.launchAction(),
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
-                                                                    .splineTo(preintakePos1.position, Math.toRadians(90))
-                                                                    .splineToConstantHeading(preintakePos2.position, Math.toRadians(90))
-                                                                    .splineTo(intakePos.position, Math.toRadians(110), new TranslationalVelConstraint(20))
+                                                                    .splineTo(intakePos.position, Math.toRadians(90))
                                                                     .build(),
                                                             robot.indexerFullAction()
                                                     ),
@@ -110,17 +102,13 @@ public class AutoBlueFar_Loading extends LinearOpMode {
                                                     robot.intakeStopAction(),
                                                     // Launch 2nd set of Artifacts
 
-                                                    robot.planSequenceAction(),
-                                                    robot.startSequenceAction(),
-                                                    robot.waitForSequenceEndAction(),
+                                                    robot.launchAction(),
 
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
-                                                                    .splineTo(preintakePos1.position, Math.toRadians(90))
-                                                                    .splineToConstantHeading(preintakePos2.position, Math.toRadians(90))
-                                                                    .splineTo(intakePos.position, Math.toRadians(110), new TranslationalVelConstraint(20))
+                                                                    .splineTo(intakePos.position, Math.toRadians(90))
                                                                     .build(),
                                                             robot.indexerFullAction()
                                                     ),
@@ -136,9 +124,51 @@ public class AutoBlueFar_Loading extends LinearOpMode {
                                                     robot.intakeStopAction(),
                                                     // Launch 2nd set of Artifacts
 
-                                                    robot.planSequenceAction(),
-                                                    robot.startSequenceAction(),
-                                                    robot.waitForSequenceEndAction()
+                                                    robot.launchAction(),
+
+                                                    robot.intakeStartAction(),
+                                                    // Grab next 3 artifacts using intelligent, sensor-based actions
+                                                    new RaceAction(
+                                                            robot.drive.actionBuilder(launchPos)
+                                                                    .splineTo(intakePos.position, Math.toRadians(90))
+                                                                    .build(),
+                                                            robot.indexerFullAction()
+                                                    ),
+
+                                                    // Drive to launch spot
+                                                    new ParallelAction(
+                                                            robot.drive.actionBuilder(intakePos)
+                                                                    .setReversed(true)
+                                                                    .splineTo(launchPos.position, Math.toRadians(-90))
+                                                                    .build()
+                                                    ),
+
+                                                    robot.intakeStopAction(),
+                                                    // Launch 2nd set of Artifacts
+
+                                                    robot.launchAction(),
+
+                                                    robot.intakeStartAction(),
+                                                    // Grab next 3 artifacts using intelligent, sensor-based actions
+                                                    new RaceAction(
+                                                            robot.drive.actionBuilder(launchPos)
+                                                                    .splineTo(intakePos.position, Math.toRadians(90))
+                                                                    .build(),
+                                                            robot.indexerFullAction()
+                                                    ),
+
+                                                    // Drive to launch spot
+                                                    new ParallelAction(
+                                                            robot.drive.actionBuilder(intakePos)
+                                                                    .setReversed(true)
+                                                                    .splineTo(launchPos.position, Math.toRadians(-90))
+                                                                    .build()
+                                                    ),
+
+                                                    robot.intakeStopAction(),
+                                                    // Launch 2nd set of Artifacts
+
+                                                    robot.launchAction()
 
                                             ),
                                             new SleepAction(26)

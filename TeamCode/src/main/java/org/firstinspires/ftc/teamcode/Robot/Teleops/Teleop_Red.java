@@ -23,8 +23,6 @@ public class Teleop_Red extends OpMode {
     private int slotToWatch = -1;
 
     ThunderBot2025.Alliance_Color alliance = ThunderBot2025.Alliance_Color.RED;
-    TBDGamepad.Colors gamepad2Color = null;
-    private TBDGamepad.Colors gamepad1Color = null;
     FtcDashboard dashboard = FtcDashboard.getInstance();
     private TBDGamepad theGamepad1 = null;
     private TBDGamepad theGamepad2 = null;
@@ -56,27 +54,27 @@ public class Teleop_Red extends OpMode {
 
     @Override
     public void loop() {
+        double beforeUpdate = getRuntime();
         robot.update();
+        telemetry.addData("total update rate: ", getRuntime() - beforeUpdate);
         theGamepad1.update();
         theGamepad2.update();
 
-        switch (robot.lastBallState) {
-            case GREEN:
-                gamepad2Color = TBDGamepad.Colors.GREEN;
-                break;
-            case PURPLE:
-                gamepad2Color = TBDGamepad.Colors.PURPLE;
-                break;
-            case VACANT:
-                gamepad2Color = TBDGamepad.Colors.OFF;
-        }
-        if (3 > robot.indexer.getBallNumber()) {
-            gamepad1Color = TBDGamepad.Colors.YELLOW;
-        } else {
-            gamepad1Color = TBDGamepad.Colors.RED;
-        }
-        theGamepad1.setLedColor(gamepad1Color);
-        theGamepad2.setLedColor(gamepad2Color);
+//        switch (robot.lastBallState) {
+//            case GREEN:
+//                theGamepad2.setLedColor(TBDGamepad.Colors.GREEN);
+//                break;
+//            case PURPLE:
+//                theGamepad2.setLedColor(TBDGamepad.Colors.PURPLE);
+//                break;
+//            case VACANT:
+//                theGamepad2.setLedColor(TBDGamepad.Colors.OFF);
+//        }
+//        if (3 > robot.indexer.getBallNumber()) {
+//            theGamepad1.setLedColor(TBDGamepad.Colors.YELLOW);
+//        } else {
+//            theGamepad1.setLedColor(TBDGamepad.Colors.RED);
+//        }
 
         // --- Drive Controls ---
         double forward = -theGamepad1.getLeftY();
@@ -127,7 +125,7 @@ public class Teleop_Red extends OpMode {
                 robot.launcher.holdTurretPosition();
             }
         } else if (LauncherFacade.AimingMode.DIRECTIONAL == robot.launcher.getAimingMode()) {
-            robot.launcher.setTurretManualPower(theGamepad2.getRightX() * 0.25);
+            robot.launcher.setTurretManualPower(theGamepad2.getRightX() * 0.35);
         } else if (0.01 < Math.abs(Math.sqrt(Math.pow(theGamepad2.getRightX(), 2) + Math.pow(theGamepad2.getRightY(), 2)))) {
             robot.launcher.aimToAngleInFieldSpace(Math.toDegrees(Math.atan2(-theGamepad2.getRightY(), -theGamepad2.getRightX())));
         } else {
@@ -176,7 +174,7 @@ public class Teleop_Red extends OpMode {
         } else {
             // --- MANUAL INDEXER MODE ---
             if (theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER)) {
-                robot.indexer.spin(INDEXER_SPEED);
+//                robot.indexer.spin(INDEXER_SPEED);
             } else if (theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER)) {
                 robot.launchAll();
             } else {
@@ -188,10 +186,10 @@ public class Teleop_Red extends OpMode {
                     robot.indexer.cycle(1);
                 } else if (theGamepad2.getButton(TBDGamepad.Button.LEFT_STICK_BUTTON)) {
                     robot.indexer.adjustToThird();
-                } else if (IndexerFacade.State.IDLE == robot.indexer.getCurrentState() || IndexerFacade.State.AWAITING_LAUNCH == robot.indexer.getCurrentState()) {
+                } else if (IndexerFacade.State.IDLE == robot.indexer.getCurrentState()) {
 
                     // If not manually spinning, send a spin(0) to allow the turnstile to auto-align.
-                    robot.indexer.spin(0);
+//                    robot.indexer.spin(0);
                 }
             }
         }

@@ -5,16 +5,16 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.RaceAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
-import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.Robot.Auto.Archive.AutoBlueFar_WAIT;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
 @Autonomous(group = AutoBlueFar_WAIT.AUTO_BLUE_FAR_GROUP)
-public class AutoBlueFar_12 extends LinearOpMode {
+public class AutoBlueFar_12_3S extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -36,10 +36,8 @@ public class AutoBlueFar_12 extends LinearOpMode {
         // This is the equivalent of init_loop()
         while (opModeInInit()) {
             // Code here runs repeatedly during init phase.  Need to be looking at ObeliskID
-            robot.launcher.updateVision();
             robot.indexer.updateBallSensors();
             robot.indexer.updateBallStates();
-            robot.registerObeliskID();
             telemetry.addData("Status", "Waiting for start");
             telemetry.update();
         }

@@ -11,6 +11,7 @@ import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.Robot.Auto.Archive.AutoRedDepot_Coop;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
 @Autonomous(group = AutoRedDepot_Coop.AUTO_RED_DEPOT_GROUP)
@@ -31,17 +32,14 @@ public class AutoRedDepot_12 extends LinearOpMode {
         blackboard.put("ENDING_ANGLE_INDEXER", (double) 0);
 
         robot.init(hardwareMap, telemetry, start);
-        robot.launcher.setTurretStart(-45);
         robot.setColor(ThunderBot2025.Alliance_Color.RED);
 
 
         // This is the equivalent of init_loop()
         while (opModeInInit()) {
             // Code here runs repeatedly during init phase.  Need to be looking at ObeliskID
-            robot.launcher.updateVision();
             robot.indexer.updateBallSensors();
             robot.indexer.updateBallStates();
-            robot.registerObeliskID();
             telemetry.addData("Status", "Waiting for start");
             telemetry.update();
         }
@@ -57,7 +55,6 @@ public class AutoRedDepot_12 extends LinearOpMode {
                             robot.aimAction(),
                             robot.launcher.prepShotAction(),
                             new SequentialAction(
-                                    robot.indexer.homeAction(),
                                     new RaceAction(
                                             new SequentialAction(
                                                     new ParallelAction(
@@ -65,9 +62,8 @@ public class AutoRedDepot_12 extends LinearOpMode {
                                                                     .strafeToSplineHeading(launchPos1.position, Math.toRadians(-90))
                                                                     .build()
                                                     ),
-                                                    robot.cancelSequenceAction(),
                                                     // Launch Preloads
-                                                    robot.spamAction(),
+                                                    robot.launchAction(),
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
@@ -86,7 +82,7 @@ public class AutoRedDepot_12 extends LinearOpMode {
                                                     ),
                                                     robot.intakeStopAction(),
                                                     // Launch Preloads
-                                                    robot.spamAction(),
+                                                    robot.launchAction(),
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
@@ -109,9 +105,7 @@ public class AutoRedDepot_12 extends LinearOpMode {
                                                     ),
                                                     robot.intakeStopAction(),
                                                     // Launch 2nd set of Artifacts
-                                                    robot.planSequenceAction(),
-                                                    robot.startSequenceAction(),
-                                                    robot.waitForSequenceEndAction(),
+                                                    robot.launchAction(),
 
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
@@ -135,9 +129,7 @@ public class AutoRedDepot_12 extends LinearOpMode {
                                                     ),
                                                     robot.intakeStopAction(),
                                                     // Launch 2nd set of Artifacts
-                                                    robot.planSequenceAction(),
-                                                    robot.startSequenceAction(),
-                                                    robot.waitForSequenceEndAction()
+                                                    robot.launchAction()
                                             ),
                                             new SleepAction(28)
                                     ),

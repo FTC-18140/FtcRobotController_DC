@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Robot.Auto;
+package org.firstinspires.ftc.teamcode.Robot.Auto.Archive;
 
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
@@ -9,12 +9,15 @@ import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.Robot.Auto.AutoPositions;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
-@Autonomous(group = AutoRedFar_9.AUTO_RED_FAR_GROUP)
-public class AutoRedFar_9 extends LinearOpMode {
+@Autonomous(group = AutoRedFar.AUTO_RED_FAR_GROUP)
+@Disabled
+public class AutoRedFar extends LinearOpMode {
 
     public static final String AUTO_RED_FAR_GROUP = "AutoRedFar";
 
@@ -36,8 +39,10 @@ public class AutoRedFar_9 extends LinearOpMode {
         // This is the equivalent of init_loop()
         while (opModeInInit()) {
             // Code here runs repeatedly during init phase.  Need to be looking at ObeliskID
+            robot.launcher.updateVision();
             robot.indexer.updateBallSensors();
             robot.indexer.updateBallStates();
+            robot.registerObeliskID();
             telemetry.addData("Status", "Waiting for start");
             telemetry.update();
         }
@@ -53,6 +58,7 @@ public class AutoRedFar_9 extends LinearOpMode {
                             robot.aimAction(),
                             robot.launcher.prepShotAction(),
                             new SequentialAction(
+                                    robot.indexer.homeAction(),
                                     new RaceAction(
                                             new SequentialAction(
                                                     new ParallelAction(
@@ -62,16 +68,15 @@ public class AutoRedFar_9 extends LinearOpMode {
                                                             // Plan the first shot sequence while driving.
                                                     ),
                                                     // Launch Preloads
-                                                    robot.launchAction(),
+                                                    robot.sortAndLaunchAction(),
                                                     robot.intakeStartAction(),
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
-                                                                    .splineTo(intakePos.position, Math.toRadians(-90))
+                                                                    .splineToSplineHeading(intakePos, Math.toRadians(-90))
                                                                     .splineToConstantHeading(new Vector2d(intakePos.position.x, -54), Math.toRadians(-90), new TranslationalVelConstraint(12))
                                                                     .build(),
                                                             robot.indexerFullAction()
                                                     ),
-
                                                     // Drive to launch spot
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, -54), Math.toRadians(-90)))
@@ -79,23 +84,23 @@ public class AutoRedFar_9 extends LinearOpMode {
                                                                     .splineTo(launchPos.position, Math.toRadians(180))
                                                                     .build()
                                                             //                                        ,
-                                                            //                                        // Re-plan the shot sequence with the newly loaded balls
-                                                            //                                        robot.planSequenceAction()
+                                                            //// Re-plan the shot sequence with the newly loaded balls
+                                                            //robot.planSequenceAction()
                                                     ),
 
                                                     robot.intakeStopAction(),
                                                     // Launch 2nd set of Artifacts
-                                                    robot.launchAction(),
+                                                    robot.indexer.homeAction(),
+                                                    robot.sortAndLaunchAction(),
                                                     robot.intakeStartAction(),
                                                     // Grab next 3 artifacts using intelligent, sensor-based actions
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
                                                                     .splineTo(intakePos2.position, Math.toRadians(-90))
-                                                                    .splineToConstantHeading(new Vector2d(intakePos2.position.x, -54), Math.toRadians(-90), new TranslationalVelConstraint(20))
+                                                                    .splineToConstantHeading(new Vector2d(intakePos2.position.x, -54), Math.toRadians(-90), new TranslationalVelConstraint(12))
                                                                     .build(),
                                                             robot.indexerFullAction()
                                                     ),
-
                                                     // Drive to launch spot
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos2.position.x, -54), Math.toRadians(-90)))
@@ -109,7 +114,8 @@ public class AutoRedFar_9 extends LinearOpMode {
 
                                                     robot.intakeStopAction(),
                                                     // Launch 2nd set of Artifacts
-                                                    robot.launchAction()
+                                                    robot.indexer.homeAction(),
+                                                    robot.sortAndLaunchAction()
 
                                             ),
                                             new SleepAction(27)

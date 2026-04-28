@@ -19,6 +19,8 @@ import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 public class Turnstile {
 
 
+    public static double SPEEDUP_ANGLE = 120 ;
+    public static double THIRD_BALL_BOOST = 1.33;
     // --- Hardware & Utilities ---
     private CRServo indexerServo1;
     private CRServo indexerServo2;
@@ -27,10 +29,10 @@ public class Turnstile {
     private PIDController angleController;
     private Telemetry telemetry;
 
-    public static boolean TELEM = true;
+    public static boolean TELEM = false;
 
     // --- Tunable Constants via FTC Dashboard ---
-    public static double P = 0.0055, I = 0.0, D = 0.00025;
+    public static double P = 0.0042, I = 0.0, D = 0.00034;
     public static double P_PER_BALL_FACTOR = 0.00032;
     public static double THRESHOLD = 0.00;
     public static double MIN_POWER_POS = 0.015;
@@ -39,12 +41,12 @@ public class Turnstile {
     public static double ANGLE_TOLERANCE = 12.5;// In degrees
     public static double CYCLE_TIME = 50;
     public static double BACKWARD_TOLERANCE = 30;
-    public static double INTAKE_TOLERANCE = 10;
+    public static double INTAKE_TOLERANCE = 30;
     public static double HOMING_OFFSET = 0;
-    public static double LAUNCHING_POWER = 0.8;
+    public static double LAUNCHING_POWER = 0.75;
     private double current_offset = 0; // --- Non-tunable Constants ---
     private static final double COUNTS_PER_REVOLUTION = 8192;
-    private static final double GEAR_RATIO = (double) 1 / 2;
+    private static final double GEAR_RATIO = (double) 22 / 41;
     private static final double COUNTS_PER_DEGREE = COUNTS_PER_REVOLUTION / 360;
     public static final String STARTING_ANGLE_KEY = "ENDING_ANGLE_INDEXER";
     public double startingAngle;
@@ -53,6 +55,7 @@ public class Turnstile {
     public static double INTAKE_OFFSET_ANGLE = -5;
     private boolean nearTarget;
     public ElapsedTime debounce = new ElapsedTime();
+    private int numLaunches = 3;
 
 
     // --- State Management ---
@@ -109,6 +112,7 @@ public class Turnstile {
 
     public void launchSlots(int launches) {
         targetAngle = currentAngle - (120 * launches);
+        numLaunches = launches;
 
         currentState = State.LAUNCHING;
     }
@@ -195,6 +199,8 @@ public class Turnstile {
     public void update(int count) {
         // --- 1. Cache Hardware Reads ---
         currentAngle = indexMotor.getCurrentPosition() / COUNTS_PER_DEGREE - startingAngle - launching_offset;
+        double angleErrorAbs = Math.abs(targetAngle + current_offset - currentAngle);
+        double lowerErrorScalar = (angleErrorAbs * angleErrorAbs) / (ANGLE_TOLERANCE * ANGLE_TOLERANCE);
         limitSwitchPressed = limitSwitch.isPressed();
 
         int minCount = Math.min(count, 3);
@@ -222,8 +228,8 @@ public class Turnstile {
                     targetAngle = 0;
                     current_offset = HOMING_OFFSET;
 
-                    indexerServo1.setPower(0);
-                    indexerServo2.setPower(0);
+                    indexerServo1.setPower(power * lowerErrorScalar);
+                    indexerServo2.setPower(power * lowerErrorScalar);
                     currentState = State.HOLDING_POSITION;
                 } else {
                     indexerServo1.setPower(HOMING_POWER);
@@ -244,17 +250,16 @@ public class Turnstile {
                 break;
 
             case SEEKING_POSITION:
-
-                // If not at target, continue seeking.
-                indexerServo1.setPower(power);
-                indexerServo2.setPower(power);
-
                 if (isAtTarget()) {
                     currentState = State.HOLDING_POSITION;
                     // We have arrived. Stop the motor for this one cycle to prevent a "kick".
                     // The next loop will execute the HOLDING_POSITION logic.
-//                    indexerServo1.setPower(0);
-//                    indexerServo2.setPower(0);
+                    indexerServo1.setPower(power * lowerErrorScalar);
+                    indexerServo2.setPower(power * lowerErrorScalar);
+                } else {
+                    // If not at target, continue seeking.
+                    indexerServo1.setPower(power);
+                    indexerServo2.setPower(power);
                 }
                 break;
             case LAUNCHING:
@@ -264,6 +269,12 @@ public class Turnstile {
                     // The next loop will execute the HOLDING_POSITION logic.
                     indexerServo1.setPower(0);
                     indexerServo2.setPower(0);
+                } else if (numLaunches == 3 && currentAngle <= targetAngle + SPEEDUP_ANGLE)
+                {
+                    // If not at target, continue seeking.
+                    double fasterPower = Range.clip(-LAUNCHING_POWER * THIRD_BALL_BOOST, -1, 1);
+                    indexerServo1.setPower(fasterPower);
+                    indexerServo2.setPower(fasterPower);
                 } else {
 
                     // If not at target, continue seeking.
@@ -274,15 +285,14 @@ public class Turnstile {
 
             case HOLDING_POSITION:
                 // If a magnet is detected while holding, we use it to correct for encoder drift.
-                if (limitSwitchPressed) {
-                    // Find the nearest ideal slot angle (0, 120, 240) to our current position.
-                    double nearestSlotAngle = Math.round(currentAngle / 120.0) * 120.0;
-                    // Snap our PID target to that perfect, calibrated angle.
-//                    targetAngle = nearestSlotAngle;
+                if (!isAtTarget()) {
+                    indexerServo1.setPower(power);
+                    indexerServo2.setPower(power);
+                    currentState = State.SEEKING_POSITION;
+                } else {
+                    indexerServo1.setPower(power * lowerErrorScalar);
+                    indexerServo2.setPower(power * lowerErrorScalar);
                 }
-
-                indexerServo1.setPower(power);
-                indexerServo2.setPower(power);
                 break;
         }
 

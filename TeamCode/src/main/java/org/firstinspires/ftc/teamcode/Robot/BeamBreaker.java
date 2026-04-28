@@ -13,7 +13,7 @@ public class BeamBreaker {
     private boolean inIndexer = false;
     private DigitalChannel beamBreakIndexer = null;
     private DigitalChannel beamBreakIntake = null;
-    private static boolean TELEM = true;
+    private static boolean TELEM = false;
 
     public void init(HardwareMap hwMap, Telemetry telem) {
         telemetry = telem;

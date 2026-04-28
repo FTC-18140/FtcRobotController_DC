@@ -23,8 +23,6 @@ public class Teleop_BLUE extends OpMode {
     private int slotToWatch = -1;
 
     ThunderBot2025.Alliance_Color alliance = ThunderBot2025.Alliance_Color.BLUE;
-    TBDGamepad.Colors gamepad1Color = null;
-    TBDGamepad.Colors gamepad2Color = null;
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
     private TBDGamepad theGamepad1 = null;
@@ -60,23 +58,21 @@ public class Teleop_BLUE extends OpMode {
         robot.update();
         theGamepad1.update();
         theGamepad2.update();
-        switch (robot.lastBallState) {
-            case GREEN:
-                gamepad2Color = TBDGamepad.Colors.GREEN;
-                break;
-            case PURPLE:
-                gamepad2Color = TBDGamepad.Colors.PURPLE;
-                break;
-            case VACANT:
-                gamepad2Color = TBDGamepad.Colors.OFF;
-        }
-        if (3 > robot.indexer.getBallNumber()) {
-            gamepad1Color = TBDGamepad.Colors.YELLOW;
-        } else {
-            gamepad1Color = TBDGamepad.Colors.RED;
-        }
-        theGamepad2.setLedColor(gamepad2Color);
-        theGamepad1.setLedColor(gamepad1Color);
+//        switch (robot.lastBallState) {
+//            case GREEN:
+//                theGamepad2.setLedColor(TBDGamepad.Colors.GREEN);
+//                break;
+//            case PURPLE:
+//                theGamepad2.setLedColor(TBDGamepad.Colors.PURPLE);
+//                break;
+//            case VACANT:
+//                theGamepad2.setLedColor(TBDGamepad.Colors.OFF);
+//        }
+//        if (3 > robot.indexer.getBallNumber()) {
+//            theGamepad1.setLedColor(TBDGamepad.Colors.YELLOW);
+//        } else {
+//            theGamepad1.setLedColor(TBDGamepad.Colors.RED);
+//        }
 
         // --- Drive Controls ---
         double forward = theGamepad1.getLeftY();
@@ -127,7 +123,7 @@ public class Teleop_BLUE extends OpMode {
                 robot.launcher.holdTurretPosition();
             }
         } else if (LauncherFacade.AimingMode.DIRECTIONAL == robot.launcher.getAimingMode()) {
-            robot.launcher.setTurretManualPower(theGamepad2.getRightX() * 0.25);
+            robot.launcher.setTurretManualPower(theGamepad2.getRightX() * 0.35);
         } else if (0.01 < Math.abs(Math.sqrt(Math.pow(theGamepad2.getRightX(), 2) + Math.pow(theGamepad2.getRightY(), 2)))) {
             robot.launcher.aimToAngleInFieldSpace(Math.toDegrees(Math.atan2(theGamepad2.getRightY(), theGamepad2.getRightX())));
         } else {

@@ -14,6 +14,10 @@ public class TBDGamepad {
     public boolean[] buttons = new boolean[14];
     public boolean[] oldButtons = new boolean[14];
     public boolean[] changed = new boolean[14];
+    private Colors currentLedColorEnum = Colors.OFF; // Track the last set color
+
+    static final long RUMBLE_INTERVAL_MS = 500;
+    private long lastRumbleTime = 0;
 
     public boolean leftOldTrigger = false;
     public boolean leftNewTrigger = false;
@@ -34,20 +38,33 @@ public class TBDGamepad {
         }
     }
 
+    /**
+     * Represents the available LED colors for the gamepad.
+     * Each enum constant directly embeds its RGB values (0.0 to 1.0).
+     */
     public enum Colors {
-        OFF,
-        RED,
-        ORANGE,
-        YELLOW,
-        YELLOWGREEN,
-        GREEN,
-        GREENBLUE,
+        // Enum constants with embedded RGB values
+        OFF(0.0, 0.0, 0.0),
+        RED(1.0, 0.0, 0.0),
+        ORANGE(1.0, 0.5, 0.0),
+        YELLOW(1.0, 1.0, 0.0),
+        YELLOWGREEN(0.5, 1.0, 0.0),
+        GREEN(0.0, 1.0, 0.0),
+        GREENBLUE(0.0, 1.0, 1.0),
+        BLUE(0.0, 0.0, 1.0),
+        INDIGO(0.5, 0.0, 1.0),
+        PURPLE(1.0, 0.0, 1.0),
+        WHITE(1.0, 1.0, 1.0);
 
-        BLUE,
-        INDIGO,
-        VIOLET,
-        PURPLE,
-        WHITE
+        // Private fields to store the RGB components
+        private final double r, g, b;
+
+        // Enum constructor to initialize the RGB values for each constant
+        Colors(double r, double g, double b) {
+            this.r = r;
+            this.g = g;
+            this.b = b;
+        }
     }
 
     public enum Trigger {
@@ -118,66 +135,6 @@ public class TBDGamepad {
                 break;
         }
         return buttonValue;
-    }
-
-    public static double[] colorToRgb(Colors color) {
-        double[] rgb = new double[3];
-        switch (color) {
-            case OFF:
-                rgb[0] = 0;
-                rgb[1] = 0;
-                rgb[2] = 0;
-                break;
-            case RED:
-                rgb[0] = 1;
-                rgb[1] = 0;
-                rgb[2] = 0;
-                break;
-            case ORANGE:
-                rgb[0] = 1;
-                rgb[1] = 0.5;
-                rgb[2] = 0;
-                break;
-            case YELLOW:
-                rgb[0] = 1;
-                rgb[1] = 1;
-                rgb[2] = 0;
-                break;
-            case YELLOWGREEN:
-                rgb[0] = 0.5;
-                rgb[1] = 1;
-                rgb[2] = 0;
-            case GREEN:
-                rgb[0] = 0;
-                rgb[1] = 1;
-                rgb[2] = 0;
-                break;
-            case GREENBLUE:
-                rgb[0] = 0;
-                rgb[1] = 1;
-                rgb[2] = 1;
-            case BLUE:
-                rgb[0] = 0;
-                rgb[1] = 0;
-                rgb[2] = 1;
-                break;
-            case INDIGO:
-                rgb[0] = 0.5;
-                rgb[1] = 0;
-                rgb[2] = 1;
-                break;
-            case PURPLE:
-                rgb[0] = 1;
-                rgb[1] = 0;
-                rgb[2] = 1;
-                break;
-            case WHITE:
-                rgb[0] = 1;
-                rgb[1] = 1;
-                rgb[2] = 1;
-                break;
-        }
-        return rgb;
     }
 
     /**
@@ -275,18 +232,37 @@ public class TBDGamepad {
 
     }
 
+    /**
+     * Notifies the driver by rumbling the gamepad a specified number of times.
+     * This method is rate-limited to prevent excessive calls, ensuring it
+     * is called at most twice per second.
+     * @param numBlips The number of blips to rumble.
+     */
     public void notifyDriver(int numBlips) {
-        gamepad.rumbleBlips(numBlips);
+        long currentTime = System.currentTimeMillis();
+
+        // Check if enough time has passed since the last rumble.
+        if (currentTime - lastRumbleTime >= RUMBLE_INTERVAL_MS) {
+            gamepad.rumbleBlips(numBlips);
+            lastRumbleTime = currentTime; // Update the last rumble time
+        }
+        // If not enough time has passed, the rumble call is skipped.
     }
 
+    /**
+     * Sets the LED color of the gamepad using a Colors enum.
+     * This method tracks the desired enum color and delegates to setLedColorRGB
+     * to handle the actual hardware call with redundancy checks.
+     * @param color The desired Colors enum value.
+     */
     public void setLedColor(Colors color) {
-        setLedColorRGB(colorToRgb(color)[0], colorToRgb(color)[1], colorToRgb(color)[2]);
+        // Primary check: Only proceed if the *enum color* itself has changed from the last processed enum.
+        if (this.currentLedColorEnum != color) {
+            gamepad.setLedColor(color.r, color.g, color.b, Gamepad.LED_DURATION_CONTINUOUS);
+            // Update the tracked enum color *only after* potentially setting the RGB.
+            this.currentLedColorEnum = color;
+        }
     }
-
-    public void setLedColorRGB(double r, double g, double b) {
-        gamepad.setLedColor(r, g, b, Gamepad.LED_DURATION_CONTINUOUS);
-    }
-
     public void blipDriver() {
         notifyDriver(1);
     }
