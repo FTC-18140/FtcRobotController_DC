@@ -272,8 +272,9 @@ public class Turnstile {
                 } else if (numLaunches == 3 && currentAngle <= targetAngle - SPEEDUP_ANGLE)
                 {
                     // If not at target, continue seeking.
-                    indexerServo1.setPower(-LAUNCHING_POWER * THIRD_BALL_BOOST);
-                    indexerServo2.setPower(-LAUNCHING_POWER * THIRD_BALL_BOOST);
+                    double fasterPower = Range.clip(-LAUNCHING_POWER*THIRD_BALL_BOOST, -1, 1);
+                    indexerServo1.setPower(fasterPower);
+                    indexerServo2.setPower(fasterPower);
                 } else {
 
                     // If not at target, continue seeking.
