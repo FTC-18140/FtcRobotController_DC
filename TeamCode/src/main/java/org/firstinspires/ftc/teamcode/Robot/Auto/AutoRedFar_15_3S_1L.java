@@ -13,13 +13,13 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.Robot.Auto.Archive.AutoBlueFar_WAIT;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
-@Autonomous(group = AutoBlueFar_WAIT.AUTO_BLUE_FAR_GROUP)
+@Autonomous(group = AutoRedFar_9.AUTO_RED_FAR_GROUP)
 public class AutoRedFar_15_3S_1L extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
         Pose2d start = new Pose2d(AutoPositions.Positions.START_RED_FAR.position, Math.toRadians(0));
-        Pose2d launchPos = new Pose2d(AutoPositions.Positions.FAR_LAUNCH_ZONE_RED.position, Math.toRadians(-90));
+        Pose2d launchPos = new Pose2d(AutoPositions.Positions.FAR_LAUNCH_ZONE_RED.position, Math.toRadians(-45));
         Pose2d launchPos2 = new Pose2d(AutoPositions.Positions.CENTER_LAUNCH_ZONE_RED.position, Math.toRadians(0));
         Pose2d intakePos = new Pose2d(AutoPositions.Positions.ARTIFACT_BASE_RED.position, Math.toRadians(-90));
         Pose2d intakePos2 = new Pose2d(AutoPositions.Positions.LOADING_ZONE_RED.position, Math.toRadians(-110));
@@ -58,7 +58,7 @@ public class AutoRedFar_15_3S_1L extends LinearOpMode {
                                             new SequentialAction(
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(start)
-                                                                    .strafeToSplineHeading(launchPos.position, Math.toRadians(-90))
+                                                                    .strafeToSplineHeading(launchPos.position, Math.toRadians(-45))
                                                                     .build()
                                                             // Plan the first shot sequence while driving.
                                                     ),
@@ -67,8 +67,8 @@ public class AutoRedFar_15_3S_1L extends LinearOpMode {
                                                     robot.intakeStartAction(),
                                                     new RaceAction(
                                                             robot.drive.actionBuilder(launchPos)
-                                                                    .setTangent(0)
-                                                                    .splineToConstantHeading(intakePos.position, Math.toRadians(-90))
+                                                                    .setTangent(-45)
+                                                                    .splineToSplineHeading(intakePos, Math.toRadians(-90))
                                                                     .splineToConstantHeading(new Vector2d(intakePos.position.x, -59), Math.toRadians(-90))
                                                                     .build(),
                                                             robot.indexerFullAction()
@@ -78,7 +78,7 @@ public class AutoRedFar_15_3S_1L extends LinearOpMode {
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(new Pose2d(new Vector2d(intakePos.position.x, -59), Math.toRadians(-90)))
                                                                     .setTangent(Math.toRadians(90))
-                                                                    .splineToConstantHeading(launchPos.position, Math.toRadians(90))
+                                                                    .splineToSplineHeading(launchPos, Math.toRadians(0))
                                                                     .build(),
                                                             // Launch 2nd set of Artifacts
                                                             robot.launchAction()
@@ -97,7 +97,7 @@ public class AutoRedFar_15_3S_1L extends LinearOpMode {
                                                     new ParallelAction(
                                                             robot.drive.actionBuilder(intakePos2)
                                                                     .setReversed(true)
-                                                                    .splineToConstantHeading(launchPos.position, Math.toRadians(90))
+                                                                    .splineTo(launchPos.position, Math.toRadians(135))
                                                                     .build(),
                                                             // Launch 2nd set of Artifacts
 
@@ -169,7 +169,7 @@ public class AutoRedFar_15_3S_1L extends LinearOpMode {
                                     new ParallelAction(
                                             robot.drive.actionBuilder(new Pose2d(launchPos2.position, Math.toRadians(90)))
                                                     .setTangent(Math.toRadians(180))
-                                                    .splineToSplineHeading(new Pose2d(-12, 12, 0), Math.toRadians(180))
+                                                    .splineToSplineHeading(new Pose2d(-12, -12, 0), Math.toRadians(180))
                                                     .build(),
                                             robot.holdTurretAction(),
                                             robot.launcher.stopAction()
