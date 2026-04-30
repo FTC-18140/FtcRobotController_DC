@@ -19,9 +19,9 @@ import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 public class Turnstile {
 
 
-    public static final double SECOND_BALL_BOOST = 1.1;
+    public static double SECOND_BALL_BOOST = 1.1;
     public static double BALL2_ANGLE = 240;
-    public static double BALL3_ANGLE = 120 ;
+    public static double BALL3_ANGLE = 120;
     public static double THIRD_BALL_BOOST = 1.25;
     // --- Hardware & Utilities ---
     private CRServo indexerServo1;
@@ -123,16 +123,16 @@ public class Turnstile {
 
         angle = ((angle % 360) + 360) % 360; // Make sure angle is within [0, 360]
 
-        // Shortest path shortest_rot in [-180,180]
-        double shortest_rot = angle - (currentAngle % 360.0);
-        shortest_rot = ((shortest_rot + 180) % 360) - 180;
+        // Shortest path shortestRot in [-180,180]
+        double shortestRot = angle - (currentAngle % 360.0);
+        shortestRot = ((shortestRot + 180) % 360) - 180;
 
-        // If shortest_rot is too far behind, force forward rotation
-        if (shortest_rot < -ANGLE_TOLERANCE && Math.abs(shortest_rot) > BACKWARD_TOLERANCE) {
-            shortest_rot += 360.0;
+        // If shortestRot is too far behind, force forward rotation
+        if (shortestRot < -ANGLE_TOLERANCE && Math.abs(shortestRot) > BACKWARD_TOLERANCE) {
+            shortestRot += 360.0;
         }
 
-        targetAngle = currentAngle + shortest_rot;
+        targetAngle = currentAngle + shortestRot;
 
 
         currentState = State.SEEKING_POSITION;
@@ -271,15 +271,13 @@ public class Turnstile {
                     // The next loop will execute the HOLDING_POSITION logic.
                     indexerServo1.setPower(0);
                     indexerServo2.setPower(0);
-                } else if ( numLaunches == 3 && currentAngle > (targetAngle - BALL3_ANGLE) && currentAngle <= targetAngle - BALL2_ANGLE )
-                {
-                    double fasterPower = Range.clip(-LAUNCHING_POWER*SECOND_BALL_BOOST, -1, 1);
+                } else if (3 == numLaunches && currentAngle > (targetAngle - BALL3_ANGLE) && currentAngle <= targetAngle - BALL2_ANGLE) {
+                    double fasterPower = Range.clip(-LAUNCHING_POWER * SECOND_BALL_BOOST, -1, 1);
                     indexerServo1.setPower(fasterPower);
                     indexerServo2.setPower(fasterPower);
-                } else if (numLaunches == 3 && currentAngle <= targetAngle - BALL3_ANGLE)
-                {
+                } else if (3 == numLaunches && currentAngle <= targetAngle - BALL3_ANGLE) {
                     // If not at target, continue seeking.
-                    double fasterPower = Range.clip(-LAUNCHING_POWER*THIRD_BALL_BOOST, -1, 1);
+                    double fasterPower = Range.clip(-LAUNCHING_POWER * THIRD_BALL_BOOST, -1, 1);
                     indexerServo1.setPower(fasterPower);
                     indexerServo2.setPower(fasterPower);
                 } else {
@@ -292,13 +290,13 @@ public class Turnstile {
 
             case HOLDING_POSITION:
                 // If a magnet is detected while holding, we use it to correct for encoder drift.
-                if (!isAtTarget()) {
+                if (isAtTarget()) {
+                    indexerServo1.setPower(power / 2);
+                    indexerServo2.setPower(power / 2);
+                } else {
                     indexerServo1.setPower(power);
                     indexerServo2.setPower(power);
                     currentState = State.SEEKING_POSITION;
-                } else {
-                    indexerServo1.setPower(power/2);
-                    indexerServo2.setPower(power/2);
                 }
                 break;
         }

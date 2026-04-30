@@ -174,11 +174,7 @@ public class Teleop_Red extends OpMode {
         } else {
             // --- MANUAL INDEXER MODE ---
             if (theGamepad2.getButtonPressed(TBDGamepad.Button.LEFT_BUMPER)) {
-                if (robot.indexer.isOverridden()) {
-                    robot.indexer.overrideLaunching(false);
-                } else {
-                    robot.indexer.overrideLaunching(true);
-                }
+                robot.indexer.overrideLaunching(!robot.indexer.isOverridden());
             }
             if (theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER)) {
                 robot.launchAll();

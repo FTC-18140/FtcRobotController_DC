@@ -162,7 +162,7 @@ public class LauncherFacade implements DataLoggable {
 
 //        setTurretOffset();
 
-        if(TELEM) {
+        if (TELEM) {
             telemetry.addData("Using Limelight: ", usingLimelight);
             telemetry.addData("update rate (seconds): ", update_rate_seconds);
         }
@@ -250,7 +250,7 @@ public class LauncherFacade implements DataLoggable {
         turret.seekToAngle(baseAngle);
 
         double currentPosition = turret.getCurrentPosition();
-        if(TELEM) {
+        if (TELEM) {
             telemetry.addData("Turret Current", currentPosition);
             telemetry.addData("Turret Target", baseAngle);
         }

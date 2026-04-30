@@ -246,7 +246,7 @@ public class ThunderBot2025 implements DataLoggable {
         double bot_y = drive.localizer.getPose().position.y;
         double h = drive.localizer.getPose().heading.toDouble();
 
-        for (int i = 0; i < corners.length; i++){
+        for (int i = 0; i < corners.length; i++) {
             double x = starting_corners[i][0];
             double y = starting_corners[i][1];
             corners[i][0] = y * Math.sin(-h) + (x) * Math.cos(-h);
@@ -255,14 +255,14 @@ public class ThunderBot2025 implements DataLoggable {
         if (bot_y < halfWidth && bot_y > -halfWidth) {
             if (bot_x + halfWidth > 0 || bot_x - halfWidth < -48) return true;
         }
-        for (int i = 0; i < corners.length; i++){
+        for (int i = 0; i < corners.length; i++) {
             double x = corners[i][0] + bot_x;
             double y = corners[i][1] + bot_y;
 
-            if(x > 0) {
-                if(y < x && y > -x) return true;
+            if (x > 0) {
+                if (y < x && y > -x) return true;
             } else {
-                if(y < (-x - 48) && y > (x + 48)) return true;
+                if (y < (-x - 48) && y > (x + 48)) return true;
             }
         }
 
@@ -488,7 +488,7 @@ public class ThunderBot2025 implements DataLoggable {
                     @Override
                     public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                         if (!started) {
-                            if(launchAll()) {
+                            if (launchAll()) {
                                 intakeStop();
                                 started = true;
                             }

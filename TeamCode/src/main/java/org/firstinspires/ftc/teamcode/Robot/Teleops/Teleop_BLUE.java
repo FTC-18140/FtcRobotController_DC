@@ -172,11 +172,7 @@ public class Teleop_BLUE extends OpMode {
         } else {
             // --- MANUAL INDEXER MODE ---
             if (theGamepad2.getButtonPressed(TBDGamepad.Button.LEFT_BUMPER)) {
-                if (robot.indexer.isOverridden()) {
-                    robot.indexer.overrideLaunching(false);
-                } else {
-                    robot.indexer.overrideLaunching(true);
-                }
+                robot.indexer.overrideLaunching(!robot.indexer.isOverridden());
             }
             if (theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER)) {
                 robot.launchAll();
@@ -192,7 +188,7 @@ public class Teleop_BLUE extends OpMode {
                 } else if (IndexerFacade.State.IDLE == robot.indexer.getCurrentState() || IndexerFacade.State.AWAITING_LAUNCH == robot.indexer.getCurrentState()) {
 
                     // If not manually spinning, send a spin(0) to allow the turnstile to auto-align.
-                    robot.indexer.spin(0);
+//                    robot.indexer.spin(0);
                 }
             }
         }
