@@ -60,7 +60,7 @@ public class LED {
         upperBoundRpm = upperBoundRpmIn;
     }
 
-    public void update(boolean inLaunchZone, double runtime, IndexerFacade.BallState loadedColor, boolean isIndexerFull, boolean isIntakeFull, IndexerFacade.State indexerState) {
+    public void update(boolean inLaunchZone, boolean overriden, double runtime, IndexerFacade.BallState loadedColor, boolean isIndexerFull, boolean isIntakeFull, IndexerFacade.State indexerState) {
         if (inLaunchZone) {
             setRPMLedToColor(Colors.YELLOW);
         } else {
@@ -96,6 +96,8 @@ public class LED {
 
         if (isIntakeFull) {
             setIntakeLedToColor(Colors.RED);
+        } else if (overriden) {
+            setIntakeLedToColor(Colors.WHITE);
         } else {
             setIntakeLedToColor(Colors.OFF);
         }

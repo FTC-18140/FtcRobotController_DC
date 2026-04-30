@@ -142,7 +142,7 @@ public class ThunderBot2025 implements DataLoggable {
         boolean isIntakeFull = indexer.getBallNumber() > 3;
         IndexerFacade.State state = indexer.getCurrentState();
 
-        led.update(inZone, seconds, lastBallState, isIndexerFull, isIntakeFull, state);
+        led.update(inZone, indexer.isOverridden(), seconds, lastBallState, isIndexerFull, isIntakeFull, state);
 
 //        kickstand.update();
 
@@ -324,7 +324,7 @@ public class ThunderBot2025 implements DataLoggable {
     }
 
     public boolean launchAll() {
-        if (launcher.isAtTargetRpm() && inZone) {
+        if ((launcher.isAtTargetRpm() && inZone) || indexer.isOverridden()) {
             indexer.launchAllInIndexer();
             return true;
         }
