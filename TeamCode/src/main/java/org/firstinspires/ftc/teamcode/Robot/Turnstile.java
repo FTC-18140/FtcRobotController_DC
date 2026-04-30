@@ -19,8 +19,10 @@ import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 public class Turnstile {
 
 
-    public static double SPEEDUP_ANGLE = 120 ;
-    public static double THIRD_BALL_BOOST = 1.33;
+    public static final double SECOND_BALL_BOOST = 1.1;
+    public static double BALL2_ANGLE = 240;
+    public static double BALL3_ANGLE = 120 ;
+    public static double THIRD_BALL_BOOST = 1.25;
     // --- Hardware & Utilities ---
     private CRServo indexerServo1;
     private CRServo indexerServo2;
@@ -29,7 +31,7 @@ public class Turnstile {
     private PIDController angleController;
     private Telemetry telemetry;
 
-    public static boolean TELEM = false;
+    public static boolean TELEM = true;
 
     // --- Tunable Constants via FTC Dashboard ---
     public static double P = 0.0042, I = 0.0, D = 0.00034;
@@ -39,14 +41,14 @@ public class Turnstile {
     public static double MIN_POWER_NEG = 0.015;
     public static double HOMING_POWER = 0.065;
     public static double ANGLE_TOLERANCE = 12.5;// In degrees
-    public static double CYCLE_TIME = 50;
+    public static double CYCLE_TIME = 25;
     public static double BACKWARD_TOLERANCE = 30;
-    public static double INTAKE_TOLERANCE = 30;
+    public static double INTAKE_TOLERANCE = 10;
     public static double HOMING_OFFSET = 0;
     public static double LAUNCHING_POWER = 0.75;
     private double current_offset = 0; // --- Non-tunable Constants ---
     private static final double COUNTS_PER_REVOLUTION = 8192;
-    private static final double GEAR_RATIO = (double) 22 / 41;
+    private static final double GEAR_RATIO = (double) 1 / 2;
     private static final double COUNTS_PER_DEGREE = COUNTS_PER_REVOLUTION / 360;
     public static final String STARTING_ANGLE_KEY = "ENDING_ANGLE_INDEXER";
     public double startingAngle;
@@ -269,10 +271,15 @@ public class Turnstile {
                     // The next loop will execute the HOLDING_POSITION logic.
                     indexerServo1.setPower(0);
                     indexerServo2.setPower(0);
-                } else if (numLaunches == 3 && currentAngle <= targetAngle + SPEEDUP_ANGLE)
+                } else if ( numLaunches == 3 && currentAngle > (targetAngle - BALL3_ANGLE) && currentAngle <= targetAngle - BALL2_ANGLE )
+                {
+                    double fasterPower = Range.clip(-LAUNCHING_POWER*SECOND_BALL_BOOST, -1, 1);
+                    indexerServo1.setPower(fasterPower);
+                    indexerServo2.setPower(fasterPower);
+                } else if (numLaunches == 3 && currentAngle <= targetAngle - BALL3_ANGLE)
                 {
                     // If not at target, continue seeking.
-                    double fasterPower = Range.clip(-LAUNCHING_POWER * THIRD_BALL_BOOST, -1, 1);
+                    double fasterPower = Range.clip(-LAUNCHING_POWER*THIRD_BALL_BOOST, -1, 1);
                     indexerServo1.setPower(fasterPower);
                     indexerServo2.setPower(fasterPower);
                 } else {
@@ -290,8 +297,8 @@ public class Turnstile {
                     indexerServo2.setPower(power);
                     currentState = State.SEEKING_POSITION;
                 } else {
-                    indexerServo1.setPower(power * lowerErrorScalar);
-                    indexerServo2.setPower(power * lowerErrorScalar);
+                    indexerServo1.setPower(power/2);
+                    indexerServo2.setPower(power/2);
                 }
                 break;
         }

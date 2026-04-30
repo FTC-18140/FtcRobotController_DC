@@ -55,6 +55,7 @@ public class IndexerFacade {
     private int currentTargetSlot = 2;
     private int ballNumber = 0;
     private BallState previousBallStateIntake = BallState.VACANT;
+    private boolean override = false;
 
 
     // --- Auto-Sequence Management ---
@@ -133,8 +134,12 @@ public class IndexerFacade {
     }
 
 
+    public void overrideLaunching(boolean active) {
+        override = active;
+    }
+    public boolean isOverridden() {return override;}
     public void launchAllInIndexer() {
-        if (canLaunchAll()) {
+        if (canLaunchAll() || override) {
             turnstile.launchSlots(3);
             setCurrentState(State.LAUNCHING);
             for (int i = 0; 3 > i; i++) {
