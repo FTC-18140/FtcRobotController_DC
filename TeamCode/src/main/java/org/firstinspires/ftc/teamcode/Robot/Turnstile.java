@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 public class Turnstile {
 
 
-    public static final double SECOND_BALL_BOOST = 1.1;
+    public static double SECOND_BALL_BOOST = 1.1;
     public static double BALL2_ANGLE = 240;
     public static double BALL3_ANGLE = 120 ;
     public static double THIRD_BALL_BOOST = 1.25;

@@ -22,7 +22,7 @@ public class FlywheelController {
     public static double voltage_comp = 12.987;
 
     public static double[] distances = {50, 70, 94, 167};
-    public static double[] rpms = {1750, 1730, 1850, 2270};
+    public static double[] rpms = {1750, 1700, 1800, 2230};
 
     static class DistRPM {
         double x, y;
