@@ -343,7 +343,7 @@ public class IndexerFacade {
     // --- Compatibility Shims for TeleOp (Corrected) ---
 
     public void adjustToThird() {
-        setCurrentState(State.HOMING);
+        currentState = State.HOMING;
         turnstile.home();
     } // Corrected: This is now a manual homing trigger.
 

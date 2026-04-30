@@ -91,7 +91,7 @@ public class Turnstile {
 //            indexMotor.setDirection(DcMotorSimple.Direction.REVERSE);
             indexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Use our own P
             indexMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); // Use our own PID
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             telemetry.addData("Turnstile Hardware Not Found", e.getMessage());
         }
         startingAngle = (double) blackboard.getOrDefault(STARTING_ANGLE_KEY, (double) 0);

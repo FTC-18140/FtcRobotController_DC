@@ -74,10 +74,10 @@ public class FlywheelController {
 
     public void update(PoseVelocity2d currentOdoVelocity, double fieldAngleToGoal, double voltage) {
         initDistRPMs();
-        double voltage_factor = voltage_comp / voltage + (voltage_comp - 13);
+        double voltageFactor = voltage_comp / voltage + (voltage_comp - 13);
 
-        lowerWheel.setParameters(LOWER_PID.P, LOWER_PID.I, LOWER_PID.D, LOWER_PID.F_MIN, LOWER_PID.F_MAX * voltage_factor, LOWER_PID.F_VEL, LOWER_PID.F_STATIC * voltage_factor, LOWER_PID.GEAR_RATIO, FLYWHEEL_RATIO);
-        upperWheel.setParameters(UPPER_PID.P, UPPER_PID.I, UPPER_PID.D, UPPER_PID.F_MIN, UPPER_PID.F_MAX * voltage_factor, UPPER_PID.F_VEL, UPPER_PID.F_STATIC * voltage_factor, UPPER_PID.GEAR_RATIO, 1 / FLYWHEEL_RATIO);
+        lowerWheel.setParameters(LOWER_PID.P, LOWER_PID.I, LOWER_PID.D, LOWER_PID.F_MIN, LOWER_PID.F_MAX * voltageFactor, LOWER_PID.F_VEL, LOWER_PID.F_STATIC * voltageFactor, LOWER_PID.GEAR_RATIO, FLYWHEEL_RATIO);
+        upperWheel.setParameters(UPPER_PID.P, UPPER_PID.I, UPPER_PID.D, UPPER_PID.F_MIN, UPPER_PID.F_MAX * voltageFactor, UPPER_PID.F_VEL, UPPER_PID.F_STATIC * voltageFactor, UPPER_PID.GEAR_RATIO, 1 / FLYWHEEL_RATIO);
 
         lowerWheel.update();
         upperWheel.update();
