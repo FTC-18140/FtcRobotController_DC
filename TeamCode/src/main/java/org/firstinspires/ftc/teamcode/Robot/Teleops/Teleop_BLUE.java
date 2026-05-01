@@ -106,7 +106,7 @@ public class Teleop_BLUE extends OpMode {
             if (robot.resetTurret()) theGamepad2.blipDriver();
         }
 
-        robot.drive(forward, strafe, turn * turnFactor, speed, p);
+        robot.drive(forward, strafe, turn * 0.7, speed, p);
 
         if (theGamepad1.getButtonPressed(TBDGamepad.Button.DPAD_DOWN)) {
             robot.kickstand.switchState();

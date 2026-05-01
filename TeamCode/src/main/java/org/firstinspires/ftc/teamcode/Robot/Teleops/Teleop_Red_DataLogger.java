@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -21,6 +22,7 @@ import java.util.Locale;
 
 @TeleOp(name = "Teleop Red with Datalogger", group = IndexerTest.TEST_TELEOP_GROUP)
 @Config
+@Disabled
 public class Teleop_Red_DataLogger extends OpMode {
 
     public TelemetryPacket p = new TelemetryPacket(true);

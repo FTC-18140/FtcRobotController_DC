@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.Robot.Teleops;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 
 @TeleOp
+@Disabled
 public class TEST_IndexerServo1 extends OpMode {
     CRServo indexer1 = null;
     @Override
