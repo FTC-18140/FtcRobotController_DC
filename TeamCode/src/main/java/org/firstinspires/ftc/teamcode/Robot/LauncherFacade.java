@@ -101,7 +101,7 @@ public class LauncherFacade implements DataLoggable {
      * @param currentOdoPose     The raw pose from RoadRunner drive.getPoseEstimate()
      * @param currentOdoVelocity
      */
-    public void update(Pose2d currentOdoPose, PoseVelocity2d currentOdoVelocity, double voltage) {
+    public void update(Pose2d currentOdoPose, PoseVelocity2d currentOdoVelocity, double voltage, boolean launching) {
         // --- 1. Calculate Odometry Delta ---
         if (null == lastOdoPose) {
             lastOdoPose = currentOdoPose;
@@ -152,7 +152,7 @@ public class LauncherFacade implements DataLoggable {
         double distanceToGoal = getGoalDistance();
 
 //        beforeUpdate = System.currentTimeMillis();
-        turret.update(fusedPose, currentOdoVelocity, offsetTarget);
+        turret.update(fusedPose, currentOdoVelocity, offsetTarget, launching);
 //        telemetry.addData("turret update time: ", (System.currentTimeMillis() - beforeUpdate) / 1000);
 //        beforeUpdate = System.currentTimeMillis();
         flywheel.update(currentOdoVelocity, Math.toDegrees(fieldAngleToGoal), voltage);

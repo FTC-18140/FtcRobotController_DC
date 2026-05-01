@@ -44,13 +44,16 @@ public class Turret implements DataLoggable {
     private Telemetry telemetry = null;
 
     // Tunable constants from your original file
-    public static double P_TURRET = 0.0136, I_TURRET = 0.0, D_TURRET = 0.00164, F_ACCEL = 0.0011, F_ACCEL_MAX = 0.0093, F_STATIC = 0.035, F_RES_POS_MIN = 0.01, F_RES_POS_MAX = 0.05, F_RES_NEG_MIN = 0.05, F_RES_NEG_MAX = 0.095;
+    public static double P_TURRET = 0.0136, I_TURRET = 0.0, D_TURRET = 0.001645,
+            F_ACCEL = 0.0011, F_ACCEL_MAX = 0.0093, F_STATIC = 0.035,
+            F_RES_POS_MIN = 0.01, F_RES_POS_MAX = 0.05, F_RES_NEG_MIN = 0.05, F_RES_NEG_MAX = 0.095,
+            F_LAUNCHING = 0.01;
     public static double F_RANGE_MIN = 20, F_RANGE_MAX = 180;
     public static double MIN_TURRET_POS = -90;
     public static double MAX_TURRET_POS = 360 + MIN_TURRET_POS;
 
     public static double TURRET_ANGLE_TOLERANCE = 3.5;
-    public static double TURRET_ANGLE_SOFT_TOLERANCE = 0;
+    public static double TURRET_ANGLE_SOFT_TOLERANCE = 4.5;
 
     public static double KV_ROT = 0.27; // Tunable: Gain for robot rotation
     public static double KV_TRANS = 0.12; // Tunable: Gain for translational apparent rotation
@@ -68,6 +71,7 @@ public class Turret implements DataLoggable {
     private double currentPosition = (double) 0;
     private double currentDraw = 0.0;
     private double offsetAngle = (double) 0;
+    public static double OFFSET_FOR_WEIRD_STUFF = 5;
     private double seekingPower = (double) 0; // Member variable to be accessible for logging
     private double lastSeekingPower = (double) 0;
     public static String STARTING_ANGLE = "TURRET_ENDING_ANGLE_AUTO";
@@ -187,7 +191,7 @@ public class Turret implements DataLoggable {
      */
     public void update(Pose2d robotPose,
                        PoseVelocity2d robotVel,
-                       Vector2d targetPos) {
+                       Vector2d targetPos, boolean launching) {
         updateCurrentPosition();
         turretAimPID.setPID(P_TURRET, I_TURRET, D_TURRET);
         double target_shift = targetAngle - lastTargetAngle;
@@ -211,6 +215,7 @@ public class Turret implements DataLoggable {
         double ffTrans = calculateTranslationalFF(robotPose, robotVel, targetPos);
 
         seekingPower = turretAimPID.calculate(currentPosition, targetAngle);
+        double ffLaunch = (launching && currentPosition < targetAngle ? F_LAUNCHING * Math.min(mediumErrorScalar, 1) : 0);
 
         double ffResistance = 0;
         if (targetAngle > F_RANGE_MAX) {
@@ -224,26 +229,24 @@ public class Turret implements DataLoggable {
 
         double ffAccel = (target_shift > 0.025 ? Math.min(F_ACCEL / target_shift, F_ACCEL_MAX) : 0);
 
-        double ff_total = ffStatic + ffRobotRot + ffAccel + ffResistance;
+        double ff_total = ffStatic + ffRobotRot + ffAccel + ffResistance + ffLaunch;
 
         // Combine all terms
         double totalPower = seekingPower + ff_total;
 
         switch (currentState) {
             case HOLDING:
-                if (!isAtTarget()) {
+                if (isAtTarget()) {
+                    setHardwarePower(totalPower * lowerErrorScalar);
+                } else {
                     setHardwarePower(totalPower);
                     currentState = State.SEEKING_ANGLE;
-                } else {
-                    setHardwarePower(totalPower * lowerErrorScalar);
                 }
                 break;
             case SEEKING_ANGLE:
                 if (isAtTarget()) {
                     setHardwarePower(totalPower * lowerErrorScalar);
                     currentState = State.HOLDING;
-                } else if (inSmoothZone()) {
-                    setHardwarePower(totalPower * mediumErrorScalar);
                 } else {
                     setHardwarePower(totalPower);
                 }
@@ -274,6 +277,7 @@ public class Turret implements DataLoggable {
             telemetry.addData("Target Shift", "%.3f", target_shift);
             telemetry.addData("FF Total", "%.3f", ff_total);
             telemetry.addData("Total current draw", "%.3f", getTotalCurrentDraw());
+            telemetry.addData("Total power", "%.3f", turret.getPower());
             telemetry.addData("Turret State", currentState);
         }
 
@@ -327,7 +331,7 @@ public class Turret implements DataLoggable {
     }
 
     private void updateCurrentPosition() {
-        currentPosition = (double) -turretEnc.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK + startingAngle - offsetAngle;
+        currentPosition = (double) -turretEnc.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK + startingAngle - offsetAngle - OFFSET_FOR_WEIRD_STUFF;
 
     }
 
