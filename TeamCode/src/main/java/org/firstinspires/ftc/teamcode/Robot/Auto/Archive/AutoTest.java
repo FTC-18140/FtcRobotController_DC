@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Robot.Auto.AutoPositions;
+import org.firstinspires.ftc.teamcode.Robot.Auto.AutoRedDepot_12;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 
 @Autonomous(group = "AutoTest")
@@ -18,7 +19,7 @@ public class AutoTest extends LinearOpMode {
         Pose2d start = new Pose2d(AutoPositions.Positions.START_RED_FAR.position, Math.toRadians(0));
 
         ThunderBot2025 robot = new ThunderBot2025();
-        blackboard.put("TURRET_ENDING_ANGLE_AUTO", (double) 0);
+        blackboard.put(AutoRedDepot_12.TURRET_ENDING_ANGLE_AUTO_KEY, (double) 0);
         blackboard.put("ENDING_ANGLE_INDEXER", (double) 0);
 
         robot.init(hardwareMap, telemetry, start);

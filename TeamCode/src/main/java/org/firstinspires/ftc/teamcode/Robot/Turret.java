@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.teamcode.Robot.Auto.AutoRedDepot_12;
 import org.firstinspires.ftc.teamcode.Utilities.DataLoggable;
 import org.firstinspires.ftc.teamcode.Utilities.DataLogger;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
@@ -74,7 +75,7 @@ public class Turret implements DataLoggable {
     public static double OFFSET_FOR_WEIRD_STUFF = 5;
     private double seekingPower = (double) 0; // Member variable to be accessible for logging
     private double lastSeekingPower = (double) 0;
-    public static String STARTING_ANGLE = "TURRET_ENDING_ANGLE_AUTO";
+    public static String STARTING_ANGLE = AutoRedDepot_12.TURRET_ENDING_ANGLE_AUTO_KEY;
     double startingAngle = 0.0;
 
     public void init(HardwareMap hwMap, Telemetry telem) {

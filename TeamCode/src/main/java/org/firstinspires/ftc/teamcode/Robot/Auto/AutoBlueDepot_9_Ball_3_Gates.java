@@ -29,7 +29,7 @@ public class AutoBlueDepot_9_Ball_3_Gates extends LinearOpMode {
 
 
         ThunderBot2025 robot = new ThunderBot2025();
-        blackboard.put("TURRET_ENDING_ANGLE_AUTO", (double) 0);
+        blackboard.put(AutoRedDepot_12.TURRET_ENDING_ANGLE_AUTO_KEY, (double) 0);
         blackboard.put("ENDING_ANGLE_INDEXER", (double) 0);
 
         robot.init(hardwareMap, telemetry, start);
@@ -144,7 +144,7 @@ public class AutoBlueDepot_9_Ball_3_Gates extends LinearOpMode {
         } finally {
             robot.drive.updatePoseEstimate();
             blackboard.put(ThunderBot2025.STARTING_POSE_KEY, robot.drive.localizer.getPose());
-            blackboard.put("TURRET_ENDING_ANGLE_AUTO", robot.launcher.getTurretAngle());
+            blackboard.put(AutoRedDepot_12.TURRET_ENDING_ANGLE_AUTO_KEY, robot.launcher.getTurretAngle());
 //            ThunderBot2025.starting_position = robot.drive.localizer.getPose();
 //            ThunderBot2025.starting_turret_angle = robot.launcher.getTurretAngle();
         }

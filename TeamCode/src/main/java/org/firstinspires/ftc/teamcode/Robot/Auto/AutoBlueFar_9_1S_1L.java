@@ -25,7 +25,7 @@ public class AutoBlueFar_9_1S_1L extends LinearOpMode {
         Pose2d intakePos2 = new Pose2d(AutoPositions.Positions.LOADING_ZONE_BLUE.position, Math.toRadians(90));
 
         ThunderBot2025 robot = new ThunderBot2025();
-        blackboard.put("TURRET_ENDING_ANGLE_AUTO", (double) 0);
+        blackboard.put(AutoRedDepot_12.TURRET_ENDING_ANGLE_AUTO_KEY, (double) 0);
         blackboard.put("ENDING_ANGLE_INDEXER", (double) 0);
 
         robot.init(hardwareMap, telemetry, start);
@@ -128,7 +128,7 @@ public class AutoBlueFar_9_1S_1L extends LinearOpMode {
             // This block will always run, even if the opmode is stopped prematurely.
             robot.drive.updatePoseEstimate();
             blackboard.put(ThunderBot2025.STARTING_POSE_KEY, robot.drive.localizer.getPose());
-            blackboard.put("TURRET_ENDING_ANGLE_AUTO", robot.launcher.getTurretAngle());
+            blackboard.put(AutoRedDepot_12.TURRET_ENDING_ANGLE_AUTO_KEY, robot.launcher.getTurretAngle());
 //            ThunderBot2025.starting_position = robot.drive.localizer.getPose();
 //            ThunderBot2025.starting_turret_angle = robot.launcher.getTurretAngle();
         }
