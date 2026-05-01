@@ -18,6 +18,7 @@ import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 public class AutoRedDepot_12 extends LinearOpMode {
 
     public static final String TURRET_ENDING_ANGLE_AUTO_KEY = "TURRET_ENDING_ANGLE_AUTO";
+    public static final String ENDING_ANGLE_INDEXER_KEY = "ENDING_ANGLE_INDEXER";
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -31,7 +32,7 @@ public class AutoRedDepot_12 extends LinearOpMode {
 
         ThunderBot2025 robot = new ThunderBot2025();
         blackboard.put(TURRET_ENDING_ANGLE_AUTO_KEY, (double) 0);
-        blackboard.put("ENDING_ANGLE_INDEXER", (double) 0);
+        blackboard.put(ENDING_ANGLE_INDEXER_KEY, (double) 0);
 
         robot.init(hardwareMap, telemetry, start);
         robot.setColor(ThunderBot2025.Alliance_Color.RED);

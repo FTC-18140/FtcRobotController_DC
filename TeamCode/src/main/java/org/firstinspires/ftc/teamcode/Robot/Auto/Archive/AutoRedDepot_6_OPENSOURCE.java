@@ -29,7 +29,7 @@ public class AutoRedDepot_6_OPENSOURCE extends LinearOpMode {
 
         ThunderBot2025 robot = new ThunderBot2025();
         blackboard.put(AutoRedDepot_12.TURRET_ENDING_ANGLE_AUTO_KEY, (double) 0);
-        blackboard.put("ENDING_ANGLE_INDEXER", (double) 0);
+        blackboard.put(AutoRedDepot_12.ENDING_ANGLE_INDEXER_KEY, (double) 0);
 
         robot.init(hardwareMap, telemetry, start);
         robot.launcher.setTurretStart(-45);

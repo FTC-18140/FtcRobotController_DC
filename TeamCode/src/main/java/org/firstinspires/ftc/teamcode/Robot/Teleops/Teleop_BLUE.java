@@ -31,6 +31,7 @@ public class Teleop_BLUE extends OpMode {
     ThunderBot2025 robot = new ThunderBot2025();
     public static double INDEXER_SPEED = 0.8;
     private boolean preSpinUp = true;
+    double manualAngle;
 
     @Override
     public void init() {
@@ -122,14 +123,13 @@ public class Teleop_BLUE extends OpMode {
 
         if (LauncherFacade.AimingMode.MANUAL == robot.launcher.getAimingMode()) {
             if (0.01 < Math.abs(Math.sqrt(Math.pow(theGamepad2.getRightX(), 2) + Math.pow(theGamepad2.getRightY(), 2)))) {
-                robot.launcher.aimToAngleInFieldSpace(Math.toDegrees(Math.atan2(theGamepad2.getRightY(), theGamepad2.getRightX())));
-            } else {
-                robot.launcher.holdTurretPosition();
+                manualAngle = Math.toDegrees(Math.atan2(-theGamepad2.getRightY(), -theGamepad2.getRightX()));
             }
+            robot.launcher.aimToAngleInFieldSpace(manualAngle);
         } else if (LauncherFacade.AimingMode.DIRECTIONAL == robot.launcher.getAimingMode()) {
             robot.launcher.setTurretManualPower(theGamepad2.getRightX() * 0.35);
         } else if (0.01 < Math.abs(Math.sqrt(Math.pow(theGamepad2.getRightX(), 2) + Math.pow(theGamepad2.getRightY(), 2)))) {
-            robot.launcher.aimToAngleInFieldSpace(Math.toDegrees(Math.atan2(theGamepad2.getRightY(), theGamepad2.getRightX())));
+            robot.launcher.aimToAngleInFieldSpace(Math.toDegrees(Math.atan2(-theGamepad2.getRightY(), -theGamepad2.getRightX())));
         } else {
             robot.launcher.aim();
         }

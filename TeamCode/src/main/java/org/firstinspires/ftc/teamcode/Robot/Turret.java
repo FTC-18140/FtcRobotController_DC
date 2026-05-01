@@ -195,7 +195,7 @@ public class Turret implements DataLoggable {
                        Vector2d targetPos, boolean launching) {
         updateCurrentPosition();
         turretAimPID.setPID(P_TURRET, I_TURRET, D_TURRET);
-        double target_shift = targetAngle - lastTargetAngle;
+        double targetShift = targetAngle - lastTargetAngle;
         double angleErrorAbs = Math.abs(targetAngle - currentPosition);
         double lowerErrorScalar = (angleErrorAbs * angleErrorAbs) / (TURRET_ANGLE_TOLERANCE * TURRET_ANGLE_TOLERANCE);
         double mediumErrorScalar = (angleErrorAbs) / (TURRET_ANGLE_SOFT_TOLERANCE);
@@ -228,12 +228,12 @@ public class Turret implements DataLoggable {
 
         double ffStatic = F_STATIC * Math.signum(seekingPower);
 
-        double ffAccel = (target_shift > 0.025 ? Math.min(F_ACCEL / target_shift, F_ACCEL_MAX) : 0);
+        double ffAccel = (0.025 < targetShift ? Math.min(F_ACCEL / targetShift, F_ACCEL_MAX) : 0);
 
-        double ff_total = ffStatic + ffRobotRot + ffAccel + ffResistance + ffLaunch;
+        double ffTotal = ffStatic + ffRobotRot + ffAccel + ffResistance + ffLaunch;
 
         // Combine all terms
-        double totalPower = seekingPower + ff_total;
+        double totalPower = seekingPower + ffTotal;
 
         switch (currentState) {
             case HOLDING:
@@ -275,8 +275,8 @@ public class Turret implements DataLoggable {
             telemetry.addData("Turret Target", "%.2f", targetAngle);
             // Add these lines to see the "Blend" of control:
             telemetry.addData("PID Power", "%.3f", seekingPower);
-            telemetry.addData("Target Shift", "%.3f", target_shift);
-            telemetry.addData("FF Total", "%.3f", ff_total);
+            telemetry.addData("Target Shift", "%.3f", targetShift);
+            telemetry.addData("FF Total", "%.3f", ffTotal);
             telemetry.addData("Total current draw", "%.3f", getTotalCurrentDraw());
             telemetry.addData("Total power", "%.3f", turret.getPower());
             telemetry.addData("Turret State", currentState);

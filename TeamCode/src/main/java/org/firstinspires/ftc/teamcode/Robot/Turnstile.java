@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Robot.Auto.AutoRedDepot_12;
 import org.firstinspires.ftc.teamcode.Robot.Drives.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 
@@ -50,7 +51,7 @@ public class Turnstile {
     private static final double COUNTS_PER_REVOLUTION = 8192;
     private static final double GEAR_RATIO = (double) 1 / 2;
     private static final double COUNTS_PER_DEGREE = COUNTS_PER_REVOLUTION / 360;
-    public static final String STARTING_ANGLE_KEY = "ENDING_ANGLE_INDEXER";
+    public static final String STARTING_ANGLE_KEY = AutoRedDepot_12.ENDING_ANGLE_INDEXER_KEY;
     public double startingAngle;
     private double launching_offset = 0;
     public static double LAUNCHING_OFFSET_ANGLE = 15;
