@@ -47,13 +47,13 @@ public class Turret implements DataLoggable {
     public static double P_TURRET = 0.0136, I_TURRET = 0.0, D_TURRET = 0.001645,
             F_ACCEL = 0.0011, F_ACCEL_MAX = 0.0093, F_STATIC = 0.035,
             F_RES_POS_MIN = 0.01, F_RES_POS_MAX = 0.05, F_RES_NEG_MIN = 0.05, F_RES_NEG_MAX = 0.095,
-            F_LAUNCHING = 0.01;
+            F_LAUNCHING = 0.5;
     public static double F_RANGE_MIN = 20, F_RANGE_MAX = 180;
     public static double MIN_TURRET_POS = -90;
     public static double MAX_TURRET_POS = 360 + MIN_TURRET_POS;
 
     public static double TURRET_ANGLE_TOLERANCE = 3.5;
-    public static double TURRET_ANGLE_SOFT_TOLERANCE = 4.5;
+    public static double TURRET_ANGLE_SOFT_TOLERANCE = 6.0;
 
     public static double KV_ROT = 0.27; // Tunable: Gain for robot rotation
     public static double KV_TRANS = 0.12; // Tunable: Gain for translational apparent rotation
@@ -71,7 +71,7 @@ public class Turret implements DataLoggable {
     private double currentPosition = (double) 0;
     private double currentDraw = 0.0;
     private double offsetAngle = (double) 0;
-    public static double OFFSET_FOR_WEIRD_STUFF = 5;
+    public static double OFFSET_FOR_WEIRD_STUFF = 2;
     private double seekingPower = (double) 0; // Member variable to be accessible for logging
     private double lastSeekingPower = (double) 0;
     public static String STARTING_ANGLE = "TURRET_ENDING_ANGLE_AUTO";
@@ -197,7 +197,7 @@ public class Turret implements DataLoggable {
         double target_shift = targetAngle - lastTargetAngle;
         double angleErrorAbs = Math.abs(targetAngle - currentPosition);
         double lowerErrorScalar = (angleErrorAbs * angleErrorAbs) / (TURRET_ANGLE_TOLERANCE * TURRET_ANGLE_TOLERANCE);
-        double mediumErrorScalar = (angleErrorAbs) / (TURRET_ANGLE_SOFT_TOLERANCE);
+        double mediumErrorScalar = (angleErrorAbs * angleErrorAbs) / (TURRET_ANGLE_SOFT_TOLERANCE * TURRET_ANGLE_SOFT_TOLERANCE);
 
         isHomed = turretSwitch.isPressed();
 

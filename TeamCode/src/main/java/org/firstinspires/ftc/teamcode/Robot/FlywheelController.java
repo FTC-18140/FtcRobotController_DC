@@ -22,7 +22,7 @@ public class FlywheelController {
     public static double voltage_comp = 12.987;
 
     public static double[] distances = {50, 70, 94, 167};
-    public static double[] rpms = {1750, 1750, 1800, 2240};
+    public static double[] rpms = {1750, 1780, 1830, 2450};
 
     static class DistRPM {
         double x, y;
@@ -39,14 +39,14 @@ public class FlywheelController {
     ;
 
     public static class LowerPID {
-        public double P = 0.00066, I = 0.00, D = 0.000021;
-        public double F_MAX = 0.513, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.62;
+        public double P = 0.0011, I = 0.00, D = 0.000085;
+        public double F_MAX = 0.52, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.62;
         public double GEAR_RATIO = 2.0;
     }
 
     public static class UpperPID {
-        public double P = 0.00066, I = 0.00, D = 0.000023;
-        public double F_MAX = 0.518, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.62;
+        public double P = 0.0011, I = 0.00, D = 0.000085;
+        public double F_MAX = 0.52, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.62;
         public double GEAR_RATIO = 32.0 / 15.0;
     }
 
