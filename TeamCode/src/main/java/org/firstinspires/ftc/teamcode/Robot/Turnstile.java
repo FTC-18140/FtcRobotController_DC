@@ -22,7 +22,7 @@ public class Turnstile {
     public static double SECOND_BALL_BOOST = 1.1;
     public static double BALL2_ANGLE = 240;
     public static double BALL3_ANGLE = 120 ;
-    public static double THIRD_BALL_BOOST = 1.25;
+    public static double THIRD_BALL_BOOST = 1.2;
     // --- Hardware & Utilities ---
     private CRServo indexerServo1;
     private CRServo indexerServo2;
@@ -34,18 +34,18 @@ public class Turnstile {
     public static boolean TELEM = true;
 
     // --- Tunable Constants via FTC Dashboard ---
-    public static double P = 0.0042, I = 0.0, D = 0.00034;
-    public static double P_PER_BALL_FACTOR = 0.00032;
+    public static double P = 0.0028, I = 0.0, D = 0.00022;
+    public static double P_PER_BALL_FACTOR = 0.00029;
     public static double THRESHOLD = 0.00;
-    public static double MIN_POWER_POS = 0.015;
-    public static double MIN_POWER_NEG = 0.015;
+    public static double MIN_POWER_POS = 0.035;
+    public static double MIN_POWER_NEG = 0.0;
     public static double HOMING_POWER = 0.065;
     public static double ANGLE_TOLERANCE = 12.5;// In degrees
-    public static double CYCLE_TIME = 25;
+    public static double CYCLE_TIME = 50;
     public static double BACKWARD_TOLERANCE = 30;
     public static double INTAKE_TOLERANCE = 10;
     public static double HOMING_OFFSET = 0;
-    public static double LAUNCHING_POWER = 0.75;
+    public static double LAUNCHING_POWER = 0.65;
     private double current_offset = 0; // --- Non-tunable Constants ---
     private static final double COUNTS_PER_REVOLUTION = 8192;
     private static final double GEAR_RATIO = (double) 1 / 2;

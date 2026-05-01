@@ -35,7 +35,6 @@ public class AutoRedDepot_9_SpikesGate extends LinearOpMode {
         blackboard.put("ENDING_ANGLE_INDEXER", (double) 0);
 
         robot.init(hardwareMap, telemetry, start);
-        robot.launcher.setTurretStart(-45);
         robot.setColor(ThunderBot2025.Alliance_Color.RED);
 
 
