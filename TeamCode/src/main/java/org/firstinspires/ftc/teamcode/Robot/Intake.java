@@ -59,7 +59,7 @@ public class Intake {
         } else {
             intakeServo.setPower(intakeServoPower);
         }
-        if(reversed == -1) {
+        if (reversed == -1) {
             intakeMotor.setPower(INTAKE_MOTOR_POWER * slow * reversed);
         } else {
             intakeMotor.setPower(intakeMotorPower * slow * reversed);
@@ -131,6 +131,7 @@ public class Intake {
         servoStop();
         telemetry.addData("Spitting", 0);
     }
+
     public void unSpit() {
         reversed = 1;
     }
@@ -156,7 +157,7 @@ public class Intake {
         intakeServoPower = -INTAKE_SERVO_POWER;
     }
 
-    public void DEBUG_intakeMotor(){
+    public void DEBUG_intakeMotor() {
         intakeMotor.setPower(0.5);
     }
 

@@ -81,11 +81,16 @@ public class Teleop_Red extends OpMode {
         double strafe = -theGamepad1.getLeftX();
         double turn = theGamepad1.getRightX();
         double speed = ThunderBot2025.DEFAULT_SPEED;
+        double turnFactor = 0.7;
 
         if (theGamepad1.getTriggerBoolean(TBDGamepad.Trigger.RIGHT_TRIGGER)) {
             speed = ThunderBot2025.MIN_SPEED;
         } else if (theGamepad1.getTriggerBoolean(TBDGamepad.Trigger.LEFT_TRIGGER)) {
             speed = ThunderBot2025.MAX_SPEED;
+        }
+
+        if (theGamepad1.getButtonPressed(TBDGamepad.Button.LEFT_BUMPER)) {
+            turnFactor = 1.0;
         }
 
         if (115 <= robot.runtime.seconds() && 125 > robot.runtime.seconds()) {
@@ -103,7 +108,7 @@ public class Teleop_Red extends OpMode {
             if (robot.resetTurret()) theGamepad2.blipDriver();
         }
 
-        robot.drive(forward, strafe, turn * 0.7, speed, p);
+        robot.drive(forward, strafe, turn * turnFactor, speed, p);
 
         if (theGamepad1.getButtonPressed(TBDGamepad.Button.DPAD_DOWN)) {
             robot.kickstand.switchState();

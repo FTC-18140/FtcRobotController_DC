@@ -222,7 +222,7 @@ public class Turret implements DataLoggable {
 
         double ffStatic = F_STATIC * Math.signum(seekingPower);
 
-        double ffAccel = ( target_shift > 0.025 ?  Math.min(F_ACCEL / target_shift, F_ACCEL_MAX) : 0);
+        double ffAccel = (target_shift > 0.025 ? Math.min(F_ACCEL / target_shift, F_ACCEL_MAX) : 0);
 
         double ff_total = ffStatic + ffRobotRot + ffAccel + ffResistance;
 
@@ -231,7 +231,7 @@ public class Turret implements DataLoggable {
 
         switch (currentState) {
             case HOLDING:
-                if(!isAtTarget()) {
+                if (!isAtTarget()) {
                     setHardwarePower(totalPower);
                     currentState = State.SEEKING_ANGLE;
                 } else {
@@ -242,7 +242,7 @@ public class Turret implements DataLoggable {
                 if (isAtTarget()) {
                     setHardwarePower(totalPower * lowerErrorScalar);
                     currentState = State.HOLDING;
-                } else if(inSmoothZone()){
+                } else if (inSmoothZone()) {
                     setHardwarePower(totalPower * mediumErrorScalar);
                 } else {
                     setHardwarePower(totalPower);
@@ -352,6 +352,7 @@ public class Turret implements DataLoggable {
     public boolean isAtTarget() {
         return Math.abs(currentPosition - targetAngle) < TURRET_ANGLE_TOLERANCE;
     }
+
     public boolean inSmoothZone() {
         return Math.abs(currentPosition - targetAngle) < TURRET_ANGLE_SOFT_TOLERANCE;
     }
