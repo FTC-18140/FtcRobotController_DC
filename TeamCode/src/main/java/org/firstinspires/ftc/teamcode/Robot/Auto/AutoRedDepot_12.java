@@ -17,6 +17,9 @@ import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 @Autonomous(group = AutoRedDepot_Coop.AUTO_RED_DEPOT_GROUP)
 public class AutoRedDepot_12 extends LinearOpMode {
 
+    public static final String TURRET_ENDING_ANGLE_AUTO_KEY = "TURRET_ENDING_ANGLE_AUTO";
+    public static final String ENDING_ANGLE_INDEXER_KEY = "ENDING_ANGLE_INDEXER";
+
     @Override
     public void runOpMode() throws InterruptedException {
         Pose2d start = new Pose2d(AutoPositions.Positions.START_RED_DEPOT.position, Math.toRadians(45));
@@ -28,8 +31,8 @@ public class AutoRedDepot_12 extends LinearOpMode {
         Pose2d intakePos3 = new Pose2d(AutoPositions.Positions.ARTIFACT_BASE_RED.position, Math.toRadians(-90));
 
         ThunderBot2025 robot = new ThunderBot2025();
-        blackboard.put("TURRET_ENDING_ANGLE_AUTO", (double) 0);
-        blackboard.put("ENDING_ANGLE_INDEXER", (double) 0);
+        blackboard.put(TURRET_ENDING_ANGLE_AUTO_KEY, (double) 0);
+        blackboard.put(ENDING_ANGLE_INDEXER_KEY, (double) 0);
 
         robot.init(hardwareMap, telemetry, start);
         robot.setColor(ThunderBot2025.Alliance_Color.RED);
@@ -150,7 +153,7 @@ public class AutoRedDepot_12 extends LinearOpMode {
         } finally {
             robot.drive.updatePoseEstimate();
             blackboard.put(ThunderBot2025.STARTING_POSE_KEY, robot.drive.localizer.getPose());
-            blackboard.put("TURRET_ENDING_ANGLE_AUTO", robot.launcher.getTurretAngle());
+            blackboard.put(TURRET_ENDING_ANGLE_AUTO_KEY, robot.launcher.getTurretAngle());
 //            ThunderBot2025.starting_position = robot.drive.localizer.getPose();
 //            ThunderBot2025.starting_turret_angle = robot.launcher.getTurretAngle();
         }

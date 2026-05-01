@@ -139,14 +139,14 @@ public class ThunderBot2025 implements DataLoggable {
         double flywheelRpm = launcher.getLowerFlywheelRpm();
 
         boolean isIndexerFull = indexer.indexerIsFull();
-        boolean isIntakeFull = indexer.getBallNumber() > 3;
+        boolean isIntakeFull = 3 < indexer.getBallNumber();
         IndexerFacade.State state = indexer.getCurrentState();
 
         led.update(inZone, indexer.isOverridden(), seconds, lastBallState, isIndexerFull, isIntakeFull, state);
 
 //        kickstand.update();
 
-        if(indexer.getCurrentState() == IndexerFacade.State.SELECTING_BALL) {
+        if (IndexerFacade.State.SELECTING_BALL == indexer.getCurrentState()) {
             intake.slow();
         }
         if (3 < indexer.getBallNumber()) {
@@ -242,27 +242,27 @@ public class ThunderBot2025 implements DataLoggable {
     }
 
     public boolean inLaunchZone() {
-        double bot_x = drive.localizer.getPose().position.x;
-        double bot_y = drive.localizer.getPose().position.y;
+        double botX = drive.localizer.getPose().position.x;
+        double botY = drive.localizer.getPose().position.y;
         double h = drive.localizer.getPose().heading.toDouble();
 
-        for (int i = 0; i < corners.length; i++){
+        for (int i = 0; i < corners.length; i++) {
             double x = starting_corners[i][0];
             double y = starting_corners[i][1];
             corners[i][0] = y * Math.sin(-h) + (x) * Math.cos(-h);
             corners[i][1] = y * Math.cos(-h) - (x) * Math.sin(-h);
         }
-        if (bot_y < halfWidth && bot_y > -halfWidth) {
-            if (bot_x + halfWidth > 0 || bot_x - halfWidth < -48) return true;
+        if (botY < halfWidth && botY > -halfWidth) {
+            if (0 < botX + halfWidth || -48 > botX - halfWidth) return true;
         }
-        for (int i = 0; i < corners.length; i++){
-            double x = corners[i][0] + bot_x;
-            double y = corners[i][1] + bot_y;
+        for (int i = 0; i < corners.length; i++) {
+            double x = corners[i][0] + botX;
+            double y = corners[i][1] + botY;
 
-            if(x > 0) {
-                if(y < x && y > -x) return true;
+            if (0 < x) {
+                if (y < x && y > -x) return true;
             } else {
-                if(y < (-x - 48) && y > (x + 48)) return true;
+                if (y < (-x - 48) && y > (x + 48)) return true;
             }
         }
 
@@ -488,7 +488,7 @@ public class ThunderBot2025 implements DataLoggable {
                     @Override
                     public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                         if (!started) {
-                            if(launchAll()) {
+                            if (launchAll()) {
                                 intakeStop();
                                 started = true;
                             }

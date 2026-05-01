@@ -137,7 +137,11 @@ public class IndexerFacade {
     public void overrideLaunching(boolean active) {
         override = active;
     }
-    public boolean isOverridden() {return override;}
+
+    public boolean isOverridden() {
+        return override;
+    }
+
     public void launchAllInIndexer() {
         if (canLaunchAll() || override) {
             turnstile.launchSlots(3);
@@ -339,7 +343,7 @@ public class IndexerFacade {
     // --- Compatibility Shims for TeleOp (Corrected) ---
 
     public void adjustToThird() {
-        setCurrentState(State.HOMING);
+        currentState = State.HOMING;
         turnstile.home();
     } // Corrected: This is now a manual homing trigger.
 
@@ -511,7 +515,7 @@ public class IndexerFacade {
     }
 
     public void updateBallStates() {
-            // Get the detected colors from the sensor pairs (0,1), (2,3), (4,5)
+        // Get the detected colors from the sensor pairs (0,1), (2,3), (4,5)
         BallSensor sensorA = ballSensors[0];
         BallSensor sensorB = ballSensors[1];
         BallSensor.BallColor colorA = sensorA.getDetectedColor();
