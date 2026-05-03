@@ -32,7 +32,7 @@ public class Turnstile {
     private PIDController angleController;
     private Telemetry telemetry;
 
-    public static boolean TELEM = true;
+    public static boolean TELEM = false;
 
     // --- Tunable Constants via FTC Dashboard ---
     public static double P = 0.0028, I = 0.0, D = 0.00022;

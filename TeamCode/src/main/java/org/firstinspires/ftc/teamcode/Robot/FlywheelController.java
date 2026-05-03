@@ -19,10 +19,10 @@ public class FlywheelController {
     PoseVelocity2d odoVelocity = null;
     public static double INERTIA_FACTOR = 0.009;
     public static double RPM_TOLERANCE = 40;
-    public static double voltage_comp = 12.987;
+    public static double voltage_comp = 12.988;
 
     public static double[] distances = {50, 70, 94, 167};
-    public static double[] rpms = {1750, 1780, 1830, 2480};
+    public static double[] rpms = {1750, 1750, 1850, 2400};
 
     static class DistRPM {
         double x, y;
@@ -39,14 +39,14 @@ public class FlywheelController {
     ;
 
     public static class LowerPID {
-        public double P = 0.0011, I = 0.00, D = 0.000085;
-        public double F_MAX = 0.52, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.62;
+        public double P = 0.0012, I = 0.00, D = 0.000085;
+        public double F_MAX = 0.55, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.625;
         public double GEAR_RATIO = 2.0;
     }
 
     public static class UpperPID {
-        public double P = 0.0011, I = 0.00, D = 0.000085;
-        public double F_MAX = 0.52, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.62;
+        public double P = 0.0012, I = 0.00, D = 0.000085;
+        public double F_MAX = 0.55, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.625;
         public double GEAR_RATIO = 32.0 / 15.0;
     }
 
