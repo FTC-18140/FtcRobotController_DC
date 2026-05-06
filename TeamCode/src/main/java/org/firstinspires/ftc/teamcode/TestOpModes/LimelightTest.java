@@ -5,28 +5,22 @@ import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.util.List;
 
-@TeleOp
+@TeleOp(group = IndexerTest.TEST_TELEOP_GROUP)
 public class LimelightTest extends OpMode {
     Limelight3A limelight = null;
 
     @Override
     public void init() {
 
-        try
-        {
+        try {
             limelight = hardwareMap.get(Limelight3A.class, "limelight");
             limelight.setPollRateHz(100);
             //limelight.pipelineSwitch(4);
             limelight.start();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -41,8 +35,8 @@ public class LimelightTest extends OpMode {
             double y = fiducial.getTargetYDegrees(); // Where it is (up-down)
             double distance = fiducial.getCameraPoseTargetSpace().getPosition().z;
             telemetry.addData("Fiducial: ", id);
-            telemetry.addData("x: ",x);
-            telemetry.addData("y: ",y);
+            telemetry.addData("x: ", x);
+            telemetry.addData("y: ", y);
             telemetry.addData("dist: ", distance);
         }
 

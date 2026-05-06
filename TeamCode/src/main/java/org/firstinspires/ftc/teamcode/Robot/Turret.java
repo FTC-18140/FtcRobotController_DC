@@ -1,23 +1,29 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
-import static com.qualcomm.robotcore.eventloop.opmode.OpMode.blackboard;
-
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.teamcode.Robot.Auto.AutoRedDepot_12;
 import org.firstinspires.ftc.teamcode.Utilities.DataLoggable;
 import org.firstinspires.ftc.teamcode.Utilities.DataLogger;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
+
 @Config
 public class Turret implements DataLoggable {
 
     // Define the states as an enum
     private enum State {
+        STOP,
         HOLDING,
         SEEKING_ANGLE,
         MANUAL_CONTROL
@@ -30,91 +36,141 @@ public class Turret implements DataLoggable {
     private State currentState = State.HOLDING; // Initial state
 
     // Hardware and Utilities
-    private DcMotor turret;
+    private DcMotor turret = null;
+    private DcMotor turretEnc = null;
+    private TouchSensor turretSwitch = null;
+    private boolean isHomed = false;
     //private DcMotor turretEnc;
-    private PIDController turretAimPID;
-    private Telemetry telemetry;
+    private PIDController turretAimPID = null;
+    private Telemetry telemetry = null;
 
     // Tunable constants from your original file
-    public static double P_TURRET = 0.006, I_TURRET = 0.025, D_TURRET = 0.00038, F_TURRET_MIN = 0.0, F_TURRET_MAX = 0.0;
-    public static double MAX_TURRET_POS = 225;
+    public static double P_TURRET = 0.0136, I_TURRET = 0.0, D_TURRET = 0.001645,
+            F_ACCEL = 0.0011, F_ACCEL_MAX = 0.0093, F_STATIC = 0.035,
+            F_RES_POS_MIN = 0.01, F_RES_POS_MAX = 0.05, F_RES_NEG_MIN = 0.05, F_RES_NEG_MAX = 0.095,
+            F_LAUNCHING = 0.09;
+    public static double F_RANGE_MIN = 20, F_RANGE_MAX = 180;
     public static double MIN_TURRET_POS = -90;
-    public static double TURRET_ANGLE_TOLERANCE = 2.5;
+    public static double MAX_TURRET_POS = 360 + MIN_TURRET_POS;
 
-    public static double KV_ROT = 0.1; // Tunable: Gain for robot rotation
-    public static double KV_TRANS = 0.17; // Tunable: Gain for translational apparent rotation
-    public static boolean TELEM = true;
+    public static double TURRET_ANGLE_TOLERANCE = 3.5;
+    public static double TURRET_ANGLE_SOFT_TOLERANCE = 3.5;
 
-    public static double MAX_POWER = 0.8;
-    public static double MIN_POWER_POSITIVE = 0.063;
-    public static double MIN_POWER_NEGATIVE = -0.063;
+    public static double KV_ROT = 0.27; // Tunable: Gain for robot rotation
+    public static double KV_TRANS = 0.12; // Tunable: Gain for translational apparent rotation
+    public static boolean TELEM = false;
 
-    public static double TURN_SPEED = 208.3; // From original lockOn
-    public static double TURRET_DEGREES_PER_ENCODER_TICK = (double) 1 /8192 * 360 * 24.24/190.5;
+    public static double MAX_POWER = 0.6;
+    public static double TURRET_DEGREES_PER_ENCODER_TICK = (double) 1 / 8192.0 * 360.0 * 16 / 100;
 
 
     // State-specific variables
-    private double targetAngle = 0;
-    private double manualPower = 0;
-    private double currentPosition = 0;
-    private double offsetAngle = 0;
-    private double seekingPower = 0; // Member variable to be accessible for logging
-    private double lastSeekingPower = 0;
-    public static String STARTING_ANGLE = "TURRET_ENDING_ANGLE_AUTO";
-    double startingAngle;
+    private double targetAngle = (double) 0;
+    private double lastTargetAngle = 0;
+    private double manualPower = (double) 0;
+    public double manualAngle = (double) 0;
+    private double currentPosition = (double) 0;
+    private double currentDraw = 0.0;
+    private double offsetAngle = (double) 0;
+    public static double OFFSET_FOR_WEIRD_STUFF = 3.5;
+    private double seekingPower = (double) 0; // Member variable to be accessible for logging
+    private double lastSeekingPower = (double) 0;
+    public static String STARTING_ANGLE = AutoRedDepot_12.TURRET_ENDING_ANGLE_AUTO_KEY;
+    double startingAngle = 0.0;
+
     public void init(HardwareMap hwMap, Telemetry telem) {
 
-        startingAngle = (double) blackboard.getOrDefault(STARTING_ANGLE, (double) 0);
+        // touch sensor: Control hub Digital port 4
+        startingAngle = (double) OpMode.blackboard.getOrDefault(STARTING_ANGLE, (double) 0);
 
-        this.telemetry = telem;
+        telemetry = telem;
         turretAimPID = new PIDController(P_TURRET, I_TURRET, D_TURRET);
-        try{
+        try {
             turret = hwMap.dcMotor.get("turret");
             turret.setDirection(DcMotor.Direction.REVERSE);
+            turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             turret.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        } catch (Exception e) {
-            addTelemetry("Motor\"turret\" not found", 0);
+
+            turretEnc = hwMap.dcMotor.get("rightBack");
+            turretEnc.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            turretEnc.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        } catch (RuntimeException e) {
+            telemetry.addData("Motor\"turret\" not found", 0);
+        }
+        try {
+            turretSwitch = hwMap.touchSensor.get("turretSwitch");
+        } catch (RuntimeException e) {
+            telemetry.addData("Touch Sensor\"turretSwitch\" not found", 0);
         }
 
-    }
-    public void setStartAngle(double angle){
-        this.offsetAngle = -angle;
+
     }
 
-    public double getTargetPos(){
+    public void setStartAngle(double angle) {
+        offsetAngle = -angle;
+    }
+
+    public double getTargetPos() {
         return targetAngle;
     }
 
-    public void setOffset(double offset){
-        this.offsetAngle = offset;
+    public void setOffsetAngle(double offset) {
+        offsetAngle = offset;
     }
 
     // --- High-Level Commands to Change State ---
 
     /**
-     *
      * @param angle in degrees
      */
-    public void seekToAngle(double angle) {
+    void seekToAngle(double angle) {
+        lastTargetAngle = targetAngle;
+        targetAngle = Range.clip(angle, MIN_TURRET_POS, MAX_TURRET_POS);
+        currentState = State.SEEKING_ANGLE;
+    }
 
-
-        this.targetAngle = Range.clip(angle, MIN_TURRET_POS, MAX_TURRET_POS);
-        this.currentState = State.SEEKING_ANGLE;
+    /**
+     * Enforces mechanical rotation limits and manages the "Dead Zone" traversal.
+     *
+     * <p>This method ensures the turret stays within its physical bounds (-90° to 225°).
+     * If a target is outside these bounds, it calculates if the target is reachable
+     * by rotating "the long way" around the circle. If the target is in the unreachable
+     * 135° gap, the turret clamps to the nearest hard stop.</p>
+     *
+     * @param angle The desired theoretical angle in degrees.
+     * @return The physically possible angle in degrees, constrained to [-90, 225].
+     */
+    public double applyHardwareConstraints(double angle) {
+        double finalAngle = angle % 360.0;
+        if (finalAngle < MIN_TURRET_POS) {
+            if (finalAngle < MIN_TURRET_POS - TURRET_ANGLE_TOLERANCE) {
+                finalAngle = finalAngle + 360;
+            } else {
+                finalAngle = MIN_TURRET_POS;
+            }
+        } else if (finalAngle > MAX_TURRET_POS) {
+            if (finalAngle > MAX_TURRET_POS + TURRET_ANGLE_TOLERANCE) {
+                finalAngle = finalAngle - 360;
+            } else {
+                finalAngle = MAX_TURRET_POS;
+            }
+        }
+        return finalAngle;
     }
 
     public void setManualPower(double power) {
-        this.manualPower = power;
-        this.currentState = State.MANUAL_CONTROL;
+        manualPower = power;
+        currentState = State.MANUAL_CONTROL;
     }
 
-//    public void setOffsetAngle(double angle) {
-//        offsetAngle = angle;
-//    }
-
     public void holdPosition() {
-        this.targetAngle = this.currentPosition; // Hold where we are
-        this.currentState = State.HOLDING;
+        targetAngle = currentPosition; // Hold where we are
+        currentState = State.STOP;
+    }
+
+    public boolean isHomed() {
+        return isHomed;
     }
 
     /**
@@ -136,12 +192,22 @@ public class Turret implements DataLoggable {
      */
     public void update(Pose2d robotPose,
                        PoseVelocity2d robotVel,
-                       Vector2d targetPos) {
+                       Vector2d targetPos, boolean launching) {
         updateCurrentPosition();
         turretAimPID.setPID(P_TURRET, I_TURRET, D_TURRET);
+        double targetShift = targetAngle - lastTargetAngle;
+        double angleErrorAbs = Math.abs(targetAngle - currentPosition);
+        double lowerErrorScalar = (angleErrorAbs * angleErrorAbs) / (TURRET_ANGLE_TOLERANCE * TURRET_ANGLE_TOLERANCE);
+        double mediumErrorScalar = (angleErrorAbs * angleErrorAbs) / (TURRET_ANGLE_SOFT_TOLERANCE * TURRET_ANGLE_SOFT_TOLERANCE);
+
+        isHomed = turretSwitch.isPressed();
+
+        currentDraw = getTotalCurrentDraw();
+        if (Flywheel.GOBILDA_MOTOR_STALL_CURRENT <= currentDraw) {
+            telemetry.addData("TURRET STALLED", 0);
+        }
 
         // 1. Static Feedforward (Wires/Friction)
-        double ffStatic = Range.clip(Range.scale(currentPosition, -90, -15, F_TURRET_MAX, F_TURRET_MIN), F_TURRET_MIN, F_TURRET_MAX);
 
         // 2. Robot Rotation Feedforward
         double ffRobotRot = robotVel.angVel * KV_ROT;
@@ -150,41 +216,74 @@ public class Turret implements DataLoggable {
         double ffTrans = calculateTranslationalFF(robotPose, robotVel, targetPos);
 
         seekingPower = turretAimPID.calculate(currentPosition, targetAngle);
+        double ffLaunch = (launching && currentPosition < targetAngle ? F_LAUNCHING * Math.min(mediumErrorScalar, 1) : 0);
+
+        double ffResistance = 0;
+        if (targetAngle > F_RANGE_MAX) {
+            ffResistance = Range.scale(Range.clip(targetAngle, F_RANGE_MAX, MAX_TURRET_POS), F_RANGE_MAX, MAX_TURRET_POS, F_RES_POS_MIN, F_RES_POS_MAX);
+        } else if (targetAngle < F_RANGE_MIN) {
+            ffResistance = Range.scale(Range.clip(targetAngle, F_RANGE_MIN, MIN_TURRET_POS), F_RANGE_MIN, MIN_TURRET_POS, F_RES_NEG_MIN, F_RES_NEG_MAX);
+        }
+        ffResistance = Math.signum(seekingPower) * ffResistance;
+
+        double ffStatic = F_STATIC * Math.signum(seekingPower);
+
+        double ffAccel = (0.025 < targetShift ? Math.min(F_ACCEL / targetShift, F_ACCEL_MAX) : 0);
+
+        double ffTotal = ffStatic + ffRobotRot + ffAccel + ffResistance + ffLaunch;
 
         // Combine all terms
-        double totalPower = seekingPower + (ffStatic * Math.signum(seekingPower)) + ffRobotRot + ffTrans;
+        double totalPower = seekingPower + ffTotal;
 
         switch (currentState) {
             case HOLDING:
+                if (isAtTarget()) {
+                    setHardwarePower(totalPower * lowerErrorScalar);
+                } else {
+                    setHardwarePower(totalPower);
+                    currentState = State.SEEKING_ANGLE;
+                }
+                break;
             case SEEKING_ANGLE:
-                setHardwarePower(totalPower);
-                if (currentState == State.SEEKING_ANGLE && isAtTarget()) {
-                    this.currentState = State.HOLDING;
+                if (isAtTarget()) {
+                    setHardwarePower(totalPower * lowerErrorScalar);
+                    currentState = State.HOLDING;
+                } else {
+                    setHardwarePower(totalPower);
                 }
                 break;
 
             case MANUAL_CONTROL:
                 setHardwarePower(manualPower);
-                if (Math.abs(manualPower) < 0.01) {
+                if (0.01 > Math.abs(manualPower)) {
                     currentState = State.HOLDING;
-                    setHardwarePower(0);
-                };
+                    setHardwarePower((double) 0);
+                }
+                ;
+                break;
+            case STOP:
+                setHardwarePower((double) 0);
                 break;
         }
 
-        if ( TELEM ) {
-            telemetry.addLine("[Turret] ------------- TURRET TELEM -------------");
-            addTelemetry("Turret Starting Angle: ", startingAngle);
-            addTelemetry("Turret Offset Angle: ", offsetAngle);
-            addTelemetry("Turret Position", currentPosition);
-            addTelemetry("Turret Target", targetAngle);
+
+        if (TELEM) {
+            telemetry.addLine(" ------------- TURRET TELEM -------------");
+            telemetry.addData("Turret Starting Angle: ", startingAngle);
+            telemetry.addData("Turret Offset Angle: ", offsetAngle);
+            telemetry.addData("Turret Position", "%.2f", currentPosition);
+            telemetry.addData("Turret Target", "%.2f", targetAngle);
             // Add these lines to see the "Blend" of control:
-            addTelemetry("PID Power",  seekingPower);
-            addTelemetry("FF Total",  (ffStatic * Math.signum(seekingPower)) + ffRobotRot + ffTrans);
-            addTelemetry("Turret State", currentState);
+            telemetry.addData("PID Power", "%.3f", seekingPower);
+            telemetry.addData("Target Shift", "%.3f", targetShift);
+            telemetry.addData("FF Total", "%.3f", ffTotal);
+            telemetry.addData("Total current draw", "%.3f", getTotalCurrentDraw());
+            telemetry.addData("Total power", "%.3f", turret.getPower());
+            telemetry.addData("Turret State", currentState);
         }
 
     }
+
     /**
      * Calculates the apparent rotational rate (rad/s) of a fixed field target relative
      * to the robot due to translational movement.
@@ -207,13 +306,13 @@ public class Turret implements DataLoggable {
         double dy = targetPos.y - robotPose.position.y;
         double rSquared = dx * dx + dy * dy;
 
-        if (rSquared < 1e-6) return 0.0;
+        if (1e-6 > rSquared) return 0.0;
 
         // We need the world-frame velocity.
         // RoadRunner 1.0 PoseVelocity2d usually contains robot-relative v.
         // Convert to world-frame v for this calculation:
-        double vxWorld = robotVel.linearVel.x * Math.cos(robotPose.heading.toDouble()) - robotVel.linearVel.y * Math.sin(robotPose.heading.toDouble());
-        double vyWorld = robotVel.linearVel.x * Math.sin(robotPose.heading.toDouble()) + robotVel.linearVel.y * Math.cos(robotPose.heading.toDouble());
+        double vxWorld = robotVel.linearVel.x * Math.cos(-robotPose.heading.toDouble()) - robotVel.linearVel.y * Math.sin(-robotPose.heading.toDouble());
+        double vyWorld = robotVel.linearVel.x * Math.sin(-robotPose.heading.toDouble()) + robotVel.linearVel.y * Math.cos(-robotPose.heading.toDouble());
 
         // Cross product: (dx * vy - dy * vx) / r^2
         double translationalRate = (dx * vyWorld - dy * vxWorld) / rSquared;
@@ -222,82 +321,55 @@ public class Turret implements DataLoggable {
     }
 
     private void setHardwarePower(double power) {
-        if (power < 0 && currentPosition + power * 45 <= MIN_TURRET_POS) {
-            addTelemetry("Turret position power override value: ", currentPosition + power * 45);
-            addTelemetry("Turret Power sent to hardware: ", 0);
-            turret.setPower(0);
-        } else if (power > 0 && currentPosition + power * 45 >= MAX_TURRET_POS) {
-            addTelemetry("Turret position power override value: ", currentPosition + power * 45);
-            addTelemetry("Turret Power sent to hardware: ", 0);
-            turret.setPower(0);
-        } else {
-            power = Range.clip(power, -MAX_POWER, MAX_POWER);
-            if(power < 0){
-                power = Range.scale(power, -MAX_POWER, 0, -MAX_POWER, MIN_POWER_NEGATIVE);
-            } else {
-                power = Range.scale(power, 0, MAX_POWER, MIN_POWER_POSITIVE, MAX_POWER);
-            }
-            addTelemetry("Turret Power sent to hardware", power);
-            turret.setPower(power);
-        }
 
-        lastSeekingPower = power;
+        double powerClipped = Range.clip(power, -MAX_POWER, MAX_POWER);
+//            if (Math.signum(power) != Math.signum(lastSeekingPower)){
+////                turretAimPID.reset();
+//            }
+//            telemetry.addData("Turret Power sent to hardware", power);
+        turret.setPower(powerClipped);
+        lastSeekingPower = powerClipped;
     }
 
     private void updateCurrentPosition() {
-        this.currentPosition = turret.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK + startingAngle - offsetAngle;
+        currentPosition = (double) -turretEnc.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK + startingAngle - offsetAngle - OFFSET_FOR_WEIRD_STUFF;
 
     }
+
     public void zeroTurret() {
         turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     public double getCurrentPosition() {
-        return this.currentPosition;
+        return currentPosition;
     }
+
     public double getCurrentPositionRaw() {
-        return this.currentPosition + this.offsetAngle;
+        return currentPosition + offsetAngle;
+    }
+
+    public double getTotalCurrentDraw() {
+        DcMotorEx turretEx = (DcMotorEx) turret;
+        return turretEx.getCurrent(CurrentUnit.AMPS);
     }
 
 
     public boolean isAtTarget() {
-        return Math.abs(this.currentPosition - targetAngle) < TURRET_ANGLE_TOLERANCE;
+        return Math.abs(currentPosition - targetAngle) < TURRET_ANGLE_TOLERANCE;
     }
 
-    /**
-     * Generic method for Objects
-     */
-    public void addTelemetry(String name, Object value) {
-        if (TELEM) {
-            // [TAG   ] (6 chars) + Name (15 chars)
-            // %-6.6s  -> Exactly 6 chars, Left Aligned
-            // %-15.15s -> Exactly 10 chars, Left Aligned
-            String tag = String.format("[%-6.6s]", this.getClass().getSimpleName().toUpperCase());
-            String label = String.format("%-10.10s", name);
-
-            telemetry.addData(tag + " " + label, value);
-        }
+    public boolean inSmoothZone() {
+        return Math.abs(currentPosition - targetAngle) < TURRET_ANGLE_SOFT_TOLERANCE;
     }
 
-    /**
-     * Overloaded method for Doubles (fixed precision + fixed label width)
-     */
-    public void addTelemetry(String name, double value) {
-        if (TELEM) {
-            String tag = String.format("[%-6.6s]", this.getClass().getSimpleName().toUpperCase());
-            String label = String.format("%-10.10s", name);
-
-            // %10.4f ensures the number itself doesn't jitter
-            telemetry.addData(tag + " " + label, String.format("%10.4f", value));
-        }
-    }
     @Override
     public void logData(DataLogger logger) {
-        logger.addField(this.targetAngle);
-        logger.addField(this.currentPosition);
+        logger.addField(targetAngle);
+        logger.addField(currentPosition);
         logger.addField(P_TURRET);
         logger.addField(I_TURRET);
         logger.addField(D_TURRET);
-        logger.addField(this.seekingPower);
+        logger.addField(seekingPower);
+        logger.addField(currentDraw);
     }
 }

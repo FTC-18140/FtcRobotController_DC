@@ -8,180 +8,174 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class LED {
-    Telemetry telemetry;
-    Servo rpmLed = null;
-    Servo launcherLed = null;
+    private Telemetry telemetry = null;
+    private Servo rpmLed = null;
+    private Servo colorLed = null;
+    private Servo intakeLed = null;
 
-    public ElapsedTime ledTimer = new ElapsedTime();
-    public double off = 0;
-    public double red = 0.28;
-    public double blue = 0.62;
-    public double green = 0.5;
-    public double yellow = 0.388;
-    public double orange = 0.32;
-    public double purple = 0.72;
-    public double white = 1;
+    private final ElapsedTime ledTimer = new ElapsedTime();
 
-    public static boolean TELEM = true;
-    public double theColor = white;
-    public void init(HardwareMap hwMap, Telemetry telem){
+    public enum Colors {
+        OFF,
+        RED,
+        BLUE,
+        GREEN,
+        YELLOW,
+        ORANGE,
+        INDIGO,
+        PURPLE,
+        WHITE,
+        RAINBOW
+    }
+
+    private double hue = 1.0;
+    private double hueLauncherLed = 1.0;
+    private double hueRpmLed = 1.0;
+    private double hueIntakeLed = 1.0;
+    private double lowerBoundRpm = 0.0;
+    private double upperBoundRpm = 0.0;
+
+    public void init(HardwareMap hwMap, Telemetry telem, double lowerBoundRpmIn, double upperBoundRpmIn) {
         telemetry = telem;
-        try{
+
+        try {
             rpmLed = hwMap.servo.get("led");
-            rpmLed.setPosition(red);
-        }catch (Exception e){
-            addTelemetry("led not found in configuration", 0);
+            setRPMLedToColor(Colors.RED);
+        } catch (RuntimeException e) {
+            telemetry.addData("led not found in configuration", 0);
         }
-        try{
-            launcherLed = hwMap.servo.get("led2");
-            launcherLed.setPosition(red);
-        }catch (Exception e){
-            addTelemetry("led2 not found in configuration", 0);
+        try {
+            colorLed = hwMap.servo.get("led2");
+            setLauncherLedToColor(Colors.RED);
+        } catch (RuntimeException e) {
+            telemetry.addData("led2 not found in configuration", 0);
         }
+        try {
+            intakeLed = hwMap.servo.get("led3");
+            setIntakeLedToColor(Colors.RED);
+        } catch (RuntimeException e) {
+            telemetry.addData("led3 not found in configuration", 0);
+        }
+        lowerBoundRpm = lowerBoundRpmIn;
+        upperBoundRpm = upperBoundRpmIn;
     }
 
-
-    public void update(double measured_rpm, double target_rpm, double runtime, IndexerFacade.BallState loaded_color, boolean isIndexerFull, IndexerFacade.State IndexerState) {
-        double difference_tps =  measured_rpm - target_rpm;
-        double acceptable_range_up = 30;
-        double acceptable_range_down = -30;
-
-        if (difference_tps < acceptable_range_down) {
-            setRPMLedToColor("red");
-        } else if (difference_tps > acceptable_range_up) {
-            setRPMLedToColor("blue");
+    public void update(boolean inLaunchZone, boolean overridden, double runtime, IndexerFacade.BallState loadedColor, boolean isIndexerFull, boolean isIntakeFull, IndexerFacade.State indexerState) {
+        if (inLaunchZone) {
+            setRPMLedToColor(Colors.YELLOW);
         } else {
-            setRPMLedToColor("green");
+            setRPMLedToColor(Colors.OFF);
         }
-        double alertTime_End = 10;
-        if ((120 - runtime) < alertTime_End) {
-            if (Math.ceil(runtime * 2) % 2 == 1){
-                setRPMLedToColor("off");
+        double alertTimeEnd = 10.0;
+        if (5.0 > (120.0 - runtime)) {
+            if (1.0 == (Math.ceil(runtime * 2.0) % 2.0)) {
             } else {
-                setRPMLedToColor("orange");
+//                setAllLedsToColor(Colors.RED);
+            }
+        } else if ((120.0 - runtime) < alertTimeEnd) {
+            if (1.0 == Math.ceil(runtime * 2.0) % 2.0) {
+            } else {
+//                setAllLedsToColor(Colors.ORANGE);
             }
 
         }
-        if (isIndexerFull) {
-            if (Math.ceil(runtime * 2) % 2 == 1){
-                setLauncherLedToColor("white");
-            } else {
-                switch (loaded_color) {
-                    case GREEN:
-                        setLauncherLedToColor("green");
-                        break;
-                    case PURPLE:
-                        setLauncherLedToColor("purple");
-                        break;
-                    default:
-                        setLauncherLedToColor("off");
-                }
-            }
+        switch (loadedColor) {
+            case GREEN:
+                setLauncherLedToColor(Colors.GREEN);
+                break;
+            case PURPLE:
+                setLauncherLedToColor(Colors.PURPLE);
+                break;
+            default:
+                setLauncherLedToColor(Colors.OFF);
+                break;
+        }
+        if (isIndexerFull && (1.0 == Math.ceil(runtime * 2.0) % 2.0)) {
+            setLauncherLedToColor(Colors.WHITE);
+        }
 
+        if (isIntakeFull) {
+            setIntakeLedToColor(Colors.RED);
+        } else if (overridden) {
+            setIntakeLedToColor(Colors.WHITE);
         } else {
-            switch (loaded_color) {
-                case GREEN:
-                    setLauncherLedToColor("green");
-                    break;
-                case PURPLE:
-                    setLauncherLedToColor("purple");
-                    break;
-                default:
-                    setLauncherLedToColor("off");
-            }
+            setIntakeLedToColor(Colors.OFF);
         }
+        setColorsIfHoming(indexerState);
+//        if(runtime > 125) setAllLedsToColor(Colors.OFF);
+        writeToLeds();
+    }
 
-        if(IndexerState == IndexerFacade.State.HOMING) {
-            setRPMLedToColor("blue");
-            setLauncherLedToColor("blue");
+    private void setColorsIfHoming(IndexerFacade.State indexerState) {
+        if (IndexerFacade.State.HOMING == indexerState) {
+            setAllLedsToColor(Colors.BLUE);
         }
-
-
     }
-//    public void update(IndexerFacade.BallState ballcolor, double remainingSeconds) {
-//        if (remainingSeconds < 10) {
-//            if (Math.ceil(remainingSeconds * 2) % 2 == 1){
-//                setToColor("off");
-//            } else {
-//                setToColor("orange");
-//            }
-//
-//        }
-//        else if (ballcolor == IndexerFacade.BallState.GREEN) {
-//            setToColor("green");
-//        } else if (ballcolor == IndexerFacade.BallState.PURPLE) {
-//            setToColor("purple");
-//        } else {
-//            setToColor("blue");
-//        }
-//    }
-    public void setRPMLedToColor(String color) {
-        rpmLed.setPosition(getColor(color));
+
+    private void setRPMLedToColor(Colors color) {
+        hueRpmLed = getColor(color);
     }
-    public void setLauncherLedToColor(String color){
-        launcherLed.setPosition(getColor(color));
+
+    private void setIntakeLedToColor(Colors color) {
+        hueIntakeLed = getColor(color);
+    }
+
+    void setLauncherLedToColor(Colors color) {
+        hueLauncherLed = getColor(color);
+    }
+
+    private void setAllLedsToColor(Colors color) {
+        setRPMLedToColor(color);
+        setLauncherLedToColor(color);
+        setIntakeLedToColor(color);
+    }
+
+    private void writeToLeds() {
+        colorLed.setPosition(hueLauncherLed);
+        rpmLed.setPosition(hueRpmLed);
+        intakeLed.setPosition(hueIntakeLed);
     }
 
     /**
      * sets the color of the leds based on an input string
+     *
      * @param color
      */
-    public double getColor(String color) {
-        if(rpmLed != null) {
-            switch(color){
-                case("off"):
-                    theColor = off;
-                    break;
-                case("red"):
-                    theColor = red;
-                    break;
-                case("yellow"):
-                    theColor = yellow;
-                    break;
-                case("blue"):
-                    theColor = blue;
-                    break;
-                case("purple"):
-                    theColor = purple;
-                    break;
-                case("green"):
-                    theColor = green;
-                    break;
-                case("rainbow"):
-                    theColor = Range.clip(0.22*Math.sin(ledTimer.seconds()*3)+0.5, 0.28, 0.72);
-                    break;
-                case("orange"):
-//                    if(Math.sin(ledTimer.seconds()/2) > 0){
-                    theColor = orange;
-//                    }else{
-//                        theColor = white;
-//                    }
-                    break;
-                default:
-                    theColor = white;
-                    break;
-            }
-        }
-        return theColor;
-    }
-    public void addTelemetry(String name, Object value) {
-        if (TELEM) {
-            // this.getClass().getSimpleName() returns "Limelight"
-            telemetry.addData("[" + this.getClass().getSimpleName() + "] " + name, value);
-        }
-    }
-    /**     * Overloaded method to format doubles to 2 decimal places automatically
-     */
-    public void addTelemetry(String name, double value) {
-        if (TELEM) {
-            telemetry.addData("[" + this.getClass().getSimpleName() + "] " + name, String.format("%.2f", value));
-        }
-    }
+    public double getColor(Colors color) {
+        switch (color) {
+            case OFF:
+                hue = 0.0;
+                break;
+            case RED:
+                hue = 0.28;
+                break;
+            case ORANGE:
+                hue = 0.333;
+                break;
+            case YELLOW:
+                hue = 0.388;
+                break;
+            case GREEN:
+                hue = 0.5;
+                break;
+            case BLUE:
+                hue = 0.611;
+                break;
+            case INDIGO:
+                hue = 0.666;
+                break;
+            case PURPLE:
+                hue = 0.722;
+                break;
+            case WHITE:
+                hue = 1.0;
+                break;
+            case RAINBOW:
+                double seconds = ledTimer.seconds();
+                hue = Range.clip(0.22 * Math.sin(seconds * 3.0) + 0.5, 0.28, 0.72);
+                break;
 
-    public void addTelemetry(String line)
-    {
-        if (TELEM) {
-            telemetry.addLine(line);
         }
+        return hue;
     }
 }

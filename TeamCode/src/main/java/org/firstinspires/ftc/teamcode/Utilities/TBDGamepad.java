@@ -6,8 +6,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import java.util.Arrays;
 
 @Config
-public class TBDGamepad
-{
+public class TBDGamepad {
     public Gamepad gamepad;
 
     public static double expoYValue = 2.5;
@@ -15,6 +14,10 @@ public class TBDGamepad
     public boolean[] buttons = new boolean[14];
     public boolean[] oldButtons = new boolean[14];
     public boolean[] changed = new boolean[14];
+    private Colors currentLedColorEnum = Colors.OFF; // Track the last set color
+
+    static final long RUMBLE_INTERVAL_MS = 500;
+    private long lastRumbleTime = 0;
 
     public boolean leftOldTrigger = false;
     public boolean leftNewTrigger = false;
@@ -24,31 +27,55 @@ public class TBDGamepad
     public boolean leftTriggerChanged = false;
     public boolean rightTriggerChanged = false;
 
-    public enum Button
-    {
+    public enum Button {
         A(0), B(1), X(2), Y(3), LEFT_BUMPER(4), RIGHT_BUMPER(5), BACK(6),
         START(7), DPAD_UP(8), DPAD_DOWN(9), DPAD_LEFT(10), DPAD_RIGHT(11),
         LEFT_STICK_BUTTON(12), RIGHT_STICK_BUTTON(13);
         final int index;
 
-        Button(int ind)
-        {
+        Button(int ind) {
             this.index = ind;
         }
     }
 
-    public enum Trigger
-    {
+    /**
+     * Represents the available LED colors for the gamepad.
+     * Each enum constant directly embeds its RGB values (0.0 to 1.0).
+     */
+    public enum Colors {
+        // Enum constants with embedded RGB values
+        OFF(0.0, 0.0, 0.0),
+        RED(1.0, 0.0, 0.0),
+        ORANGE(1.0, 0.5, 0.0),
+        YELLOW(1.0, 1.0, 0.0),
+        YELLOWGREEN(0.5, 1.0, 0.0),
+        GREEN(0.0, 1.0, 0.0),
+        GREENBLUE(0.0, 1.0, 1.0),
+        BLUE(0.0, 0.0, 1.0),
+        INDIGO(0.5, 0.0, 1.0),
+        PURPLE(1.0, 0.0, 1.0),
+        WHITE(1.0, 1.0, 1.0);
+
+        // Private fields to store the RGB components
+        private final double r, g, b;
+
+        // Enum constructor to initialize the RGB values for each constant
+        Colors(double r, double g, double b) {
+            this.r = r;
+            this.g = g;
+            this.b = b;
+        }
+    }
+
+    public enum Trigger {
         LEFT_TRIGGER, RIGHT_TRIGGER
     }
 
-    public enum Stick
-    {
+    public enum Stick {
         LEFT_X, LEFT_Y, RIGHT_X, RIGHT_Y
     }
 
-    public TBDGamepad(Gamepad gamepad)
-    {
+    public TBDGamepad(Gamepad gamepad) {
         this.gamepad = gamepad;
         Arrays.fill(buttons, false);
         Arrays.fill(oldButtons, false);
@@ -59,11 +86,9 @@ public class TBDGamepad
      * @param button the button object
      * @return the boolean value as to whether the button is active or not
      */
-    public boolean getButton(Button button)
-    {
+    public boolean getButton(Button button) {
         boolean buttonValue = false;
-        switch (button)
-        {
+        switch (button) {
             case A:
                 buttonValue = gamepad.a;
                 break;
@@ -116,11 +141,9 @@ public class TBDGamepad
      * @param trigger the trigger object
      * @return the value returned by the trigger in question
      */
-    public double getTrigger(Trigger trigger)
-    {
+    public double getTrigger(Trigger trigger) {
         double triggerValue = 0;
-        switch (trigger)
-        {
+        switch (trigger) {
             case LEFT_TRIGGER:
                 triggerValue = gamepad.left_trigger;
                 break;
@@ -133,16 +156,14 @@ public class TBDGamepad
         return triggerValue;
     }
 
-    public boolean getTriggerBoolean(Trigger trigger)
-    {
+    public boolean getTriggerBoolean(Trigger trigger) {
         boolean triggerValue = false;
-        switch (trigger)
-        {
+        switch (trigger) {
             case LEFT_TRIGGER:
-                triggerValue = gamepad.left_trigger > 0.1;
+                triggerValue = 0.1 < gamepad.left_trigger;
                 break;
             case RIGHT_TRIGGER:
-                triggerValue = gamepad.right_trigger > 0.1;
+                triggerValue = 0.1 < gamepad.right_trigger;
                 break;
             default:
                 break;
@@ -153,8 +174,7 @@ public class TBDGamepad
     /**
      * @return the y-value on the left analog stick
      */
-    public double getLeftY()
-    {
+    public double getLeftY() {
         return -gamepad.left_stick_y;
     }
 
@@ -162,31 +182,26 @@ public class TBDGamepad
     /**
      * @return the y-value on the right analog stick
      */
-    public double getRightY()
-    {
+    public double getRightY() {
         return -gamepad.right_stick_y;
     }
 
     /**
      * @return the x-value on the left analog stick
      */
-    public double getLeftX()
-    {
+    public double getLeftX() {
         return gamepad.left_stick_x;
     }
 
     /**
      * @return the x-value on the right analog stick
      */
-    public double getRightX()
-    {
+    public double getRightX() {
         return gamepad.right_stick_x;
     }
 
-    public double getExpo(Stick stick)
-    {
-        switch (stick)
-        {
+    public double getExpo(Stick stick) {
+        switch (stick) {
             case LEFT_X:
                 return Math.pow(getLeftX(), expoXValue);
             case LEFT_Y:
@@ -200,41 +215,59 @@ public class TBDGamepad
         }
     }
 
-    public boolean getButtonPressed(Button theButton)
-    {
+    public boolean getButtonPressed(Button theButton) {
         return changed[theButton.index] && buttons[theButton.index];
     }
 
-    public boolean getButtonReleased(Button theButton)
-    {
+    public boolean getButtonReleased(Button theButton) {
         return changed[theButton.index] && !buttons[theButton.index];
     }
 
-    public boolean getTriggerPressed(Trigger theTrigger)
-    {
-        if (theTrigger == Trigger.LEFT_TRIGGER)
-        {
+    public boolean getTriggerPressed(Trigger theTrigger) {
+        if (Trigger.LEFT_TRIGGER == theTrigger) {
             return leftTriggerChanged && leftNewTrigger;
-        }
-        else
-        {
+        } else {
             return rightTriggerChanged && rightNewTrigger;
         }
 
     }
 
-    public void notifyDriver(int numBlips)
-    {
-        gamepad.rumbleBlips(numBlips);
+    /**
+     * Notifies the driver by rumbling the gamepad a specified number of times.
+     * This method is rate-limited to prevent excessive calls, ensuring it
+     * is called at most twice per second.
+     * @param numBlips The number of blips to rumble.
+     */
+    public void notifyDriver(int numBlips) {
+        long currentTime = System.currentTimeMillis();
+
+        // Check if enough time has passed since the last rumble.
+        if (currentTime - lastRumbleTime >= RUMBLE_INTERVAL_MS) {
+            gamepad.rumbleBlips(numBlips);
+            lastRumbleTime = currentTime; // Update the last rumble time
+        }
+        // If not enough time has passed, the rumble call is skipped.
     }
 
-    public void blipDriver()
-    {
+    /**
+     * Sets the LED color of the gamepad using a Colors enum.
+     * This method tracks the desired enum color and delegates to setLedColorRGB
+     * to handle the actual hardware call with redundancy checks.
+     * @param color The desired Colors enum value.
+     */
+    public void setLedColor(Colors color) {
+        // Primary check: Only proceed if the *enum color* itself has changed from the last processed enum.
+        if (this.currentLedColorEnum != color) {
+            gamepad.setLedColor(color.r, color.g, color.b, Gamepad.LED_DURATION_CONTINUOUS);
+            // Update the tracked enum color *only after* potentially setting the RGB.
+            this.currentLedColorEnum = color;
+        }
+    }
+    public void blipDriver() {
         notifyDriver(1);
     }
 
-    public void update()
-    {
+    public void update() {
         System.arraycopy(buttons, 0, oldButtons, 0, 14);
 
         buttons[Button.A.index] = gamepad.a;
@@ -258,8 +291,7 @@ public class TBDGamepad
         rightNewTrigger = gamepad.right_trigger > triggerThreshold;
         rightTriggerChanged = rightOldTrigger != rightNewTrigger;
 
-        for (int i = 0; i < 14; i++)
-        {
+        for (int i = 0; 14 > i; i++) {
             changed[i] = oldButtons[i] != buttons[i];
         }
     }
