@@ -17,27 +17,35 @@ import org.firstinspires.ftc.teamcode.Robot.Auto.AutoRedDepot_12;
 import org.firstinspires.ftc.teamcode.Utilities.DataLoggable;
 import org.firstinspires.ftc.teamcode.Utilities.DataLogger;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
+import org.firstinspires.ftc.teamcode.Utilities.ThresholdMotor;
 
 @Config
-public class Turret implements DataLoggable {
+public class Turret
+{
+
 
     // Define the states as an enum
-    private enum State {
+    private enum State
+    {
         STOP,
         HOLDING,
         SEEKING_ANGLE,
         MANUAL_CONTROL
     }
 
-    public State getCurrentState() {
+    public State getCurrentState()
+    {
         return currentState;
     }
 
     private State currentState = State.HOLDING; // Initial state
 
     // Hardware and Utilities
-    private DcMotor turret = null;
-    private DcMotor turretEnc = null;
+    private DcMotorEx turret = null;
+    private ThresholdMotor turretWriter = null;
+    public static double TURRET_POWER_THRESHOLD = 0.005;
+
+    private DcMotorEx turretEnc = null;
     private TouchSensor turretSwitch = null;
     private boolean isHomed = false;
     //private DcMotor turretEnc;
@@ -74,48 +82,60 @@ public class Turret implements DataLoggable {
     private double offsetAngle = (double) 0;
     public static double OFFSET_FOR_WEIRD_STUFF = 3.5;
     private double seekingPower = (double) 0; // Member variable to be accessible for logging
-    private double lastSeekingPower = (double) 0;
     public static String STARTING_ANGLE = AutoRedDepot_12.TURRET_ENDING_ANGLE_AUTO_KEY;
     double startingAngle = 0.0;
 
-    public void init(HardwareMap hwMap, Telemetry telem) {
-
+    public void init(HardwareMap hwMap, Telemetry telem)
+    {
         // touch sensor: Control hub Digital port 4
         startingAngle = (double) OpMode.blackboard.getOrDefault(STARTING_ANGLE, (double) 0);
 
         telemetry = telem;
         turretAimPID = new PIDController(P_TURRET, I_TURRET, D_TURRET);
-        try {
-            turret = hwMap.dcMotor.get("turret");
+        try
+        {
+//            turret = hwMap.dcMotor.get("turret");
+            turret = hwMap.get(DcMotorEx.class, "turret");
             turret.setDirection(DcMotor.Direction.REVERSE);
             turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             turret.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-            turretEnc = hwMap.dcMotor.get("rightBack");
+            turretWriter = new ThresholdMotor(turret, TURRET_POWER_THRESHOLD);
+
+//            turretEnc = hwMap.dcMotor.get("rightBack");
+            turretEnc = hwMap.get(DcMotorEx.class, "rightBack");
             turretEnc.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             turretEnc.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        } catch (RuntimeException e) {
+        }
+        catch (RuntimeException e)
+        {
             telemetry.addData("Motor\"turret\" not found", 0);
         }
-        try {
+        try
+        {
             turretSwitch = hwMap.touchSensor.get("turretSwitch");
-        } catch (RuntimeException e) {
+        }
+        catch (RuntimeException e)
+        {
             telemetry.addData("Touch Sensor\"turretSwitch\" not found", 0);
         }
 
 
     }
 
-    public void setStartAngle(double angle) {
+    public void setStartAngle(double angle)
+    {
         offsetAngle = -angle;
     }
 
-    public double getTargetPos() {
+    public double getTargetPos()
+    {
         return targetAngle;
     }
 
-    public void setOffsetAngle(double offset) {
+    public void setOffsetAngle(double offset)
+    {
         offsetAngle = offset;
     }
 
@@ -124,7 +144,8 @@ public class Turret implements DataLoggable {
     /**
      * @param angle in degrees
      */
-    void seekToAngle(double angle) {
+    void seekToAngle(double angle)
+    {
         lastTargetAngle = targetAngle;
         targetAngle = Range.clip(angle, MIN_TURRET_POS, MAX_TURRET_POS);
         currentState = State.SEEKING_ANGLE;
@@ -141,35 +162,48 @@ public class Turret implements DataLoggable {
      * @param angle The desired theoretical angle in degrees.
      * @return The physically possible angle in degrees, constrained to [-90, 225].
      */
-    public double applyHardwareConstraints(double angle) {
+    public double applyHardwareConstraints(double angle)
+    {
         double finalAngle = angle % 360.0;
-        if (finalAngle < MIN_TURRET_POS) {
-            if (finalAngle < MIN_TURRET_POS - TURRET_ANGLE_TOLERANCE) {
+        if (finalAngle < MIN_TURRET_POS)
+        {
+            if (finalAngle < MIN_TURRET_POS - TURRET_ANGLE_TOLERANCE)
+            {
                 finalAngle = finalAngle + 360;
-            } else {
+            }
+            else
+            {
                 finalAngle = MIN_TURRET_POS;
             }
-        } else if (finalAngle > MAX_TURRET_POS) {
-            if (finalAngle > MAX_TURRET_POS + TURRET_ANGLE_TOLERANCE) {
+        }
+        else if (finalAngle > MAX_TURRET_POS)
+        {
+            if (finalAngle > MAX_TURRET_POS + TURRET_ANGLE_TOLERANCE)
+            {
                 finalAngle = finalAngle - 360;
-            } else {
+            }
+            else
+            {
                 finalAngle = MAX_TURRET_POS;
             }
         }
         return finalAngle;
     }
 
-    public void setManualPower(double power) {
+    public void setManualPower(double power)
+    {
         manualPower = power;
         currentState = State.MANUAL_CONTROL;
     }
 
-    public void holdPosition() {
+    public void holdPosition()
+    {
         targetAngle = currentPosition; // Hold where we are
         currentState = State.STOP;
     }
 
-    public boolean isHomed() {
+    public boolean isHomed()
+    {
         return isHomed;
     }
 
@@ -192,7 +226,8 @@ public class Turret implements DataLoggable {
      */
     public void update(Pose2d robotPose,
                        PoseVelocity2d robotVel,
-                       Vector2d targetPos, boolean launching) {
+                       Vector2d targetPos, boolean launching)
+    {
         updateCurrentPosition();
         turretAimPID.setPID(P_TURRET, I_TURRET, D_TURRET);
         double targetShift = targetAngle - lastTargetAngle;
@@ -203,7 +238,8 @@ public class Turret implements DataLoggable {
         isHomed = turretSwitch.isPressed();
 
         currentDraw = getTotalCurrentDraw();
-        if (Flywheel.GOBILDA_MOTOR_STALL_CURRENT <= currentDraw) {
+        if (Flywheel.GOBILDA_MOTOR_STALL_CURRENT <= currentDraw)
+        {
             telemetry.addData("TURRET STALLED", 0);
         }
 
@@ -219,9 +255,12 @@ public class Turret implements DataLoggable {
         double ffLaunch = (launching && currentPosition < targetAngle ? F_LAUNCHING * Math.min(mediumErrorScalar, 1) : 0);
 
         double ffResistance = 0;
-        if (targetAngle > F_RANGE_MAX) {
+        if (targetAngle > F_RANGE_MAX)
+        {
             ffResistance = Range.scale(Range.clip(targetAngle, F_RANGE_MAX, MAX_TURRET_POS), F_RANGE_MAX, MAX_TURRET_POS, F_RES_POS_MIN, F_RES_POS_MAX);
-        } else if (targetAngle < F_RANGE_MIN) {
+        }
+        else if (targetAngle < F_RANGE_MIN)
+        {
             ffResistance = Range.scale(Range.clip(targetAngle, F_RANGE_MIN, MIN_TURRET_POS), F_RANGE_MIN, MIN_TURRET_POS, F_RES_NEG_MIN, F_RES_NEG_MAX);
         }
         ffResistance = Math.signum(seekingPower) * ffResistance;
@@ -235,27 +274,34 @@ public class Turret implements DataLoggable {
         // Combine all terms
         double totalPower = seekingPower + ffTotal;
 
-        switch (currentState) {
+        switch (currentState)
+        {
             case HOLDING:
-                if (isAtTarget()) {
+                if (isAtTarget())
+                {
                     setHardwarePower(totalPower * lowerErrorScalar);
-                } else {
+                }
+                else
+                {
                     setHardwarePower(totalPower);
                     currentState = State.SEEKING_ANGLE;
                 }
                 break;
             case SEEKING_ANGLE:
-                if (isAtTarget()) {
+                if (isAtTarget())
+                {
                     setHardwarePower(totalPower * lowerErrorScalar);
                     currentState = State.HOLDING;
-                } else {
+                }
+                else
+                {
                     setHardwarePower(totalPower);
                 }
                 break;
-
             case MANUAL_CONTROL:
                 setHardwarePower(manualPower);
-                if (0.01 > Math.abs(manualPower)) {
+                if (0.01 > Math.abs(manualPower))
+                {
                     currentState = State.HOLDING;
                     setHardwarePower((double) 0);
                 }
@@ -266,8 +312,8 @@ public class Turret implements DataLoggable {
                 break;
         }
 
-
-        if (TELEM) {
+        if (TELEM)
+        {
             telemetry.addLine(" ------------- TURRET TELEM -------------");
             telemetry.addData("Turret Starting Angle: ", startingAngle);
             telemetry.addData("Turret Offset Angle: ", offsetAngle);
@@ -300,13 +346,14 @@ public class Turret implements DataLoggable {
      */
     private double calculateTranslationalFF(Pose2d robotPose,
                                             PoseVelocity2d robotVel,
-                                            Vector2d targetPos) {
+                                            Vector2d targetPos)
+    {
 
         double dx = targetPos.x - robotPose.position.x;
         double dy = targetPos.y - robotPose.position.y;
         double rSquared = dx * dx + dy * dy;
 
-        if (1e-6 > rSquared) return 0.0;
+        if (1e-6 > rSquared) {return 0.0;}
 
         // We need the world-frame velocity.
         // RoadRunner 1.0 PoseVelocity2d usually contains robot-relative v.
@@ -320,56 +367,50 @@ public class Turret implements DataLoggable {
         return translationalRate * KV_TRANS;
     }
 
-    private void setHardwarePower(double power) {
-
+    private void setHardwarePower(double power)
+    {
         double powerClipped = Range.clip(power, -MAX_POWER, MAX_POWER);
-//            if (Math.signum(power) != Math.signum(lastSeekingPower)){
-////                turretAimPID.reset();
-//            }
-//            telemetry.addData("Turret Power sent to hardware", power);
-        turret.setPower(powerClipped);
-        lastSeekingPower = powerClipped;
+        if (turretWriter != null)
+        {
+            turretWriter.setPower(powerClipped);
+        }
+//        turret.setPower(powerClipped);
     }
 
-    private void updateCurrentPosition() {
+    private void updateCurrentPosition()
+    {
         currentPosition = (double) -turretEnc.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK + startingAngle - offsetAngle - OFFSET_FOR_WEIRD_STUFF;
-
     }
 
-    public void zeroTurret() {
+    public void zeroTurret()
+    {
         turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
-    public double getCurrentPosition() {
+    public double getCurrentPosition()
+    {
         return currentPosition;
     }
 
-    public double getCurrentPositionRaw() {
+    public double getCurrentPositionRaw()
+    {
         return currentPosition + offsetAngle;
     }
 
-    public double getTotalCurrentDraw() {
+    public double getTotalCurrentDraw()
+    {
         DcMotorEx turretEx = (DcMotorEx) turret;
         return turretEx.getCurrent(CurrentUnit.AMPS);
     }
 
 
-    public boolean isAtTarget() {
+    public boolean isAtTarget()
+    {
         return Math.abs(currentPosition - targetAngle) < TURRET_ANGLE_TOLERANCE;
     }
 
-    public boolean inSmoothZone() {
+    public boolean inSmoothZone()
+    {
         return Math.abs(currentPosition - targetAngle) < TURRET_ANGLE_SOFT_TOLERANCE;
-    }
-
-    @Override
-    public void logData(DataLogger logger) {
-        logger.addField(targetAngle);
-        logger.addField(currentPosition);
-        logger.addField(P_TURRET);
-        logger.addField(I_TURRET);
-        logger.addField(D_TURRET);
-        logger.addField(seekingPower);
-        logger.addField(currentDraw);
     }
 }

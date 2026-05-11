@@ -55,6 +55,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.Robot.Localizers.Localizer;
 import org.firstinspires.ftc.teamcode.Robot.Localizers.PinpointLocalizer;
 import org.firstinspires.ftc.teamcode.Utilities.Drawing;
+import org.firstinspires.ftc.teamcode.Utilities.ThresholdMotor;
 import org.firstinspires.ftc.teamcode.messages.DriveCommandMessage;
 import org.firstinspires.ftc.teamcode.messages.MecanumCommandMessage;
 import org.firstinspires.ftc.teamcode.messages.MecanumLocalizerInputsMessage;
@@ -125,6 +126,7 @@ public final class MecanumDrive {
             new ProfileAccelConstraint(PARAMS.minProfileAccel, PARAMS.maxProfileAccel);
 
     public final DcMotorEx leftFront, leftBack, rightBack, rightFront;
+    public ThresholdMotor lfWriter, lbWriter, rbWriter, rfWriter;
 
     public final VoltageSensor voltageSensor;
 
@@ -248,6 +250,11 @@ public final class MecanumDrive {
         rightBack = hardwareMap.get(DcMotorEx.class, RIGHT_BACK_MOTOR);
         rightFront = hardwareMap.get(DcMotorEx.class, RIGHT_FRONT_MOTOR);
 
+        lfWriter = new ThresholdMotor(leftFront, 0.005);
+        lbWriter = new ThresholdMotor(leftBack, 0.005);
+        rbWriter = new ThresholdMotor(rightBack, 0.005);
+        rfWriter = new ThresholdMotor(rightFront, 0.005);
+
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -279,10 +286,15 @@ public final class MecanumDrive {
             maxPowerMag = Math.max(maxPowerMag, power.value());
         }
 
-        leftFront.setPower(wheelVels.leftFront.get(0) / maxPowerMag);
-        leftBack.setPower(wheelVels.leftBack.get(0) / maxPowerMag);
-        rightBack.setPower(wheelVels.rightBack.get(0) / maxPowerMag);
-        rightFront.setPower(wheelVels.rightFront.get(0) / maxPowerMag);
+//        leftFront.setPower(wheelVels.leftFront.get(0) / maxPowerMag);
+//        leftBack.setPower(wheelVels.leftBack.get(0) / maxPowerMag);
+//        rightBack.setPower(wheelVels.rightBack.get(0) / maxPowerMag);
+//        rightFront.setPower(wheelVels.rightFront.get(0) / maxPowerMag);
+
+        lfWriter.setPower(wheelVels.leftFront.get(0) / maxPowerMag);
+        lbWriter.setPower(wheelVels.leftBack.get(0) / maxPowerMag);
+        rbWriter.setPower(wheelVels.rightBack.get(0) / maxPowerMag);
+        rfWriter.setPower(wheelVels.rightFront.get(0) / maxPowerMag);
     }
 
     public double getTotalCurrentDraw() {
