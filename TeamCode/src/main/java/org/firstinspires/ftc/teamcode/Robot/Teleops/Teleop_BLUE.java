@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Robot.IndexerFacade;
 import org.firstinspires.ftc.teamcode.Robot.LauncherFacade;
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
+import org.firstinspires.ftc.teamcode.Robot.TransferFacade;
 import org.firstinspires.ftc.teamcode.Utilities.TBDGamepad;
 
 @TeleOp(group = Teleop_BLUE.MATCH_TELEOP_GROUP)
@@ -189,7 +190,7 @@ public class Teleop_BLUE extends OpMode {
                     robot.indexer.cycle(1);
                 } else if (theGamepad2.getButton(TBDGamepad.Button.LEFT_STICK_BUTTON)) {
                     robot.indexer.adjustToThird();
-                } else if (IndexerFacade.State.IDLE == robot.indexer.getCurrentState() || IndexerFacade.State.AWAITING_LAUNCH == robot.indexer.getCurrentState()) {
+                } else if (TransferFacade.State.IDLE == robot.indexer.getCurrentState() ) {
 
                     // If not manually spinning, send a spin(0) to allow the turnstile to auto-align.
 //                    robot.indexer.spin(0);

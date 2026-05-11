@@ -35,8 +35,8 @@ public class AutoBlueFar_9_1S_1L extends LinearOpMode {
         // This is the equivalent of init_loop()
         while (opModeInInit()) {
             // Code here runs repeatedly during init phase.  Need to be looking at ObeliskID
-            robot.indexer.updateBallSensors();
-            robot.indexer.updateBallStates();
+//            robot.indexer.updateBallSensors();
+//            robot.indexer.updateBallStates();
             telemetry.addData("Status", "Waiting for start");
             telemetry.update();
         }

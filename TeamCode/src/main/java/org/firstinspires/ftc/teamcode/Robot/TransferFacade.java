@@ -83,7 +83,9 @@ public class TransferFacade
     public void cancelSequence() { }
     public boolean isInSequence() { return false; }
 
-
+    public void overrideLaunching(boolean active) {
+        override = active;
+    }
     public State getCurrentState() { return currentState; }
 
     public boolean launch()
