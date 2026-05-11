@@ -17,7 +17,7 @@ public class BeamBreakSystem
     private int intakeCount = 0;
     private int indexerCount = 0;
 
-    public static int BRAKE_COUNT = 5;
+    public static int BREAK_COUNT = 5;
 
     public void init(HardwareMap hwMap, Telemetry telem) {
         telemetry = telem;
@@ -38,8 +38,8 @@ public class BeamBreakSystem
             boolean triggered = !beamBreakIntake.getState();
             if ( triggered )
             {
-                intakeCount = Math.min(intakeCount + 1, BRAKE_COUNT);
-                inIntake = (intakeCount == BRAKE_COUNT);
+                intakeCount = Math.min(intakeCount + 1, BREAK_COUNT);
+                inIntake = (intakeCount == BREAK_COUNT);
             }
             else
             {
@@ -55,8 +55,8 @@ public class BeamBreakSystem
             boolean triggered = !beamBreakIndexer.getState();
             if ( triggered )
             {
-                indexerCount = Math.min(indexerCount + 1, BRAKE_COUNT);
-                inIndexer = (indexerCount == BRAKE_COUNT);
+                indexerCount = Math.min(indexerCount + 1, BREAK_COUNT);
+                inIndexer = (indexerCount == BREAK_COUNT);
             }
             else
             {

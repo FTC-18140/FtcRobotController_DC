@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.Robot;
-
 import static com.qualcomm.robotcore.eventloop.opmode.OpMode.blackboard;
-
 import static org.firstinspires.ftc.teamcode.Robot.Turnstile.STARTING_ANGLE_KEY;
 
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -9,7 +7,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Robot.Drives.MecanumDrive;
@@ -27,22 +24,26 @@ public class LiftingTurnstile
     private double startingAngle = 0;
     private double targetAngle = 0;
     private boolean limitSwitchPressed = false;
+    private boolean isHomed = false;
     private Telemetry telemetry;
 
     public static boolean TELEM = false;
 
     public static double P = 0.0028, I = 0.0, D = 0.00022;
-    private State currentState = State.IDLE;
+    public static double stiffP = 0.006, stiffI = 0.0, stiffD = 0.0001;
 
-    private boolean isHomed = false;
+    private State currentState = State.OFF;
 
     private static final double COUNTS_PER_REVOLUTION = 8192;
-    private static final double GEAR_RATIO = (double) 1 / 2;
     private static final double COUNTS_PER_DEGREE = COUNTS_PER_REVOLUTION / 360;
 
-    public enum State {IDLE, HOMING, SEEKING_POSITION, HOLDING_POSITION, LAUNCHING} // Added MANUAL_SPIN
+    private enum State {OFF, HOMING, CONTROL_TO_ANGLE, LAUNCHING} // Added MANUAL_SPIN
+
     public static double LAUNCHING_POWER = 0.95;
+    public static double CONTROLLING_POWER = 0.7;
     public static double HOMING_POWER = 0.065;
+    public static double ANGLE_TOLERANCE = 2.5;// In degrees
+    public static double BACKWARD_TOLERANCE = 30;
 
 
     public void init(HardwareMap hwMap, Telemetry telem)
@@ -68,132 +69,125 @@ public class LiftingTurnstile
         startingAngle = (double) blackboard.getOrDefault(STARTING_ANGLE_KEY, (double) 0);
     }
 
-
-    public void seekToAngle(double angle)
+    public void seekToAngle(double toAngle)
     {
+        toAngle = ((toAngle % 360) + 360) % 360; // Make sure angle is within [0, 360]
 
-        angle = ((angle % 360) + 360) % 360; // Make sure angle is within [0, 360]
+        // Shortest path error in [-180,180]
+        double error = toAngle - (currentAngle % 360.0);
+        error = ((error + 180) % 360) - 180;
 
-        // Shortest path shortestRot in [-180,180]
-        double shortestRot = angle - (currentAngle % 360.0);
-        shortestRot = ((shortestRot + 180) % 360) - 180;
-
-        // If shortestRot is too far behind, force forward rotation
-        if (shortestRot < -ANGLE_TOLERANCE && Math.abs(shortestRot) > BACKWARD_TOLERANCE)
+        // If error is too far behind, force forward rotation
+        if (error < -ANGLE_TOLERANCE && Math.abs(error) > BACKWARD_TOLERANCE)
         {
-            shortestRot += 360.0;
+            error += 360.0;
         }
-        targetAngle = currentAngle + shortestRot;
-        currentState = State.SEEKING_POSITION;
-        nearTarget = false;
+        targetAngle = currentAngle + error;
+        currentState = State.CONTROL_TO_ANGLE;
     }
 
     public void home()
     {
-        currentState = State.HOMING;
         isHomed = false;
+        currentState = State.HOMING;
     }
 
-    public void launchSlots(int launches) {
-        targetAngle = currentAngle - (360);
+    public void launchSlots(int launches)
+    {
+        // If launches is 3, this becomes -(120 * 4) = -480 degrees
+        double moveAmount = -(120.0 * (launches + 1));
+        targetAngle = currentAngle + moveAmount;
         currentState = State.LAUNCHING;
     }
 
-    public void update(int count)
+    public double getAngleError()
     {
-        // --- 1. Cache Hardware Reads ---
-        currentAngle = indexMotor.getCurrentPosition() / COUNTS_PER_DEGREE - startingAngle - launching_offset;
+        return Math.abs(targetAngle - currentAngle);
+    }
+    public boolean isAtTarget()
+    {
+        return (Math.abs(currentAngle - targetAngle ) < ANGLE_TOLERANCE);
+    }
+
+    public boolean isHomed()
+    {
+        return isHomed;
+    }
+    public void update()
+    {
+        // 1. Hardware Read (Keep it at the top)
+        currentAngle = indexMotor.getCurrentPosition() / COUNTS_PER_DEGREE + startingAngle;
         limitSwitchPressed = limitSwitch.isPressed();
 
-//        double angleErrorAbs = Math.abs(targetAngle + current_offset - currentAngle);
-//        double lowerErrorScalar = (angleErrorAbs * angleErrorAbs) / (ANGLE_TOLERANCE * ANGLE_TOLERANCE);
-
-        double power = 0;
-        power = angleController.calculate(currentAngle, targetAngle + current_offset);
-
-
-        switch (currentState) {
-            case IDLE:
-                indexerServo1.setPower(0);
-                indexerServo2.setPower(0);
+        // 2. State Machine
+        switch (currentState)
+        {
+            case OFF:
+                stopServos();
                 break;
             case HOMING:
-                indexerServo1.setPower(HOMING_POWER);
-                indexerServo2.setPower(HOMING_POWER);
-                isHomed = false;
-
+                driveServos(HOMING_POWER);
                 if (limitSwitchPressed)
                 {
-                    indexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    indexMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    currentAngle = 0;
-                    isHomed = true;
-                    targetAngle = 0;
-//                    current_offset = HOMING_OFFSET;
-
-                    indexerServo1.setPower(power * lowerErrorScalar);
-                    indexerServo2.setPower(power * lowerErrorScalar);
-                    currentState = State.HOLDING_POSITION;
+                    finalizeHome();
+                    currentState = State.CONTROL_TO_ANGLE;
                 }
                 break;
-            case SEEKING_POSITION:
-                indexerServo1.setPower(power);
-                indexerServo2.setPower(power);
-                if (isAtTarget())
+            case CONTROL_TO_ANGLE:
+                double error = targetAngle - currentAngle;
+
+                // Scheduling Gains
+                if (Math.abs(error) < 2*ANGLE_TOLERANCE)
                 {
-                    // We have arrived. Stop the motor for this one cycle to prevent a "kick".
-                    // The next loop will execute the HOLDING_POSITION logic.
-                    indexerServo1.setPower(power * lowerErrorScalar);
-                    indexerServo2.setPower(power * lowerErrorScalar);
-                    currentState = State.HOLDING_POSITION;
+                    if (angleController.getP() != stiffP)
+                    {
+                        angleController.setPID(stiffP, stiffI, stiffD);
+                    }
                 }
+                else
+                {
+                    if (angleController.getP() != P)
+                    {
+                        angleController.setPID(P, I, D); // Snap Gains
+                    }
+                }
+                double pwr = angleController.calculate(currentAngle, targetAngle);
+                // Deadband to stop hunting in the gear slop
+                if (Math.abs(error) < 0.5) pwr = 0;
+                // Output Clamp (Safety)
+                pwr = Math.max(-CONTROLLING_POWER, Math.min(CONTROLLING_POWER, pwr));
+                driveServos(pwr);
                 break;
             case LAUNCHING:
-                if (currentAngle <= targetAngle) {
-                    currentState = State.SEEKING_POSITION;
-                    indexerServo1.setPower(0);
-                    indexerServo2.setPower(0);
-                } else if (3 == numLaunches && currentAngle > (targetAngle - BALL3_ANGLE) && currentAngle <= targetAngle - BALL2_ANGLE) {
-                    double fasterPower = Range.clip(-LAUNCHING_POWER * SECOND_BALL_BOOST, -1, 1);
-                    indexerServo1.setPower(fasterPower);
-                    indexerServo2.setPower(fasterPower);
-                } else if (3 == numLaunches && currentAngle <= targetAngle - BALL3_ANGLE) {
-                    // If not at target, continue seeking.
-                    double fasterPower = Range.clip(-LAUNCHING_POWER * THIRD_BALL_BOOST, -1, 1);
-                    indexerServo1.setPower(fasterPower);
-                    indexerServo2.setPower(fasterPower);
-                } else {
-
-                    // If not at target, continue seeking.
-                    indexerServo1.setPower(-LAUNCHING_POWER);
-                    indexerServo2.setPower(-LAUNCHING_POWER);
-                }
-                break;
-
-            case HOLDING_POSITION:
-                // If a magnet is detected while holding, we use it to correct for encoder drift.
-                if (isAtTarget()) {
-                    indexerServo1.setPower(power / 2);
-                    indexerServo2.setPower(power / 2);
-                } else {
-                    indexerServo1.setPower(power);
-                    indexerServo2.setPower(power);
-                    currentState = Turnstile.State.SEEKING_POSITION;
+                driveServos(-LAUNCHING_POWER);
+                // Switch to PID control when we get close to the target to "brake"
+                if (currentAngle <= targetAngle + 60.0)
+                {
+                    currentState = State.CONTROL_TO_ANGLE;
                 }
                 break;
         }
-
-
-
-
     }
 
+    // Helper methods to keep the state machine clean
+    private void driveServos(double pwr)
+    {
+        indexerServo1.setPower(pwr);
+        indexerServo2.setPower(pwr);
+    }
 
+    private void stopServos()
+    {
+        driveServos(0);
+    }
 
-
-
-
-
-
-
+    private void finalizeHome()
+    {
+        indexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        indexMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        currentAngle = 0;
+        targetAngle = 0;
+        startingAngle = 0;
+        isHomed = true;
+    }
 }

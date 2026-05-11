@@ -28,7 +28,7 @@ public class ThunderBot2025 implements DataLoggable {
     public static final String STARTING_POSE_KEY = "ENDING_POSE_AUTO";
     public MecanumDrive drive = null;
     public Intake intake = null;
-    public IndexerFacade indexer = null;
+    public TransferFacade indexer = null;
     public LauncherFacade launcher = null;
     private LED led = null;
     public Kickstand kickstand = null;
@@ -43,7 +43,7 @@ public class ThunderBot2025 implements DataLoggable {
     }
 
     private Alliance_Color color = Alliance_Color.BLUE;
-    public IndexerFacade.BallState lastBallState = null;
+    public TransferFacade.BallState lastBallState = null;
     private Telemetry telemetry = null;
     private static boolean field_centric = true;
     public static final double MIN_SPEED = 0.3;
@@ -98,7 +98,7 @@ public class ThunderBot2025 implements DataLoggable {
         intake = new Intake();
         intake.init(hwMap, telemetry);
 
-        indexer = new IndexerFacade();
+        indexer = new TransferFacade();
         indexer.init(hwMap, telemetry);
         indexer.intakeStop();
 
@@ -122,7 +122,7 @@ public class ThunderBot2025 implements DataLoggable {
         PoseVelocity2d robotPoseVel = drive.updatePoseEstimate();
 
         addTelemetry();
-        launcher.update(drive.localizer.getPose(), robotPoseVel, getBatteryVoltage(), indexer.getCurrentState() == IndexerFacade.State.LAUNCHING);
+        launcher.update(drive.localizer.getPose(), robotPoseVel, getBatteryVoltage(), indexer.getCurrentState() == TransferFacade.State.LAUNCHING);
 
         boolean atTargetRpm = launcher.isAtTargetRpm();
         boolean atTarget = launcher.isAtTarget();
@@ -131,25 +131,25 @@ public class ThunderBot2025 implements DataLoggable {
 
         indexer.update(atTargetRpm);
 
-        intake.update(!(IndexerFacade.State.IDLE == indexer.getCurrentState() || IndexerFacade.State.AWAITING_LAUNCH == indexer.getCurrentState()));
+        intake.update( !(indexer.getCurrentState() == TransferFacade.State.IDLE ));
 
 
-        lastBallState = indexer.getLastBallState(2);
+        lastBallState = indexer.getLaunchColor();
         double flywheelTargetRpm = launcher.getFlywheelTargetRpm();
         double flywheelRpm = launcher.getLowerFlywheelRpm();
 
         boolean isIndexerFull = indexer.indexerIsFull();
-        boolean isIntakeFull = 3 < indexer.getBallNumber();
-        IndexerFacade.State state = indexer.getCurrentState();
+        boolean isIntakeFull = indexer.ballInIntake();
+        TransferFacade.State state = indexer.getCurrentState();
 
         led.update(inZone, indexer.isOverridden(), seconds, lastBallState, isIndexerFull, isIntakeFull, state);
 
 //        kickstand.update();
 
-        if (IndexerFacade.State.SELECTING_BALL == indexer.getCurrentState()) {
+        if (indexer.getCurrentState() == TransferFacade.State.MOVING) {
             intake.slow();
         }
-        if (3 < indexer.getBallNumber()) {
+        if ( isIndexerFull && isIntakeFull) {
             intake.unslow();
             intake.spit();
         } else {
@@ -434,31 +434,31 @@ public class ThunderBot2025 implements DataLoggable {
         };
     }
 
-    public Action waitForBallAndCycleAction() {
-        return new Action() {
-            private boolean hasStarted = false;
-
-            @Override
-            public boolean run(@NonNull TelemetryPacket packet) {
-
-                if (indexer.ballInIndexer() && indexer.isAtTarget() && !hasStarted) {
-                    hasStarted = !indexer.readyNextIntakeSlot(IndexerFacade.BallState.VACANT); // End this action, the cycle command has been sent.
-                } else if (hasStarted) {
-                    return IndexerFacade.State.SELECTING_BALL != indexer.getCurrentState();
-                }
-                return true; // Continue waiting for a ball.
-            }
-        };
-    }
-
-    public Action waitForBallAction() {
-        return new Action() {
-            @Override
-            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                return indexer.ballInIndexer();
-            }
-        };
-    }
+//    public Action waitForBallAndCycleAction() {
+//        return new Action() {
+//            private boolean hasStarted = false;
+//
+//            @Override
+//            public boolean run(@NonNull TelemetryPacket packet) {
+//
+//                if (indexer.ballInIndexer() && indexer.isAtTarget() && !hasStarted) {
+//                    hasStarted = !indexer.readyNextIntakeSlot(IndexerFacade.BallState.VACANT); // End this action, the cycle command has been sent.
+//                } else if (hasStarted) {
+//                    return IndexerFacade.State.SELECTING_BALL != indexer.getCurrentState();
+//                }
+//                return true; // Continue waiting for a ball.
+//            }
+//        };
+//    }
+//
+//    public Action waitForBallAction() {
+//        return new Action() {
+//            @Override
+//            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+//                return indexer.ballInIndexer();
+//            }
+//        };
+//    }
 
     // --- Deprecated and Re-implemented Actions ---
 
@@ -471,14 +471,14 @@ public class ThunderBot2025 implements DataLoggable {
         };
     }
 
-    public Action indexerIsAtTargetAction() {
-        return new Action() {
-            @Override
-            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                return !indexer.isAtTarget();
-            }
-        };
-    }
+//    public Action indexerIsAtTargetAction() {
+//        return new Action() {
+//            @Override
+//            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+//                return !indexer.isAtTarget();
+//            }
+//        };
+//    }
 
     public Action launchAction() {
         return new SequentialAction(
@@ -494,7 +494,8 @@ public class ThunderBot2025 implements DataLoggable {
                             }
                             return true;
                         } else {
-                            return !indexer.isNearSlot();
+//                            return !indexer.isNearSlot();
+                            return indexer.getCurrentState() == TransferFacade.State.LAUNCHING;
                         }
                     }
                 }

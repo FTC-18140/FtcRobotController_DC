@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
+import androidx.annotation.NonNull;
+
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -13,11 +17,17 @@ public class TransferFacade
 
     public static boolean TELEM = false;
     private int currentTargetSlot;
+    private int pendingShift = 0;
+    public static double IDLE_TOLERANCE = 7.5 ;
 
-    public enum State {UNKOWNN, HOMING, IDLE, MOVING, LAUNCHING}
+    public enum State
+    {UNKOWNN, HOMING, IDLE, MOVING, LAUNCHING}
+
     private State currentState = State.IDLE;
 
-    public enum BallState {GREEN, PURPLE, VACANT, ALL}
+    public enum BallState
+    {GREEN, PURPLE, VACANT, OCCUPIED, ALL}
+
     private BallState[] ballSlots = new BallState[3];
 
     // Fields/Variables to support Auto
@@ -51,47 +61,102 @@ public class TransferFacade
     }
 
     // Methods needed to keep Worlds Auto Working
-
-    public boolean isOverridden() {
+    public boolean isOverridden()
+    {
         return override;
     }
 
-    public void launchAllInIndexer() {
-        if (canLaunchAll() || override) {
+    public boolean prepSequence()
+    {
+        return true;
+    }
+
+    public String planShotSequence(int aprilTagId)
+    {
+        return "No Shot Sequence Planned";
+    }
+
+    public boolean readyNextIntakeSlot(IndexerFacade.BallState ballState) { return true; }
+
+    public void adjustToThird() { home(); }
+
+    public void cancelSequence() { }
+    public boolean isInSequence() { return false; }
+
+
+    public State getCurrentState() { return currentState; }
+
+    public boolean launch()
+    {
+        currentState = State.LAUNCHING;
+        turnstile.launchSlots(1);
+        pendingShift = 1;
+        ballSlots[2] = BallState.VACANT;
+        updateBallCount();
+        return true;
+    }
+
+    public void launchAllInIndexer()
+    {
+        if (canLaunchAll() || override)
+        {
             turnstile.launchSlots(3);
             currentState = State.LAUNCHING;
-            for (int i = 0; 3 > i; i++) {
+            for (int i = 0; 3 > i; i++)
+            {
                 ballSlots[i] = BallState.VACANT;
             }
+            pendingShift = 0;
+            updateBallCount();
         }
-
     }
-    public void intakeStop() {
+
+    public void intakeStop()
+    {
         isIntaking = false;
-//        turnstile.intakeStop();
     }
 
-    public void intake() {
+    public void intake()
+    {
         isIntaking = true;
-//        turnstile.intakeStart();
     }
-    public boolean indexerIsFull() {
+
+    public boolean indexerIsFull()
+    {
         return ballCount >= 3;
     }
 
-    private boolean canLaunchAll() {
-        return  currentState == State.IDLE ||
+    public boolean ballInIntake() { return beamBreak.isBallDetectedInIntake();}
+
+    private boolean canLaunchAll()
+    {
+        return currentState == State.IDLE ||
                 currentState == State.MOVING;
     }
 
     public boolean selectSlot(int slot)
     {
+        int previousSlot = currentTargetSlot;
         slot = Math.floorMod(slot, 3);
 
+        // Store the shift so the state machine can use it upon arrival
+        pendingShift = Math.floorMod(slot - previousSlot, 3);
+
         currentTargetSlot = slot;
-        turnstile.seekToAngle(slot*120);  // slots are 120 degrees apart
+        turnstile.seekToAngle(slot * 120);
         currentState = State.MOVING;
         return true;
+    }
+
+    private void shiftBallModel(int shift)
+    {
+        BallState[] newSlots = new BallState[3];
+        for (int i = 0; i < 3; i++)
+        {
+            // Shift indices based on rotation
+            newSlots[Math.floorMod(i + shift, 3)] = ballSlots[i];
+        }
+        ballSlots = newSlots;
     }
 
     public boolean cycle(int direction)
@@ -102,7 +167,7 @@ public class TransferFacade
         {
             goToSlot = 2;
         }
-        else if ( goToSlot == 3 )
+        else if (goToSlot == 3)
         {
             goToSlot = 0;
         }
@@ -114,68 +179,81 @@ public class TransferFacade
         currentState = State.HOMING;
         turnstile.home();
     }
-
+    public Action homeAction() {
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                home();
+                return !turnstile.isHomed();
+            }
+        };
+    }
     public void updateBallModel()
     {
-        for (int i = 0; 2 > i; i++)
+        // If the indexer beam break is tripped, slot 0 is now occupied
+        if (beamBreak.isBallDetectedInIndexer())
+        {
+            ballSlots[0] = BallState.OCCUPIED;
+        }
+
+        for (int i = 0; i < 2; i++)
         {
             ballSensors[i].update();
         }
-        updateBallStates();
+        updateBallColor();
         updateBallCount();
-
     }
-    private void updateBallStates()
+
+    private void updateBallColor()
     {
         BallSensor sensorA = ballSensors[0];
         BallSensor sensorB = ballSensors[1];
         BallSensor.BallColor colorA = sensorA.getDetectedColor();
         BallSensor.BallColor colorB = sensorB.getDetectedColor();
 
-        if ( colorA == BallSensor.BallColor.PURPLE || colorB == BallSensor.BallColor.PURPLE )
+        if (colorA == BallSensor.BallColor.PURPLE || colorB == BallSensor.BallColor.PURPLE)
         {
             // Priority 1: Either is Purple
             ballSlots[2] = BallState.PURPLE;
         }
-        else if ( colorA == BallSensor.BallColor.GREEN || colorB == BallSensor.BallColor.GREEN )
+        else if (colorA == BallSensor.BallColor.GREEN || colorB == BallSensor.BallColor.GREEN)
         {
             // Priority 2: Either is Green
             ballSlots[2] = BallState.GREEN;
         }
-        else
-        {
-            // Default: Both NONE or mixed Green/None
-            ballSlots[2] = BallState.VACANT;
-        }
+
         sensorA.addTelemetry();
         sensorB.addTelemetry();
     }
 
     private void updateBallCount()
     {
-        ballCount = 0;
-        if ( beamBreak.isBallDetectedInIndexer() )
+        int count = 0;
+
+        // 1. Check the physical slots in the turnstile
+        for (BallState slot : ballSlots)
         {
-            ballCount++;
-        }
-        if ( ballSlots[1] != BallState.VACANT )
-        {
-            ballCount++;
-        }
-        if ( ballSlots[2] != BallState.VACANT )
-        {
-            ballCount++;
-        }
-        if ( beamBreak.isBallDetectedInIntake() )
-        {
-            ballCount++;
+            if (slot != BallState.VACANT)
+            {
+                count++;
+            }
         }
 
+        // 2. Check the Intake "Entryway"
+        // We only count this if it hasn't been "swallowed" into slot 0 yet
+        if (beamBreak.isBallDetectedInIntake())
+        {
+            count++;
+        }
+
+        this.ballCount = count;
     }
+
+    public BallState getLaunchColor() { return ballSlots[2]; }
 
     public void update(boolean isAtRpm)
     {
-        turnstile.update(ballCount);
+        turnstile.update();
         beamBreak.update();
 
         switch (currentState)
@@ -190,12 +268,29 @@ public class TransferFacade
             case MOVING:
                 if (turnstile.isAtTarget())
                 {
+                    // 1. Physically arrived? Now update the software model
+                    if (pendingShift != 0)
+                    {
+                        shiftBallModel(pendingShift);
+                        pendingShift = 0; // Reset so we don't shift twice
+                    }
+                    // 2. Refresh sensors and counts for the new position
                     updateBallModel();
                     currentState = State.IDLE;
                 }
                 break;
             case IDLE: // In position, ready to receive a command from an external source.
-                if (!turnstile.isAtTarget())
+                // Check if the indexer beam break is triggered AND
+                // the system isn't full yet.
+                if (beamBreak.isBallDetectedInIndexer() && !indexerIsFull())
+                {
+                    // Refresh the model to recognize the new ball
+                    updateBallModel();
+
+                    // Rotate to the next slot
+                    cycle(1);
+                }
+                else if (turnstile.getAngleError() > IDLE_TOLERANCE)
                 {
                     currentState = State.MOVING;
                 }
@@ -203,7 +298,9 @@ public class TransferFacade
             case LAUNCHING:
                 if (turnstile.isAtTarget())
                 {
-                    currentState = State.MOVING;
+                    shiftBallModel(1);
+                    updateBallModel();
+                    currentState = State.IDLE;
                 }
                 break;
             default:
