@@ -21,7 +21,7 @@ public class ThresholdMotor
     /**
      * The minimum change in power required to trigger a hardware write.
      */
-    private final double threshold;
+    private double threshold;
 
     /**
      * The last power value successfully written to the hardware.
@@ -60,19 +60,57 @@ public class ThresholdMotor
         // Special case: Always allow 0 to ensure the robot stops promptly
         if (targetPower == 0 && lastPower != 0)
         {
-            motor.setPower(0);
-            lastPower = 0;
+            setPowerRaw(0);
             writePerformed = true;
         }
         // Otherwise, only update if the change exceeds the threshold
         else if (Math.abs(targetPower - lastPower) >= threshold)
         {
-            motor.setPower(targetPower);
-            lastPower = targetPower;
+            setPowerRaw(targetPower);
             writePerformed = true;
         }
-
         return writePerformed;
+    }
+
+    /**
+     * Commands the motor to the target power immediately, bypassing the threshold check.
+     * <p>
+     * Use this method for critical movements where exact power matching is required
+     * regardless of hardware bus traffic. Calling this method updates the internal
+     * cache, which will affect the logic of subsequent {@link #setPower(double)} calls.
+     * </p>
+     *
+     * @param targetPower The desired power level, typically between -1.0 and 1.0.
+     */
+    public void setPowerRaw(double targetPower)
+    {
+        motor.setPower(targetPower);
+        lastPower = targetPower;
+    }
+
+    /**
+     * Gets the current caching tolerance (threshold).
+     *
+     * @return The minimum change in power required to trigger a hardware write.
+     */
+    public double getThreshold()
+    {
+        return threshold;
+    }
+
+    /**
+     * Sets the caching tolerance (threshold) for power updates.
+     * <p>
+     * Increasing this value reduces hardware bus traffic but may decrease
+     * control precision. Decreasing it improves precision at the cost of
+     * higher bus utilization.
+     * </p>
+     *
+     * @param threshold The new sensitivity delta. Should be a non-negative value.
+     */
+    public void setThreshold(double threshold)
+    {
+        this.threshold = Math.max(0, threshold);
     }
 
     /**
