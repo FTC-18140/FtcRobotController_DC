@@ -1,9 +1,9 @@
 package org.firstinspires.ftc.teamcode.Utilities;
 
-import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.CRServo;
 
 /**
- * A wrapper for {@link DcMotorEx} that implements a power-caching threshold.
+ * A wrapper for {@link CRServo} that implements a power-caching threshold.
  * <p>
  * This utility reduces traffic on the hardware bus by only sending power commands
  * to the expansion hub when the change in power exceeds a specified delta.
@@ -11,12 +11,12 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
  * and improving loop times in high-frequency control systems.
  * </p>
  */
-public class ThresholdMotor
+public class ThresholdServo
 {
     /**
-     * The underlying hardware motor object.
+     * The underlying hardware servo object.
      */
-    private final DcMotorEx motor;
+    private final CRServo servo;
 
     /**
      * The minimum change in power required to trigger a hardware write.
@@ -29,33 +29,34 @@ public class ThresholdMotor
     private double lastPower = 0.0;
 
     /**
-     * Constructs a new ThresholdMotor wrapper.
+     * Constructs a new ThresholdServo wrapper.
      *
-     * @param motor     The {@link DcMotorEx} hardware instance to wrap.
+     * @param servo     The {@link CRServo} hardware instance to wrap.
      * @param threshold The sensitivity of the filter. Changes smaller than this value
      *                  will be ignored unless the target is zero. (e.g., 0.01)
      */
-    public ThresholdMotor(DcMotorEx motor, double threshold)
+    public ThresholdServo(CRServo servo, double threshold)
     {
-        this.motor = motor;
+        this.servo = servo;
         this.threshold = threshold;
     }
 
     /**
-     * Constructs a new ThresholdMotor wrapper.
+     * Constructs a new ThresholdServo wrapper.
      *
-     * @param motor     The {@link DcMotorEx} hardware instance to wrap.
+     * @param servo     The {@link CRServo} hardware instance to wrap.
      */
-    public ThresholdMotor(DcMotorEx motor)
+    public ThresholdServo(CRServo servo)
     {
-        this.motor = motor;
-        this.threshold = 0.005;
+        this.servo = servo;
+        this.threshold = 0.001;
     }
 
+
     /**
-     * Commands the motor to the target power, subject to the threshold check.
+     * Commands the servo to the target power, subject to the threshold check.
      * <p>
-     * <b>Special Case:</b> If the {@code targetPower} is 0.0 and the motor is
+     * <b>Special Case:</b> If the {@code targetPower} is 0.0 and the servo is
      * currently moving, the command is always sent immediately to ensure
      * the robot stops promptly for safety.
      * </p>
@@ -84,7 +85,7 @@ public class ThresholdMotor
     }
 
     /**
-     * Commands the motor to the target power immediately, bypassing the threshold check.
+     * Commands the servo to the target power immediately, bypassing the threshold check.
      * <p>
      * Use this method for critical movements where exact power matching is required
      * regardless of hardware bus traffic. Calling this method updates the internal
@@ -95,7 +96,7 @@ public class ThresholdMotor
      */
     public void setPowerRaw(double targetPower)
     {
-        motor.setPower(targetPower);
+        servo.setPower(targetPower);
         lastPower = targetPower;
     }
 
@@ -125,15 +126,15 @@ public class ThresholdMotor
     }
 
     /**
-     * Returns the underlying hardware motor object.
+     * Returns the underlying hardware servo object.
      * Use this to access methods not proxied by this wrapper, such as
-     * {@link DcMotorEx#getVelocity()} or {@link DcMotorEx#getCurrent(org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit)}.
+     * {@link CRServo#getDirection()}.
      *
-     * @return The original {@link DcMotorEx} instance.
+     * @return The original {@link CRServo} instance.
      */
-    public DcMotorEx getMotor()
+    public CRServo getServo()
     {
-        return motor;
+        return servo;
     }
 
     /**
