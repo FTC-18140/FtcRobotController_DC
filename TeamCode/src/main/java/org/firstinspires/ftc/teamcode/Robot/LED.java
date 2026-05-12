@@ -7,7 +7,8 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-public class LED {
+public class LED
+{
     private Telemetry telemetry = null;
     private Servo rpmLed = null;
     private Servo colorLed = null;
@@ -15,7 +16,8 @@ public class LED {
 
     private final ElapsedTime ledTimer = new ElapsedTime();
 
-    public enum Colors {
+    public enum Colors
+    {
         OFF,
         RED,
         BLUE,
@@ -35,51 +37,75 @@ public class LED {
     private double lowerBoundRpm = 0.0;
     private double upperBoundRpm = 0.0;
 
-    public void init(HardwareMap hwMap, Telemetry telem, double lowerBoundRpmIn, double upperBoundRpmIn) {
+    public void init(HardwareMap hwMap, Telemetry telem, double lowerBoundRpmIn, double upperBoundRpmIn)
+    {
         telemetry = telem;
 
-        try {
+        try
+        {
             rpmLed = hwMap.servo.get("led");
             setRPMLedToColor(Colors.RED);
-        } catch (RuntimeException e) {
+        }
+        catch (RuntimeException e)
+        {
             telemetry.addData("led not found in configuration", 0);
         }
-        try {
+        try
+        {
             colorLed = hwMap.servo.get("led2");
             setLauncherLedToColor(Colors.RED);
-        } catch (RuntimeException e) {
+        }
+        catch (RuntimeException e)
+        {
             telemetry.addData("led2 not found in configuration", 0);
         }
-        try {
+        try
+        {
             intakeLed = hwMap.servo.get("led3");
             setIntakeLedToColor(Colors.RED);
-        } catch (RuntimeException e) {
+        }
+        catch (RuntimeException e)
+        {
             telemetry.addData("led3 not found in configuration", 0);
         }
         lowerBoundRpm = lowerBoundRpmIn;
         upperBoundRpm = upperBoundRpmIn;
     }
 
-    public void update(boolean inLaunchZone, boolean overridden, double runtime, TransferFacade.BallState loadedColor, boolean isIndexerFull, boolean isIntakeFull, TransferFacade.State indexerState) {
-        if (inLaunchZone) {
+    public void update(boolean inLaunchZone, boolean overridden, double runtime, TransferFacade.BallState loadedColor, boolean isIndexerFull, boolean isIntakeFull, TransferFacade.State indexerState)
+    {
+        if (inLaunchZone)
+        {
             setRPMLedToColor(Colors.YELLOW);
-        } else {
+        }
+        else
+        {
             setRPMLedToColor(Colors.OFF);
         }
-        double alertTimeEnd = 10.0;
-        if (5.0 > (120.0 - runtime)) {
-            if (1.0 == (Math.ceil(runtime * 2.0) % 2.0)) {
-            } else {
-//                setAllLedsToColor(Colors.RED);
-            }
-        } else if ((120.0 - runtime) < alertTimeEnd) {
-            if (1.0 == Math.ceil(runtime * 2.0) % 2.0) {
-            } else {
-//                setAllLedsToColor(Colors.ORANGE);
-            }
-
-        }
-        switch (loadedColor) {
+//        double alertTimeEnd = 10.0;
+//        if ( (120.0 - runtime) < 5.0 )
+//        {
+//            if ( (Math.ceil(runtime * 2.0) % 2.0) == 1.0 )
+//            {
+//            }
+//            else
+//            {
+////                setAllLedsToColor(Colors.RED);
+//            }
+//        }
+//        else if ((120.0 - runtime) < alertTimeEnd)
+//        {
+//            if (1.0 == Math.ceil(runtime * 2.0) % 2.0)
+//            {
+//            }
+//            else
+//            {
+////                setAllLedsToColor(Colors.ORANGE);
+//            }
+//
+//        }
+        switch (loadedColor)
+        {
             case GREEN:
                 setLauncherLedToColor(Colors.GREEN);
                 break;
@@ -90,50 +116,68 @@ public class LED {
                 setLauncherLedToColor(Colors.OFF);
                 break;
         }
-        if (isIndexerFull && (1.0 == Math.ceil(runtime * 2.0) % 2.0)) {
+        if (isIndexerFull && (1.0 == Math.ceil(runtime * 2.0) % 2.0))
+        {
             setLauncherLedToColor(Colors.WHITE);
         }
 
-        if (isIntakeFull) {
+        if (isIntakeFull)
+        {
             setIntakeLedToColor(Colors.RED);
-        } else if (overridden) {
+        }
+        else if (overridden)
+        {
             setIntakeLedToColor(Colors.WHITE);
-        } else {
+        }
+        else
+        {
             setIntakeLedToColor(Colors.OFF);
         }
         setColorsIfHoming(indexerState);
-//        if(runtime > 125) setAllLedsToColor(Colors.OFF);
         writeToLeds();
     }
 
-    private void setColorsIfHoming(TransferFacade.State indexerState) {
-        if (TransferFacade.State.HOMING == indexerState) {
+    private void setColorsIfHoming(TransferFacade.State indexerState)
+    {
+        if (TransferFacade.State.HOMING == indexerState)
+        {
             setAllLedsToColor(Colors.BLUE);
         }
     }
 
-    private void setRPMLedToColor(Colors color) {
+    private void setRPMLedToColor(Colors color)
+    {
         hueRpmLed = getColor(color);
     }
 
-    private void setIntakeLedToColor(Colors color) {
+    private void setIntakeLedToColor(Colors color)
+    {
         hueIntakeLed = getColor(color);
     }
 
-    void setLauncherLedToColor(Colors color) {
+    void setLauncherLedToColor(Colors color)
+    {
         hueLauncherLed = getColor(color);
     }
 
-    private void setAllLedsToColor(Colors color) {
+    private void setAllLedsToColor(Colors color)
+    {
         setRPMLedToColor(color);
         setLauncherLedToColor(color);
         setIntakeLedToColor(color);
     }
 
-    private void writeToLeds() {
-        colorLed.setPosition(hueLauncherLed);
-        rpmLed.setPosition(hueRpmLed);
-        intakeLed.setPosition(hueIntakeLed);
+    private void writeToLeds()
+    {
+        if (colorLed != null) {
+            colorLed.setPosition(hueLauncherLed);
+        }
+        if (rpmLed != null) {
+            rpmLed.setPosition(hueRpmLed);
+        }
+        if (intakeLed != null) {
+            intakeLed.setPosition(hueIntakeLed);
+        }
     }
 
     /**
@@ -141,8 +185,10 @@ public class LED {
      *
      * @param color
      */
-    public double getColor(Colors color) {
-        switch (color) {
+    public double getColor(Colors color)
+    {
+        switch (color)
+        {
             case OFF:
                 hue = 0.0;
                 break;

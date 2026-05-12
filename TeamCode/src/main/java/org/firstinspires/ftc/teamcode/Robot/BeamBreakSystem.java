@@ -39,13 +39,12 @@ public class BeamBreakSystem
             if ( triggered )
             {
                 intakeCount = Math.min(intakeCount + 1, BREAK_COUNT);
-                inIntake = (intakeCount == BREAK_COUNT);
             }
             else
             {
                 intakeCount = Math.max(intakeCount - 1, 0);
-                inIntake = (intakeCount == 0);
             }
+            inIntake = (intakeCount > 0);
             if (TELEM)
             {
                 telemetry.addData("Intake Beam Break sensor triggered: ", inIntake);
@@ -56,13 +55,12 @@ public class BeamBreakSystem
             if ( triggered )
             {
                 indexerCount = Math.min(indexerCount + 1, BREAK_COUNT);
-                inIndexer = (indexerCount == BREAK_COUNT);
             }
             else
             {
                 indexerCount = Math.max(indexerCount - 1, 0);
-                inIndexer = (indexerCount == 0);
             }
+            inIndexer = (indexerCount > 0);
             if (TELEM) {
                 telemetry.addData("Indexer Beam Break sensor triggered: ", inIndexer);
             }

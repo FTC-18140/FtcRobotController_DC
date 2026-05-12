@@ -46,6 +46,8 @@ public class Teleop_Blue_Postseason extends OpMode
     @Override
     public void init()
     {
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
         robot.init(hardwareMap, telemetry, null);
 
         theGamepad1 = new TBDGamepad(gamepad1);
@@ -54,7 +56,6 @@ public class Teleop_Blue_Postseason extends OpMode
         theGamepad2.setLedColor(TBDGamepad.Colors.BLUE);
         // Tell the driver that initialization is complete.
 
-        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         telemetry.addData("Status", "Initialized");
         telemetry.update();
         theGamepad1.setLedColor(TBDGamepad.Colors.YELLOW);

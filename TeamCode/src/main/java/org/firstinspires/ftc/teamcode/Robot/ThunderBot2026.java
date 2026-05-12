@@ -85,19 +85,30 @@ public class ThunderBot2026
                 pose = starting_position;
             }
         }
-        try
+        // Get the voltage sensor with the lowest voltage.
+        double minVoltage = Double.POSITIVE_INFINITY;
+        VoltageSensor bestSensor = null;
+
+        for (VoltageSensor sensor : hwMap.voltageSensor)
         {
-            voltageSensor = hwMap.get(VoltageSensor.class, "Control Hub");
+            double voltage = sensor.getVoltage();
+
+            if (voltage > 0 && voltage < minVoltage)
+            {
+                minVoltage = voltage;
+                bestSensor = sensor;
+            }
         }
-        catch (RuntimeException e)
+        if (bestSensor == null)
         {
-            telemetry.addData("Could not init voltage sensor", 0);
+            throw new RuntimeException("No valid voltage sensor found");
         }
-        if (13 > getBatteryVoltage())
+        voltageSensor = bestSensor;
+
+        if ( getBatteryVoltage() < 13.0 )
         {
             telemetry.addData("Replace Battery please, I Beg you", 0);
         }
-
 
         drive = new MecanumDrive(hwMap, pose);
 
@@ -115,8 +126,6 @@ public class ThunderBot2026
         led.init(hwMap, telemetry, launcher.getFlywheelLowerBoundRpm(), launcher.getFlywheelUpperBoundRpm());
 
         runtime.reset();
-
-
     }
 
     public void update()
@@ -204,7 +213,14 @@ public class ThunderBot2026
 
     public double getBatteryVoltage()
     {
-        return voltageSensor.getVoltage();
+        if ( voltageSensor != null )
+        {
+            return voltageSensor.getVoltage();
+        }
+        else
+        {
+            return 0.0;
+        }
     }
 
     public double getTotalMotorCurrentDraw()
