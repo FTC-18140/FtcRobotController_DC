@@ -261,7 +261,7 @@ public class ThunderBot2026
         speed = inSpeed;
         if (field_centric)
         {
-            fieldCentricDrive(forward, right, clockwise, speed, p);
+            fieldCentricDrive(forward, right, clockwise, speed);
         }
         else
         {
@@ -275,7 +275,7 @@ public class ThunderBot2026
         drive.setDrivePowers(thePose);
     }
 
-    private void fieldCentricDrive(double north, double east, double clockwise, double speed, TelemetryPacket p)
+    private void fieldCentricDrive(double north, double east, double clockwise, double speed)
     {
         drive.updatePoseEstimate();
         double heading = drive.localizer.getPose().heading.toDouble() - Math.toRadians(90);

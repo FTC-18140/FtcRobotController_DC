@@ -85,39 +85,141 @@ public class LauncherFacade
 
     /**
      * MAIN UPDATE LOOP
+     * Orchestrates the calculation of target angles and the commanding of subsystems (turret, flywheel).
+     * This method ensures the turret is always aiming based on the current mode.
      *
      * @param currentOdoPose     The raw pose from RoadRunner drive.getPoseEstimate()
-     * @param currentOdoVelocity
+     * @param currentOdoVelocity The raw velocity from RoadRunner drive.getPoseVelocity()
+     * @param voltage            Current battery voltage for motor compensation
+     * @param launching          True if the indexer is actively launching, affects turret feedforward
      */
     public void update(Pose2d currentOdoPose, PoseVelocity2d currentOdoVelocity, double voltage, boolean launching)
     {
+        // Handle first loop where lastOdoPose is not yet initialized
         if (null == lastOdoPose)
         {
             lastOdoPose = currentOdoPose;
+            // Early exit if this is the very first update and there's no prior pose to calculate delta
             return;
         }
 
+        // Calculate update rate for telemetry/debug
         double update_rate_seconds = (System.currentTimeMillis() - last_time_ms) / 1000;
-        lastOdoPose = currentOdoPose;
+        last_time_ms = System.currentTimeMillis(); // Update last_time_ms at the beginning of the loop for accurate delta
 
+        // Update fused pose and calculate inertia offset
         fusedPose = currentOdoPose;
+        // The inertiaOffset and offsetTarget are used by getAutoAimAngle() and turret.update()
         inertiaOffset = currentOdoVelocity.linearVel.times(INERTIA_FACTOR);
-        offsetTarget = targetPos.minus(inertiaOffset);
+        offsetTarget = targetPos.minus(inertiaOffset); // targetPos is set by setAlliance()
 
-        getAutoAimAngle();
+        // Calculate the instantaneous target angle for the turret
+        // This method also updates internal state like 'fieldAngleToGoal' and 'trueTargetVector'
+        double instantTargetAngle = getAutoAimAngle();
         double distanceToGoal = getGoalDistance();
-        turret.update(fusedPose, currentOdoVelocity, offsetTarget, launching);
-        flywheel.update(currentOdoVelocity, Math.toDegrees(fieldAngleToGoal), voltage, distanceToGoal);
-        last_time_ms = System.currentTimeMillis();
 
+        // --- Turret Control Logic based on AimingMode ---
+        switch (aimingMode) {
+            case MAIN:
+            case ODOMETRY: // Assuming these are auto-aiming modes
+            case LIMELIGHT:
+                // Auto-aiming: Apply smoothing and command the turret
+                processAutoAiming(instantTargetAngle);
+                break;
+            case MANUAL:
+            case DIRECTIONAL:
+                // In manual modes, the turret is expected to be controlled directly by
+                // methods like `setTurretManualPower` or `aimToAngleInFieldSpace`
+                // (which set the Turret's internal state).
+                // If the driver is NOT actively providing input (e.g., joystick is centered),
+                // we should command the turret to hold its last position to prevent drift.
+                // The `turret.update()` method (called below) will then execute the hold.
+                if (turret.getCurrentState() != Turret.State.MANUAL_CONTROL) {
+                    turret.holdPosition();
+                }
+                break;
+        }
+
+        // --- Subsystem Updates (Always run regardless of aiming mode) ---
+        // The Turret subsystem's update method processes sensor inputs,
+        // PID calculations, and feedforward terms. Its actual motor output
+        // is governed by the state (SEEKING_ANGLE, MANUAL_CONTROL, HOLDING, STOP)
+        // that was set by the command in the switch statement above (e.g., seekToAngle, holdPosition, setManualPower).
+        turret.update(fusedPose, currentOdoVelocity, offsetTarget, launching);
+
+        // Flywheel subsystem updates are always active.
+        flywheel.update(currentOdoVelocity, Math.toDegrees(fieldAngleToGoal), voltage, distanceToGoal);
+
+        // --- Telemetry ---
         if (TELEM)
         {
             telemetry.addData("update rate (seconds): ", update_rate_seconds);
+            telemetry.addData("Launcher Aiming Mode", aimingMode.name()); // Useful for debugging mode changes
         }
     }
 
+    // --- Private helper method for auto-aiming logic ---
+    /**
+     * Processes the target angle, applies smoothing, and commands the turret subsystem.
+     * This logic was previously inside the public `aim()` method.
+     * @param instantTarget The raw, instantaneous target angle from `getAutoAimAngle()`.
+     */
+    private void processAutoAiming(double instantTarget) {
+        if (firstAimRun)
+        {
+            // Initialize memory on the first loop to prevent the turret from
+            // slowly "crawling" from 0 degrees at the start of the match.
+            smoothedTurretAngle = instantTarget;
+            firstAimRun = false;
+        }
+        else
+        {
+            // --- FILTER SHORT-PATH LOGIC ---
+            // Calculate the delta between where we are and where we want to be.
+            // We must normalize this delta to [-180, 180] so the filter always
+            // moves the turret the shortest distance around the circle.
+            double delta = instantTarget - smoothedTurretAngle;
+            while (180.0 < delta)
+            {
+                delta -= 360.0;
+            }
+            while (-180.0 >= delta)
+            {
+                delta += 360.0;
+            }
+
+            // Apply the Low-Pass Filter (Complementary Filter)
+            // smoothed = (OldValue) + (ShortestDelta * Beta)
+//            smoothedTurretAngle += (delta * LPF_BETA);
+            smoothedTurretAngle = instantTarget; // drop low pass filtering for now...
+        }
+        double baseAngle = turret.applyHardwareConstraints(smoothedTurretAngle);
+
+        // --- FINAL COMMAND ---
+        // Command the turret subsystem to the calculated angle.
+        // This sets the Turret's target and internal state (e.g., SEEKING_ANGLE).
+        turret.seekToAngle(baseAngle);
+
+        // Telemetry specific to aiming
+        if (TELEM)
+        {
+            // Note: turret.getCurrentPosition() is updated in Turret.update(), which is called later
+            // in LauncherFacade.update(). So this might show slightly old data if telemetry
+            // is printed before Turret.update() has run in the *current* cycle.
+            // For general debugging, it's usually fine.
+            telemetry.addData("Turret Current (smoothed)", smoothedTurretAngle); // More relevant to LPF output
+            telemetry.addData("Turret Target (commanded)", baseAngle);
+        }
+    }
+
+
     public void setAimingMode(AimingMode mode)
     {
+        // Reset the LPF when changing modes to prevent "jumps" if auto-aim starts again
+        // Only reset if switching TO an auto-aim mode from a different mode.
+        if (aimingMode != mode && (mode == AimingMode.MAIN || mode == AimingMode.ODOMETRY || mode == AimingMode.LIMELIGHT)) {
+            firstAimRun = true;
+        }
         aimingMode = mode;
     }
 
@@ -176,57 +278,28 @@ public class LauncherFacade
         return turret.getTotalCurrentDraw() + flywheel.getTotalCurrentDraw();
     }
 
+    /**
+     * This method is now primarily for compatibility with RoadRunner Actions or explicit one-shot commands.
+     * For continuous aiming, the `update()` method handles it based on `aimingMode`.
+     */
     public void aim()
     {
-        double instantTarget = getAutoAimAngle();
-
-        if (firstAimRun)
-        {
-            // Initialize memory on the first loop to prevent the turret from
-            // slowly "crawling" from 0 degrees at the start of the match.
-            smoothedTurretAngle = instantTarget;
-            firstAimRun = false;
+        // Ensure auto-aim mode is active if aim() is called directly.
+        if (aimingMode != AimingMode.MAIN) {
+            setAimingMode(AimingMode.MAIN);
         }
-        else
-        {
-            // --- FILTER SHORT-PATH LOGIC ---
-            // Calculate the delta between where we are and where we want to be.
-            // We must normalize this delta to [-180, 180] so the filter always
-            // moves the turret the shortest distance around the circle.
-            double delta = instantTarget - smoothedTurretAngle;
-            while (180.0 < delta)
-            {
-                delta -= 360.0;
-            }
-            while (-180.0 >= delta)
-            {
-                delta += 360.0;
-            }
-
-            // Apply the Low-Pass Filter (Complementary Filter)
-            // smoothed = (OldValue) + (ShortestDelta * Beta)
-            smoothedTurretAngle += (delta * LPF_BETA);
-        }
-        double baseAngle = turret.applyHardwareConstraints(smoothedTurretAngle);
-
-        // --- FINAL COMMAND ---
-
-        // Command the turret subsystem to the calculated angle.
-        turret.seekToAngle(baseAngle);
-
-        double currentPosition = turret.getCurrentPosition();
-        if (TELEM)
-        {
-            telemetry.addData("Turret Current", currentPosition);
-            telemetry.addData("Turret Target", baseAngle);
-        }
+        processAutoAiming(getAutoAimAngle());
     }
 
     boolean setTurretOffset()
     {
-        // Calculate the vector (x, y) pointing from the robot to the goal
         boolean returnValue = false;
-        setAimingMode(AimingMode.DIRECTIONAL);
+        // If this is a calibration requiring manual movement, ensure the mode allows it.
+        // It's crucial this doesn't conflict with ongoing auto-aim.
+        // If setTurretOffset implies a temporary manual override for calibration,
+        // you might want to explicitly set a temporary manual mode here or handle it externally.
+        // For now, removing the mode change from inside this method to prevent it from
+        // overriding the driver's choice of aimingMode unintentionally.
         if (turret.isHomed())
         {
             double offset = getTurretAngleRaw();
@@ -236,12 +309,21 @@ public class LauncherFacade
         return returnValue;
     }
 
+    /**
+     * Commands the turret to a specific angle in field space. This implies manual control.
+     * @param angle The desired field-centric angle in degrees.
+     */
     public void aimToAngleInFieldSpace(double angle)
     {
+        // When this method is called, it signifies a direct manual command, so switch to MANUAL mode.
+        if (aimingMode != AimingMode.MANUAL) {
+            setAimingMode(AimingMode.MANUAL);
+        }
         double robotHeadingDouble = fusedPose.heading.toDouble();
         double robotHeadingDegrees = Math.toDegrees(robotHeadingDouble);
-        double targetAngle = turret.applyHardwareConstraints(robotHeadingDegrees - angle);
-        turret.seekToAngle(targetAngle);
+        // The turret `applyHardwareConstraints` must be applied to the target *relative to the robot*.
+        double targetAngleRobotRelative = turret.applyHardwareConstraints(robotHeadingDegrees - angle);
+        turret.seekToAngle(targetAngleRobotRelative);
     }
 
     private Vector2d getTurretOffsetPosInRobotSpace()
@@ -267,10 +349,9 @@ public class LauncherFacade
     {
         double targetTurretAngle;
 
-        // --- 2. SENSOR PRIORITY: ODOMETRY ---
-        // Fallback to Odometry if the Limelight is blocked or target is out of view.
-        // We calculate the vector from our fused robot position to the field goal position.
-        if (null != offsetTarget)
+        // Ensure targetPos is set (e.g., by setAlliance) before calculating.
+        // If targetPos is null, we can't calculate a target.
+        if (null != offsetTarget && targetPos != null)
         {
             // Vector from Turret offset pos to Goal
             trueTargetVector = offsetTarget.minus(fusedPose.position.plus(getTurretOffsetPosInRobotSpace()));
@@ -284,13 +365,12 @@ public class LauncherFacade
             // automatically handling the jump across the +/- 180 degree line.
             double relativeAngleRad = Rotation2d.exp(fieldAngleToGoal).minus(fusedPose.heading);
 
-            // Convert result to Degrees for the Turret Subsystem
+            // Convert result to Degrees for the Turret Subsystem. Negative because turret rotation is reversed.
             targetTurretAngle = -Math.toDegrees(relativeAngleRad);
 
             // --- NORMALIZATION LOGIC ---
-            // Since the turret can go up to 225, a result of -170 (from the RR math)
-            // is the same as 190. If the turret is currently at 180, we want to
-            // go to 190, NOT -170.
+            // Adjust the calculated target angle to be within the continuous range of the turret
+            // and closest to its current position, to avoid unnecessary 360-degree rotations.
             double currentTurret = turret.getCurrentPosition();
 
             while (180.0 < targetTurretAngle - currentTurret)
@@ -302,29 +382,34 @@ public class LauncherFacade
                 targetTurretAngle += 360.0;
             }
         }
-
-        // --- 3. FALLBACK: IDLE ---
-        // If no pose or target is available, hold current position to prevent erratic movement.
         else
         {
+            // If no pose or target is available, effectively hold current position.
             telemetry.addData("Aiming Mode", "IDLE (No Target Found)");
             return turret.getCurrentPosition();
         }
         return targetTurretAngle;
     }
 
+    /**
+     * Commands the turret to hold its current position. This implies manual control.
+     */
     public void holdTurretPosition()
     {
+        // When this method is called, it signifies a direct manual command, so switch to MANUAL mode.
+        if (aimingMode != AimingMode.MANUAL) {
+            setAimingMode(AimingMode.MANUAL);
+        }
         turret.holdPosition();
     }
 
     //    void prepShot() {
-//        double distanceInches = getGoalDistance();
-//        double distanceMeters = distanceInches * INCH_TO_METER;
-//        double targetVelocity = flywheel.calculateBallVelocity(distanceMeters, calculateLauncherHeightMeters(distanceMeters), LAUNCH_ANGLE_DEGREES);
-//
-//        flywheel.setTargetRpmFromDistance(distanceInches);
-//    }
+    //        double distanceInches = getGoalDistance();
+    //        double distanceMeters = distanceInches * INCH_TO_METER;
+    //        double targetVelocity = flywheel.calculateBallVelocity(distanceMeters, calculateLauncherHeightMeters(distanceMeters), LAUNCH_ANGLE_DEGREES);
+    //
+    //        flywheel.setTargetRpmFromDistance(distanceInches);
+    //    }
 
     public void prepShot()
     {
@@ -333,9 +418,7 @@ public class LauncherFacade
 
     void prepShotLow()
     {
-//        flywheel.setTargetRpm(Flywheel.STATIC_RPM);
         flywheel.setMode(FlywheelController.RunMode.STATIC);
-
     }
 
     public Action prepShotAction()
@@ -376,7 +459,7 @@ public class LauncherFacade
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket)
             {
-                turret.seekToAngle(angle);
+                aimToAngleInFieldSpace(angle);
                 return !isAtTarget();
             }
         };
@@ -395,8 +478,16 @@ public class LauncherFacade
         };
     }
 
+    /**
+     * Sets manual power to the turret motor. This implies manual, directional control.
+     * @param power The power to apply, from -1.0 to 1.0.
+     */
     public void setTurretManualPower(double power)
     {
+        // When this method is called, it signifies a direct manual command, so switch to DIRECTIONAL mode.
+        if (aimingMode != AimingMode.DIRECTIONAL) {
+            setAimingMode(AimingMode.DIRECTIONAL);
+        }
         turret.setManualPower(power);
     }
 

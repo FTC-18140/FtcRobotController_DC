@@ -118,7 +118,8 @@ public class Teleop_Blue_Postseason extends OpMode
          */
 
         // --- 1. CORE UPDATES ---
-        // Refresh robot hardware states and process gamepad debounce logic
+        // Refresh robot hardware states and process gamepad debounce logic.
+        // robot.update() now triggers LauncherFacade.update(), which handles Auto-Aim.
         robot.update();
         theGamepad1.update();
         theGamepad2.update();
@@ -163,7 +164,6 @@ public class Teleop_Blue_Postseason extends OpMode
             robot.resetHeadingAndPosition();
         }
 
-
         // Apply movement to drivetrain
         robot.drive(forward, strafe, turn * turnFactor, speed, p);
 
@@ -193,7 +193,7 @@ public class Teleop_Blue_Postseason extends OpMode
             }
         }
 
-        // Aiming Mode Selection
+        // Aiming Mode Selection: Toggle between MAIN (Auto) and MANUAL
         if (theGamepad2.getButtonPressed(TBDGamepad.Button.RIGHT_STICK_BUTTON))
         {
             if (LauncherFacade.AimingMode.MAIN == robot.launcher.getAimingMode())
@@ -206,31 +206,32 @@ public class Teleop_Blue_Postseason extends OpMode
             }
         }
 
-        // Aiming Execution
-        if (LauncherFacade.AimingMode.MANUAL == robot.launcher.getAimingMode())
+        // Handle Manual Aiming Inputs ONLY if not in Auto (MAIN) mode
+        LauncherFacade.AimingMode currentMode = robot.launcher.getAimingMode();
+        if (currentMode == LauncherFacade.AimingMode.MANUAL)
         {
-            // Manual angle control using right stick
-            if (0.01 < Math.abs(Math.sqrt(Math.pow(theGamepad2.getRightX(), 2) + Math.pow(theGamepad2.getRightY(), 2))))
+            // Calculate stick magnitude to determine if the driver is actively aiming
+            double stickMag = Math.sqrt(Math.pow(theGamepad2.getRightX(), 2) + Math.pow(theGamepad2.getRightY(), 2));
+
+            if (stickMag > 0.1)
             {
+                // Set the desired field-centric angle based on stick direction
                 manualAngle = Math.toDegrees(Math.atan2(theGamepad2.getRightY(), theGamepad2.getRightX()));
+                robot.launcher.aimToAngleInFieldSpace(manualAngle);
             }
-            robot.launcher.aimToAngleInFieldSpace(manualAngle);
+            else
+            {
+                // If stick is released, hold current position to prevent drifting
+                robot.launcher.holdTurretPosition();
+            }
         }
-        else if (LauncherFacade.AimingMode.DIRECTIONAL == robot.launcher.getAimingMode())
+        else if (currentMode == LauncherFacade.AimingMode.DIRECTIONAL)
         {
-            // Manual power control for the turret motor
+            // Use Right X for raw power override
             robot.launcher.setTurretManualPower(theGamepad2.getRightX() * 0.35);
         }
-        else if (0.01 < Math.abs(Math.sqrt(Math.pow(theGamepad2.getRightX(), 2) + Math.pow(theGamepad2.getRightY(), 2))))
-        {
-            // Field-space override using right stick even in Auto mode
-            robot.launcher.aimToAngleInFieldSpace(Math.toDegrees(Math.atan2(theGamepad2.getRightY(), theGamepad2.getRightX())));
-        }
-        else
-        {
-            // Default Auto-Aiming
-            robot.launcher.aim();
-        }
+        // NOTE: If mode is MAIN, LauncherFacade.update() handles aim() automatically.
+        // No manual call to robot.launcher.aim() is needed here anymore.
 
         // Toggle idle state
         if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_DOWN))
@@ -238,7 +239,7 @@ public class Teleop_Blue_Postseason extends OpMode
             preSpinUp = !preSpinUp;
         }
 
-
+        // Flywheel Power Management
         // 1. Trigger held: High power tracking the goal distance
         if (theGamepad2.getTriggerBoolean(TBDGamepad.Trigger.LEFT_TRIGGER))
         {
@@ -291,7 +292,6 @@ public class Teleop_Blue_Postseason extends OpMode
                 robot.indexer.adjustToThird();
             }
         }
-
 
         // --- 7. FINAL UPDATES & TELEMETRY ---
         robot.drive.localizer.update();
