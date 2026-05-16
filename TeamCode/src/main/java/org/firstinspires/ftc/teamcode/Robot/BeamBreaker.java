@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
+import static org.firstinspires.ftc.teamcode.TelemetryConfig.DEBUG_BEAMBREAK;
+import static org.firstinspires.ftc.teamcode.TelemetryConfig.SHOW_DEBUG_ALL;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -13,7 +16,6 @@ public class BeamBreaker {
     private boolean inIndexer = false;
     private DigitalChannel beamBreakIndexer = null;
     private DigitalChannel beamBreakIntake = null;
-    private static boolean TELEM = false;
 
     public void init(HardwareMap hwMap, Telemetry telem) {
         telemetry = telem;
@@ -32,13 +34,13 @@ public class BeamBreaker {
     public void update() {
         if (null != beamBreakIntake) {
             inIntake = !beamBreakIntake.getState();
-            if (TELEM) {
+            if (DEBUG_BEAMBREAK || SHOW_DEBUG_ALL) {
                 telemetry.addData("Intake Beam Break sensor triggered: ", inIntake);
             }
         }
         if (null != beamBreakIndexer) {
             inIndexer = !beamBreakIndexer.getState();
-            if (TELEM) {
+            if (DEBUG_BEAMBREAK || SHOW_DEBUG_ALL) {
                 telemetry.addData("Indexer Beam Break sensor triggered: ", inIndexer);
             }
         }

@@ -130,7 +130,7 @@ public class LED
             setAllLedsToColor(Colors.BLUE);
         }
     }
-    
+
     private void setRPMLedToColor(Colors color)
     {
         if (color == Colors.RAINBOW || color != lastRpmColor)

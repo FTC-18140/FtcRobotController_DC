@@ -22,6 +22,8 @@ public class TelemetryConfig
     public static boolean DEBUG_DRIVE = false;
     public static boolean DEBUG_INTAKE = false;
     public static boolean DEBUG_LIMELIGHT = false;
+    public static boolean DEBUG_BEAMBREAK = false;
+    public static boolean DEBUG_BALL_SENSOR  = false;
 
     // --- HARDWARE DIAGNOSTICS ---
     // Toggle this to see motor currents, voltages, and loop times

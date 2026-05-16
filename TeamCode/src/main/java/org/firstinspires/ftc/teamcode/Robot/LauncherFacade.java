@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
+import static org.firstinspires.ftc.teamcode.TelemetryConfig.DEBUG_LAUNCHER_FACADE;
+import static org.firstinspires.ftc.teamcode.TelemetryConfig.SHOW_DEBUG_ALL;
+
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -48,7 +51,6 @@ public class LauncherFacade
 
     private double smoothedTurretAngle = 0.0;
     private boolean firstAimRun = true;
-    public static boolean TELEM = false;
     public static double LPF_BETA = 1.0; // Higher value = more responsive
 
     // Target and alliance properties
@@ -152,7 +154,7 @@ public class LauncherFacade
         flywheel.update(currentOdoVelocity, Math.toDegrees(fieldAngleToGoal), voltage, distanceToGoal);
 
         // --- Telemetry ---
-        if (TelemetryConfig.DEBUG_LAUNCHER_FACADE || TelemetryConfig.SHOW_DEBUG_ALL)
+        if (DEBUG_LAUNCHER_FACADE || SHOW_DEBUG_ALL)
         {
             telemetry.addData("update rate (seconds): ", update_rate_seconds);
             telemetry.addData("Launcher Aiming Mode", aimingMode.name()); // Useful for debugging mode changes
@@ -202,7 +204,7 @@ public class LauncherFacade
         turret.seekToAngle(baseAngle);
 
         // Telemetry specific to aiming
-        if (TELEM)
+        if (DEBUG_LAUNCHER_FACADE || SHOW_DEBUG_ALL)
         {
             // Note: turret.getCurrentPosition() is updated in Turret.update(), which is called later
             // in LauncherFacade.update(). So this might show slightly old data if telemetry
@@ -513,7 +515,7 @@ public class LauncherFacade
             distance = 0.0;
         }
         // Use FUSED pose for distance calculation
-        if (TELEM)
+        if (DEBUG_LAUNCHER_FACADE || SHOW_DEBUG_ALL)
         {
             telemetry.addData("distance: ", distance);
         }

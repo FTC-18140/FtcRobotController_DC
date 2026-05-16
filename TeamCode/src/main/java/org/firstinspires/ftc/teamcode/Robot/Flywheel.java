@@ -45,7 +45,6 @@ public class Flywheel
     private double P = 0.0, I = 0.0, D = 0.0;
     private double F_MAX = 0.0, F_MIN = 0.0, F_VEL = 0, F_STATIC = 0;
 
-    public static boolean TELEM = false;
     public static double MAX_SHOOTER_RPM = 3000.0;
     public static double MIN_SHOOTER_RPM = 1500.0;
     public static double STATIC_RPM = 1750;
