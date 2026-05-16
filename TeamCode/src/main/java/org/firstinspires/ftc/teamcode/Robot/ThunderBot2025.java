@@ -520,14 +520,14 @@ public class ThunderBot2025 implements DataLoggable {
 
     @Override
     public void logData(DataLogger logger) {
-        launcher.logData(logger);
-        intake.logData(logger);
-        Pose2d pose = drive.localizer.getPose();
-        logger.addField(pose.position.x);
-        logger.addField(pose.position.y);
-        double headingDouble = pose.heading.toDouble();
-        logger.addField(headingDouble);
-        logger.addField(getBatteryVoltage());
-        logger.addField(getTotalMotorCurrentDraw());
+//        launcher.logData(logger);
+//        intake.logData(logger);
+//        Pose2d pose = drive.localizer.getPose();
+//        logger.addField(pose.position.x);
+//        logger.addField(pose.position.y);
+//        double headingDouble = pose.heading.toDouble();
+//        logger.addField(headingDouble);
+//        logger.addField(getBatteryVoltage());
+//        logger.addField(getTotalMotorCurrentDraw());
     }
 }

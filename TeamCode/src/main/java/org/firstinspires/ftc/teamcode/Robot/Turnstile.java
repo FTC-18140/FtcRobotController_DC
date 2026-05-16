@@ -2,6 +2,9 @@ package org.firstinspires.ftc.teamcode.Robot;
 
 import static com.qualcomm.robotcore.eventloop.opmode.OpMode.blackboard;
 
+import static org.firstinspires.ftc.teamcode.TelemetryConfig.DEBUG_TURNSTILE;
+import static org.firstinspires.ftc.teamcode.TelemetryConfig.SHOW_DEBUG_ALL;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -17,7 +20,8 @@ import org.firstinspires.ftc.teamcode.Robot.Drives.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 
 @Config // Make this class tunable
-public class Turnstile {
+public class Turnstile
+{
 
 
     public static double SECOND_BALL_BOOST = 1.1;
@@ -62,7 +66,8 @@ public class Turnstile {
 
 
     // --- State Management ---
-    public enum State {IDLE, HOMING, SEEKING_POSITION, HOLDING_POSITION, MANUAL_SPIN, LAUNCHING} // Added MANUAL_SPIN
+    public enum State
+    {IDLE, HOMING, SEEKING_POSITION, HOLDING_POSITION, MANUAL_SPIN, LAUNCHING} // Added MANUAL_SPIN
 
     private State currentState = State.IDLE;
     private double targetAngle = 0;
@@ -74,12 +79,14 @@ public class Turnstile {
     private double currentAngle;
     private boolean limitSwitchPressed;
 
-    public void init(HardwareMap hwMap, Telemetry telem) {
+    public void init(HardwareMap hwMap, Telemetry telem)
+    {
         telemetry = telem;
         angleController = new PIDController(P, I, D);
 
 
-        try {
+        try
+        {
             indexerServo1 = hwMap.crservo.get("indexer");
             indexerServo2 = hwMap.crservo.get("indexer2");
 
@@ -92,7 +99,9 @@ public class Turnstile {
 //            indexMotor.setDirection(DcMotorSimple.Direction.REVERSE);
             indexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Use our own P
             indexMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); // Use our own PID
-        } catch (RuntimeException e) {
+        }
+        catch (RuntimeException e)
+        {
             telemetry.addData("Turnstile Hardware Not Found", e.getMessage());
         }
         startingAngle = (double) blackboard.getOrDefault(STARTING_ANGLE_KEY, (double) 0);
@@ -100,27 +109,32 @@ public class Turnstile {
 
     // --- High-Level Commands ---
 
-    public void home() {
+    public void home()
+    {
         currentState = State.HOMING;
         isHomed = false;
     }
 
-    public void intakeStart() {
+    public void intakeStart()
+    {
         launching_offset = INTAKE_OFFSET_ANGLE;
     }
 
-    public void intakeStop() {
+    public void intakeStop()
+    {
         launching_offset = LAUNCHING_OFFSET_ANGLE;
     }
 
-    public void launchSlots(int launches) {
+    public void launchSlots(int launches)
+    {
         targetAngle = currentAngle - (120 * launches);
         numLaunches = launches;
 
         currentState = State.LAUNCHING;
     }
 
-    public void seekToAngle(double angle) {
+    public void seekToAngle(double angle)
+    {
 
         angle = ((angle % 360) + 360) % 360; // Make sure angle is within [0, 360]
 
@@ -129,7 +143,8 @@ public class Turnstile {
         shortestRot = ((shortestRot + 180) % 360) - 180;
 
         // If shortestRot is too far behind, force forward rotation
-        if (shortestRot < -ANGLE_TOLERANCE && Math.abs(shortestRot) > BACKWARD_TOLERANCE) {
+        if (shortestRot < -ANGLE_TOLERANCE && Math.abs(shortestRot) > BACKWARD_TOLERANCE)
+        {
             shortestRot += 360.0;
         }
 
@@ -147,19 +162,25 @@ public class Turnstile {
         */
     }
 
-    public void spin(double power) {
+    public void spin(double power)
+    {
         // Refactored to have a single exit point
         //if (isHomed) {
 
-        if (0 == Math.abs(power) && State.SEEKING_POSITION != currentState && State.HOLDING_POSITION != currentState) {
+        if (0 == Math.abs(power) && State.SEEKING_POSITION != currentState && State.HOLDING_POSITION != currentState)
+        {
             // When driver lets go, find the nearest physical slot and seek to it.
             double nearestSlotAngle = (Math.round(currentAngle / 120.0)) * 120.0;
             seekToAngle(nearestSlotAngle);
             currentState = State.SEEKING_POSITION;
-        } else if (0 < Math.abs(power)) {
+        }
+        else if (0 < Math.abs(power))
+        {
             manualPower = power;
             currentState = State.MANUAL_SPIN;
-        } else {
+        }
+        else
+        {
             currentState = State.SEEKING_POSITION;
         }
 
@@ -168,38 +189,48 @@ public class Turnstile {
 
     // --- State Inquiry ---
 
-    public boolean isAtTarget() {
+    public boolean isAtTarget()
+    {
         return (Math.abs(currentAngle - (targetAngle + current_offset)) < ANGLE_TOLERANCE);
     }
 
-    public boolean isAtTargetTime() {
-        if (nearTarget) {
+    public boolean isAtTargetTime()
+    {
+        if (nearTarget)
+        {
             return isTimerReady();
-        } else {
+        }
+        else
+        {
             debounce.reset();
             nearTarget = true;
             return false;
         }
     }
 
-    public boolean isTimerReady() {
+    public boolean isTimerReady()
+    {
         return (CYCLE_TIME < debounce.milliseconds());
     }
 
-    public boolean isOverSlot() {
+    public boolean isOverSlot()
+    {
         return Math.abs(currentAngle - (targetAngle + current_offset)) < INTAKE_TOLERANCE;
     }
 
-    public boolean isHomed() {
+    public boolean isHomed()
+    {
         return isHomed;
     }
 
 
-    double getCurrentAngle() {
+    double getCurrentAngle()
+    {
         return currentAngle;
     }
 
-    public void update(int count) {
+    public void update(int count)
+    {
         // --- 1. Cache Hardware Reads ---
         currentAngle = indexMotor.getCurrentPosition() / COUNTS_PER_DEGREE - startingAngle - launching_offset;
         double angleErrorAbs = Math.abs(targetAngle + current_offset - currentAngle);
@@ -213,17 +244,19 @@ public class Turnstile {
         angleController.setPID(pTotal, I, D); // Re-apply PID gains from Dashboard
         power = angleController.calculate(currentAngle, targetAngle + current_offset) * GEAR_RATIO;
 
-        if (power > THRESHOLD) power = Range.scale(power, THRESHOLD, 1, MIN_POWER_POS, 1);
-        if (power < -THRESHOLD) power = Range.scale(power, -1, -THRESHOLD, -1, -MIN_POWER_NEG);
+        if (power > THRESHOLD) {power = Range.scale(power, THRESHOLD, 1, MIN_POWER_POS, 1);}
+        if (power < -THRESHOLD) {power = Range.scale(power, -1, -THRESHOLD, -1, -MIN_POWER_NEG);}
 
-        switch (currentState) {
+        switch (currentState)
+        {
             case IDLE:
                 indexerServo1.setPower(0);
                 indexerServo2.setPower(0);
                 break;
 
             case HOMING:
-                if (limitSwitchPressed) {
+                if (limitSwitchPressed)
+                {
                     indexMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                     indexMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                     currentAngle = 0;
@@ -234,7 +267,9 @@ public class Turnstile {
                     indexerServo1.setPower(power * lowerErrorScalar);
                     indexerServo2.setPower(power * lowerErrorScalar);
                     currentState = State.HOLDING_POSITION;
-                } else {
+                }
+                else
+                {
                     indexerServo1.setPower(HOMING_POWER);
                     indexerServo2.setPower(HOMING_POWER);
                     isHomed = false;
@@ -244,7 +279,8 @@ public class Turnstile {
             case MANUAL_SPIN:
                 indexerServo1.setPower(manualPower);
                 indexerServo2.setPower(manualPower);
-                if (0.01 > Math.abs(manualPower)) {
+                if (Math.abs(manualPower) < 0.1)
+                {
                     // When driver lets go, find the nearest physical slot and seek to it.
                     double nearestSlotAngle = (Math.round(currentAngle / 120.0)) * 120.0;
                     seekToAngle(nearestSlotAngle);
@@ -253,36 +289,45 @@ public class Turnstile {
                 break;
 
             case SEEKING_POSITION:
-                if (isAtTarget()) {
+                if (isAtTarget())
+                {
                     currentState = State.HOLDING_POSITION;
                     // We have arrived. Stop the motor for this one cycle to prevent a "kick".
                     // The next loop will execute the HOLDING_POSITION logic.
                     indexerServo1.setPower(power * lowerErrorScalar);
                     indexerServo2.setPower(power * lowerErrorScalar);
-                } else {
+                }
+                else
+                {
                     // If not at target, continue seeking.
                     indexerServo1.setPower(power);
                     indexerServo2.setPower(power);
                 }
                 break;
             case LAUNCHING:
-                if (currentAngle <= targetAngle) {
+                if (currentAngle <= targetAngle)
+                {
                     currentState = State.SEEKING_POSITION;
                     // We have arrived. Stop the motor for this one cycle to prevent a "kick".
                     // The next loop will execute the HOLDING_POSITION logic.
                     indexerServo1.setPower(0);
                     indexerServo2.setPower(0);
-                } else if (3 == numLaunches && currentAngle > (targetAngle - BALL3_ANGLE) && currentAngle <= targetAngle - BALL2_ANGLE) {
+                }
+                else if (numLaunches == 3  && currentAngle > (targetAngle - BALL3_ANGLE) && currentAngle <= targetAngle - BALL2_ANGLE)
+                {
                     double fasterPower = Range.clip(-LAUNCHING_POWER * SECOND_BALL_BOOST, -1, 1);
                     indexerServo1.setPower(fasterPower);
                     indexerServo2.setPower(fasterPower);
-                } else if (3 == numLaunches && currentAngle <= targetAngle - BALL3_ANGLE) {
+                }
+                else if (numLaunches == 3  && currentAngle <= targetAngle - BALL3_ANGLE)
+                {
                     // If not at target, continue seeking.
                     double fasterPower = Range.clip(-LAUNCHING_POWER * THIRD_BALL_BOOST, -1, 1);
                     indexerServo1.setPower(fasterPower);
                     indexerServo2.setPower(fasterPower);
-                } else {
-
+                }
+                else
+                {
                     // If not at target, continue seeking.
                     indexerServo1.setPower(-LAUNCHING_POWER);
                     indexerServo2.setPower(-LAUNCHING_POWER);
@@ -291,10 +336,13 @@ public class Turnstile {
 
             case HOLDING_POSITION:
                 // If a magnet is detected while holding, we use it to correct for encoder drift.
-                if (isAtTarget()) {
+                if (isAtTarget())
+                {
                     indexerServo1.setPower(power / 2);
                     indexerServo2.setPower(power / 2);
-                } else {
+                }
+                else
+                {
                     indexerServo1.setPower(power);
                     indexerServo2.setPower(power);
                     currentState = State.SEEKING_POSITION;
@@ -303,7 +351,8 @@ public class Turnstile {
         }
 
         // --- 3. Telemetry ---
-        if (TELEM) {
+        if (DEBUG_TURNSTILE || SHOW_DEBUG_ALL)
+        {
 //        telemetry.addData("Turnstile State", currentState.name());
             telemetry.addData("Turnstile Angle", currentAngle);
             telemetry.addData("Turnstile Target", targetAngle + current_offset);

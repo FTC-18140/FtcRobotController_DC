@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.Robot;
 import static com.qualcomm.robotcore.eventloop.opmode.OpMode.blackboard;
 import static org.firstinspires.ftc.teamcode.Robot.Turnstile.STARTING_ANGLE_KEY;
+import static org.firstinspires.ftc.teamcode.TelemetryConfig.DEBUG_TURNSTILE;
+import static org.firstinspires.ftc.teamcode.TelemetryConfig.SHOW_DEBUG_ALL;
 
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -118,15 +120,17 @@ public class LiftingTurnstile
         // 1. Hardware Read (Keep it at the top)
         currentAngle = indexMotor.getCurrentPosition() / COUNTS_PER_DEGREE + startingAngle;
         limitSwitchPressed = limitSwitch.isPressed();
-
+        double pwr = 0;
         // 2. State Machine
         switch (currentState)
         {
             case OFF:
+                pwr = 0;
                 stopServos();
                 break;
             case HOMING:
-                driveServos(HOMING_POWER);
+                pwr = HOMING_POWER;
+                driveServos(pwr);
                 if (limitSwitchPressed)
                 {
                     finalizeHome();
@@ -151,7 +155,7 @@ public class LiftingTurnstile
                         angleController.setPID(P, I, D); // Snap Gains
                     }
                 }
-                double pwr = angleController.calculate(currentAngle, targetAngle);
+                pwr = angleController.calculate(currentAngle, targetAngle);
                 // Deadband to stop hunting in the gear slop
                 if (Math.abs(error) < 0.5) pwr = 0;
                 // Output Clamp (Safety)
@@ -159,13 +163,22 @@ public class LiftingTurnstile
                 driveServos(pwr);
                 break;
             case LAUNCHING:
-                driveServos(-LAUNCHING_POWER);
+                pwr = -LAUNCHING_POWER;
+                driveServos(pwr);
                 // Switch to PID control when we get close to the target to "brake"
                 if (currentAngle <= targetAngle + 60.0)
                 {
                     currentState = State.CONTROL_TO_ANGLE;
                 }
                 break;
+        }
+        if (DEBUG_TURNSTILE || SHOW_DEBUG_ALL)
+        {
+            telemetry.addData("Turnstile Angle", currentAngle);
+            telemetry.addData("Turnstile Target", targetAngle );
+            telemetry.addData("Turnstile Error: ", targetAngle - currentAngle);
+            telemetry.addData("Turnstile Power", pwr);
+            telemetry.addData("Limit Switch Pressed", limitSwitchPressed);
         }
     }
 

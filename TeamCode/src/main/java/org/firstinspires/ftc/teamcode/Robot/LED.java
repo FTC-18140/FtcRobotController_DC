@@ -37,6 +37,13 @@ public class LED
     private double lowerBoundRpm = 0.0;
     private double upperBoundRpm = 0.0;
 
+    private Colors lastRpmColor = null;
+    private Colors lastLauncherColor = null;
+    private Colors lastIntakeColor = null;
+    private boolean rpmDirty = true;
+    private boolean launcherDirty = true;
+    private boolean intakeDirty = true;
+
     public void init(HardwareMap hwMap, Telemetry telem, double lowerBoundRpmIn, double upperBoundRpmIn)
     {
         telemetry = telem;
@@ -82,28 +89,7 @@ public class LED
         {
             setRPMLedToColor(Colors.OFF);
         }
-//        double alertTimeEnd = 10.0;
-//        if ( (120.0 - runtime) < 5.0 )
-//        {
-//            if ( (Math.ceil(runtime * 2.0) % 2.0) == 1.0 )
-//            {
-//            }
-//            else
-//            {
-////                setAllLedsToColor(Colors.RED);
-//            }
-//        }
-//        else if ((120.0 - runtime) < alertTimeEnd)
-//        {
-//            if (1.0 == Math.ceil(runtime * 2.0) % 2.0)
-//            {
-//            }
-//            else
-//            {
-////                setAllLedsToColor(Colors.ORANGE);
-//            }
-//
-//        }
+
         switch (loadedColor)
         {
             case GREEN:
@@ -144,20 +130,35 @@ public class LED
             setAllLedsToColor(Colors.BLUE);
         }
     }
-
+    
     private void setRPMLedToColor(Colors color)
     {
-        hueRpmLed = getColor(color);
+        if (color == Colors.RAINBOW || color != lastRpmColor)
+        {
+            hueRpmLed = getColor(color);
+            lastRpmColor = color;
+            rpmDirty = true;
+        }
     }
 
     private void setIntakeLedToColor(Colors color)
     {
-        hueIntakeLed = getColor(color);
+        if (color != lastIntakeColor)
+        {
+            hueIntakeLed = getColor(color);
+            lastIntakeColor = color;
+            intakeDirty = true; // Mark as needing an update
+        }
     }
 
     void setLauncherLedToColor(Colors color)
     {
-        hueLauncherLed = getColor(color);
+        if (color != lastLauncherColor)
+        {
+            hueLauncherLed = getColor(color);
+            lastLauncherColor = color;
+            launcherDirty = true; // Mark as needing an update
+        }
     }
 
     private void setAllLedsToColor(Colors color)
@@ -169,14 +170,22 @@ public class LED
 
     private void writeToLeds()
     {
-        if (colorLed != null) {
-            colorLed.setPosition(hueLauncherLed);
-        }
-        if (rpmLed != null) {
+        if (rpmDirty && rpmLed != null)
+        {
             rpmLed.setPosition(hueRpmLed);
+            rpmDirty = false;
         }
-        if (intakeLed != null) {
+
+        if (launcherDirty && colorLed != null)
+        {
+            colorLed.setPosition(hueLauncherLed);
+            launcherDirty = false;
+        }
+
+        if (intakeDirty && intakeLed != null)
+        {
             intakeLed.setPosition(hueIntakeLed);
+            intakeDirty = false;
         }
     }
 

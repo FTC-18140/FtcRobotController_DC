@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
+import static org.firstinspires.ftc.teamcode.TelemetryConfig.DEBUG_LIMELIGHT;
+import static org.firstinspires.ftc.teamcode.TelemetryConfig.SHOW_DEBUG_ALL;
+
 import androidx.annotation.Nullable;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -18,7 +21,8 @@ import org.firstinspires.ftc.teamcode.Utilities.DataLogger;
 import java.util.List;
 
 @Config
-public class Limelight implements DataLoggable {
+public class Limelight implements DataLoggable
+{
 
     public static final double INCHES_PER_METER = 39.37008;
     Limelight3A limelight = null;
@@ -44,16 +48,20 @@ public class Limelight implements DataLoggable {
 
     public static double MINIMUM_TARGET_AREA = 0.0; // Example value, adjust as needed
 
-    public void init(HardwareMap hwMap, Telemetry telemetry) {
+    public void init(HardwareMap hwMap, Telemetry telemetry)
+    {
         hardwareMap = hwMap;
-        try {
+        try
+        {
             limelight = hwMap.get(Limelight3A.class, "limelight");
             limelight.setPollRateHz(100);
 
 
             limelight.start();
             limelight.pipelineSwitch(4);
-        } catch (RuntimeException e) {
+        }
+        catch (RuntimeException e)
+        {
             telemetry.addData("Limelight init failed", 0);
         }
         this.telemetry = telemetry;
@@ -65,16 +73,18 @@ public class Limelight implements DataLoggable {
      *
      * @param pipeline the pipeline you want it to read
      */
-    public void setPipeline(int pipeline) {
-        if (limelight == null) return;
+    public void setPipeline(int pipeline)
+    {
+        if (limelight == null) {return;}
         limelight.pipelineSwitch(pipeline);
     }
 
     /**
      * Updates the values associated with the apriltags the limelight sees
      */
-    public void update(double limelightAngle, Vector2d turretOffset) {
-        if (limelight == null) return;
+    public void update(double limelightAngle, Vector2d turretOffset)
+    {
+        if (limelight == null) {return;}
         // Always update orientation with latest robot heading (critical for MegaTag2 accuracy)
 
         // Reset per-loop state
@@ -83,7 +93,8 @@ public class Limelight implements DataLoggable {
         visionPose = null;  // or new Vector2d(0,0) if you prefer non-null
 
         LLResult result = limelight.getLatestResult();
-        if (null == result || !result.isValid()) {
+        if (result == null || !result.isValid())
+        {
             // No new data → rely on trust window (handled in hasTarget())
             return;
         }
@@ -93,18 +104,23 @@ public class Limelight implements DataLoggable {
 
         // Single tag expected due to pipeline ID filter
         List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
-        if (!fiducials.isEmpty()) {
+        if (!fiducials.isEmpty())
+        {
             LLResultTypes.FiducialResult f = fiducials.get(0);  // Safe: pipeline filters to desired ID(s)
 
             double area = f.getTargetArea();
-            if (area > MINIMUM_TARGET_AREA) {
+            if (area > MINIMUM_TARGET_AREA)
+            {
                 id = f.getFiducialId();  // For telemetry/logging (should match your pipeline)
                 x = f.getTargetXDegrees();
                 lastGoodX = x;
-                if (firstReading) {
+                if (firstReading)
+                {
                     smoothedX = x;
                     firstReading = false;
-                } else {
+                }
+                else
+                {
                     smoothedX = alpha * x + (1.0 - alpha) * smoothedX;
                 }
                 distance = f.getCameraPoseTargetSpace().getPosition().z * INCHES_PER_METER;
@@ -114,7 +130,8 @@ public class Limelight implements DataLoggable {
         limelight.updateRobotOrientation((limelightAngle + 360.0) % 360.0);
         // MegaTag2 bot pose (field-relative, MT2-corrected)
         Pose3D robotPoseMt2 = result.getBotpose_MT2();
-        if (null != robotPoseMt2) {
+        if (robotPoseMt2 != null)
+        {
             Position positionMt2 = robotPoseMt2.getPosition();
             Vector2d botPoseInches = new Vector2d(
                     positionMt2.x * INCHES_PER_METER,
@@ -130,12 +147,17 @@ public class Limelight implements DataLoggable {
             telemetry.addData("Plus Offset", visionPose);
         }
         // Reset smoothing after extended loss (check regardless of fiducial presence)
-        if (msSinceLastGoodTarget() > TARGET_TRUST_WINDOW_MS * 5L) {
+        if (msSinceLastGoodTarget() > TARGET_TRUST_WINDOW_MS * 5L)
+        {
             firstReading = true;
         }
-        // Optional extra telemetry (keep or remove based on your debugging needs)
-        telemetry.addData("Target Fresh?", hasTarget());
-        telemetry.addData("id: ", id);
+
+        if (DEBUG_LIMELIGHT || SHOW_DEBUG_ALL)
+        {
+            telemetry.addData( "LimelightAngle: ", limelightAngle);
+            telemetry.addData("Target Fresh?", hasTarget());
+            telemetry.addData("id: ", id);
+        }
     }
 
     /**
@@ -143,7 +165,8 @@ public class Limelight implements DataLoggable {
      *
      * @return x-value
      */
-    public double getX() {
+    public double getX()
+    {
         return smoothedX;
     }
 
@@ -152,41 +175,49 @@ public class Limelight implements DataLoggable {
      *
      * @return the id number
      */
-    public int id() {
+    public int id()
+    {
         telemetry.addData("id: ", id);
         return id;
     }
 
-    public boolean hasTarget() {
+    public boolean hasTarget()
+    {
         return targetIsFresh(TARGET_TRUST_WINDOW_MS);
     }
 
     @Override
-    public void logData(DataLogger logger) {
+    public void logData(DataLogger logger)
+    {
         logger.addField(this.smoothedX);
         logger.addField(this.lastUpdateTimeNs);
     }
 
-    public Vector2d getMegaTagPose() {
+    public Vector2d getMegaTagPose()
+    {
         return visionPose;
     }
 
-    public double getDistance() {
+    public double getDistance()
+    {
         return distance;
     }
 
-    public double getLastGoodX() {
+    public double getLastGoodX()
+    {
         return lastGoodX;
     }
 
     // Returns the elapsed time since the last reliable AprilTag detection.
-    public long msSinceLastGoodTarget() {
-        if (0L == lastGoodTargetTimeNs) return Long.MAX_VALUE;
+    public long msSinceLastGoodTarget()
+    {
+        if (0L == lastGoodTargetTimeNs) {return Long.MAX_VALUE;}
         return (System.nanoTime() - lastGoodTargetTimeNs) / 1_000_000L;
     }
 
     // Determines whether a reliable target has been observed within the specified age window.
-    public boolean targetIsFresh(long maxAgeMs) {
+    public boolean targetIsFresh(long maxAgeMs)
+    {
         return msSinceLastGoodTarget() < maxAgeMs;
     }
 }

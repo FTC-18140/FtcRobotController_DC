@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
+import static org.firstinspires.ftc.teamcode.TelemetryConfig.DEBUG_FLYWHEEL;
+import static org.firstinspires.ftc.teamcode.TelemetryConfig.SHOW_DEBUG_ALL;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -169,13 +172,13 @@ public class Flywheel
     {
         rpmController.setPID(P, I, D);
         double currentDraw = getCurrentDraw();
-        if (GOBILDA_MOTOR_STALL_CURRENT <= currentDraw)
+        if (currentDraw >= GOBILDA_MOTOR_STALL_CURRENT)
         {
             telemetry.addData("FLYWHEEL STALLED", 0);
         }
 
         double detectedRpm = rpmFilter.addValue(getRPM());
-        if (0 == previousRpm) {previousRpm = currentRpm;}
+        if (previousRpm == 0) {previousRpm = currentRpm;}
 
         if (detectedRpm == previousRpm)
         {
@@ -209,7 +212,7 @@ public class Flywheel
                 setPower(finalPower);
 
                 // --- Telemetry for Debugging ---
-                if (TELEM)
+                if ( DEBUG_FLYWHEEL || SHOW_DEBUG_ALL)
                 {
                     telemetry.addData("Target RPM", targetRpm);
                     telemetry.addData("Current RPM", currentRpm);

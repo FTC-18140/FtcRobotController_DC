@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
+import static org.firstinspires.ftc.teamcode.TelemetryConfig.DEBUG_TURRET;
+import static org.firstinspires.ftc.teamcode.TelemetryConfig.SHOW_DEBUG_ALL;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
@@ -21,7 +24,8 @@ import org.firstinspires.ftc.teamcode.Utilities.ThresholdMotor;
 public class Turret
 {
 
-    private enum State
+    // --- MUST BE PUBLIC FOR LAUNCHER FACADE ---
+    public enum State
     {STOP, HOLDING, SEEKING_ANGLE, MANUAL_CONTROL}
 
     // --- CORE HARDWARE & UTILITIES ---
@@ -32,7 +36,7 @@ public class Turret
     private PIDController turretAimPID = null;
     private Telemetry telemetry = null;
 
-    // --- CORE CONSTANTS (Keepers) ---
+    // --- CORE CONSTANTS ---
     public static double P_TURRET = 0.0136, I_TURRET = 0.0, D_TURRET = 0.001645;
     public static double F_STATIC = 0.035;
     public static double KV_ROT = 0.27;
@@ -47,8 +51,8 @@ public class Turret
     public static double TURRET_ANGLE_TOLERANCE = 3.5;
     public static double TURRET_ANGLE_SOFT_TOLERANCE = 3.5;
 
-    // --- LEGACY / EXPERIMENTAL CONSTANTS (Candidates for removal) ---
-    public static double OFFSET_FOR_WEIRD_STUFF = 3.5; // <--- The "Weird Stuff" is here
+    // --- LEGACY / EXPERIMENTAL ---
+    public static double OFFSET_FOR_WEIRD_STUFF = 3.5;
     public static double F_ACCEL = 0.0011, F_ACCEL_MAX = 0.0093;
     public static double F_RES_POS_MIN = 0.01, F_RES_POS_MAX = 0.05;
     public static double F_RES_NEG_MIN = 0.05, F_RES_NEG_MAX = 0.095;
@@ -101,61 +105,54 @@ public class Turret
         }
     }
 
-    /**
-     * Main Control Loop
-     */
     public void update(Pose2d robotPose, PoseVelocity2d robotVel, Vector2d targetPos, boolean launching)
     {
         updateCurrentPosition();
-        isHomed = turretSwitch.isPressed();
+        isHomed = (turretSwitch != null && turretSwitch.isPressed());
 
-        // 1. PID Calculation
         turretAimPID.setPID(P_TURRET, I_TURRET, D_TURRET);
         double pidPower = turretAimPID.calculate(currentPosition, targetAngle);
-
-        // 2. Feedforward Calculation (Isolated for future simplification)
         double ffPower = calculateTotalFeedforward(robotPose, robotVel, targetPos, pidPower, launching);
 
-        // 3. Combine and Apply via State Machine
-        double totalPower = pidPower + ffPower;
-        handleStateEngine(totalPower);
+        handleStateEngine(pidPower + ffPower);
 
-        if (TELEM)
-        {
-            doTelemetry(pidPower, ffPower);
-        }
-
+        if (TELEM) {doTelemetry(pidPower, ffPower);}
         lastTargetAngle = targetAngle;
     }
 
     private void updateCurrentPosition()
     {
-        // Calculation isolated here. Weird stuff is subtracted at the end.
         double rawDegrees = -turretEnc.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK;
         currentPosition = rawDegrees + startingAngle - offsetAngle - OFFSET_FOR_WEIRD_STUFF;
     }
 
-    /**
-     * Consolidates all 5+ Feedforward terms.
-     * You can "unplug" terms here later without breaking the main loop.
-     */
+    public double applyHardwareConstraints(double angle)
+    {
+        double finalAngle = angle % 360.0;
+        if (finalAngle < MIN_TURRET_POS)
+        {
+            if (finalAngle < MIN_TURRET_POS - TURRET_ANGLE_TOLERANCE) {finalAngle += 360;}
+            else {finalAngle = MIN_TURRET_POS;}
+        }
+        else if (finalAngle > MAX_TURRET_POS)
+        {
+            if (finalAngle > MAX_TURRET_POS + TURRET_ANGLE_TOLERANCE) {finalAngle -= 360;}
+            else {finalAngle = MAX_TURRET_POS;}
+        }
+        return finalAngle;
+    }
+
     private double calculateTotalFeedforward(Pose2d pose, PoseVelocity2d vel, Vector2d target, double pidPower, boolean launching)
     {
         double targetShift = targetAngle - lastTargetAngle;
         double errorAbs = Math.abs(targetAngle - currentPosition);
         double mediumErrorScalar = (errorAbs * errorAbs) / (TURRET_ANGLE_SOFT_TOLERANCE * TURRET_ANGLE_SOFT_TOLERANCE);
 
-        // Term A: Static Friction
         double ffStatic = F_STATIC * Math.signum(pidPower);
-
-        // Term B: Robot Motion Compensation (Rotation + Translation)
         double ffRobotRot = vel.angVel * KV_ROT;
         double ffTrans = calculateTranslationalFF(pose, vel, target);
 
-        // Term C: Experimental Acceleration FF
         double ffAccel = (0.025 < targetShift ? Math.min(F_ACCEL / targetShift, F_ACCEL_MAX) : 0);
-
-        // Term D: Experimental Resistance FF (Wires/Tension)
         double ffResistance = 0;
         if (targetAngle > F_RANGE_MAX)
         {
@@ -166,8 +163,6 @@ public class Turret
             ffResistance = Range.scale(Range.clip(targetAngle, F_RANGE_MIN, MIN_TURRET_POS), F_RANGE_MIN, MIN_TURRET_POS, F_RES_NEG_MIN, F_RES_NEG_MAX);
         }
         ffResistance *= Math.signum(pidPower);
-
-        // Term E: Launching Compensation
         double ffLaunch = (launching && currentPosition < targetAngle ? F_LAUNCHING * Math.min(mediumErrorScalar, 1) : 0);
 
         return ffStatic + ffRobotRot + ffTrans + ffAccel + ffResistance + ffLaunch;
@@ -209,28 +204,45 @@ public class Turret
         double dy = targetPos.y - robotPose.position.y;
         double rSquared = dx * dx + dy * dy;
         if (rSquared < 1e-6) {return 0.0;}
-
         double vxWorld = robotVel.linearVel.x * Math.cos(-robotPose.heading.toDouble()) - robotVel.linearVel.y * Math.sin(-robotPose.heading.toDouble());
         double vyWorld = robotVel.linearVel.x * Math.sin(-robotPose.heading.toDouble()) + robotVel.linearVel.y * Math.cos(-robotPose.heading.toDouble());
-
         return ((dx * vyWorld - dy * vxWorld) / rSquared) * KV_TRANS;
     }
 
     private void doTelemetry(double pidPower, double ffTotal)
     {
-        telemetry.addLine(" ------------- TURRET TELEM -------------");
-        telemetry.addData("Turret Position", "%.2f", currentPosition);
-        telemetry.addData("Turret Target", "%.2f", targetAngle);
-        telemetry.addData("PID Power", "%.3f", pidPower);
-        telemetry.addData("FF Total", "%.3f", ffTotal);
-        telemetry.addData("Turret State", currentState);
+        if (DEBUG_TURRET || SHOW_DEBUG_ALL)
+        {
+            telemetry.addLine(" ------------- TURRET TELEM -------------");
+            telemetry.addData("Turret Position", "%.2f", currentPosition);
+            telemetry.addData("Turret Target", "%.2f", targetAngle);
+            telemetry.addData("PID Power", "%.3f", pidPower);
+            telemetry.addData("FF Total", "%.3f", ffTotal);
+            telemetry.addData("Turret State", currentState);
+        }
     }
 
-    // --- PUBLIC API ---
+    // --- PUBLIC API (RESTORED FOR LAUNCHER FACADE) ---
+
+    public State getCurrentState() {return currentState;}
+
+    public boolean isHomed() {return isHomed;}
+
+    public void setOffsetAngle(double angle) {this.offsetAngle = angle;}
+
+    public double getCurrentPositionRaw()
+    {
+        return -turretEnc.getCurrentPosition() * TURRET_DEGREES_PER_ENCODER_TICK;
+    }
+
+    public double getTotalCurrentDraw()
+    {
+        return turret.getCurrent(CurrentUnit.AMPS);
+    }
 
     public void seekToAngle(double angle)
     {
-        targetAngle = Range.clip(angle, MIN_TURRET_POS, MAX_TURRET_POS);
+        targetAngle = applyHardwareConstraints(angle);
         currentState = State.SEEKING_ANGLE;
     }
 
@@ -242,7 +254,7 @@ public class Turret
 
     public void holdPosition()
     {
-        targetAngle = currentPosition;
+        targetAngle = applyHardwareConstraints(currentPosition);
         currentState = State.SEEKING_ANGLE;
     }
 
@@ -257,5 +269,9 @@ public class Turret
 
     public void setStartAngle(double angle) {offsetAngle = -angle;}
 
-    public void zeroTurret() {turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);}
+    public void zeroTurret()
+    {
+        turretEnc.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        turretEnc.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
 }

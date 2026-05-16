@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
+import static org.firstinspires.ftc.teamcode.TelemetryConfig.DEBUG_TRANSFER_FACADE;
+import static org.firstinspires.ftc.teamcode.TelemetryConfig.SHOW_DEBUG_ALL;
+
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
@@ -290,7 +293,7 @@ public class TransferFacade
                     updateBallModel();
 
                     // Rotate to the next slot
-                    cycle(1);
+                    cycle(-1);
                 }
                 else if (turnstile.getAngleError() > IDLE_TOLERANCE)
                 {
@@ -308,5 +311,15 @@ public class TransferFacade
             default:
                 break;
         }
+
+        if (DEBUG_TRANSFER_FACADE || SHOW_DEBUG_ALL)
+        {
+            telemetry.addData("Transfer Facade State", currentState.name());
+            telemetry.addData("Turnstile at Target: ", turnstile.isAtTarget());
+            telemetry.addData("Beam Break detection: ", beamBreak.isBallDetectedInIndexer());
+            telemetry.addLine(String.format("Slots: [0]: %s, [1]: %s, [2]: %s",
+                    ballSlots[0], ballSlots[1], ballSlots[2]));
+        }
+
     }
 }

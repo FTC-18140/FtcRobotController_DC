@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.TelemetryConfig;
 import org.firstinspires.ftc.teamcode.Utilities.DataLoggable;
 import org.firstinspires.ftc.teamcode.Utilities.DataLogger;
 
@@ -151,7 +152,7 @@ public class LauncherFacade
         flywheel.update(currentOdoVelocity, Math.toDegrees(fieldAngleToGoal), voltage, distanceToGoal);
 
         // --- Telemetry ---
-        if (TELEM)
+        if (TelemetryConfig.DEBUG_LAUNCHER_FACADE || TelemetryConfig.SHOW_DEBUG_ALL)
         {
             telemetry.addData("update rate (seconds): ", update_rate_seconds);
             telemetry.addData("Launcher Aiming Mode", aimingMode.name()); // Useful for debugging mode changes
