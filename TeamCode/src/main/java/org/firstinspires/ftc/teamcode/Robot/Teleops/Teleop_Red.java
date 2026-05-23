@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Robot.TransferFacade;
 import org.firstinspires.ftc.teamcode.Utilities.TBDGamepad;
 
 @TeleOp(group = Teleop_BLUE.MATCH_TELEOP_GROUP)
-@Config
+
 public class Teleop_Red extends OpMode {
 
 

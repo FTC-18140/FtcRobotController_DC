@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.Robot;
 
 import static com.qualcomm.robotcore.eventloop.opmode.OpMode.blackboard;
 
-import static org.firstinspires.ftc.teamcode.TelemetryConfig.DEBUG_TURNSTILE;
+import static org.firstinspires.ftc.teamcode.TelemetryConfig.DEBUG_LIFTING_TURNSTILE;
 import static org.firstinspires.ftc.teamcode.TelemetryConfig.SHOW_DEBUG_ALL;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.Robot.Auto.AutoRedDepot_12;
 import org.firstinspires.ftc.teamcode.Robot.Drives.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 
-@Config // Make this class tunable
+ // Make this class tunable
 public class Turnstile
 {
 
@@ -240,12 +240,14 @@ public class Turnstile
         int minCount = Math.min(count, 3);
         // --- 2. Run State Machine ---
         double power;
-        double pTotal = P + P_PER_BALL_FACTOR * minCount;
+//        double pTotal = P + P_PER_BALL_FACTOR * minCount;
+        double pTotal = P;
         angleController.setPID(pTotal, I, D); // Re-apply PID gains from Dashboard
-        power = angleController.calculate(currentAngle, targetAngle + current_offset) * GEAR_RATIO;
+//        power = angleController.calculate(currentAngle, targetAngle + current_offset) * GEAR_RATIO;
+        power = angleController.calculate(currentAngle, targetAngle + current_offset);
 
-        if (power > THRESHOLD) {power = Range.scale(power, THRESHOLD, 1, MIN_POWER_POS, 1);}
-        if (power < -THRESHOLD) {power = Range.scale(power, -1, -THRESHOLD, -1, -MIN_POWER_NEG);}
+//        if (power > THRESHOLD) {power = Range.scale(power, THRESHOLD, 1, MIN_POWER_POS, 1);}
+//        if (power < -THRESHOLD) {power = Range.scale(power, -1, -THRESHOLD, -1, -MIN_POWER_NEG);}
 
         switch (currentState)
         {
@@ -294,8 +296,10 @@ public class Turnstile
                     currentState = State.HOLDING_POSITION;
                     // We have arrived. Stop the motor for this one cycle to prevent a "kick".
                     // The next loop will execute the HOLDING_POSITION logic.
-                    indexerServo1.setPower(power * lowerErrorScalar);
-                    indexerServo2.setPower(power * lowerErrorScalar);
+//                    indexerServo1.setPower(power * lowerErrorScalar);
+//                    indexerServo2.setPower(power * lowerErrorScalar);
+                    indexerServo1.setPower(power);
+                    indexerServo2.setPower(power);
                 }
                 else
                 {
@@ -338,8 +342,10 @@ public class Turnstile
                 // If a magnet is detected while holding, we use it to correct for encoder drift.
                 if (isAtTarget())
                 {
-                    indexerServo1.setPower(power / 2);
-                    indexerServo2.setPower(power / 2);
+//                    indexerServo1.setPower(power / 2);
+//                    indexerServo2.setPower(power / 2);
+                    indexerServo1.setPower(power);
+                    indexerServo2.setPower(power);
                 }
                 else
                 {
@@ -351,9 +357,9 @@ public class Turnstile
         }
 
         // --- 3. Telemetry ---
-        if (DEBUG_TURNSTILE || SHOW_DEBUG_ALL)
+        if (DEBUG_LIFTING_TURNSTILE || SHOW_DEBUG_ALL)
         {
-//        telemetry.addData("Turnstile State", currentState.name());
+            telemetry.addData("Turnstile State", currentState.name());
             telemetry.addData("Turnstile Angle", currentAngle);
             telemetry.addData("Turnstile Target", targetAngle + current_offset);
             telemetry.addData("Turnstile Error: ", targetAngle + current_offset - currentAngle);

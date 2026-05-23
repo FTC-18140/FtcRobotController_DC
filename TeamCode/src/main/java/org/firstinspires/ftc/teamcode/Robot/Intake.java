@@ -29,6 +29,17 @@ public class Intake
     private CRServo intakeServo;
     private Telemetry telemetry;
 
+    public Action intakeStopAction() {
+        return packet -> {
+            stop();
+            return false;
+        };
+    }
+
+    public void DEBUG_intakeMotor() {
+
+    }
+
     // State
     public enum State
     {

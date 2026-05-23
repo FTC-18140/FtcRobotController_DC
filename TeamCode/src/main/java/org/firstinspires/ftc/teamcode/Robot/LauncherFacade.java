@@ -32,6 +32,10 @@ public class LauncherFacade
     private Limelight limelight = null;
     private Telemetry telemetry = null;
 
+    public void updateVision() {
+
+    }
+
 
     public enum AimingMode
     {MAIN, ODOMETRY, LIMELIGHT, MANUAL, DIRECTIONAL}

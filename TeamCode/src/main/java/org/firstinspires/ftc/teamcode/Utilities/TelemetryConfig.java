@@ -18,12 +18,13 @@ public class TelemetryConfig
     public static boolean DEBUG_LAUNCHER_FACADE = false;
     public static boolean DEBUG_FLYWHEEL = false;
     public static boolean DEBUG_TRANSFER_FACADE = false;
-    public static boolean DEBUG_TURNSTILE = false;
+    public static boolean DEBUG_LIFTING_TURNSTILE = true;
     public static boolean DEBUG_DRIVE = false;
     public static boolean DEBUG_INTAKE = false;
     public static boolean DEBUG_LIMELIGHT = false;
     public static boolean DEBUG_BEAMBREAK = false;
     public static boolean DEBUG_BALL_SENSOR  = false;
+    public static boolean DEBUG_GAMEPAD = false;
 
     // --- HARDWARE DIAGNOSTICS ---
     // Toggle this to see motor currents, voltages, and loop times

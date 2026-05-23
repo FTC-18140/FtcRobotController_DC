@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
+import static org.firstinspires.ftc.teamcode.TelemetryConfig.DEBUG_DRIVE;
+
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -134,7 +136,11 @@ public class ThunderBot2026
 
         PoseVelocity2d robotPoseVel = drive.updatePoseEstimate();
 
-        addTelemetry();
+        if ( DEBUG_DRIVE)
+        {
+            addTelemetry();
+        }
+
         launcher.update(drive.localizer.getPose(), robotPoseVel, getBatteryVoltage(), indexer.getCurrentState() == TransferFacade.State.LAUNCHING);
 
         boolean atTargetRpm = launcher.isAtTargetRpm();
@@ -157,19 +163,19 @@ public class ThunderBot2026
 
         led.update(inZone, indexer.isOverridden(), seconds, lastBallState, isIndexerFull, isIntakeFull, state);
 
-        if (indexer.getCurrentState() == TransferFacade.State.MOVING)
-        {
-            intake.slow();
-        }
-        if (isIndexerFull && isIntakeFull)
-        {
-            intake.unslow();
-            intake.spit();
-        }
-        else
-        {
-            intake.unSpit();
-        }
+//        if (indexer.getCurrentState() == TransferFacade.State.MOVING)
+//        {
+//            intake.slow();
+//        }
+//        if (isIndexerFull && isIntakeFull)
+//        {
+//            intake.unslow();
+//            intake.spit();
+//        }
+//        else
+//        {
+//            intake.unSpit();
+//        }
 
     }
 

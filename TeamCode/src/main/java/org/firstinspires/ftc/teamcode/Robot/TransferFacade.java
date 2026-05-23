@@ -5,12 +5,14 @@ import static org.firstinspires.ftc.teamcode.TelemetryConfig.SHOW_DEBUG_ALL;
 
 import androidx.annotation.NonNull;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+@Config
 public class TransferFacade
 {
     private LiftingTurnstile turnstile = null;
@@ -21,7 +23,28 @@ public class TransferFacade
     public static boolean TELEM = false;
     private int currentTargetSlot;
     private int pendingShift = 0;
-    public static double IDLE_TOLERANCE = 7.5 ;
+    public static double IDLE_TOLERANCE = 15 ;
+
+    public void updateBallSensors() {
+    }
+
+    public void updateBallStates() {
+    }
+
+    public void selectNextSlot(IndexerFacade.BallState ballState) {
+    }
+
+    public int getCurrentTargetSlot() {
+        return 1;
+    }
+
+    public IndexerFacade.BallState getBallState(int slotToWatch) {
+        return null;
+    }
+
+    public void spin(double v) {
+
+    }
 
     public enum State
     {UNKOWNN, HOMING, IDLE, MOVING, LAUNCHING}

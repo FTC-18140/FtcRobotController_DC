@@ -21,7 +21,6 @@ import java.util.Date;
 import java.util.Locale;
 
 @TeleOp(name = "Teleop Red with Datalogger", group = IndexerTest.TEST_TELEOP_GROUP)
-@Config
 @Disabled
 public class Teleop_Red_DataLogger extends OpMode {
 

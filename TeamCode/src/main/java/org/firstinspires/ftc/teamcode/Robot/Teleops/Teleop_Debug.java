@@ -14,7 +14,6 @@ import org.firstinspires.ftc.teamcode.Robot.ThunderBot2025;
 import org.firstinspires.ftc.teamcode.Utilities.TBDGamepad;
 
 @TeleOp(group = Teleop_Debug.MATCH_TELEOP_GROUP)
-@Config
 @Disabled
 public class Teleop_Debug extends OpMode {
 

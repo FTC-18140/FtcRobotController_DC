@@ -1,24 +1,27 @@
 package org.firstinspires.ftc.teamcode.Robot;
 import static com.qualcomm.robotcore.eventloop.opmode.OpMode.blackboard;
 import static org.firstinspires.ftc.teamcode.Robot.Turnstile.STARTING_ANGLE_KEY;
-import static org.firstinspires.ftc.teamcode.TelemetryConfig.DEBUG_TURNSTILE;
+import static org.firstinspires.ftc.teamcode.TelemetryConfig.DEBUG_LIFTING_TURNSTILE;
 import static org.firstinspires.ftc.teamcode.TelemetryConfig.SHOW_DEBUG_ALL;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Robot.Drives.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 
+@Config
 public class LiftingTurnstile
 {
     // --- Hardware & Utilities ---
     private CRServo indexerServo1;
-    private CRServo indexerServo2;
+//    private CRServo indexerServo2;
     private DcMotorEx indexMotor;
     private TouchSensor limitSwitch;
     private PIDController angleController;
@@ -29,8 +32,8 @@ public class LiftingTurnstile
     private boolean isHomed = false;
     private Telemetry telemetry;
 
-    public static double P = 0.0028, I = 0.0, D = 0.00022;
-    public static double stiffP = 0.006, stiffI = 0.0, stiffD = 0.0001;
+    public static double P = 0.009, I = 0.0, D = 0.000;
+    public static double stiffP = 0.0135, stiffI = 0.0, stiffD = 0.0003;
 
     private State currentState = State.OFF;
 
@@ -40,11 +43,12 @@ public class LiftingTurnstile
     private enum State {OFF, HOMING, CONTROL_TO_ANGLE, LAUNCHING} // Added MANUAL_SPIN
 
     public static double LAUNCHING_POWER = 0.95;
-    public static double CONTROLLING_POWER = 0.7;
+    public static double CONTROLLING_POWER = 0.8;
     public static double HOMING_POWER = 0.065;
-    public static double ANGLE_TOLERANCE = 2.5;// In degrees
+    public static double ANGLE_TOLERANCE = 5;// In degrees
     public static double BACKWARD_TOLERANCE = 30;
 
+    public static double MINIMUM_PWR = 0.0;
 
     public void init(HardwareMap hwMap, Telemetry telem)
     {
@@ -54,7 +58,7 @@ public class LiftingTurnstile
         try
         {
             indexerServo1 = hwMap.crservo.get("indexer");
-            indexerServo2 = hwMap.crservo.get("indexer2");
+//            indexerServo2 = hwMap.crservo.get("indexer2");
 
             indexMotor = hwMap.get(DcMotorEx.class, MecanumDrive.LEFT_FRONT_MOTOR);
             limitSwitch = hwMap.get(TouchSensor.class, "indexerLimit");
@@ -119,6 +123,7 @@ public class LiftingTurnstile
         currentAngle = indexMotor.getCurrentPosition() / COUNTS_PER_DEGREE + startingAngle;
         limitSwitchPressed = limitSwitch.isPressed();
         double pwr = 0;
+        double pidPwr = 0;
         // 2. State Machine
         switch (currentState)
         {
@@ -153,11 +158,19 @@ public class LiftingTurnstile
                         angleController.setPID(P, I, D); // Snap Gains
                     }
                 }
-                pwr = angleController.calculate(currentAngle, targetAngle);
+                pidPwr = angleController.calculate(currentAngle, targetAngle);
                 // Deadband to stop hunting in the gear slop
-                if (Math.abs(error) < 0.5) pwr = 0;
+//                if (Math.abs(error) < 0.5) pwr = 0;
+                if (Math.abs(pidPwr) < MINIMUM_PWR)
+                {
+                    pwr = Math.signum(pidPwr)*MINIMUM_PWR;
+                }
+                else
+                {
+                    pwr = pidPwr;
+                }
                 // Output Clamp (Safety)
-                pwr = Math.max(-CONTROLLING_POWER, Math.min(CONTROLLING_POWER, pwr));
+                pwr = Range.clip(pwr, -CONTROLLING_POWER, CONTROLLING_POWER);
                 driveServos(pwr);
                 break;
             case LAUNCHING:
@@ -170,12 +183,14 @@ public class LiftingTurnstile
                 }
                 break;
         }
-        if (DEBUG_TURNSTILE || SHOW_DEBUG_ALL)
+        if (DEBUG_LIFTING_TURNSTILE || SHOW_DEBUG_ALL)
         {
+            telemetry.addData("Turnstile State", currentState.name());
             telemetry.addData("Turnstile Angle", currentAngle);
             telemetry.addData("Turnstile Target", targetAngle );
             telemetry.addData("Turnstile Error: ", targetAngle - currentAngle);
             telemetry.addData("Turnstile Power", pwr);
+            telemetry.addData("Turnstile PID Pwr Calc", pidPwr);
             telemetry.addData("Limit Switch Pressed", limitSwitchPressed);
         }
     }
@@ -184,7 +199,7 @@ public class LiftingTurnstile
     private void driveServos(double pwr)
     {
         indexerServo1.setPower(pwr);
-        indexerServo2.setPower(pwr);
+//        indexerServo2.setPower(pwr);
     }
 
     private void stopServos()

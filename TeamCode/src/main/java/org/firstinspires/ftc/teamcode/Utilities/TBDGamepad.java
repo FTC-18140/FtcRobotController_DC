@@ -1,13 +1,18 @@
 package org.firstinspires.ftc.teamcode.Utilities;
 
+import static org.firstinspires.ftc.teamcode.TelemetryConfig.DEBUG_GAMEPAD;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.Gamepad;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.util.Arrays;
 
 @Config
 public class TBDGamepad
 {
+    private Telemetry telemetry;
     public Gamepad gamepad;
 
     public static double expoYValue = 2.5;
@@ -88,6 +93,11 @@ public class TBDGamepad
         Arrays.fill(buttons, false);
         Arrays.fill(oldButtons, false);
         Arrays.fill(changed, false);
+    }
+
+    public void init(Telemetry telem)
+    {
+        telemetry = telem;
     }
 
     /**
@@ -329,6 +339,11 @@ public class TBDGamepad
         for (int i = 0; 14 > i; i++)
         {
             changed[i] = oldButtons[i] != buttons[i];
+        }
+
+        if ( DEBUG_GAMEPAD )
+        {
+            telemetry.addData("dpad down:", gamepad.dpad_down );
         }
     }
 

@@ -194,6 +194,10 @@ public class Flywheel
             case IDLE:
                 setPower(0);
                 currentAccel = 0;
+                if ( DEBUG_FLYWHEEL || SHOW_DEBUG_ALL)
+                {
+                    telemetry.addLine("Flywheel stopped.");
+                }
                 break;
             case CONTROLLING_SPEED:
                 // --- Step 1: Calculate the Feedforward value ---

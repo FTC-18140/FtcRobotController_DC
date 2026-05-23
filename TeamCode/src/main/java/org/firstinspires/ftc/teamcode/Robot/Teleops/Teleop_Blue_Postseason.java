@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2026;
 import org.firstinspires.ftc.teamcode.Utilities.TBDGamepad;
@@ -38,6 +39,7 @@ public class Teleop_Blue_Postseason extends OpMode
     ThunderBot2026 robot = new ThunderBot2026();
     private boolean preSpinUp = true;
     double manualAngle;
+    ElapsedTime loopTimer = new ElapsedTime( ElapsedTime.Resolution.MILLISECONDS);
 
     /**
      * Performs hardware mapping, initializes robot subsystems,
@@ -54,6 +56,8 @@ public class Teleop_Blue_Postseason extends OpMode
         theGamepad2 = new TBDGamepad(gamepad2);
         theGamepad1.setLedColor(TBDGamepad.Colors.ORANGE);
         theGamepad2.setLedColor(TBDGamepad.Colors.BLUE);
+        theGamepad1.init(telemetry);
+        theGamepad2.init(telemetry);
         // Tell the driver that initialization is complete.
 
         telemetry.addData("Status", "Initialized");
@@ -65,6 +69,7 @@ public class Teleop_Blue_Postseason extends OpMode
     {
         robot.runtime.reset();
         robot.setColor(alliance);
+        loopTimer.reset();
     }
 
     /**
@@ -74,6 +79,8 @@ public class Teleop_Blue_Postseason extends OpMode
     @Override
     public void loop()
     {
+        telemetry.addData("Loop Time", loopTimer.seconds());
+        loopTimer.reset();
         /*
          * GAMEPAD 1 (DRIVER) CONTROLS:
          * --------------------------------------------------------------------------------------
@@ -296,5 +303,6 @@ public class Teleop_Blue_Postseason extends OpMode
         // --- 7. FINAL UPDATES & TELEMETRY ---
         robot.drive.localizer.update();
         dashboard.sendTelemetryPacket(p);
+
     }
 }

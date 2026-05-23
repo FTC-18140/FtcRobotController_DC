@@ -151,8 +151,9 @@ public class FlywheelController
 
     public void stop()
     {
-        lowerWheel.stop();
-        upperWheel.stop();
+//        lowerWheel.stop();
+//        upperWheel.stop();
+        currentMode = RunMode.OFF;
     }
 
     public void setTargetRpm(double target)
@@ -202,9 +203,9 @@ public class FlywheelController
         double meanSqr = (Math.pow(lowerWheel.getError(), 2) + Math.pow(upperWheel.getError(), 2)) / 2;
         atRpm = RPM_TOLERANCE > Math.sqrt(meanSqr);
 
-        telemetry.addData("lower Flywheel error: ", lowerWheel.getError());
-        telemetry.addData("upper Flywheel error: ", upperWheel.getError());
-        telemetry.addData("Flywheel mean: ", Math.sqrt(meanSqr));
+//        telemetry.addData("lower Flywheel error: ", lowerWheel.getError());
+//        telemetry.addData("upper Flywheel error: ", upperWheel.getError());
+//        telemetry.addData("Flywheel mean: ", Math.sqrt(meanSqr));
 
         return atRpm;
     }
@@ -247,7 +248,7 @@ public class FlywheelController
 
         denominator = Math.max(denominator, 0.4);
 
-        telemetry.addData("Denominator: ", denominator);
+//        telemetry.addData("Denominator: ", denominator);
         double ballVelocity = Math.sqrt(numerator / denominator);
         return ballVelocity - (INERTIA_FACTOR * odoVelocity.linearVel.dot(new Vector2d(Math.sin(angleToGoal), Math.cos(angleToGoal))));
     }
