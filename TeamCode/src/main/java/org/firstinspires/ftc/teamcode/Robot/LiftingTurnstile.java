@@ -32,9 +32,7 @@ public class LiftingTurnstile
     private boolean isHomed = false;
     private Telemetry telemetry;
 
-    public static double P = 0.009, I = 0.0, D = 0.000;
-    public static double stiffP = 0.0135, stiffI = 0.0, stiffD = 0.0003;
-
+    public static double P = 0.0022, I = 0.0, D = 0.0001;
     private State currentState = State.OFF;
 
     private static final double COUNTS_PER_REVOLUTION = 8192;
@@ -142,22 +140,8 @@ public class LiftingTurnstile
                 break;
             case CONTROL_TO_ANGLE:
                 double error = targetAngle - currentAngle;
+                angleController.setPID(P, I, D); // Snap Gains
 
-                // Scheduling Gains
-                if (Math.abs(error) < 2*ANGLE_TOLERANCE)
-                {
-                    if (angleController.getP() != stiffP)
-                    {
-                        angleController.setPID(stiffP, stiffI, stiffD);
-                    }
-                }
-                else
-                {
-                    if (angleController.getP() != P)
-                    {
-                        angleController.setPID(P, I, D); // Snap Gains
-                    }
-                }
                 pidPwr = angleController.calculate(currentAngle, targetAngle);
                 // Deadband to stop hunting in the gear slop
 //                if (Math.abs(error) < 0.5) pwr = 0;
