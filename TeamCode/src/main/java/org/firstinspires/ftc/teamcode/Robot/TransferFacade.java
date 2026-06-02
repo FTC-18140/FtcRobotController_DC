@@ -20,34 +20,62 @@ public class TransferFacade
     private BeamBreakSystem beamBreak = new BeamBreakSystem();
     private Telemetry telemetry = null;
 
-    public static boolean TELEM = false;
     private int currentTargetSlot;
     private int pendingShift = 0;
-    public static double IDLE_TOLERANCE = 15 ;
+    public static double IDLE_TOLERANCE = 15;
 
-    public void updateBallSensors() {
+    /**
+     * Updates the raw data from the ball sensors.
+     */
+    public void updateBallSensors()
+    {
     }
 
-    public void updateBallStates() {
+    /**
+     * Updates the internal states of the balls in each slot.
+     */
+    public void updateBallStates()
+    {
     }
 
-    public void selectNextSlot(IndexerFacade.BallState ballState) {
+    /**
+     * Selects the next appropriate slot based on the provided ball state.
+     * @param ballState The state of the ball to find a slot for.
+     */
+    public void selectNextSlot(IndexerFacade.BallState ballState)
+    {
     }
 
-    public int getCurrentTargetSlot() {
+    /**
+     * Gets the index of the slot the turnstile is currently targeting.
+     * @return The current target slot index (0-2).
+     */
+    public int getCurrentTargetSlot()
+    {
         return 1;
     }
 
-    public IndexerFacade.BallState getBallState(int slotToWatch) {
+    /**
+     * Retrieves the state of a specific ball slot.
+     * @param slotToWatch The index of the slot to check.
+     * @return The BallState of the specified slot.
+     */
+    public IndexerFacade.BallState getBallState(int slotToWatch)
+    {
         return null;
     }
 
-    public void spin(double v) {
+    /**
+     * Spins the turnstile motor at a specified velocity.
+     * @param v The velocity to spin at.
+     */
+    public void spin(double v)
+    {
 
     }
 
     public enum State
-    {UNKOWNN, HOMING, IDLE, MOVING, LAUNCHING}
+    {UNKNOWN, HOMING, IDLE, MOVING, LAUNCHING}
 
     private State currentState = State.IDLE;
 
@@ -62,6 +90,11 @@ public class TransferFacade
     private int ballCount = 0;
 
 
+    /**
+     * Initializes the TransferFacade and its sub-components.
+     * @param hwMap The hardware map from the OpMode.
+     * @param telem The telemetry object for logging.
+     */
     public void init(HardwareMap hwMap, Telemetry telem)
     {
         telemetry = telem;
@@ -69,12 +102,12 @@ public class TransferFacade
         turnstile = new LiftingTurnstile();
         turnstile.init(hwMap, telem);
 
-        for (int i = 0; 2 > i; i++)
+        for (int i = 0; i < 2; i++)
         {
             ballSensors[i] = new BallSensor();
             ballSensors[i].init(hwMap, telem, "color" + i, i);
         }
-        for (int i = 0; 3 > i; i++)
+        for (int i = 0; i < 3; i++)
         {
             ballSlots[i] = BallState.VACANT;
         }
@@ -87,33 +120,91 @@ public class TransferFacade
     }
 
     // Methods needed to keep Worlds Auto Working
+
+    /**
+     * Checks if the system is currently in override mode.
+     * @return true if overridden, false otherwise.
+     */
     public boolean isOverridden()
     {
         return override;
     }
 
+    /**
+     * Prepares the sequence for operation.
+     * @return true if successfully prepared.
+     */
     public boolean prepSequence()
     {
         return true;
     }
 
+    /**
+     * Plans a shot sequence based on the detected AprilTag ID.
+     * @param aprilTagId The ID of the AprilTag to target.
+     * @return A string describing the planned sequence.
+     */
     public String planShotSequence(int aprilTagId)
     {
         return "No Shot Sequence Planned";
     }
 
-    public boolean readyNextIntakeSlot(IndexerFacade.BallState ballState) { return true; }
+    /**
+     * Prepares the next slot for intaking a ball of a specific state.
+     * @param ballState The state of the ball to be intaken.
+     * @return true if ready for the next intake.
+     */
+    public boolean readyNextIntakeSlot(IndexerFacade.BallState ballState)
+    {
+        return true;
+    }
 
-    public void adjustToThird() { home(); }
+    /**
+     * Adjusts the system to the third slot by homing.
+     */
+    public void adjustToThird()
+    {
+        home();
+    }
 
-    public void cancelSequence() { }
-    public boolean isInSequence() { return false; }
+    /**
+     * Cancels any ongoing sequence.
+     */
+    public void cancelSequence()
+    {
+    }
 
-    public void overrideLaunching(boolean active) {
+    /**
+     * Checks if the system is currently executing a sequence.
+     * @return true if in a sequence, false otherwise.
+     */
+    public boolean isInSequence()
+    {
+        return false;
+    }
+
+    /**
+     * Enables or disables the launching override.
+     * @param active true to enable override, false to disable.
+     */
+    public void overrideLaunching(boolean active)
+    {
         override = active;
     }
-    public State getCurrentState() { return currentState; }
 
+    /**
+     * Gets the current operational state of the facade.
+     * @return The current State.
+     */
+    public State getCurrentState()
+    {
+        return currentState;
+    }
+
+    /**
+     * Initiates a single ball launch sequence.
+     * @return true if launch was initiated.
+     */
     public boolean launch()
     {
         currentState = State.LAUNCHING;
@@ -124,7 +215,10 @@ public class TransferFacade
         return true;
     }
 
-    public void launchAllInIndexer()
+    /**
+     * Launches all currently loaded balls if the system is ready or overridden.
+     */
+    public void launchAll()
     {
         if (canLaunchAll() || override)
         {
@@ -139,29 +233,55 @@ public class TransferFacade
         }
     }
 
+    /**
+     * Signals that the intake process has stopped.
+     */
     public void intakeStop()
     {
         isIntaking = false;
     }
 
-    public void intake()
+    /**
+     * Signals that the intake process has started.
+     */
+    public void intakeStart()
     {
         isIntaking = true;
     }
 
+    /**
+     * Checks if the indexer (turnstile) has reached its maximum ball capacity (3).
+     * @return true if full, false otherwise.
+     */
     public boolean indexerIsFull()
     {
         return ballCount >= 3;
     }
 
-    public boolean ballInIntake() { return beamBreak.isBallDetectedInIntake();}
+    /**
+     * Checks if there is a ball currently detected in the intake.
+     * @return true if a ball is in the intake, false otherwise.
+     */
+    public boolean ballInIntake()
+    {
+        return beamBreak.ballInIntake();
+    }
 
+    /**
+     * Checks if the system is in a state that allows launching all balls.
+     * @return true if launching all is allowed.
+     */
     private boolean canLaunchAll()
     {
         return currentState == State.IDLE ||
                 currentState == State.MOVING;
     }
 
+    /**
+     * Selects and rotates to a specific slot index.
+     * @param slot The target slot index (0-2).
+     * @return true if the selection was valid.
+     */
     public boolean selectSlot(int slot)
     {
         int previousSlot = currentTargetSlot;
@@ -176,17 +296,29 @@ public class TransferFacade
         return true;
     }
 
-    private void shiftBallModel(int shift)
+    /**
+     * Updates the internal ball position model after a physical rotation.
+     * @param shiftAmt The number of slots to shift the model.
+     */
+    private void shiftBallModel(int shiftAmt)
     {
         BallState[] newSlots = new BallState[3];
         for (int i = 0; i < 3; i++)
         {
             // Shift indices based on rotation
-            newSlots[Math.floorMod(i + shift, 3)] = ballSlots[i];
+            newSlots[Math.floorMod(i + shiftAmt, 3)] = ballSlots[i];
         }
         ballSlots = newSlots;
     }
 
+    /**
+     * Cycles the turnstile by a specified number of slots in a given direction.
+     * This updates the target slot and initiates movement.
+     *
+     * @param direction The number of slots to move (e.g., 1 for forward, -1 for backward).
+     *                  Commonly used with -1 to advance to the next empty slot for intaking.
+     * @return true if the slot selection and movement were successfully initiated.
+     */
     public boolean cycle(int direction)
     {
         int goToSlot = currentTargetSlot + direction;
@@ -202,24 +334,39 @@ public class TransferFacade
         return selectSlot(goToSlot);
     }
 
+    /**
+     * Initiates the homing sequence for the turnstile.
+     */
     public void home()
     {
         currentState = State.HOMING;
         turnstile.home();
     }
-    public Action homeAction() {
-        return new Action() {
+
+    /**
+     * Returns a Roadrunner Action for homing the turnstile.
+     * @return An Action that homes the turnstile and finishes when homed.
+     */
+    public Action homeAction()
+    {
+        return new Action()
+        {
             @Override
-            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            public boolean run(@NonNull TelemetryPacket telemetryPacket)
+            {
                 home();
                 return !turnstile.isHomed();
             }
         };
     }
+
+    /**
+     * Updates the internal model of where balls are located based on sensors.
+     */
     public void updateBallModel()
     {
         // If the indexer beam break is tripped, slot 0 is now occupied
-        if (beamBreak.isBallDetectedInIndexer())
+        if (beamBreak.ballinIndexer())
         {
             ballSlots[0] = BallState.OCCUPIED;
         }
@@ -232,6 +379,9 @@ public class TransferFacade
         updateBallCount();
     }
 
+    /**
+     * Updates the detected color of the ball in the loading slot (slot 2).
+     */
     private void updateBallColor()
     {
         BallSensor sensorA = ballSensors[0];
@@ -254,6 +404,9 @@ public class TransferFacade
         sensorB.addTelemetry();
     }
 
+    /**
+     * Calculates and updates the total number of balls currently in the system.
+     */
     private void updateBallCount()
     {
         int count = 0;
@@ -269,7 +422,7 @@ public class TransferFacade
 
         // 2. Check the Intake "Entryway"
         // We only count this if it hasn't been "swallowed" into slot 0 yet
-        if (beamBreak.isBallDetectedInIntake())
+        if (beamBreak.ballInIntake())
         {
             count++;
         }
@@ -277,8 +430,20 @@ public class TransferFacade
         this.ballCount = count;
     }
 
-    public BallState getLaunchColor() { return ballSlots[2]; }
+    /**
+     * Gets the color of the ball currently in the launching position (slot 2).
+     * @return The BallState of the launch slot.
+     */
+    public BallState getLaunchColor()
+    {
+        return ballSlots[2];
+    }
 
+    /**
+     * The main update loop for the TransferFacade.
+     * Handles state transitions, component updates, and automatic indexing.
+     * @param isAtRpm Whether the shooter/launcher is at the target RPM.
+     */
     public void update(boolean isAtRpm)
     {
         turnstile.update();
@@ -310,7 +475,7 @@ public class TransferFacade
             case IDLE: // In position, ready to receive a command from an external source.
                 // Check if the indexer beam break is triggered AND
                 // the system isn't full yet.
-                if (beamBreak.isBallDetectedInIndexer() && !indexerIsFull())
+                if (beamBreak.ballinIndexer() && !indexerIsFull())
                 {
                     // Refresh the model to recognize the new ball
                     updateBallModel();
@@ -339,9 +504,9 @@ public class TransferFacade
         {
             telemetry.addData("Transfer Facade State", currentState.name());
             telemetry.addData("Turnstile at Target: ", turnstile.isAtTarget());
-            telemetry.addData("Beam Break detection: ", beamBreak.isBallDetectedInIndexer());
+            telemetry.addData("Beam Break detection: ", beamBreak.ballinIndexer());
             telemetry.addLine(String.format("Slots: [0]: %s, [1]: %s, [2]: %s",
-                    ballSlots[0], ballSlots[1], ballSlots[2]));
+                                            ballSlots[0], ballSlots[1], ballSlots[2]));
         }
 
     }

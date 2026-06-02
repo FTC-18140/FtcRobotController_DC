@@ -21,7 +21,7 @@ public class LiftingTurnstile
 {
     // --- Hardware & Utilities ---
     private CRServo indexerServo1;
-//    private CRServo indexerServo2;
+    private CRServo indexerServo2;
     private DcMotorEx indexMotor;
     private TouchSensor limitSwitch;
     private PIDController angleController;
@@ -56,7 +56,7 @@ public class LiftingTurnstile
         try
         {
             indexerServo1 = hwMap.crservo.get("indexer");
-//            indexerServo2 = hwMap.crservo.get("indexer2");
+            indexerServo2 = hwMap.crservo.get("indexer2");
 
             indexMotor = hwMap.get(DcMotorEx.class, MecanumDrive.LEFT_FRONT_MOTOR);
             limitSwitch = hwMap.get(TouchSensor.class, "indexerLimit");
@@ -71,12 +71,12 @@ public class LiftingTurnstile
         startingAngle = (double) blackboard.getOrDefault(STARTING_ANGLE_KEY, (double) 0);
     }
 
-    public void seekToAngle(double toAngle)
+    public void seekToAngle(double targetAngle)
     {
-        toAngle = ((toAngle % 360) + 360) % 360; // Make sure angle is within [0, 360]
+        targetAngle = ((targetAngle % 360) + 360) % 360; // Make sure angle is within [0, 360]
 
         // Shortest path error in [-180,180]
-        double error = toAngle - (currentAngle % 360.0);
+        double error = targetAngle - (currentAngle % 360.0);
         error = ((error + 180) % 360) - 180;
 
         // If error is too far behind, force forward rotation
@@ -84,7 +84,7 @@ public class LiftingTurnstile
         {
             error += 360.0;
         }
-        targetAngle = currentAngle + error;
+        this.targetAngle = currentAngle + error;
         currentState = State.CONTROL_TO_ANGLE;
     }
 
@@ -94,10 +94,10 @@ public class LiftingTurnstile
         currentState = State.HOMING;
     }
 
-    public void launchSlots(int launches)
+    public void launchSlots(int numToLaunch)
     {
-        // If launches is 3, this becomes -(120 * 4) = -480 degrees
-        double moveAmount = -(120.0 * (launches + 1));
+        // If numToLaunch is 3, this becomes -(120 * 4) = -480 degrees
+        double moveAmount = -(120.0 * (numToLaunch + 1));
         targetAngle = currentAngle + moveAmount;
         currentState = State.LAUNCHING;
     }
@@ -139,12 +139,9 @@ public class LiftingTurnstile
                 }
                 break;
             case CONTROL_TO_ANGLE:
-                double error = targetAngle - currentAngle;
-                angleController.setPID(P, I, D); // Snap Gains
-
+                angleController.setPID(P, I, D); // Gains
                 pidPwr = angleController.calculate(currentAngle, targetAngle);
-                // Deadband to stop hunting in the gear slop
-//                if (Math.abs(error) < 0.5) pwr = 0;
+
                 if (Math.abs(pidPwr) < MINIMUM_PWR)
                 {
                     pwr = Math.signum(pidPwr)*MINIMUM_PWR;
@@ -161,7 +158,7 @@ public class LiftingTurnstile
                 pwr = -LAUNCHING_POWER;
                 driveServos(pwr);
                 // Switch to PID control when we get close to the target to "brake"
-                if (currentAngle <= targetAngle + 60.0)
+                if (currentAngle <= targetAngle + 30.0)
                 {
                     currentState = State.CONTROL_TO_ANGLE;
                 }
@@ -183,7 +180,7 @@ public class LiftingTurnstile
     private void driveServos(double pwr)
     {
         indexerServo1.setPower(pwr);
-//        indexerServo2.setPower(pwr);
+        indexerServo2.setPower(pwr);
     }
 
     private void stopServos()

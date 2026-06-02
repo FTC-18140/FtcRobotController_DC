@@ -354,7 +354,7 @@ public class ThunderBot2026
     public void intakeStart()
     {
         intake.intake();
-        indexer.intake();
+        indexer.intakeStart();
     }
 
     public void intakeStop()
@@ -412,7 +412,7 @@ public class ThunderBot2026
     {
         if ((launcher.isAtTargetRpm() && inZone) || indexer.isOverridden())
         {
-            indexer.launchAllInIndexer();
+            indexer.launchAll();
             return true;
         }
         return false;

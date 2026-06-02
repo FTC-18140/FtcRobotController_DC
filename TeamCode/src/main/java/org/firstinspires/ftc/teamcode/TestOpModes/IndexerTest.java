@@ -34,7 +34,7 @@ public class IndexerTest extends OpMode {
         }
 
         if (theGamepad1.getButtonPressed(TBDGamepad.Button.RIGHT_BUMPER)) {
-            robot.indexer.launchAllInIndexer();
+            robot.indexer.launchAll();
         }
 
         if (theGamepad1.getButtonPressed(TBDGamepad.Button.Y)) {
