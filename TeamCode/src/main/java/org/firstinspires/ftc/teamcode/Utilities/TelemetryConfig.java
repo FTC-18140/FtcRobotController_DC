@@ -18,7 +18,7 @@ public class TelemetryConfig
     public static boolean DEBUG_LAUNCHER_FACADE = false;
     public static boolean DEBUG_FLYWHEEL = false;
     public static boolean DEBUG_TRANSFER_FACADE = false;
-    public static boolean DEBUG_LIFTING_TURNSTILE = true;
+    public static boolean DEBUG_LIFTING_TURNSTILE = false;
     public static boolean DEBUG_DRIVE = false;
     public static boolean DEBUG_INTAKE = false;
     public static boolean DEBUG_LIMELIGHT = false;

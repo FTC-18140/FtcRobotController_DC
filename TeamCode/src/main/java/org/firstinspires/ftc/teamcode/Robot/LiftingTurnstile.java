@@ -32,7 +32,7 @@ public class LiftingTurnstile
     private boolean isHomed = false;
     private Telemetry telemetry;
 
-    public static double P = 0.0022, I = 0.0, D = 0.0001;
+    public static double P = 0.0024, I = 0.0, D = 0.00015;
     private State currentState = State.OFF;
 
     private static final double COUNTS_PER_REVOLUTION = 8192;
@@ -41,7 +41,7 @@ public class LiftingTurnstile
     private enum State {OFF, HOMING, CONTROL_TO_ANGLE, LAUNCHING} // Added MANUAL_SPIN
 
     public static double LAUNCHING_POWER = 0.95;
-    public static double CONTROLLING_POWER = 0.8;
+    public static double CONTROLLING_POWER = 0.15;
     public static double HOMING_POWER = 0.065;
     public static double ANGLE_TOLERANCE = 5;// In degrees
     public static double BACKWARD_TOLERANCE = 30;
@@ -74,17 +74,21 @@ public class LiftingTurnstile
     public void seekToAngle(double targetAngle)
     {
         targetAngle = ((targetAngle % 360) + 360) % 360; // Make sure angle is within [0, 360]
+        telemetry.addData("Go To This Angle", targetAngle);
 
         // Shortest path error in [-180,180]
         double error = targetAngle - (currentAngle % 360.0);
         error = ((error + 180) % 360) - 180;
 
+        telemetry.addData("My Current Angle", currentAngle);
         // If error is too far behind, force forward rotation
         if (error < -ANGLE_TOLERANCE && Math.abs(error) > BACKWARD_TOLERANCE)
         {
             error += 360.0;
         }
+        telemetry.addData("The error -- how much I am off", error);
         this.targetAngle = currentAngle + error;
+        telemetry.addData("My NEW Targer Angle", this.targetAngle);
         currentState = State.CONTROL_TO_ANGLE;
     }
 
@@ -142,14 +146,14 @@ public class LiftingTurnstile
                 angleController.setPID(P, I, D); // Gains
                 pidPwr = angleController.calculate(currentAngle, targetAngle);
 
-                if (Math.abs(pidPwr) < MINIMUM_PWR)
-                {
-                    pwr = Math.signum(pidPwr)*MINIMUM_PWR;
-                }
-                else
-                {
+//                if (Math.abs(pidPwr) < MINIMUM_PWR)
+//                {
+//                    pwr = Math.signum(pidPwr)*MINIMUM_PWR;
+//                }
+//                else
+//                {
                     pwr = pidPwr;
-                }
+//                }
                 // Output Clamp (Safety)
                 pwr = Range.clip(pwr, -CONTROLLING_POWER, CONTROLLING_POWER);
                 driveServos(pwr);
