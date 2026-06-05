@@ -12,6 +12,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+import java.util.Arrays;
+
 @Config
 public class TransferFacade
 {
@@ -303,9 +305,9 @@ public class TransferFacade
      */
     public boolean selectSlot(int slot)
     {
-        telemetry.addData("Initial CurrentTargetSlot", currentTargetSlot);
+//        telemetry.addData("Initial CurrentTargetSlot", currentTargetSlot);
         int previousSlot = currentTargetSlot;
-        telemetry.addData("Go to Slot", slot);
+//        telemetry.addData("Go to Slot", slot);
         slot = Math.floorMod(slot, 3);
 
         telemetry.addData("Go to Slot (after floormod)", slot);
@@ -314,13 +316,13 @@ public class TransferFacade
 //        pendingShift = Math.floorMod(slot - previousSlot, 3);
         pendingShift = previousSlot - slot;
 
-        telemetry.addData("Pending shift for ball model", pendingShift);
+//        telemetry.addData("Pending shift for ball model", pendingShift);
 
         currentTargetSlot = slot;
-        telemetry.addData("Going to Angle", slot*120);
+//        telemetry.addData("Going to Angle", slot*120);
         turnstile.seekToAngle(slot * 120);
         currentState = State.MOVING;
-        telemetry.addData("Final currentTargetSlot", currentTargetSlot);
+//        telemetry.addData("Final currentTargetSlot", currentTargetSlot);
         return true;
     }
 
@@ -332,16 +334,28 @@ public class TransferFacade
     private void shiftBallModel(int shiftAmt)
     {
         BallState[] newSlots = new BallState[3];
-        for (int i = 0; i < 3; i++)
+        telemetry.addData("Shift Amount", shiftAmt);
+        int[] tempRotIndex = {0, 0, 0};
+        int i = 0;
+        try
         {
-            // Shift indices based on rotation
-//            newSlots[Math.floorMod(i + shiftAmt, 3)] = ballSlots[i];
-            int rotatedIndex = i-shiftAmt;
-            if (rotatedIndex == 3) { rotatedIndex = 0; }
-            if (rotatedIndex == -1 ){ rotatedIndex = 2; }
-            newSlots[i] = ballSlots[rotatedIndex];
+            for ( i = 0; i < 3; i++)
+            {
+                // Shift indices based on rotation
+                int rotatedIndex = Math.floorMod(i-shiftAmt, 3);
+                tempRotIndex[i] = rotatedIndex;
+                if (rotatedIndex == 3) { rotatedIndex = 0; }
+                if (rotatedIndex == -1 ){ rotatedIndex = 2; }
+                newSlots[i] = ballSlots[rotatedIndex];
+            }
+//            telemetry.addData("Rotated Indices", Arrays.toString(tempRotIndex));
+            ballSlots = newSlots;
         }
-        ballSlots = newSlots;
+        catch (Exception e)
+        {
+
+            throw new RuntimeException("i: "+i+" Rotated Index: "+Arrays.toString(tempRotIndex), e) ;
+        }
     }
 
     /**
@@ -365,8 +379,8 @@ public class TransferFacade
             goToSlot = 0;
         }
         cycleCount++;
-        telemetry.addData("Cycle Direction", direction );
-        telemetry.addData("Cycle Call Count", cycleCount);
+//        telemetry.addData("Cycle Direction", direction );
+//        telemetry.addData("Cycle Call Count", cycleCount);
         return selectSlot(goToSlot);
     }
 
