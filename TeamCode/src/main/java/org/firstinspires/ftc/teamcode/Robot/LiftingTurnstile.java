@@ -45,6 +45,7 @@ public class LiftingTurnstile
     public static double HOMING_POWER = 0.065;
     public static double ANGLE_TOLERANCE = 5;// In degrees
     public static double BACKWARD_TOLERANCE = 30;
+    public static double LAUNCH_DECEL_ANGLE = 30;
 
     public static double MINIMUM_PWR = 0.0;
 
@@ -101,7 +102,7 @@ public class LiftingTurnstile
     public void launchSlots(int numToLaunch)
     {
         // If numToLaunch is 3, this becomes -(120 * 4) = -480 degrees
-        double moveAmount = -(120.0 * (numToLaunch + 1));
+        double moveAmount = -(120.0 * numToLaunch);
         targetAngle = currentAngle + moveAmount;
         currentState = State.LAUNCHING;
     }
@@ -162,7 +163,7 @@ public class LiftingTurnstile
                 pwr = -LAUNCHING_POWER;
                 driveServos(pwr);
                 // Switch to PID control when we get close to the target to "brake"
-                if (currentAngle <= targetAngle + 30.0)
+                if (currentAngle <= targetAngle + LAUNCH_DECEL_ANGLE)
                 {
                     currentState = State.CONTROL_TO_ANGLE;
                 }

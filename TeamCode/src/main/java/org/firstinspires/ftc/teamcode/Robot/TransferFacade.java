@@ -151,14 +151,14 @@ public class TransferFacade
     {
         if (canLaunchAll() || override)
         {
-            turnstile.launchSlots(3);
+            turnstile.launchSlots(4);
             changeState(State.LAUNCHING);
             for (int i = 0; 3 > i; i++)
             {
                 ballSlots[i] = BallState.VACANT;
             }
-            pendingShift = 0;
-            updateBallCount();
+            pendingShift = 4;
+            //updateBallCount();
         }
     }
 
@@ -475,10 +475,6 @@ public class TransferFacade
                     telemetry.addData("2 IDLE: Just updated Ball Count upon entering IDLE.  BALL CNT", ballCount);
                     telemetry.addData("3 IDLE: New Ball Model after processing enter in IDLE", Arrays.toString(ballSlots));
 
-                    if (pauseTimer.milliseconds() > 1000)
-                    {
-                        enter = false;
-                    }
                     enter = false;
                 }
                 else if (beamBreak.ballinIndexer() && !indexerIsFull())
@@ -505,6 +501,7 @@ public class TransferFacade
             case LAUNCHING:
                 if (enter)
                 {
+
                     enter = false;
                 }
                 else if (turnstile.isAtTarget())
