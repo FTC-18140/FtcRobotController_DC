@@ -9,6 +9,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -36,6 +37,8 @@ public class TransferFacade
     {GREEN, PURPLE, VACANT, OCCUPIED, ALL, UNKNOWN}
 
     private BallState[] ballSlots = new BallState[3];
+
+    ElapsedTime pauseTimer = new ElapsedTime();
 
     // Fields/Variables to support Auto
     private boolean override = false;
@@ -122,97 +125,9 @@ public class TransferFacade
         beamBreak.init(hwMap, telem);
 
         updateBallModel();
-        changeState( State.IDLE );
+        changeState(State.IDLE);
     }
 
-    // Methods needed to keep Worlds Auto Working
-
-    /**
-     * Checks if the system is currently in override mode.
-     *
-     * @return true if overridden, false otherwise.
-     */
-    public boolean isOverridden()
-    {
-        return override;
-    }
-
-    /**
-     * Prepares the sequence for operation.
-     *
-     * @return true if successfully prepared.
-     */
-    public boolean prepSequence()
-    {
-        return true;
-    }
-
-    /**
-     * Plans a shot sequence based on the detected AprilTag ID.
-     *
-     * @param aprilTagId The ID of the AprilTag to target.
-     * @return A string describing the planned sequence.
-     */
-    public String planShotSequence(int aprilTagId)
-    {
-        return "No Shot Sequence Planned";
-    }
-
-    /**
-     * Prepares the next slot for intaking a ball of a specific state.
-     *
-     * @param ballState The state of the ball to be intaken.
-     * @return true if ready for the next intake.
-     */
-    public boolean readyNextIntakeSlot(IndexerFacade.BallState ballState)
-    {
-        return true;
-    }
-
-    /**
-     * Adjusts the system to the third slot by homing.
-     */
-    public void adjustToThird()
-    {
-        home();
-    }
-
-    /**
-     * Cancels any ongoing sequence.
-     */
-    public void cancelSequence()
-    {
-    }
-
-    /**
-     * Checks if the system is currently executing a sequence.
-     *
-     * @return true if in a sequence, false otherwise.
-     */
-    public boolean isInSequence()
-    {
-        return false;
-    }
-
-    /**
-     * Enables or disables the launching override.
-     *
-     * @param active true to enable override, false to disable.
-     */
-    public void overrideLaunching(boolean active)
-    {
-        override = active;
-    }
-
-    /**
-     * Gets the current operational state of the facade.
-     *
-     * @return The current State.
-     */
-    public State getCurrentState()
-    {
-        return currentState;
-    }
 
     /**
      * Initiates a single ball launch sequence.
@@ -221,7 +136,7 @@ public class TransferFacade
      */
     public boolean launch()
     {
-        changeState (State.LAUNCHING);
+        changeState(State.LAUNCHING);
         turnstile.launchSlots(1);
         pendingShift = 1;
         ballSlots[2] = BallState.VACANT;
@@ -312,14 +227,15 @@ public class TransferFacade
         // Store the shift so the state machine can use it upon arrival
 //        pendingShift = Math.floorMod(slot - previousSlot, 3);
         pendingShift = previousSlot - slot;
+        pendingShift = 0;  // fix this...  I am temporarily testing by taking pending shift out
+                           // and rotating the ball model now.
 
         telemetry.addData("selectSlot: Pending shift for ball model", pendingShift);
 
+        rotateBallStates(previousSlot-slot);
         currentTargetSlot = slot;
-//        telemetry.addData("Going to Angle", slot*120);
         turnstile.seekToAngle(slot * 120);
         changeState(State.MOVING);
-//        telemetry.addData("Final currentTargetSlot", currentTargetSlot);
         return true;
     }
 
@@ -328,7 +244,7 @@ public class TransferFacade
      *
      * @param shiftAmt The number of slots to shift the model.
      */
-    private void shiftBallStates(int shiftAmt)
+    private void rotateBallStates(int shiftAmt)
     {
         BallState[] newSlots = new BallState[3];
         telemetry.addData("shiftBallStates: Shift Amount", shiftAmt);
@@ -336,13 +252,19 @@ public class TransferFacade
         int i = 0;
         try
         {
-            for ( i = 0; i < 3; i++)
+            for (i = 0; i < 3; i++)
             {
                 // Shift indices based on rotation
-                int rotatedIndex = Math.floorMod(i-shiftAmt, 3);
+                int rotatedIndex = Math.floorMod(i - shiftAmt, 3);
                 tempRotIndex[i] = rotatedIndex;
-                if (rotatedIndex == 3) { rotatedIndex = 0; }
-                if (rotatedIndex == -1 ){ rotatedIndex = 2; }
+                if (rotatedIndex == 3)
+                {
+                    rotatedIndex = 0;
+                }
+                if (rotatedIndex == -1)
+                {
+                    rotatedIndex = 2;
+                }
                 newSlots[i] = ballSlots[rotatedIndex];
             }
             telemetry.addData("shiftBallStates: Rotated Indices", Arrays.toString(tempRotIndex));
@@ -350,7 +272,7 @@ public class TransferFacade
         }
         catch (Exception e)
         {
-            throw new RuntimeException("i: "+i+" Rotated Index: "+Arrays.toString(tempRotIndex), e) ;
+            throw new RuntimeException("i: " + i + " Rotated Index: " + Arrays.toString(tempRotIndex), e);
         }
     }
 
@@ -410,12 +332,12 @@ public class TransferFacade
     private void updateBallModel()
     {
         // If the indexer beam break is tripped, slot 0 is now occupied
-        telemetry.addData("Ball Model in updateBallModel", Arrays.toString(ballSlots));
+        telemetry.addData("1 updateBallModel: Ball Model in updateBallModel", Arrays.toString(ballSlots));
         if (beamBreak.ballinIndexer())
         {
-            if ( ballSlots[0] == BallState.UNKNOWN ||
-                 ballSlots[0] == BallState.VACANT ||
-                 ballSlots[0] == BallState.ALL)
+            if (ballSlots[0] == BallState.UNKNOWN ||
+                    ballSlots[0] == BallState.VACANT ||
+                    ballSlots[0] == BallState.ALL)
             {
                 ballSlots[0] = BallState.OCCUPIED;
             }
@@ -434,7 +356,7 @@ public class TransferFacade
     /**
      * Updates the detected color of the ball in the loading slot (slot 2).
      */
-    private void updateBallColor()
+    private boolean updateBallColor()
     {
         BallSensor sensorA = ballSensors[0];
         BallSensor sensorB = ballSensors[1];
@@ -453,6 +375,8 @@ public class TransferFacade
         }
         sensorA.addTelemetry();
         sensorB.addTelemetry();
+        return sensorA.isBallPresent() && sensorB.isBallPresent();
+
     }
 
     /**
@@ -462,7 +386,7 @@ public class TransferFacade
     {
         int count = 0;
 
-        telemetry.addData("updateBallCount: HERE IS WHAT I AM COUNTING", Arrays.toString(ballSlots));
+        telemetry.addData("1 updateBallCount: HERE IS WHAT I AM COUNTING", Arrays.toString(ballSlots));
         // 1. Check the physical slots in the turnstile
         for (BallState slot : ballSlots)
         {
@@ -477,9 +401,9 @@ public class TransferFacade
         if (beamBreak.ballInIntake())
         {
             count++;
-            telemetry.addLine("updateBallCount: ADDING BALL FOR INTAKE.");
+            telemetry.addLine("2 updateBallCount: ADDING BALL FOR INTAKE.");
         }
-        telemetry.addData("updateBallCount: FINAL BALL COUNT", count);
+        telemetry.addData("3 updateBallCount: FINAL BALL COUNT", count);
         this.ballCount = count;
     }
 
@@ -518,9 +442,10 @@ public class TransferFacade
                 }
                 break;
             case MOVING:
-                telemetry.addData("MOVING: Ball In Indexer", beamBreak.ballinIndexer());
-                telemetry.addData("MOVING: Pending Shift", pendingShift);
-                if ( enter )
+                telemetry.addData("1 MOVING: Ball In Indexer", beamBreak.ballinIndexer());
+                telemetry.addData("2 MOVING: Pending Shift", pendingShift);
+                telemetry.addData("3 MOVING: ball model", Arrays.toString(ballSlots));
+                if (enter)
                 {
                     enter = false;
                 }
@@ -542,23 +467,18 @@ public class TransferFacade
                 // In position, ready to receive a command from an external source.
                 // Check if the indexer beam break is triggered AND
                 // the system isn't full yet.
-//                telemetry.addData("Ball In Indexer", beamBreak.ballinIndexer());
                 if (enter)
                 {
-                    // 1. Physically arrived? Now update the software model
-                    if (pendingShift != 0)
-                    {
-                        // Based on the pending shift number, this will rotate the values in the
-                        // ballSlots array to keep the ball data synchronized with the movement
-                        // of the turnstile.
-                        shiftBallStates(pendingShift);
-                        pendingShift = 0; // Reset so we don't shift twice
-                    }
-                    // 2. Refresh sensors and counts for the new position
-                    telemetry.addData("IDLE: Ball Model upon entering IDLE", Arrays.toString(ballSlots));
+                    // Refresh sensors and counts for the new position
+                    telemetry.addData("1 IDLE: Ball Model upon entering IDLE", Arrays.toString(ballSlots));
                     updateBallModel();
-                    telemetry.addData("IDLE: Just updated Ball Count upon entering IDLE.  BALL CNT", ballCount);
-                    telemetry.addData("IDLE: New Ball Model after processing enter in IDLE", Arrays.toString(ballSlots));
+                    telemetry.addData("2 IDLE: Just updated Ball Count upon entering IDLE.  BALL CNT", ballCount);
+                    telemetry.addData("3 IDLE: New Ball Model after processing enter in IDLE", Arrays.toString(ballSlots));
+
+                    if (pauseTimer.milliseconds() > 1000)
+                    {
+                        enter = false;
+                    }
                     enter = false;
                 }
                 else if (beamBreak.ballinIndexer() && !indexerIsFull())
@@ -566,16 +486,16 @@ public class TransferFacade
                     // I have detected a ball in the indexer and need to automatically shift to the
                     // next slot to make room.  Before I go, I will refresh the model to
                     // register the slot as OCCUPIED and update the ballCount.
-                    telemetry.addData("IDLE: Ball Model because I think I have a new ball in IDLE", Arrays.toString(ballSlots));
+                    telemetry.addData("4 IDLE: Ball Model because I think I have a new ball in IDLE", Arrays.toString(ballSlots));
                     updateBallModel();
-                    telemetry.addData("IDLE: Just updated Ball Count because I thought I got a new ball in IDLE.  NEW BALL CNT", ballCount);
-                    telemetry.addData("IDLE: New Ball Model after processing the potential new ball in IDLE", Arrays.toString(ballSlots));
+                    telemetry.addData("5 IDLE: Just updated Ball Count because I thought I got a new ball in IDLE.  NEW BALL CNT", ballCount);
+                    telemetry.addData("6 IDLE: New Ball Model after processing the potential new ball in IDLE", Arrays.toString(ballSlots));
 
                     // Rotate to the next slot
-                    telemetry.addLine("IDLE: WOULD BE AUTO-CYCLING TO NEXT SLOT.");
-                    telemetry.addData("IDLE: Ball Count", ballCount);
+                    telemetry.addLine("7 IDLE: WOULD BE AUTO-CYCLING TO NEXT SLOT.");
+                    telemetry.addData("8 IDLE: Ball Count", ballCount);
                     // I have just marked the intake slot as OCCUPIED
-                    // cycle(-1);
+                    cycle(-1);
                 }
                 else if (turnstile.getAngleError() > IDLE_TOLERANCE)
                 {
@@ -583,13 +503,13 @@ public class TransferFacade
                 }
                 break;
             case LAUNCHING:
-                if (enter )
+                if (enter)
                 {
                     enter = false;
                 }
                 else if (turnstile.isAtTarget())
                 {
-                    shiftBallStates(1);
+                    rotateBallStates(1);
                     updateBallModel();
                     changeState(State.IDLE);
                 }
@@ -610,9 +530,102 @@ public class TransferFacade
         }
     }
 
-    private void changeState( State nextState )
+    private void changeState(State nextState)
     {
         enter = true;
         currentState = nextState;
+        pauseTimer.reset();
+    }
+
+
+
+
+    // Methods needed to keep Worlds Auto Working
+
+    /**
+     * Checks if the system is currently in override mode.
+     *
+     * @return true if overridden, false otherwise.
+     */
+    public boolean isOverridden()
+    {
+        return override;
+    }
+
+    /**
+     * Prepares the sequence for operation.
+     *
+     * @return true if successfully prepared.
+     */
+    public boolean prepSequence()
+    {
+        return true;
+    }
+
+    /**
+     * Plans a shot sequence based on the detected AprilTag ID.
+     *
+     * @param aprilTagId The ID of the AprilTag to target.
+     * @return A string describing the planned sequence.
+     */
+    public String planShotSequence(int aprilTagId)
+    {
+        return "No Shot Sequence Planned";
+    }
+
+    /**
+     * Prepares the next slot for intaking a ball of a specific state.
+     *
+     * @param ballState The state of the ball to be intaken.
+     * @return true if ready for the next intake.
+     */
+    public boolean readyNextIntakeSlot(IndexerFacade.BallState ballState)
+    {
+        return true;
+    }
+
+    /**
+     * Adjusts the system to the third slot by homing.
+     */
+    public void adjustToThird()
+    {
+        home();
+    }
+
+    /**
+     * Cancels any ongoing sequence.
+     */
+    public void cancelSequence()
+    {
+    }
+
+    /**
+     * Checks if the system is currently executing a sequence.
+     *
+     * @return true if in a sequence, false otherwise.
+     */
+    public boolean isInSequence()
+    {
+        return false;
+    }
+
+    /**
+     * Enables or disables the launching override.
+     *
+     * @param active true to enable override, false to disable.
+     */
+    public void overrideLaunching(boolean active)
+    {
+        override = active;
+    }
+
+    /**
+     * Gets the current operational state of the facade.
+     *
+     * @return The current State.
+     */
+    public State getCurrentState()
+    {
+        return currentState;
     }
 }

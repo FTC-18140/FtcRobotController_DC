@@ -20,7 +20,6 @@ import org.firstinspires.ftc.teamcode.Utilities.DataLogger;
 
 import java.util.List;
 
-@Config
 public class Limelight implements DataLoggable
 {
 

@@ -147,10 +147,10 @@ public class ThunderBot2025 implements DataLoggable {
 //        kickstand.update();
 
         if (indexer.getCurrentState() == TransferFacade.State.MOVING) {
-            intake.slow();
+            intake.slowSpeed();
         }
         if ( isIndexerFull && isIntakeFull) {
-            intake.unslow();
+            intake.normalSpeed();
             intake.spit();
         } else {
             intake.unSpit();

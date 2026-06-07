@@ -4,8 +4,6 @@ import static org.firstinspires.ftc.teamcode.TelemetryConfig.DEBUG_DRIVE;
 
 import androidx.annotation.NonNull;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
@@ -73,8 +71,9 @@ public class ThunderBot2026
 
     public void init(HardwareMap hwMap, Telemetry telem, @Nullable Pose2d pose)
     {
-        telemetry = new MultipleTelemetry(telem, FtcDashboard.getInstance().getTelemetry());
+//        telemetry = new MultipleTelemetry(telem, FtcDashboard.getInstance().getTelemetry());
 
+        telemetry = telem;
         starting_position = (Pose2d) OpMode.blackboard.getOrDefault(STARTING_POSE, null);
         if (null == pose)
         {
@@ -163,20 +162,20 @@ public class ThunderBot2026
 
         led.update(inZone, indexer.isOverridden(), seconds, lastBallState, isIndexerFull, isIntakeFull, state);
 
-//        if (indexer.getCurrentState() == TransferFacade.State.MOVING)
-//        {
-//            intake.slow();
-//        }
-//        if (isIndexerFull && isIntakeFull)
-//        {
-//            intake.unslow();
-//            intake.spit();
-//        }
+        if (indexer.getCurrentState() == TransferFacade.State.MOVING)
+        {
+            intake.slowSpeed();
+        }
+        if (isIndexerFull && isIntakeFull)
+        {
+            intake.spit();
+        }
 //        else
 //        {
-//            intake.unSpit();
+//            intake.normalSpeed();
+//            intake.intake();
 //        }
-
+        telemetry.update();
     }
 
     private void addTelemetry()

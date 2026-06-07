@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-@Config
 public class Kickstand {
     private Servo kickstandServo = null;
     private Telemetry telemetry = null;

@@ -9,7 +9,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-@Config
 public class BeamBreaker {
     private Telemetry telemetry = null;
     private boolean inIntake = false;

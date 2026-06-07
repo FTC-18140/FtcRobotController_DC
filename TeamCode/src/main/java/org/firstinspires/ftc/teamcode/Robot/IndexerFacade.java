@@ -17,7 +17,6 @@ import java.util.List;
  * The IndexerFacade is the high-level controller for the entire indexing and loading mechanism.
  * It coordinates the Turnstile, Flipper, and BallSensors to perform complex actions safely.
  */
-@Config
 public class IndexerFacade {
 
 

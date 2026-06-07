@@ -41,7 +41,7 @@ public class LiftingTurnstile
     private enum State {OFF, HOMING, CONTROL_TO_ANGLE, LAUNCHING} // Added MANUAL_SPIN
 
     public static double LAUNCHING_POWER = 0.95;
-    public static double CONTROLLING_POWER = 0.15;
+    public static double CONTROLLING_POWER = 0.3;
     public static double HOMING_POWER = 0.065;
     public static double ANGLE_TOLERANCE = 5;// In degrees
     public static double BACKWARD_TOLERANCE = 30;

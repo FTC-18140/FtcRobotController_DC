@@ -19,9 +19,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 public class Intake
 {
     // Constants
-    public static double MOTOR_POWER = 0.85;
+    public static double INTAKE_POWER = 0.85;
     public static double SERVO_POWER = 1.0;
-    public static double SLOW_FACTOR = 0.85;
+    public static double SLOW_INTAKE_POWER = 0.65;
     private static final double STALL_CURRENT_LIMIT = 8.5;
 
     // Hardware
@@ -29,14 +29,17 @@ public class Intake
     private CRServo intakeServo;
     private Telemetry telemetry;
 
-    public Action intakeStopAction() {
-        return packet -> {
+    public Action intakeStopAction()
+    {
+        return packet ->
+        {
             stop();
             return false;
         };
     }
 
-    public void DEBUG_intakeMotor() {
+    public void DEBUG_intakeMotor()
+    {
 
     }
 
@@ -49,7 +52,7 @@ public class Intake
     }
 
     private State currentState = State.STOPPED;
-    private boolean isSlowed = false;
+    private boolean runSlow = false;
 
     public void init(HardwareMap hwMap, Telemetry telemetry)
     {
@@ -86,18 +89,18 @@ public class Intake
      */
     public void update(boolean indexing)
     {
-        double powerMultiplier = isSlowed ? SLOW_FACTOR : 1.0;
+        double powerMultiplier = runSlow ? SLOW_INTAKE_POWER : 1.0;
         double currentDraw = intakeMotor.getCurrent(CurrentUnit.AMPS);
 
         switch (currentState)
         {
             case INTAKING:
-                intakeMotor.setPower(MOTOR_POWER * powerMultiplier);
+                intakeMotor.setPower(runSlow ? SLOW_INTAKE_POWER : INTAKE_POWER);
                 intakeServo.setPower(SERVO_POWER);
                 break;
             case SPITTING:
-                intakeMotor.setPower(-MOTOR_POWER);
-                intakeServo.setPower(-SERVO_POWER);
+                intakeMotor.setPower(-SLOW_INTAKE_POWER);
+//                intakeServo.setPower(-SERVO_POWER);
                 break;
             case STOPPED:
                 intakeMotor.setPower(0);
@@ -120,19 +123,32 @@ public class Intake
 
     // --- State Control Methods ---
 
-    public void intake() {currentState = State.INTAKING;}
+    public void intake()
+    {
+        currentState = State.INTAKING;
+    }
 
-    public void spit() {currentState = State.SPITTING;}
+    public void spit()
+    {
+        currentState = State.SPITTING;
+    }
 
-    public void stop() {currentState = State.STOPPED;}
+    public void stop()
+    {
+        currentState = State.STOPPED;
+    }
 
-    public void setSlow(boolean slow) {isSlowed = slow;}
+//    public void setSlow(boolean slow)
+//    {
+//        runSlow = slow;
+//    }
 
     // --- RoadRunner Actions ---
 
     public Action actionIntake()
     {
-        return packet -> {
+        return packet ->
+        {
             intake();
             return false; // Run once
         };
@@ -140,7 +156,8 @@ public class Intake
 
     public Action actionStop()
     {
-        return packet -> {
+        return packet ->
+        {
             stop();
             return false;
         };
@@ -155,7 +172,10 @@ public class Intake
             @Override
             public boolean run(@NonNull TelemetryPacket packet)
             {
-                if (startTime < 0) {startTime = System.currentTimeMillis() / 1000.0;}
+                if (startTime < 0)
+                {
+                    startTime = System.currentTimeMillis() / 1000.0;
+                }
 
                 double now = System.currentTimeMillis() / 1000.0;
                 if (now - startTime < seconds)
@@ -173,15 +193,33 @@ public class Intake
     }
 
     // Add these to the refactored Intake.java so your old code still compiles
-    public void slow() {setSlow(true);}
+    public void slowSpeed()
+    {
+        runSlow = true;
+    }
 
-    public void unslow() {setSlow(false);}
+    public void normalSpeed()
+    {
+        runSlow = false;
+    }
 
-    public void unSpit() {intake();} // Or stop(), depending on what you want
+    public void unSpit()
+    {
+        intake();
+    } // Or stop(), depending on what you want
 
-    public void motorIntake() {intake();}
+    public void motorIntake()
+    {
+        intake();
+    }
 
-    public void motorSpit() {spit();}
+    public void motorSpit()
+    {
+        spit();
+    }
 
-    public void motorStop() {stop();}
+    public void motorStop()
+    {
+        stop();
+    }
 }
