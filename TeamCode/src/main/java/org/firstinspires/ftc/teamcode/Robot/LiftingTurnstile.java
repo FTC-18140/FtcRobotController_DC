@@ -74,21 +74,21 @@ public class LiftingTurnstile
     public void seekToAngle(double targetAngle)
     {
         targetAngle = ((targetAngle % 360) + 360) % 360; // Make sure angle is within [0, 360]
-        telemetry.addData("Go To This Angle", targetAngle);
+//        telemetry.addData("Go To This Angle", targetAngle);
 
         // Shortest path error in [-180,180]
         double error = targetAngle - (currentAngle % 360.0);
         error = ((error + 180) % 360) - 180;
 
-        telemetry.addData("My Current Angle", currentAngle);
+//        telemetry.addData("My Current Angle", currentAngle);
         // If error is too far behind, force forward rotation
         if (error < -ANGLE_TOLERANCE && Math.abs(error) > BACKWARD_TOLERANCE)
         {
             error += 360.0;
         }
-        telemetry.addData("The error -- how much I am off", error);
+//        telemetry.addData("The error -- how much I am off", error);
         this.targetAngle = currentAngle + error;
-        telemetry.addData("My NEW Targer Angle", this.targetAngle);
+//        telemetry.addData("My NEW Targer Angle", this.targetAngle);
         currentState = State.CONTROL_TO_ANGLE;
     }
 

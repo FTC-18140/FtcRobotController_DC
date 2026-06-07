@@ -289,12 +289,10 @@ public class Teleop_Blue_Postseason extends OpMode
             if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_LEFT))
             {
                 robot.indexer.cycle(-1);
-                telemetry.addLine("DPAD LEFT");
             }
             else if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_RIGHT))
             {
                 robot.indexer.cycle(1);
-                telemetry.addLine("DPAD RIGHT");
             }
             else if (theGamepad2.getButton(TBDGamepad.Button.LEFT_STICK_BUTTON))
             {
