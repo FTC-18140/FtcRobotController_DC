@@ -10,10 +10,12 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Robot.Drives.MecanumDrive;
+import org.firstinspires.ftc.teamcode.Utilities.LoopTime;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 
 @Config
@@ -32,7 +34,8 @@ public class LiftingTurnstile
     private boolean isHomed = false;
     private Telemetry telemetry;
 
-    public static double P = 0.0024, I = 0.0, D = 0.00015;
+    public static double P = 0.0027, I = 0.0, D = 0.00011;
+    public static double LAUNCH_D = 0.00015;
     private State currentState = State.OFF;
 
     private static final double COUNTS_PER_REVOLUTION = 8192;
@@ -41,11 +44,17 @@ public class LiftingTurnstile
     private enum State {OFF, HOMING, CONTROL_TO_ANGLE, LAUNCHING} // Added MANUAL_SPIN
 
     public static double LAUNCHING_POWER = 0.95;
-    public static double CONTROLLING_POWER = 0.3;
+    public static double CONTROLLING_POWER = 0.35;
     public static double HOMING_POWER = 0.065;
     public static double ANGLE_TOLERANCE = 5;// In degrees
     public static double BACKWARD_TOLERANCE = 30;
     public static double LAUNCH_DECEL_ANGLE = 30;
+
+    public static double INITIAL_CONTROL_POWER = 0.05;
+    public static double POWER_RAMP_TIME_CONSTANT = 0.15;
+
+    private double currentControlLimit = INITIAL_CONTROL_POWER;
+    ElapsedTime moveTimer = new ElapsedTime();
 
     public static double MINIMUM_PWR = 0.0;
 
@@ -90,7 +99,9 @@ public class LiftingTurnstile
 //        telemetry.addData("The error -- how much I am off", error);
         this.targetAngle = currentAngle + error;
 //        telemetry.addData("My NEW Targer Angle", this.targetAngle);
+        currentControlLimit = INITIAL_CONTROL_POWER;
         currentState = State.CONTROL_TO_ANGLE;
+        moveTimer.reset();
     }
 
     public void home()
@@ -104,7 +115,16 @@ public class LiftingTurnstile
         // If numToLaunch is 3, this becomes -(120 * 4) = -480 degrees
         double moveAmount = -(120.0 * numToLaunch);
         targetAngle = currentAngle + moveAmount;
-        currentState = State.LAUNCHING;
+//        currentState = State.LAUNCHING;
+        if ( numToLaunch < 3 )
+        {
+            angleController.setPID(P, I, D);
+        }
+        else
+        {
+            angleController.setPID(P, I, LAUNCH_D);
+        }
+        currentState = State.CONTROL_TO_ANGLE;
     }
 
     public void launchAll()
@@ -137,6 +157,15 @@ public class LiftingTurnstile
         limitSwitchPressed = limitSwitch.isPressed();
         double pwr = 0;
         double pidPwr = 0;
+
+        double elapsedMovetime = moveTimer.seconds();
+        double alpha = 1.0-Math.exp(-elapsedMovetime/POWER_RAMP_TIME_CONSTANT);
+
+        // Ramp the control power limit up to CONTROLLING_POWER
+        currentControlLimit = INITIAL_CONTROL_POWER + alpha*(CONTROLLING_POWER - INITIAL_CONTROL_POWER);
+
+        currentControlLimit = Math.min(currentControlLimit, CONTROLLING_POWER);
+
         // 2. State Machine
         switch (currentState)
         {
@@ -154,19 +183,15 @@ public class LiftingTurnstile
                 }
                 break;
             case CONTROL_TO_ANGLE:
-                angleController.setPID(P, I, D); // Gains
+//                angleController.setPID(P, I, D); // Gains
                 pidPwr = angleController.calculate(currentAngle, targetAngle);
-
-//                if (Math.abs(pidPwr) < MINIMUM_PWR)
-//                {
-//                    pwr = Math.signum(pidPwr)*MINIMUM_PWR;
-//                }
-//                else
-//                {
-                    pwr = pidPwr;
-//                }
+                pwr = pidPwr;
                 // Output Clamp (Safety)
-                pwr = Range.clip(pwr, -CONTROLLING_POWER, CONTROLLING_POWER);
+                pwr = Range.clip(
+                        pwr,
+                        -currentControlLimit,
+                        currentControlLimit);
+
                 driveServos(pwr);
                 break;
             case LAUNCHING:
@@ -175,6 +200,7 @@ public class LiftingTurnstile
                 // Switch to PID control when we get close to the target to "brake"
                 if (currentAngle <= targetAngle + LAUNCH_DECEL_ANGLE)
                 {
+                    currentControlLimit = INITIAL_CONTROL_POWER;
                     currentState = State.CONTROL_TO_ANGLE;
                 }
                 break;
@@ -184,6 +210,7 @@ public class LiftingTurnstile
             telemetry.addData("Turnstile State", currentState.name());
             telemetry.addData("Turnstile Angle", currentAngle);
             telemetry.addData("Turnstile Target", targetAngle );
+            telemetry.addData("Turnstile currentControlLimit", currentControlLimit);
             telemetry.addData("Turnstile Error: ", targetAngle - currentAngle);
             telemetry.addData("Turnstile Power", pwr);
             telemetry.addData("Turnstile PID Pwr Calc", pidPwr);

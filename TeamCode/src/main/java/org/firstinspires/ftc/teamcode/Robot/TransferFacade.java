@@ -367,7 +367,12 @@ public class TransferFacade
         boolean isSlot2Occupied = updateBallColor();
         if (!isSlot2Occupied)
         {
+            telemetry.addLine("updateBallModel: Slot 2 VACANT.");
             ballSlots[2] = BallState.VACANT;
+        }
+        else
+        {
+            telemetry.addData("updateBallModel: Slot 2", ballSlots[2]);
         }
         updateBallCount();
     }
@@ -395,7 +400,7 @@ public class TransferFacade
         sensorA.addTelemetry();
         sensorB.addTelemetry();
 
-        return sensorA.isBallPresent() && sensorB.isBallPresent();
+        return sensorA.isBallPresent() || sensorB.isBallPresent();
 
     }
 

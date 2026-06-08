@@ -18,6 +18,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Robot.Drives.MecanumDrive;
+import org.firstinspires.ftc.teamcode.Utilities.LoopTime;
 import org.jetbrains.annotations.Nullable;
 
 public class ThunderBot2026
@@ -29,6 +30,7 @@ public class ThunderBot2026
     public LauncherFacade launcher = null;
     private LED led = null;
     VoltageSensor voltageSensor = null;
+    public LoopTime loopTimer = null;
 
     // --- AprilTag and Sequence Management ---
     private int latchedObeliskId = -1; // -1 indicates no ID has been officially latched yet.
@@ -73,6 +75,8 @@ public class ThunderBot2026
     {
 //        telemetry = new MultipleTelemetry(telem, FtcDashboard.getInstance().getTelemetry());
 
+        loopTimer = new LoopTime();
+        loopTimer.init();
         telemetry = telem;
         starting_position = (Pose2d) OpMode.blackboard.getOrDefault(STARTING_POSE, null);
         if (null == pose)
@@ -132,6 +136,7 @@ public class ThunderBot2026
     public void update()
     {
         double seconds = runtime.seconds();
+        loopTimer.update();
 
         PoseVelocity2d robotPoseVel = drive.updatePoseEstimate();
 
