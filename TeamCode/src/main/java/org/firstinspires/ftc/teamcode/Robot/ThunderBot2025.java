@@ -318,7 +318,8 @@ public class ThunderBot2025 implements DataLoggable {
 
     public boolean launch() {
         if (launcher.isAtTargetRpm() && inZone) {
-            return indexer.launch();
+            indexer.launch();
+            return true;
         }
         return false;
     }

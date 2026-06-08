@@ -402,7 +402,8 @@ public class ThunderBot2026
     {
         if (launcher.isAtTargetRpm() && inZone)
         {
-            return indexer.launch();
+            indexer.launch();
+            return true;
         }
         return false;
     }

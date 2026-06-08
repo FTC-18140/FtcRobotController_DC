@@ -132,17 +132,20 @@ public class TransferFacade
     /**
      * Initiates a single ball launch sequence.
      *
-     * @return true if launch was initiated.
      */
-    public boolean launch()
+    public void launch()
     {
-        changeState(State.LAUNCHING);
-        turnstile.launchSlots(1);
-        pendingShift = 1;
-        ballSlots[2] = BallState.VACANT;
-        updateBallCount();
-        return true;
+        cycle(1, true);
     }
+
+//    private void oldLaunch()
+//    {
+//        changeState(State.LAUNCHING);
+//        turnstile.launchOne();
+//        pendingShift = 1;
+//        ballSlots[2] = BallState.VACANT;
+//        updateBallCount();
+//    }
 
     /**
      * Launches all currently loaded balls if the system is ready or overridden.
@@ -151,13 +154,14 @@ public class TransferFacade
     {
         if (canLaunchAll() || override)
         {
-            turnstile.launchSlots(4);
+//            turnstile.launchSlots(4);
+            turnstile.launchAll();
             changeState(State.LAUNCHING);
-            for (int i = 0; 3 > i; i++)
+            for (int i = 0; i < 3; i++)
             {
                 ballSlots[i] = BallState.VACANT;
             }
-            pendingShift = 4;
+            //pendingShift = 4;
             //updateBallCount();
         }
     }
@@ -213,9 +217,12 @@ public class TransferFacade
      * Selects and rotates to a specific slot index.
      *
      * @param slot The target slot index (0-2).
-     * @return true if the selection was valid.
      */
-    public boolean selectSlot(int slot)
+    public void selectSlot(int slot)
+    {
+         selectSlot( slot, false);
+    }
+    private void selectSlot(int slot, boolean isLaunching)
     {
 //        telemetry.addData("Initial CurrentTargetSlot", currentTargetSlot);
         int previousSlot = currentTargetSlot;
@@ -234,9 +241,15 @@ public class TransferFacade
 
         rotateBallStates(previousSlot-slot);
         currentTargetSlot = slot;
-        turnstile.seekToAngle(slot * 120);
+        if (isLaunching)
+        {
+            turnstile.launchOne();
+        }
+        else
+        {
+            turnstile.seekToAngle(slot * 120);
+        }
         changeState(State.MOVING);
-        return true;
     }
 
     /**
@@ -282,9 +295,13 @@ public class TransferFacade
      *
      * @param direction The number of slots to move (e.g., 1 for forward, -1 for backward).
      *                  Commonly used with -1 to advance to the next empty slot for intaking.
-     * @return true if the slot selection and movement were successfully initiated.
      */
-    public boolean cycle(int direction)
+    public void cycle(int direction)
+    {
+        cycle(direction, false);
+    }
+
+    private void cycle(int direction, boolean isLaunching)
     {
         int goToSlot = currentTargetSlot - direction;
 
@@ -296,7 +313,7 @@ public class TransferFacade
         {
             goToSlot = 0;
         }
-        return selectSlot(goToSlot);
+        selectSlot(goToSlot, isLaunching);
     }
 
     /**
@@ -343,13 +360,15 @@ public class TransferFacade
             }
             // if it is either PURPLE or GREEN, leave it alone.
         }
-
         for (int i = 0; i < 2; i++)
         {
             ballSensors[i].update();
         }
-
-        updateBallColor();
+        boolean isSlot2Occupied = updateBallColor();
+        if (!isSlot2Occupied)
+        {
+            ballSlots[2] = BallState.VACANT;
+        }
         updateBallCount();
     }
 
@@ -375,6 +394,7 @@ public class TransferFacade
         }
         sensorA.addTelemetry();
         sensorB.addTelemetry();
+
         return sensorA.isBallPresent() && sensorB.isBallPresent();
 
     }
@@ -470,10 +490,10 @@ public class TransferFacade
                 if (enter)
                 {
                     // Refresh sensors and counts for the new position
-                    telemetry.addData("1 IDLE: Ball Model upon entering IDLE", Arrays.toString(ballSlots));
+                    telemetry.addData("4 IDLE: Ball Model upon entering IDLE", Arrays.toString(ballSlots));
                     updateBallModel();
-                    telemetry.addData("2 IDLE: Just updated Ball Count upon entering IDLE.  BALL CNT", ballCount);
-                    telemetry.addData("3 IDLE: New Ball Model after processing enter in IDLE", Arrays.toString(ballSlots));
+                    telemetry.addData("5 IDLE: Just updated Ball Count upon entering IDLE.  BALL CNT", ballCount);
+                    telemetry.addData("6 IDLE: New Ball Model after processing enter in IDLE", Arrays.toString(ballSlots));
 
                     enter = false;
                 }
@@ -482,15 +502,12 @@ public class TransferFacade
                     // I have detected a ball in the indexer and need to automatically shift to the
                     // next slot to make room.  Before I go, I will refresh the model to
                     // register the slot as OCCUPIED and update the ballCount.
-                    telemetry.addData("4 IDLE: Ball Model because I think I have a new ball in IDLE", Arrays.toString(ballSlots));
+                    telemetry.addData("7 IDLE: Pre  - New ball in IDLE", Arrays.toString(ballSlots));
                     updateBallModel();
-                    telemetry.addData("5 IDLE: Just updated Ball Count because I thought I got a new ball in IDLE.  NEW BALL CNT", ballCount);
-                    telemetry.addData("6 IDLE: New Ball Model after processing the potential new ball in IDLE", Arrays.toString(ballSlots));
+                    telemetry.addData("8 IDLE: Post - New ball in IDLE.", Arrays.toString(ballSlots));
+                    telemetry.addData("9 IDLE: Post - NEW BALL CNT", ballCount);
 
                     // Rotate to the next slot
-                    telemetry.addLine("7 IDLE: WOULD BE AUTO-CYCLING TO NEXT SLOT.");
-                    telemetry.addData("8 IDLE: Ball Count", ballCount);
-                    // I have just marked the intake slot as OCCUPIED
                     cycle(-1);
                 }
                 else if (turnstile.getAngleError() > IDLE_TOLERANCE)

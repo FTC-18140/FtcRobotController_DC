@@ -99,13 +99,23 @@ public class LiftingTurnstile
         currentState = State.HOMING;
     }
 
-    public void launchSlots(int numToLaunch)
+    private void launchSlots(int numToLaunch)
     {
         // If numToLaunch is 3, this becomes -(120 * 4) = -480 degrees
         double moveAmount = -(120.0 * numToLaunch);
         targetAngle = currentAngle + moveAmount;
         currentState = State.LAUNCHING;
     }
+
+    public void launchAll()
+    {
+        launchSlots(4);
+    }
+    public void launchOne()
+    {
+        launchSlots(1);
+    }
+
 
     public double getAngleError()
     {
