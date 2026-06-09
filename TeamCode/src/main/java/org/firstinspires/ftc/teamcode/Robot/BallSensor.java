@@ -220,7 +220,6 @@ public class BallSensor
         if (DEBUG_BALL_SENSOR || SHOW_DEBUG_ALL)
         {
             telemetry.addData("--- Sensor ---", sensorName);
-//        telemetry.addData("Device Info", String.format("(Name: %1s, Version: %2s)", colorSensor.getDeviceName(), colorSensor.getVersion()));
             telemetry.addData(
                     "Detected",
                     "%s (Dist: %.2f cm, Hue: %.4f, Sat: %.4f, Val: %.4f, Alpha: %.4f)",
@@ -228,37 +227,6 @@ public class BallSensor
             //telemetry.addData("R | G | B", String.format("%.3f | %.3f | %.3f", colors.red, colors.green, colors.blue));
             //telemetry.addData("H | S | V", String.format("%.3f | %.3f | %.3f", hsv[0], hsv[1],hsv[2]));
             //telemetry.addData("Tunable Gain", GAIN);
-        }
-    }
-
-    /**
-     * Generic method for Objects
-     */
-    public void addTelemetry(String name, Object value)
-    {
-        if (DEBUG_BALL_SENSOR || SHOW_DEBUG_ALL)
-        {
-            // [TAG   ] (6 chars) + Name (15 chars)
-            // %-6.6s  -> Exactly 6 chars, Left Aligned
-            // %-15.15s -> Exactly 10 chars, Left Aligned
-            String tag = String.format("[%-6.6s]", this.getClass().getSimpleName().toUpperCase());
-            String label = String.format("%-10.10s", name);
-
-            telemetry.addData(tag + " " + label, value);
-        }
-    }
-
-    /**
-     * Overloaded method for Doubles (fixed precision + fixed label width)
-     */
-    public void addTelemetry(String name, double value)
-    {
-        if (DEBUG_BALL_SENSOR || SHOW_DEBUG_ALL)
-        {
-            String tag = String.format("[%-6.6s]", this.getClass().getSimpleName().toUpperCase());
-            String label = String.format("%-10.10s", name);
-            // %10.4f ensures the number itself doesn't jitter
-            telemetry.addData(tag + " " + label, String.format("%10.4f", value));
         }
     }
 }
