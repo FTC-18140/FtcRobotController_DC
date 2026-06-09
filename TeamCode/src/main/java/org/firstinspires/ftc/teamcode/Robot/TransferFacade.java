@@ -229,7 +229,7 @@ public class TransferFacade
 //        telemetry.addData("Go to Slot", slot);
         slot = Math.floorMod(slot, 3);
 
-        telemetry.addData("selectSlot: Go to Slot (after floormod)", slot);
+//        telemetry.addData("selectSlot: Go to Slot (after floormod)", slot);
 
         // Store the shift so the state machine can use it upon arrival
 //        pendingShift = Math.floorMod(slot - previousSlot, 3);
@@ -237,7 +237,7 @@ public class TransferFacade
         pendingShift = 0;  // fix this...  I am temporarily testing by taking pending shift out
                            // and rotating the ball model now.
 
-        telemetry.addData("selectSlot: Pending shift for ball model", pendingShift);
+//        telemetry.addData("selectSlot: Pending shift for ball model", pendingShift);
 
         rotateBallStates(previousSlot-slot);
         currentTargetSlot = slot;
@@ -260,7 +260,7 @@ public class TransferFacade
     private void rotateBallStates(int shiftAmt)
     {
         BallState[] newSlots = new BallState[3];
-        telemetry.addData("shiftBallStates: Shift Amount", shiftAmt);
+//        telemetry.addData("shiftBallStates: Shift Amount", shiftAmt);
         int[] tempRotIndex = {0, 0, 0};
         int i = 0;
         try
@@ -280,7 +280,7 @@ public class TransferFacade
                 }
                 newSlots[i] = ballSlots[rotatedIndex];
             }
-            telemetry.addData("shiftBallStates: Rotated Indices", Arrays.toString(tempRotIndex));
+//            telemetry.addData("shiftBallStates: Rotated Indices", Arrays.toString(tempRotIndex));
             ballSlots = newSlots;
         }
         catch (Exception e)
@@ -349,7 +349,7 @@ public class TransferFacade
     private void updateBallModel()
     {
         // If the indexer beam break is tripped, slot 0 is now occupied
-        telemetry.addData("1 updateBallModel: Ball Model in updateBallModel", Arrays.toString(ballSlots));
+//        telemetry.addData("1 updateBallModel: Ball Model in updateBallModel", Arrays.toString(ballSlots));
         if (beamBreak.ballinIndexer())
         {
             if (ballSlots[0] == BallState.UNKNOWN ||
@@ -367,7 +367,7 @@ public class TransferFacade
         boolean isSlot2Occupied = updateBallColor();
         if (!isSlot2Occupied)
         {
-            telemetry.addLine("updateBallModel: Slot 2 VACANT.");
+//            telemetry.addLine("updateBallModel: Slot 2 VACANT.");
             ballSlots[2] = BallState.VACANT;
         }
         else
@@ -411,7 +411,7 @@ public class TransferFacade
     {
         int count = 0;
 
-        telemetry.addData("1 updateBallCount: HERE IS WHAT I AM COUNTING", Arrays.toString(ballSlots));
+//        telemetry.addData("1 updateBallCount: HERE IS WHAT I AM COUNTING", Arrays.toString(ballSlots));
         // 1. Check the physical slots in the turnstile
         for (BallState slot : ballSlots)
         {
@@ -426,9 +426,9 @@ public class TransferFacade
         if (beamBreak.ballInIntake())
         {
             count++;
-            telemetry.addLine("2 updateBallCount: ADDING BALL FOR INTAKE.");
+//            telemetry.addLine("2 updateBallCount: ADDING BALL FOR INTAKE.");
         }
-        telemetry.addData("3 updateBallCount: FINAL BALL COUNT", count);
+//        telemetry.addData("3 updateBallCount: FINAL BALL COUNT", count);
         this.ballCount = count;
     }
 
@@ -467,9 +467,9 @@ public class TransferFacade
                 }
                 break;
             case MOVING:
-                telemetry.addData("1 MOVING: Ball In Indexer", beamBreak.ballinIndexer());
-                telemetry.addData("2 MOVING: Pending Shift", pendingShift);
-                telemetry.addData("3 MOVING: ball model", Arrays.toString(ballSlots));
+//                telemetry.addData("1 MOVING: Ball In Indexer", beamBreak.ballinIndexer());
+//                telemetry.addData("2 MOVING: Pending Shift", pendingShift);
+//                telemetry.addData("3 MOVING: ball model", Arrays.toString(ballSlots));
                 if (enter)
                 {
                     enter = false;
@@ -495,10 +495,10 @@ public class TransferFacade
                 if (enter)
                 {
                     // Refresh sensors and counts for the new position
-                    telemetry.addData("4 IDLE: Ball Model upon entering IDLE", Arrays.toString(ballSlots));
+//                    telemetry.addData("4 IDLE: Ball Model upon entering IDLE", Arrays.toString(ballSlots));
                     updateBallModel();
-                    telemetry.addData("5 IDLE: Just updated Ball Count upon entering IDLE.  BALL CNT", ballCount);
-                    telemetry.addData("6 IDLE: New Ball Model after processing enter in IDLE", Arrays.toString(ballSlots));
+//                    telemetry.addData("5 IDLE: Just updated Ball Count upon entering IDLE.  BALL CNT", ballCount);
+//                    telemetry.addData("6 IDLE: New Ball Model after processing enter in IDLE", Arrays.toString(ballSlots));
 
                     enter = false;
                 }
@@ -507,10 +507,10 @@ public class TransferFacade
                     // I have detected a ball in the indexer and need to automatically shift to the
                     // next slot to make room.  Before I go, I will refresh the model to
                     // register the slot as OCCUPIED and update the ballCount.
-                    telemetry.addData("7 IDLE: Pre  - New ball in IDLE", Arrays.toString(ballSlots));
+//                    telemetry.addData("7 IDLE: Pre  - New ball in IDLE", Arrays.toString(ballSlots));
                     updateBallModel();
-                    telemetry.addData("8 IDLE: Post - New ball in IDLE.", Arrays.toString(ballSlots));
-                    telemetry.addData("9 IDLE: Post - NEW BALL CNT", ballCount);
+//                    telemetry.addData("8 IDLE: Post - New ball in IDLE.", Arrays.toString(ballSlots));
+//                    telemetry.addData("9 IDLE: Post - NEW BALL CNT", ballCount);
 
                     // Rotate to the next slot
                     cycle(-1);
@@ -542,10 +542,12 @@ public class TransferFacade
             telemetry.addData("Transfer Facade State", currentState.name());
             telemetry.addData("Turnstile Current Target Slot", currentTargetSlot);
             telemetry.addData("Turnstile at Target: ", turnstile.isAtTarget());
-            telemetry.addData("Beam Break detection: ", beamBreak.ballinIndexer());
+//            telemetry.addData("Beam Break detection: ", beamBreak.ballinIndexer());
             telemetry.addData("Ball Count", ballCount);
-            telemetry.addLine(String.format("Slots: [0]: %s, [1]: %s, [2]: %s",
-                    ballSlots[0], ballSlots[1], ballSlots[2]));
+            telemetry.addData("Slot0", ballSlots[0]);
+            telemetry.addData("Slot1", ballSlots[1]);
+            telemetry.addData("Slot2", ballSlots[2]);
+
         }
     }
 

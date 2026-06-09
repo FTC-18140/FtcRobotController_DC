@@ -219,10 +219,12 @@ public class BallSensor
     {
         if (DEBUG_BALL_SENSOR || SHOW_DEBUG_ALL)
         {
-            String format = String.format("--- Sensor: %s ---", sensorName);
-            telemetry.addLine(format);
+            telemetry.addData("--- Sensor ---", sensorName);
 //        telemetry.addData("Device Info", String.format("(Name: %1s, Version: %2s)", colorSensor.getDeviceName(), colorSensor.getVersion()));
-            telemetry.addData("Detected", String.format("%s (Dist: %.2f cm, Hue: %.4f, Saturation: %.4f, Value: %.4f, Alpha: %.4f)", detectedColor, distanceCm, hsv[0], hsv[1], hsv[2], colors.alpha));
+            telemetry.addData(
+                    "Detected",
+                    "%s (Dist: %.2f cm, Hue: %.4f, Sat: %.4f, Val: %.4f, Alpha: %.4f)",
+                    detectedColor, distanceCm, hsv[0], hsv[1], hsv[2], colors.alpha);
             //telemetry.addData("R | G | B", String.format("%.3f | %.3f | %.3f", colors.red, colors.green, colors.blue));
             //telemetry.addData("H | S | V", String.format("%.3f | %.3f | %.3f", hsv[0], hsv[1],hsv[2]));
             //telemetry.addData("Tunable Gain", GAIN);
