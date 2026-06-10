@@ -367,12 +367,7 @@ public class TransferFacade
         boolean isSlot2Occupied = updateBallColor();
         if (!isSlot2Occupied)
         {
-//            telemetry.addLine("updateBallModel: Slot 2 VACANT.");
             ballSlots[2] = BallState.VACANT;
-        }
-        else
-        {
-            telemetry.addData("updateBallModel: Slot 2", ballSlots[2]);
         }
         updateBallCount();
     }
@@ -542,7 +537,6 @@ public class TransferFacade
             telemetry.addData("Transfer Facade State", currentState.name());
             telemetry.addData("Turnstile Current Target Slot", currentTargetSlot);
             telemetry.addData("Turnstile at Target: ", turnstile.isAtTarget());
-//            telemetry.addData("Beam Break detection: ", beamBreak.ballinIndexer());
             telemetry.addData("Ball Count", ballCount);
             telemetry.addData("Slot0", ballSlots[0]);
             telemetry.addData("Slot1", ballSlots[1]);

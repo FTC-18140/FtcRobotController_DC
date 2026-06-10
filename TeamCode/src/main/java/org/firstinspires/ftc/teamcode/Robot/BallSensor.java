@@ -127,7 +127,6 @@ public class BallSensor
         {
             telemetry.addData(sensorName + " Not initialized", 0);
         }
-        addTelemetry();
     }
 
     /**
