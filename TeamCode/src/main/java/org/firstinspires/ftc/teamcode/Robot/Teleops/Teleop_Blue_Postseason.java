@@ -215,6 +215,7 @@ public class Teleop_Blue_Postseason extends OpMode
 
         // Handle Manual Aiming Inputs ONLY if not in Auto (MAIN) mode
         LauncherFacade.AimingMode currentMode = robot.launcher.getAimingMode();
+        telemetry.addData("AIMING MODE: ", currentMode);
         if (currentMode == LauncherFacade.AimingMode.MANUAL)
         {
             // Calculate stick magnitude to determine if the driver is actively aiming
@@ -224,6 +225,7 @@ public class Teleop_Blue_Postseason extends OpMode
             {
                 // Set the desired field-centric angle based on stick direction
                 manualAngle = Math.toDegrees(Math.atan2(theGamepad2.getRightY(), theGamepad2.getRightX()));
+                telemetry.addData("Manual Angle", manualAngle);
                 robot.launcher.aimToAngleInFieldSpace(manualAngle);
             }
             else

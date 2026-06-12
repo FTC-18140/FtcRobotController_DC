@@ -37,7 +37,9 @@ public class Turret
     private Telemetry telemetry = null;
 
     // --- CORE CONSTANTS ---
-    public static double P_TURRET = 0.0136, I_TURRET = 0.0, D_TURRET = 0.001645;
+//    public static double P_TURRET = 0.0136, I_TURRET = 0.0, D_TURRET = 0.001645;
+    public static double P_TURRET = 0.01, I_TURRET = 0.0, D_TURRET = 0.0025;
+
     public static double F_STATIC = 0.035;
     public static double KV_ROT = 0.27;
     public static double KV_TRANS = 0.12;
@@ -111,12 +113,14 @@ public class Turret
         isHomed = (turretSwitch != null && turretSwitch.isPressed());
 
         turretAimPID.setPID(P_TURRET, I_TURRET, D_TURRET);
+        telemetry.addData("----curr pos", currentPosition);
+        telemetry.addData("---- target pos", targetAngle);
         double pidPower = turretAimPID.calculate(currentPosition, targetAngle);
         double ffPower = calculateTotalFeedforward(robotPose, robotVel, targetPos, pidPower, launching);
 
         handleStateEngine(pidPower + ffPower);
 
-        if (TELEM) {doTelemetry(pidPower, ffPower);}
+        if (DEBUG_TURRET ) {doTelemetry(pidPower, ffPower);}
         lastTargetAngle = targetAngle;
     }
 
@@ -165,14 +169,15 @@ public class Turret
         ffResistance *= Math.signum(pidPower);
         double ffLaunch = (launching && currentPosition < targetAngle ? F_LAUNCHING * Math.min(mediumErrorScalar, 1) : 0);
 
-        return ffStatic + ffRobotRot + ffTrans + ffAccel + ffResistance + ffLaunch;
+        return ffRobotRot;
+//        return ffStatic + ffRobotRot + ffTrans + ffAccel + ffResistance + ffLaunch;
     }
 
     private void handleStateEngine(double totalPower)
     {
         double errorAbs = Math.abs(targetAngle - currentPosition);
         double lowerErrorScalar = (errorAbs * errorAbs) / (TURRET_ANGLE_TOLERANCE * TURRET_ANGLE_TOLERANCE);
-
+        telemetry.addData("Turret total Power", totalPower);
         switch (currentState)
         {
             case HOLDING:
@@ -243,6 +248,7 @@ public class Turret
     public void seekToAngle(double angle)
     {
         targetAngle = applyHardwareConstraints(angle);
+        telemetry.addData("Deep turret Angle", targetAngle);
         currentState = State.SEEKING_ANGLE;
     }
 

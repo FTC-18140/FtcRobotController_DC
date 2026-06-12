@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
 import static org.firstinspires.ftc.teamcode.TelemetryConfig.DEBUG_DRIVE;
+import static org.firstinspires.ftc.teamcode.Utilities.LoopTime.LOOP_TIME;
 
 import androidx.annotation.NonNull;
 
@@ -71,6 +72,8 @@ public class ThunderBot2026
     private Pose2d TELEOP_CORNER_RED = new Pose2d(-63, 60, 0);
     private Pose2d TELEOP_CORNER_BLUE = new Pose2d(-63, -60, 0);
 
+    ElapsedTime updateTimer = new ElapsedTime(ElapsedTime.SECOND_IN_NANO);
+
     public void init(HardwareMap hwMap, Telemetry telem, @Nullable Pose2d pose)
     {
 //        telemetry = new MultipleTelemetry(telem, FtcDashboard.getInstance().getTelemetry());
@@ -138,24 +141,31 @@ public class ThunderBot2026
         double seconds = runtime.seconds();
         loopTimer.update();
 
+        updateTimer.reset();
         PoseVelocity2d robotPoseVel = drive.updatePoseEstimate();
+        double poseUpdateTime = updateTimer.seconds();
 
         if ( DEBUG_DRIVE)
         {
             addTelemetry();
         }
 
+        updateTimer.reset();
         launcher.update(drive.localizer.getPose(), robotPoseVel, getBatteryVoltage(), indexer.getCurrentState() == TransferFacade.State.LAUNCHING);
+        double launcherUpdateTime = updateTimer.seconds();
 
         boolean atTargetRpm = launcher.isAtTargetRpm();
         boolean atTarget = launcher.isAtTarget();
 
         inZone = inLaunchZone();
 
+        updateTimer.reset();
         indexer.update(atTargetRpm);
+        double indexerUpdateTime = updateTimer.seconds();
 
+        updateTimer.reset();
         intake.update(!(indexer.getCurrentState() == TransferFacade.State.IDLE));
-
+        double intakeUpdateTime = updateTimer.seconds();
 
         lastBallState = indexer.getLaunchColor();
         double flywheelTargetRpm = launcher.getFlywheelTargetRpm();
@@ -165,22 +175,32 @@ public class ThunderBot2026
         boolean isIntakeFull = indexer.ballInIntake();
         TransferFacade.State state = indexer.getCurrentState();
 
+        updateTimer.reset();
         led.update(inZone, indexer.isOverridden(), seconds, lastBallState, isIndexerFull, isIntakeFull, state);
+        double ledUpdateTime = updateTimer.seconds();
 
         if (indexer.getCurrentState() == TransferFacade.State.MOVING)
         {
-            intake.slowSpeed();
+            intake.setSlowSpeed();
         }
-        if (isIndexerFull && isIntakeFull)
+        else
+        {
+            intake.setNormalSpeed();
+//            intake.intake();
+        }
+
+        if (indexer.tooManyArtifacts())
         {
             intake.spit();
         }
-//        else
-//        {
-//            intake.normalSpeed();
-//            intake.intake();
-//        }
-        telemetry.update();
+
+//        telemetry.addData("Loop Time", LOOP_TIME);
+//        telemetry.addData("Pose Update", poseUpdateTime);
+//        telemetry.addData("Launcher Update", launcherUpdateTime);
+//        telemetry.addData("Indexer Update", indexerUpdateTime);
+//        telemetry.addData( "LED Update", ledUpdateTime);
+//        telemetry.addData("Intake Update", intakeUpdateTime);
+       // telemetry.update();
     }
 
     private void addTelemetry()

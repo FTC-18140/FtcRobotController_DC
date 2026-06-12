@@ -10,6 +10,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -28,6 +29,8 @@ public class Intake
     private DcMotorEx intakeMotor;
     private CRServo intakeServo;
     private Telemetry telemetry;
+    private BeamBreakSystem beamBreak = new BeamBreakSystem();
+
 
     public Action intakeStopAction()
     {
@@ -54,9 +57,9 @@ public class Intake
     private State currentState = State.STOPPED;
     private boolean runSlow = false;
 
-    public void init(HardwareMap hwMap, Telemetry telemetry)
+    public void init(HardwareMap hwMap, Telemetry telem)
     {
-        this.telemetry = telemetry;
+        this.telemetry = telem;
 
         try
         {
@@ -67,6 +70,8 @@ public class Intake
         {
             telemetry.addData("Error", "Intake hardware not found: " + e.getMessage());
         }
+        beamBreak.init(hwMap, telem);
+
     }
 
     /**
@@ -92,6 +97,8 @@ public class Intake
         double powerMultiplier = runSlow ? SLOW_INTAKE_POWER : 1.0;
         double currentDraw = intakeMotor.getCurrent(CurrentUnit.AMPS);
 
+        beamBreak.update();
+
         switch (currentState)
         {
             case INTAKING:
@@ -101,6 +108,10 @@ public class Intake
             case SPITTING:
                 intakeMotor.setPower(-SLOW_INTAKE_POWER);
 //                intakeServo.setPower(-SERVO_POWER);
+                if (!beamBreak.ballInIntake())
+                {
+                    currentState = State.STOPPED;
+                }
                 break;
             case STOPPED:
                 intakeMotor.setPower(0);
@@ -138,10 +149,6 @@ public class Intake
         currentState = State.STOPPED;
     }
 
-//    public void setSlow(boolean slow)
-//    {
-//        runSlow = slow;
-//    }
 
     // --- RoadRunner Actions ---
 
@@ -193,12 +200,12 @@ public class Intake
     }
 
     // Add these to the refactored Intake.java so your old code still compiles
-    public void slowSpeed()
+    public void setSlowSpeed()
     {
         runSlow = true;
     }
 
-    public void normalSpeed()
+    public void setNormalSpeed()
     {
         runSlow = false;
     }

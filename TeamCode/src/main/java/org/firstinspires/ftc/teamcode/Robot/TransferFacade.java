@@ -552,7 +552,10 @@ public class TransferFacade
         pauseTimer.reset();
     }
 
-
+   public boolean tooManyArtifacts()
+   {
+       return indexerIsFull() && ballInIntake();
+   }
 
 
     // Methods needed to keep Worlds Auto Working

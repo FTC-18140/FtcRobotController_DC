@@ -142,8 +142,9 @@ public class LauncherFacade
                 // we should command the turret to hold its last position to prevent drift.
                 // The `turret.update()` method (called below) will then execute the hold.
                 if (turret.getCurrentState() != Turret.State.MANUAL_CONTROL) {
-                    turret.holdPosition();
+//                    turret.holdPosition();
                 }
+                telemetry.addData("WHAT IS THE TURRET", turret.getCurrentState());
                 break;
         }
 
@@ -330,6 +331,7 @@ public class LauncherFacade
         double robotHeadingDegrees = Math.toDegrees(robotHeadingDouble);
         // The turret `applyHardwareConstraints` must be applied to the target *relative to the robot*.
         double targetAngleRobotRelative = turret.applyHardwareConstraints(robotHeadingDegrees - angle);
+        telemetry.addData("Seek to Angle", targetAngleRobotRelative);
         turret.seekToAngle(targetAngleRobotRelative);
     }
 
