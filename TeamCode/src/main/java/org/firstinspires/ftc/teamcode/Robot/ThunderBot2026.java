@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
 import static org.firstinspires.ftc.teamcode.TelemetryConfig.DEBUG_DRIVE;
-import static org.firstinspires.ftc.teamcode.Utilities.LoopTime.LOOP_TIME;
 
 import androidx.annotation.NonNull;
 
@@ -286,7 +285,7 @@ public class ThunderBot2026
         return false;
     }
 
-    public void drive(double forward, double right, double clockwise, double inSpeed, TelemetryPacket p)
+    public void drive(double forward, double right, double clockwise, double inSpeed)
     {
         speed = inSpeed;
         if (field_centric)

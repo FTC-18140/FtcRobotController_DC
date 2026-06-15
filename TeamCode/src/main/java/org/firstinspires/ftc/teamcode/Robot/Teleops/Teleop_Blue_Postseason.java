@@ -172,7 +172,7 @@ public class Teleop_Blue_Postseason extends OpMode
         }
 
         // Apply movement to drivetrain
-        robot.drive(forward, strafe, turn * turnFactor, speed, p);
+        robot.drive(forward, strafe, turn * turnFactor, speed);
 
         // --- 4. INTAKE CONTROLS (SHARED) ---
         // Both Driver and Operator can control the intake

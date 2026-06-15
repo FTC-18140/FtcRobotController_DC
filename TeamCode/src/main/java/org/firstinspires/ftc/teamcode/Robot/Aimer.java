@@ -36,6 +36,8 @@ public class Aimer
     public static double MAX_POWER = 0.6;
 
     public static double TURRET_ANGLE_TOLERANCE = 3.5;
+    public static double MIN_TURRET_POS = -90;
+    public static double MAX_TURRET_POS = 360 + MIN_TURRET_POS;
 
     public enum State
     {STOP, HOLDING, SEEKING_ANGLE, MANUAL_CONTROL}
@@ -67,6 +69,13 @@ public class Aimer
         }
     }
 
+    public void seekToAngle(double angle)
+    {
+        targetAngle = applyHardwareConstraints(angle);
+        telemetry.addData("Deep turret Angle", targetAngle);
+        currentState = State.SEEKING_ANGLE;
+    }
+
     public void update()
     {
         updateCurrentPosition();
@@ -75,20 +84,24 @@ public class Aimer
         switch (currentState)
         {
             case HOLDING:
+                if (enter)
+                {
+                    enter = false;
+                }
+                setHardwarePower(pidPower);
+                if ( !isAtTarget() )
+                {
+                    changeState(State.SEEKING_ANGLE);
+                }
             case SEEKING_ANGLE:
                 if (enter)
                 {
                     enter = false;
                 }
+                setHardwarePower(pidPower);
                 if (isAtTarget())
                 {
-                    setHardwarePower(pidPower);
-                    currentState = State.HOLDING;
-                }
-                else
-                {
-                    setHardwarePower(pidPower);
-                    currentState = State.SEEKING_ANGLE;
+                    changeState(State.HOLDING);
                 }
                 break;
             case MANUAL_CONTROL:
@@ -99,7 +112,7 @@ public class Aimer
                 setHardwarePower(manualPower);
                 if (Math.abs(manualPower) < 0.01)
                 {
-                    currentState = State.HOLDING;
+                    changeState(State.HOLDING);
                 }
                 break;
             case STOP:
@@ -119,6 +132,21 @@ public class Aimer
         }
     }
 
+    public double applyHardwareConstraints(double angle)
+    {
+        double finalAngle = angle % 360.0;
+        if (finalAngle < MIN_TURRET_POS)
+        {
+            if (finalAngle < MIN_TURRET_POS - TURRET_ANGLE_TOLERANCE) {finalAngle += 360;}
+            else {finalAngle = MIN_TURRET_POS;}
+        }
+        else if (finalAngle > MAX_TURRET_POS)
+        {
+            if (finalAngle > MAX_TURRET_POS + TURRET_ANGLE_TOLERANCE) {finalAngle -= 360;}
+            else {finalAngle = MAX_TURRET_POS;}
+        }
+        return finalAngle;
+    }
     public boolean isAtTarget()
     {
         return Math.abs(currentAngle - targetAngle) < TURRET_ANGLE_TOLERANCE;
