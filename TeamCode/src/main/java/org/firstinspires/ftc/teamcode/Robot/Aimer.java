@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.Robot;
 import static org.firstinspires.ftc.teamcode.TelemetryConfig.DEBUG_TURRET;
 import static org.firstinspires.ftc.teamcode.TelemetryConfig.SHOW_DEBUG_ALL;
 
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -14,6 +16,7 @@ import org.firstinspires.ftc.teamcode.Robot.Auto.AutoRedDepot_12;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 import org.firstinspires.ftc.teamcode.Utilities.ThresholdMotor;
 
+@Config
 public class Aimer
 {
 
@@ -30,7 +33,8 @@ public class Aimer
 
     private double manualPower = 0.0;
 
-    public static double P = 0.0136, I = 0.0, D = 0.001645;
+//    public static double P = 0.0136, I = 0.0, D = 0.001645;
+    public static double P=0.045, I=0, D=0.003;
     public static double TURRET_DEGREES_PER_ENCODER_TICK = (double) 1 / 8192.0 * 360.0 * 16 / 100;
     public static double TURRET_POWER_THRESHOLD = 0.005;
     public static double MAX_POWER = 0.6;
@@ -38,6 +42,8 @@ public class Aimer
     public static double TURRET_ANGLE_TOLERANCE = 3.5;
     public static double MIN_TURRET_POS = -90;
     public static double MAX_TURRET_POS = 360 + MIN_TURRET_POS;
+
+    public static double KV_ROT = 0.0;
 
     public enum State
     {STOP, HOLDING, SEEKING_ANGLE, MANUAL_CONTROL}
@@ -80,10 +86,11 @@ public class Aimer
         return currentAngle;
     }
 
-    public void update()
+    public void update( PoseVelocity2d robotVel )
     {
         updateCurrentPosition();
-        double pidPower = turretAimPID.calculate(currentAngle, targetAngle);
+        turretAimPID.setPID(P, I, D);
+        double power = turretAimPID.calculate(currentAngle, targetAngle) + calculateFF(robotVel);
 
         switch (currentState)
         {
@@ -92,7 +99,7 @@ public class Aimer
                 {
                     enter = false;
                 }
-                setHardwarePower(pidPower);
+                setHardwarePower(power);
                 if ( !isAtTarget() )
                 {
                     changeState(State.SEEKING_ANGLE);
@@ -103,7 +110,7 @@ public class Aimer
                 {
                     enter = false;
                 }
-                setHardwarePower(pidPower);
+                setHardwarePower(power);
                 if (isAtTarget())
                 {
                     changeState(State.HOLDING);
@@ -132,12 +139,16 @@ public class Aimer
         {
             telemetry.addData("Turret Position", "%.2f", currentAngle);
             telemetry.addData("Turret Target", "%.2f", targetAngle);
-            telemetry.addData("Turret PID Power", "%.3f", pidPower);
+            telemetry.addData("Turret PID Power", "%.3f", power);
             telemetry.addData("Turret State", currentState);
         }
     }
+    public boolean isAtTarget()
+    {
+        return Math.abs(currentAngle - targetAngle) < TURRET_ANGLE_TOLERANCE;
+    }
 
-    public double applyHardwareConstraints(double angle)
+    private double applyHardwareConstraints(double angle)
     {
         double finalAngle = angle % 360.0;
         if (finalAngle < MIN_TURRET_POS)
@@ -152,9 +163,12 @@ public class Aimer
         }
         return finalAngle;
     }
-    public boolean isAtTarget()
+
+    private double calculateFF(PoseVelocity2d vel)
     {
-        return Math.abs(currentAngle - targetAngle) < TURRET_ANGLE_TOLERANCE;
+        double ffRobotRot = vel.angVel * KV_ROT;
+
+        return ffRobotRot;
     }
 
     private void updateCurrentPosition()
@@ -168,7 +182,7 @@ public class Aimer
         if (turretWriter != null) {turretWriter.setPower(Range.clip(power, -MAX_POWER, MAX_POWER));}
     }
 
-    public void changeState( State newState )
+    private void changeState( State newState )
     {
         enter = true;
         currentState = newState;
