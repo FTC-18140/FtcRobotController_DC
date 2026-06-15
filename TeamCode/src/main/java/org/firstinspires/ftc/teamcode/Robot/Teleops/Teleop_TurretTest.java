@@ -14,7 +14,8 @@ import org.firstinspires.ftc.teamcode.Utilities.TBDGamepad;
 @TeleOp(name = "PID Aimer Test", group = "Testing")
 @Config
 public class Teleop_TurretTest extends OpMode {
-    Aimer theTurret = new Aimer();
+    public static double STEP_CHANGE = 20;
+    Aimer turret = new Aimer();
     private TBDGamepad gp2;
     private double testTargetAngle = 0;
 
@@ -22,38 +23,48 @@ public class Teleop_TurretTest extends OpMode {
     public void init() {
         // Essential: Sends data to Dashboard so you can see the PID graphs
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-        theTurret.init(hardwareMap, telemetry);
+        turret.init(hardwareMap, telemetry);
         gp2 = new TBDGamepad(gamepad2);
         gp2.init(telemetry);
+        testTargetAngle = turret.getCurrentAngle();
     }
 
     @Override
     public void loop() {
-        theTurret.update(); // Keep the robot internal states (IMU/Encoders) fresh
         gp2.update();
 
-        // 1. MANUAL TARGET CONTROL (Left Stick)
-        // We move the "Target" manually so we can see how the PID reacts to changes
-        if (Math.hypot(gp2.getLeftX(), gp2.getLeftY()) > 0.2) {
-            testTargetAngle = Math.toDegrees(Math.atan2(gp2.getLeftY(), gp2.getLeftX()));
+        if ( gp2.getButtonPressed(TBDGamepad.Button.DPAD_LEFT))
+        {
+            testTargetAngle = turret.getCurrentAngle()+STEP_CHANGE;
+            turret.seekToAngle(testTargetAngle);
+
+        }
+        else if ( gp2.getButtonPressed(TBDGamepad.Button.DPAD_RIGHT))
+        {
+            testTargetAngle = turret.getCurrentAngle()-STEP_CHANGE;
+            turret.seekToAngle(testTargetAngle);
+
+        }
+        else if (gp2.getButton(TBDGamepad.Button.RIGHT_BUMPER))
+        {
+            if (Math.hypot(gp2.getLeftX(), gp2.getLeftY()) > 0.2)
+            {
+                double newAngle = Math.toDegrees(Math.atan2(gp2.getLeftY(), gp2.getLeftX()));
+
+                // ONLY call seekToAngle if the joystick has actually moved significantly
+                // This is your "Dirty Flag" logic
+                if (Math.abs(newAngle - testTargetAngle) > 1.0)
+                {
+                    testTargetAngle = newAngle;
+                    turret.seekToAngle(testTargetAngle);
+                }
+            }
         }
 
-        // 3. EXECUTION
-        if (robot.launcher.getAimingMode() == LauncherFacade.AimingMode.MAIN) {
-            // This calls your Aimer.java logic inside LauncherFacade
-            robot.launcher.aimToAngleInFieldSpace(testTargetAngle);
-        } else {
-            // Manual safety: hold position if not testing PID
-            robot.launcher.holdTurretPosition();
-        }
+        turret.update(); // Keep the robot internal states (IMU/Encoders) fresh
 
-        // 4. PID MONITORING TELEMETRY
-        telemetry.addData("MODE", robot.launcher.getAimingMode());
         telemetry.addData("Target Angle", testTargetAngle);
-        telemetry.addData("Actual Angle", robot.launcher.getTurretHeading());
-
-        // IMPORTANT: If your Aimer class has a 'getPIDError()' or similar, add it here:
-        // telemetry.addData("PID Error", robot.launcher.getAimerDebug());
+        telemetry.addData("Current Angle", turret.getCurrentAngle());
 
         telemetry.update();
     }

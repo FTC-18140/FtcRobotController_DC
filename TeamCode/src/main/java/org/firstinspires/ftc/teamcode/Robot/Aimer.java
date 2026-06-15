@@ -75,6 +75,10 @@ public class Aimer
         telemetry.addData("Deep turret Angle", targetAngle);
         currentState = State.SEEKING_ANGLE;
     }
+    public double getCurrentAngle()
+    {
+        return currentAngle;
+    }
 
     public void update()
     {
@@ -93,6 +97,7 @@ public class Aimer
                 {
                     changeState(State.SEEKING_ANGLE);
                 }
+                break;
             case SEEKING_ANGLE:
                 if (enter)
                 {
