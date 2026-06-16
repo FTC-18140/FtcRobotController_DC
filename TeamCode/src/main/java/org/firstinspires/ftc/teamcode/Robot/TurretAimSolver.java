@@ -9,6 +9,7 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Utilities.LoopTime;
 
 public class TurretAimSolver
 {
@@ -65,6 +66,11 @@ public class TurretAimSolver
 
     private double getAutoAimAngle()
     {
+        return getAutoAimAngle(currentOdoPose);
+    }
+
+    private double getAutoAimAngle( Pose2d thePose )
+    {
         double targetTurretAngle;
 
         // Ensure targetPos is set (e.g., by setAlliance) before calculating.
@@ -72,7 +78,7 @@ public class TurretAimSolver
         if (targetPos != null)
         {
             // Vector from Turret offset pos to Goal
-            Vector2d trueTargetVector = targetPos.minus(currentOdoPose.position.plus(getTurretOffsetPosInRobotSpace()));
+            Vector2d trueTargetVector = targetPos.minus(thePose.position.plus(getTurretOffsetPosInRobotSpace()));
 
             // Calculate the absolute field-centric angle to the goal (Radians)
             double fieldAngleToGoal = Math.atan2(trueTargetVector.y, trueTargetVector.x);
@@ -81,7 +87,7 @@ public class TurretAimSolver
             // We turn the raw angle into a Rotation2d and subtract our robot heading.
             // This yields the shortest relative distance from robot-front to goal,
             // automatically handling the jump across the +/- 180 degree line.
-            double relativeAngleRad = Rotation2d.exp(fieldAngleToGoal).minus(currentOdoPose.heading);
+            double relativeAngleRad = Rotation2d.exp(fieldAngleToGoal).minus(thePose.heading);
 
             // Convert result to Degrees for the Turret Subsystem. Negative because turret rotation is reversed.
             targetTurretAngle = -Math.toDegrees(relativeAngleRad);
@@ -108,6 +114,32 @@ public class TurretAimSolver
         return targetTurretAngle;
     }
 
+    private Pose2d getFuturePosition() {
+        // 1. Define lookahead time (seconds)
+        double dt = 0.2; // Adjust this based on how far ahead you want to predict
+
+        // 2. Predict future position
+        // Linear: pos + (velocity * dt)
+        // Heading: heading + (angVel * dt)
+        Vector2d futurePos = currentOdoPose.position.plus(currentOdoVelocity.linearVel.times(dt));
+        Rotation2d futureHeading = currentOdoPose.heading.plus(currentOdoVelocity.angVel * dt);
+
+        return new Pose2d(futurePos, futureHeading);
+    }
+
+    // Then, update your logic that calls this (likely in your update loop)
+    private void updateAimWithPrediction() {
+        Pose2d futurePose = getFuturePosition();
+        double futureAngle = getAutoAimAngle(futurePose);
+
+        // Calculate Feed-Forward (Angular velocity needed to track the target)
+        // velocityFF = (futureAngle - currentAngle) / dt
+        double dt = 0.2;
+        double velocityFF = (futureAngle - currentTurretAngle) / dt;
+
+        // Use this velocityFF to help your PID loop
+    }
+    
     private Vector2d getTurretOffsetPosInRobotSpace()
     {
         double robotHeading = currentOdoPose.heading.toDouble();

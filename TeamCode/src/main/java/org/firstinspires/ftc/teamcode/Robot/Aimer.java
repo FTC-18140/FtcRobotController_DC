@@ -4,11 +4,9 @@ import static org.firstinspires.ftc.teamcode.TelemetryConfig.DEBUG_TURRET;
 import static org.firstinspires.ftc.teamcode.TelemetryConfig.SHOW_DEBUG_ALL;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
@@ -98,8 +96,8 @@ public class Aimer
     {
         updateCurrentPosition();
         turretAimPID.setPID(P, I, D);
-        double power = turretAimPID.calculate(currentAngle, solution.targetAngle) +
-                       KV_ROT*solution.targetAngularVelocity;
+        double power = turretAimPID.calculate(currentAngle, solution.angle) +
+                       KV_ROT*solution.velocity;
         switch (currentState)
         {
             case HOLDING:
