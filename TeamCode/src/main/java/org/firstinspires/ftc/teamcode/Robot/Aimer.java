@@ -30,6 +30,7 @@ public class Aimer
     private double targetAngle = 0.0;
     private Aimer.State currentState = Aimer.State.HOLDING;
     private boolean enter = true;
+    private AimSolution solution = new AimSolution(0.0, 0.0);
 
     private double manualPower = 0.0;
 
@@ -54,6 +55,7 @@ public class Aimer
     {
         telemetry = telem;
         startingAngle = (double) OpMode.blackboard.getOrDefault(STARTING_ANGLE_KEY, (double) 0);
+        targetAngle = startingAngle;
         turretAimPID = new PIDController(P, I, D);
 
         try
@@ -86,12 +88,17 @@ public class Aimer
         return currentAngle;
     }
 
-    public void update( PoseVelocity2d robotVel )
+    public void setAimSolution(AimSolution solution)
+    {
+        this.solution = solution;
+
+    }
+    public void update()
     {
         updateCurrentPosition();
         turretAimPID.setPID(P, I, D);
-        double power = turretAimPID.calculate(currentAngle, targetAngle) + calculateFF(robotVel);
-
+        double power = turretAimPID.calculate(currentAngle, solution.targetAngle) +
+                       KV_ROT*solution.targetAngularVelocity;
         switch (currentState)
         {
             case HOLDING:
@@ -162,13 +169,6 @@ public class Aimer
             else {finalAngle = MAX_TURRET_POS;}
         }
         return finalAngle;
-    }
-
-    private double calculateFF(PoseVelocity2d vel)
-    {
-        double ffRobotRot = vel.angVel * KV_ROT;
-
-        return ffRobotRot;
     }
 
     private void updateCurrentPosition()

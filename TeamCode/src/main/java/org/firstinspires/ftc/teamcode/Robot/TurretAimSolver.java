@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
+import static org.firstinspires.ftc.teamcode.TelemetryConfig.DEBUG_TURRET;
+
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Rotation2d;
@@ -11,17 +13,18 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class TurretAimSolver
 {
     Telemetry telemetry = null;
-    public enum AimingMode
-    {MAIN, ODOMETRY, LIMELIGHT, MANUAL, DIRECTIONAL}
-    private AimingMode aimingMode = AimingMode.MAIN;
+
     private Vector2d targetPos = null;
     private static final Vector2d targetPosBlue = new Vector2d(67.0, 67.0);
     private static final Vector2d targetPosRed = new Vector2d(67.0, -67.0);
     private Pose2d lastOdoPose = null; // Used to calculate delta
     private Pose2d currentOdoPose = null;
+    private PoseVelocity2d currentOdoVelocity = null;
     public static double TURRET_OFFSET_X = -0.94488;
     public static double TURRET_OFFSET_Y = -3.04528;
     private double currentTurretAngle = 0.0;
+    private AimSolution solution = null;
+
 
     public void init(HardwareMap hwMap, Telemetry telem, Pose2d startPose)
     {
@@ -30,10 +33,13 @@ public class TurretAimSolver
         lastOdoPose = startPose;
         targetPos = targetPosBlue;
     }
+
     public void update(Pose2d currentOdoPose, PoseVelocity2d currentOdoVelocity, double currentTurretAngle)
     {
         this.currentOdoPose = currentOdoPose;
         this.currentTurretAngle = currentTurretAngle;
+        this.currentOdoVelocity = currentOdoVelocity;
+
         // Handle first loop where lastOdoPose is not yet initialized
         if (null == lastOdoPose)
         {
@@ -42,6 +48,19 @@ public class TurretAimSolver
             return;
         }
 
+        double angle = getAutoAimAngle();
+        double angularVelocity = -currentOdoVelocity.angVel;
+        solution = new AimSolution( angle, angularVelocity);
+
+        if (DEBUG_TURRET)
+        {
+            telemetry.addData("AimSolution Angle", angle);
+        }
+    }
+
+    public AimSolution getSolution()
+    {
+        return solution;
     }
 
     private double getAutoAimAngle()
@@ -98,6 +117,20 @@ public class TurretAimSolver
         );
     }
 
+    public void moveTargetForTesting(double degrees)
+    {
+        if (targetPos != null)
+        {
+            double rads = Math.toRadians(degrees);
+            double cos = Math.cos(rads);
+            double sin = Math.sin(rads);
+
+            targetPos = new Vector2d(
+                    targetPos.x * cos - targetPos.y * sin,
+                    targetPos.x * sin + targetPos.y * cos
+            );
+        }
+    }
 
 
 }
