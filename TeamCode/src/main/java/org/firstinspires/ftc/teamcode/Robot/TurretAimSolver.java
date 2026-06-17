@@ -20,6 +20,7 @@ public class TurretAimSolver
     private static final Vector2d targetPosRed = new Vector2d(67.0, -67.0);
     private Pose2d lastOdoPose = null; // Used to calculate delta
     private Pose2d currentOdoPose = null;
+    private double lastVelocity = 0.0;
     private PoseVelocity2d currentOdoVelocity = null;
     public static double TURRET_OFFSET_X = -0.94488;
     public static double TURRET_OFFSET_Y = -3.04528;
@@ -50,8 +51,12 @@ public class TurretAimSolver
         }
 
         double angle = getAutoAimAngle();
-        double angularVelocity = -currentOdoVelocity.angVel;
-        solution = new AimSolution( angle, angularVelocity);
+
+        Pose2d futurePose = getFuturePosition();
+        double futureAngle = getAutoAimAngle(futurePose);
+        double angularVelocity = getAutoAimVelocity(futureAngle);
+        double angularAcceleration = getAutoAimAcceleration(angularVelocity);
+        solution = new AimSolution( angle, angularVelocity, angularAcceleration);
 
         if (DEBUG_TURRET)
         {
@@ -114,9 +119,26 @@ public class TurretAimSolver
         return targetTurretAngle;
     }
 
+    private double getAutoAimVelocity( double futureAngle )
+    {
+        // Calculate Feed-Forward (Angular velocity needed to track the target)
+        // velocityFF = (futureAngle - currentAngle) / dt
+        double dt = LoopTime.LOOP_TIME;
+        return (futureAngle - currentTurretAngle) / dt;
+    }
+
+    private double getAutoAimAcceleration( double angularVelocity )
+    {
+        double dt = LoopTime.LOOP_TIME;
+
+        double currentAccel = (angularVelocity - lastVelocity) / dt;
+        lastVelocity = angularVelocity;
+        return currentAccel;
+    }
+
     private Pose2d getFuturePosition() {
         // 1. Define lookahead time (seconds)
-        double dt = 0.2; // Adjust this based on how far ahead you want to predict
+        double dt = LoopTime.LOOP_TIME; // Adjust this based on how far ahead you want to predict
 
         // 2. Predict future position
         // Linear: pos + (velocity * dt)
@@ -128,18 +150,8 @@ public class TurretAimSolver
     }
 
     // Then, update your logic that calls this (likely in your update loop)
-    private void updateAimWithPrediction() {
-        Pose2d futurePose = getFuturePosition();
-        double futureAngle = getAutoAimAngle(futurePose);
 
-        // Calculate Feed-Forward (Angular velocity needed to track the target)
-        // velocityFF = (futureAngle - currentAngle) / dt
-        double dt = 0.2;
-        double velocityFF = (futureAngle - currentTurretAngle) / dt;
 
-        // Use this velocityFF to help your PID loop
-    }
-    
     private Vector2d getTurretOffsetPosInRobotSpace()
     {
         double robotHeading = currentOdoPose.heading.toDouble();
