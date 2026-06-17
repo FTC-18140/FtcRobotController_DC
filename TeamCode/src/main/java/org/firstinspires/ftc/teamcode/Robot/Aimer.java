@@ -43,8 +43,8 @@ public class Aimer
     public static double MIN_TURRET_POS = -90;
     public static double MAX_TURRET_POS = 360 + MIN_TURRET_POS;
 
-    public static double KV_ROT = 0.0;
-    public static double KA_ROT = 0.0;
+    public static double KV_ROT = 0.001;
+    public static double KA_ROT = 0.0001;
 
     public enum State
     {STOP, HOLDING, SEEKING_ANGLE, MANUAL_CONTROL}
@@ -80,7 +80,7 @@ public class Aimer
     public void seekToAngle(double angle)
     {
         targetAngle = applyHardwareConstraints(angle);
-        telemetry.addData("Deep turret Angle", targetAngle);
+//        telemetry.addData("Deep turret Angle", targetAngle);
         currentState = State.SEEKING_ANGLE;
     }
     public double getCurrentAngle()
@@ -91,7 +91,7 @@ public class Aimer
     public void setAimSolution(AimSolution solution)
     {
         this.solution = solution;
-
+        targetAngle = solution.angle;
     }
     public void update()
     {

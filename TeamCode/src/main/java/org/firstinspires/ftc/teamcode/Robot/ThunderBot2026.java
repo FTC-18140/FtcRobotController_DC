@@ -27,7 +27,10 @@ public class ThunderBot2026
     public MecanumDrive drive = null;
     public Intake intake = null;
     public TransferFacade indexer = null;
-    public LauncherFacade launcher = null;
+//    public LauncherFacade launcher = null;
+//    public TurretController turretController = null;
+//    public FlywheelController flywheelController = null;
+    public LaunchController launcher = null;
     private LED led = null;
     VoltageSensor voltageSensor = null;
     public LoopTime loopTimer = null;
@@ -129,8 +132,15 @@ public class ThunderBot2026
         launcher = new LauncherFacade();
         launcher.init(hwMap, telemetry, pose);
 
+//        turretController = new TurretController();
+//        turretController.init(hwMap, telemetry);
+//
+//        flywheelController = new FlywheelController();
+//        flywheelController.init(hwMap, telemetry);
+
+
         led = new LED();
-        led.init(hwMap, telemetry, launcher.getFlywheelLowerBoundRpm(), launcher.getFlywheelUpperBoundRpm());
+        led.init(hwMap, telemetry, Flywheel.RPM_LOWER_BOUND, Flywheel.RPM_UPPER_BOUND);
 
         runtime.reset();
     }
@@ -151,6 +161,8 @@ public class ThunderBot2026
 
         updateTimer.reset();
         launcher.update(drive.localizer.getPose(), robotPoseVel, getBatteryVoltage(), indexer.getCurrentState() == TransferFacade.State.LAUNCHING);
+//        turretController.update(drive.localizer.getPose(), robotPoseVel);
+//        flywheelController.update(drive.localizer.getPose(), robotPoseVel, getBatteryVoltage(), indexer.getCurrentState() == TransferFacade.State.LAUNCHING);
         double launcherUpdateTime = updateTimer.seconds();
 
         boolean atTargetRpm = launcher.isAtTargetRpm();
