@@ -28,8 +28,8 @@ public class ThunderBot2026
     public Intake intake = null;
     public TransferFacade indexer = null;
 //    public LauncherFacade launcher = null;
-//    public TurretController turretController = null;
-//    public FlywheelController flywheelController = null;
+
+
     public LaunchController launcher = null;
     private LED led = null;
     VoltageSensor voltageSensor = null;
@@ -84,9 +84,9 @@ public class ThunderBot2026
         loopTimer.init();
         telemetry = telem;
         starting_position = (Pose2d) OpMode.blackboard.getOrDefault(STARTING_POSE, null);
-        if (null == pose)
+        if (pose == null)
         {
-            if (null == starting_position)
+            if (starting_position == null)
             {
                 pose = new Pose2d(0, 0, 0);
             }
@@ -129,15 +129,8 @@ public class ThunderBot2026
         indexer.init(hwMap, telemetry);
         indexer.intakeStop();
 
-        launcher = new LauncherFacade();
+        launcher = new LaunchController();
         launcher.init(hwMap, telemetry, pose);
-
-//        turretController = new TurretController();
-//        turretController.init(hwMap, telemetry);
-//
-//        flywheelController = new FlywheelController();
-//        flywheelController.init(hwMap, telemetry);
-
 
         led = new LED();
         led.init(hwMap, telemetry, Flywheel.RPM_LOWER_BOUND, Flywheel.RPM_UPPER_BOUND);
@@ -160,9 +153,8 @@ public class ThunderBot2026
         }
 
         updateTimer.reset();
-        launcher.update(drive.localizer.getPose(), robotPoseVel, getBatteryVoltage(), indexer.getCurrentState() == TransferFacade.State.LAUNCHING);
-//        turretController.update(drive.localizer.getPose(), robotPoseVel);
-//        flywheelController.update(drive.localizer.getPose(), robotPoseVel, getBatteryVoltage(), indexer.getCurrentState() == TransferFacade.State.LAUNCHING);
+        launcher.update(drive.localizer.getPose(), robotPoseVel );
+        //, getBatteryVoltage(), indexer.getCurrentState() == TransferFacade.State.LAUNCHING);
         double launcherUpdateTime = updateTimer.seconds();
 
         boolean atTargetRpm = launcher.isAtTargetRpm();
@@ -277,23 +269,23 @@ public class ThunderBot2026
     public boolean registerObeliskID()
     {
 
-        // Step 1: Latch the official ID if we haven't already.
-
-        launcher.setPipeline((ThunderBot2026.Alliance_Color.BLUE == color) ? 0 : 3);
-        int currentId = launcher.getDetectedAprilTagId();
-        if (-1 != currentId)
-        {
-            latchedObeliskId = currentId;
-            telemetry.addData("Obelisk ID Latched: ", latchedObeliskId);
-        }
-
-        // Step 2: Plan the sequence using the latched ID.
-        // This will only proceed if an ID has been successfully latched.
-        if (-1 != latchedObeliskId)
-        {
-            telemetry.addData("Sequence Planned:", indexer.planShotSequence(latchedObeliskId));
-            return true;
-        }
+//        // Step 1: Latch the official ID if we haven't already.
+//
+//        launcher.setPipeline((ThunderBot2026.Alliance_Color.BLUE == color) ? 0 : 3);
+//        int currentId = launcher.getDetectedAprilTagId();
+//        if (-1 != currentId)
+//        {
+//            latchedObeliskId = currentId;
+//            telemetry.addData("Obelisk ID Latched: ", latchedObeliskId);
+//        }
+//
+//        // Step 2: Plan the sequence using the latched ID.
+//        // This will only proceed if an ID has been successfully latched.
+//        if (-1 != latchedObeliskId)
+//        {
+//            telemetry.addData("Sequence Planned:", indexer.planShotSequence(latchedObeliskId));
+//            return true;
+//        }
         return false;
     }
 
@@ -434,6 +426,11 @@ public class ThunderBot2026
         launcher.prepShotLow();
     }
 
+    public void chargeStop()
+    {
+        launcher.stopFlywheel();
+    }
+
     public boolean launch()
     {
         if (launcher.isAtTargetRpm() && inZone)
@@ -486,16 +483,17 @@ public class ThunderBot2026
 
     public boolean resetTurret()
     {
-        if (launcher.setTurretOffset())
-        {
-            led.setLauncherLedToColor(LED.Colors.GREEN);
-            return true;
-        }
-        else
-        {
-            led.setLauncherLedToColor(LED.Colors.BLUE);
-            return false;
-        }
+//        if (launcher.setTurretOffset())
+//        {
+//            led.setLauncherLedToColor(LED.Colors.GREEN);
+//            return true;
+//        }
+//        else
+//        {
+//            led.setLauncherLedToColor(LED.Colors.BLUE);
+//            return false;
+//        }
+        return true;
     }
 
     public Action aimAction()
@@ -505,7 +503,7 @@ public class ThunderBot2026
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket)
             {
-                launcher.aim();
+                launcher.autoAim();
                 return true;
             }
         };

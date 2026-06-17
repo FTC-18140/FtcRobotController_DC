@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Robot.Auto.AutoRedDepot_12;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 import org.firstinspires.ftc.teamcode.Utilities.ThresholdMotor;
@@ -81,6 +82,7 @@ public class Aimer
     {
         targetAngle = applyHardwareConstraints(angle);
 //        telemetry.addData("Deep turret Angle", targetAngle);
+
         currentState = State.SEEKING_ANGLE;
     }
     public double getCurrentAngle()
@@ -155,7 +157,17 @@ public class Aimer
     {
         return Math.abs(currentAngle - targetAngle) < TURRET_ANGLE_TOLERANCE;
     }
+    public double getCurrent()
+    {
+        return turret.getCurrent(CurrentUnit.AMPS);
+    }
 
+    public void holdAtCurrentPosition()
+    {
+        // Lock the target to the current actual angle, ignoring new solver updates
+        setAimSolution( new AimSolution(this.currentAngle, 0.0, 0.0) );
+        changeState(State.HOLDING);
+    }
     private double applyHardwareConstraints(double angle)
     {
         double finalAngle = angle % 360.0;

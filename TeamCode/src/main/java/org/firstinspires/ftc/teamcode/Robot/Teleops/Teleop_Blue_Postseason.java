@@ -9,8 +9,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2026;
+import org.firstinspires.ftc.teamcode.Robot.TurretController;
 import org.firstinspires.ftc.teamcode.Utilities.TBDGamepad;
-import org.firstinspires.ftc.teamcode.Robot.LauncherFacade;
 
 /**
  * Main TeleOp control program for the Blue Alliance during the Postseason.
@@ -21,7 +21,6 @@ import org.firstinspires.ftc.teamcode.Robot.LauncherFacade;
  * </p>
  *
  * @see ThunderBot2026
- * @see LauncherFacade
  */
 @TeleOp(group = Teleop_Blue_Postseason.MATCH_TELEOP_GROUP)
 @Config
@@ -203,21 +202,13 @@ public class Teleop_Blue_Postseason extends OpMode
         // Aiming Mode Selection: Toggle between MAIN (Auto) and MANUAL
         if (theGamepad2.getButtonPressed(TBDGamepad.Button.RIGHT_STICK_BUTTON))
         {
-            if (LauncherFacade.AimingMode.MAIN == robot.launcher.getAimingMode())
-            {
-                robot.launcher.setAimingMode(LauncherFacade.AimingMode.MANUAL);
-            }
-            else
-            {
-                robot.launcher.setAimingMode(LauncherFacade.AimingMode.MAIN);
-            }
+            robot.launcher.toggleAim();
         }
 
         // Handle Manual Aiming Inputs ONLY if not in Auto (MAIN) mode
-        LauncherFacade.AimingMode currentMode = robot.launcher.getAimingMode();
-        telemetry.addData("AIMING MODE: ", currentMode);
-        if (currentMode == LauncherFacade.AimingMode.MANUAL)
-        {
+
+//        if (currentMode == LauncherFacade.AimingMode.MANUAL)
+//        {
             // Calculate stick magnitude to determine if the driver is actively aiming
             double stickMag = Math.sqrt(Math.pow(theGamepad2.getRightX(), 2) + Math.pow(theGamepad2.getRightY(), 2));
 
@@ -226,19 +217,19 @@ public class Teleop_Blue_Postseason extends OpMode
                 // Set the desired field-centric angle based on stick direction
                 manualAngle = Math.toDegrees(Math.atan2(theGamepad2.getRightY(), theGamepad2.getRightX()));
                 telemetry.addData("Manual Angle", manualAngle);
-                robot.launcher.aimToAngleInFieldSpace(manualAngle);
+                robot.launcher.moveAimingTarget(manualAngle);
             }
-            else
-            {
-                // If stick is released, hold current position to prevent drifting
-                robot.launcher.holdTurretPosition();
-            }
-        }
-        else if (currentMode == LauncherFacade.AimingMode.DIRECTIONAL)
-        {
-            // Use Right X for raw power override
-            robot.launcher.setTurretManualPower(theGamepad2.getRightX() * 0.35);
-        }
+//            else
+//            {
+//                // If stick is released, hold current position to prevent drifting
+//                robot.launcher.holdTurretPosition();
+//            }
+//        }
+//        else if (currentMode == LauncherFacade.AimingMode.DIRECTIONAL)
+//        {
+//            // Use Right X for raw power override
+//            robot.launcher.setTurretManualPower(theGamepad2.getRightX() * 0.35);
+//        }
         // NOTE: If mode is MAIN, LauncherFacade.update() handles aim() automatically.
         // No manual call to robot.launcher.aim() is needed here anymore.
 
@@ -260,7 +251,7 @@ public class Teleop_Blue_Postseason extends OpMode
         }
         else
         {
-            robot.launcher.stop(); // Mode -> OFF. Motors float.
+            robot.chargeStop(); // Mode -> OFF. Motors float.
         }
 
         // Shooting Commands

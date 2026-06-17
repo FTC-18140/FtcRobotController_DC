@@ -46,12 +46,12 @@ public class Teleop_TurretTest extends OpMode {
         if ( gp2.getButtonPressed(TBDGamepad.Button.DPAD_LEFT))
         {
             testAngleChange -= STEP_CHANGE;
-            turretController.testMoveTarget(-STEP_CHANGE);
+            turretController.manuallyMoveTarget(-STEP_CHANGE);
         }
         else if ( gp2.getButtonPressed(TBDGamepad.Button.DPAD_RIGHT))
         {
             testAngleChange += STEP_CHANGE;
-            turretController.testMoveTarget(STEP_CHANGE);
+            turretController.manuallyMoveTarget(STEP_CHANGE);
         }
         else if (gp2.getButton(TBDGamepad.Button.RIGHT_BUMPER))
         {

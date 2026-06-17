@@ -12,14 +12,14 @@ public class TurretController
     private Aimer aimer;
 
     public enum AimingMode
-    {AUTO, MANUAL}
+    {AUTO, MANUAL, HOLD}
 
     private AimingMode aimingMode = AimingMode.AUTO;
 
-    public void init(HardwareMap hwMap, Telemetry telem)
+    public void init(HardwareMap hwMap, Telemetry telem, Pose2d pose)
     {
         solver = new TurretAimSolver();
-        solver.init(hwMap, telem, new Pose2d(0.0, 0.0, 0.0));
+        solver.init(hwMap, telem, pose );
 
         aimer = new Aimer();
         aimer.init(hwMap, telem);
@@ -28,10 +28,16 @@ public class TurretController
 
     public void update(Pose2d pose, PoseVelocity2d vel)
     {
-        solver.update(pose,vel, aimer.getCurrentAngle());
-        if ( aimingMode == AimingMode.AUTO)
+        switch( aimingMode)
         {
-            aimer.setAimSolution(solver.getSolution());
+            case AUTO:
+            case MANUAL:
+                solver.update(pose,vel, aimer.getCurrentAngle());
+                aimer.setAimSolution(solver.getSolution());
+                break;
+            case HOLD:
+                aimer.holdAtCurrentPosition();
+                break;
         }
         aimer.update();
     }
@@ -51,8 +57,37 @@ public class TurretController
         return aimer.getCurrentAngle();
     }
 
-    public void testMoveTarget(double degrees)
+    public double getTotalCurrentDraw()
     {
-        solver.moveTargetForTesting(degrees);
+       return aimer.getCurrent();
+    }
+
+    public void setAimingMode(AimingMode mode)
+    {
+        aimingMode = mode;
+    }
+    public void toggleAimingMode()
+    {
+        if ( aimingMode != AimingMode.MANUAL)
+        {
+            setAimingMode(AimingMode.MANUAL);
+        }
+        else
+        {
+            setAimingMode(AimingMode.HOLD);
+        }
+    }
+
+    public void holdPosition()
+    {
+        setAimingMode(AimingMode.HOLD);
+    }
+
+    public void manuallyMoveTarget(double degrees)
+    {
+        if ( aimingMode == AimingMode.MANUAL)
+        {
+            solver.moveTargetForTesting(degrees);
+        }
     }
 }

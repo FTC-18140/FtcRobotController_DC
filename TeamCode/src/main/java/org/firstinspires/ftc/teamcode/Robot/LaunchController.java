@@ -13,12 +13,12 @@ public class LaunchController
 
     Telemetry telemetry = null;
 
-    public void init(HardwareMap hwMap, Telemetry telem)
+    public void init(HardwareMap hwMap, Telemetry telem, Pose2d pose)
     {
         telemetry = telem;
 
         turretController = new TurretController();
-        turretController.init(hwMap, telemetry);
+        turretController.init(hwMap, telemetry, pose);
 
         flywheelController = new FlywheelController();
         flywheelController.init(hwMap, telemetry);
@@ -70,4 +70,45 @@ public class LaunchController
     }
 
     public void setAlliance(ThunderBot2025.Alliance_Color color2025) {}
+
+    public double getTotalCurrentDraw()
+    {
+        return flywheelController.getTotalCurrentDraw() + turretController.getTotalCurrentDraw();
+    }
+
+    public void prepShot()
+    {
+        flywheelController.setMode(FlywheelController.RunMode.DISTANCE);
+    }
+
+    void prepShotLow()
+    {
+        flywheelController.setMode(FlywheelController.RunMode.STATIC);
+    }
+
+    void stopFlywheel()
+    {
+        flywheelController.stop();
+    }
+
+    public void autoAim()
+    {
+        turretController.setAimingMode( TurretController.AimingMode.AUTO);
+    }
+    public void manualAim()
+    {
+        turretController.setAimingMode(TurretController.AimingMode.MANUAL);
+    }
+
+    public void toggleAim() { turretController.toggleAimingMode();}
+
+    public void holdTurretPosition()
+    {
+        turretController.holdPosition();
+    }
+
+    public void moveAimingTarget(double degrees )
+    {
+        turretController.manuallyMoveTarget(degrees);
+    }
 }
