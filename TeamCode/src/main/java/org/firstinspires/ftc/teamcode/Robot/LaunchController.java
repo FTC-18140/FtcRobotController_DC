@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -25,10 +27,47 @@ public class LaunchController
 
     public void setTurretStart(double angle){}
 
-    public void update()
+    public void update(Pose2d currentPose, PoseVelocity2d currentVelocity)
     {
-        turretController.update();
-        flywheelController.update();
+        turretController.update(currentPose, currentVelocity);
+        AimSolution solution = turretController.getSolution();
+        flywheelController.update(currentVelocity, solution.distance);
     }
 
+    public boolean isAtTargetRpm()
+    {
+        return flywheelController.isAtTargetRpm();
+    }
+
+    public boolean isAtTarget()
+    {
+        return turretController.isAtTarget();
+    }
+
+    public double getLowerFlywheelRpm()
+    {
+        return flywheelController.getLowerFlywheelCurrentRPM();
+    }
+
+    public double getFlywheelTargetRpm()
+    {
+        return flywheelController.getLowerFlywheelTargetRPM();
+    }
+
+    public double getUpperFlywheelRpm()
+    {
+        return flywheelController.getUpperFlywheelCurrentRPM();
+    }
+
+    public double getUpperFlywheelTargetRpm()
+    {
+        return flywheelController.getUpperFlywheelTargetRPM();
+    }
+
+    public double getTurretAngle() 
+    {
+        return turretController.getTurretAngle();
+    }
+
+    public void setAlliance(ThunderBot2025.Alliance_Color color2025) {}
 }

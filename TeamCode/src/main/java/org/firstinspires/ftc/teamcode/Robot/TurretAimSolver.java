@@ -26,6 +26,8 @@ public class TurretAimSolver
     public static double TURRET_OFFSET_Y = -3.04528;
     private double currentTurretAngle = 0.0;
     private AimSolution solution = null;
+    private Vector2d trueTargetVector = null;
+    private double distance = 0.0;
 
 
     public void init(HardwareMap hwMap, Telemetry telem, Pose2d startPose)
@@ -34,6 +36,7 @@ public class TurretAimSolver
 
         lastOdoPose = startPose;
         targetPos = targetPosBlue;
+        getAutoAimAngle();  // used to initialize trueTargetVector
     }
 
     public void update(Pose2d currentOdoPose, PoseVelocity2d currentOdoVelocity, double currentTurretAngle)
@@ -56,7 +59,7 @@ public class TurretAimSolver
         double futureAngle = getAutoAimAngle(futurePose);
         double angularVelocity = getAutoAimVelocity(futureAngle);
         double angularAcceleration = getAutoAimAcceleration(angularVelocity);
-        solution = new AimSolution( angle, angularVelocity, angularAcceleration);
+        solution = new AimSolution( angle, angularVelocity, angularAcceleration, distance);
 
         if (DEBUG_TURRET)
         {
@@ -83,7 +86,9 @@ public class TurretAimSolver
         if (targetPos != null)
         {
             // Vector from Turret offset pos to Goal
-            Vector2d trueTargetVector = targetPos.minus(thePose.position.plus(getTurretOffsetPosInRobotSpace()));
+            trueTargetVector = targetPos.minus(thePose.position.plus(getTurretOffsetPosInRobotSpace()));
+            distance = trueTargetVector.norm();
+
 
             // Calculate the absolute field-centric angle to the goal (Radians)
             double fieldAngleToGoal = Math.atan2(trueTargetVector.y, trueTargetVector.x);

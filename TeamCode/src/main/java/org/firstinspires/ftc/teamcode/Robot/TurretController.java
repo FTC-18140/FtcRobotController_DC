@@ -36,6 +36,21 @@ public class TurretController
         aimer.update();
     }
 
+    public AimSolution getSolution()
+    {
+        return solver.getSolution();
+    }
+
+    public boolean isAtTarget()
+    {
+        return aimer.isAtTarget();
+    }
+
+    public double getTurretAngle()
+    {
+        return aimer.getCurrentAngle();
+    }
+
     public void testMoveTarget(double degrees)
     {
         solver.moveTargetForTesting(degrees);
