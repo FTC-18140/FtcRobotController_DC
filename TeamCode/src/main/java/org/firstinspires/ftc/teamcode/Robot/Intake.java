@@ -10,11 +10,12 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.teamcode.Utilities.SlewRateLimiter;
 
 @Config
 public class Intake
@@ -30,7 +31,10 @@ public class Intake
     private CRServo intakeServo;
     private Telemetry telemetry;
     private BeamBreakSystem beamBreak = new BeamBreakSystem();
+    private SlewRateLimiter intakeRamp = new SlewRateLimiter(0.08);
 
+    private ElapsedTime jamTimer = new ElapsedTime();
+    private boolean entry = true;
 
     public Action intakeStopAction()
     {
@@ -51,6 +55,7 @@ public class Intake
     {
         INTAKING,
         SPITTING,
+        JAMMED,
         STOPPED
     }
 
@@ -98,27 +103,52 @@ public class Intake
         double currentDraw = intakeMotor.getCurrent(CurrentUnit.AMPS);
 
         beamBreak.update();
-
+        double motorPower = 0.0;
         switch (currentState)
         {
             case INTAKING:
-                intakeMotor.setPower(runSlow ? SLOW_INTAKE_POWER : INTAKE_POWER);
-                intakeServo.setPower(SERVO_POWER);
+                if ( currentDraw > STALL_CURRENT_LIMIT && Math.abs(intakeMotor.getVelocity()) < 50 )
+                {
+                    changeState(State.JAMMED);
+                }
+                else
+                {
+                    motorPower = runSlow ? SLOW_INTAKE_POWER : INTAKE_POWER;
+    //                motorPower = intakeRamp.update(motorPower);
+    //                intakeMotor.setPower(motorPower);
+    //                intakeMotor.setPower(runSlow ? SLOW_INTAKE_POWER : INTAKE_POWER);
+                    intakeServo.setPower(SERVO_POWER);
+                }
                 break;
             case SPITTING:
-                intakeMotor.setPower(-SLOW_INTAKE_POWER);
+                 motorPower = -SLOW_INTAKE_POWER;
+//                intakeMotor.setPower(-SLOW_INTAKE_POWER);
 //                intakeServo.setPower(-SERVO_POWER);
                 if (!beamBreak.ballInIntake())
                 {
-                    currentState = State.STOPPED;
+                    changeState(State.STOPPED);
                 }
                 break;
+            case JAMMED:
+                if (entry)
+                {
+                    jamTimer.reset();
+                    entry = false;
+                }
+                else if ( jamTimer.seconds() > 0.5)
+                {
+                    changeState(State.INTAKING);
+                }
+                motorPower = -0.2;
+                break;
             case STOPPED:
-                intakeMotor.setPower(0);
+//                intakeMotor.setPower(0);
                 // If indexing is true, run servo even if motor is stopped
                 intakeServo.setPower(indexing ? SERVO_POWER : 0);
                 break;
         }
+        motorPower = intakeRamp.update(motorPower);
+        intakeMotor.setPower(motorPower);
 
         if (currentDraw >= STALL_CURRENT_LIMIT)
         {
@@ -199,6 +229,11 @@ public class Intake
         };
     }
 
+    private void changeState( State newState )
+    {
+        entry = true;
+        currentState = newState;
+    }
     // Add these to the refactored Intake.java so your old code still compiles
     public void setSlowSpeed()
     {
