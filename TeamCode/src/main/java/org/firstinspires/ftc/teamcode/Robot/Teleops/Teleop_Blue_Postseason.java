@@ -274,6 +274,7 @@ public class Teleop_Blue_Postseason extends OpMode
         if (theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER))
         {
             robot.launchAll();
+            theGamepad2.blipDriver();
         }
         else
         {
