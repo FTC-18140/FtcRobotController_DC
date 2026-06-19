@@ -29,11 +29,12 @@ public class Teleop_TurretTest extends OpMode {
     {
         // Essential: Sends data to Dashboard so you can see the PID graphs
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-        turretController.init(hardwareMap, telemetry);
+        Pose2d pose = new Pose2d(0, 0, 0);
+
+        turretController.init(hardwareMap, telemetry, pose);
         gp2 = new TBDGamepad(gamepad2);
         gp2.init(telemetry);
 
-        Pose2d pose = new Pose2d(0, 0, 0);
         drive = new MecanumDrive(hardwareMap, pose);
 
     }

@@ -16,10 +16,13 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Utilities.SlewRateLimiter;
+import org.firstinspires.ftc.teamcode.Utilities.ThresholdMotor;
+import org.firstinspires.ftc.teamcode.Utilities.ThresholdServo;
 
 @Config
 public class Intake
 {
+    public static  double JAM_PAUSE = 0.25;
     // Constants
     public static double INTAKE_POWER = 0.85;
     public static double SERVO_POWER = 1.0;
@@ -28,7 +31,9 @@ public class Intake
 
     // Hardware
     private DcMotorEx intakeMotor;
+    private ThresholdMotor intakeThreshMotor;
     private CRServo intakeServo;
+    private ThresholdServo intakeThreshServo;
     private Telemetry telemetry;
     private BeamBreakSystem beamBreak = new BeamBreakSystem();
     private SlewRateLimiter intakeRamp = new SlewRateLimiter(0.08);
@@ -70,6 +75,8 @@ public class Intake
         {
             intakeMotor = hwMap.get(DcMotorEx.class, "intake");
             intakeServo = hwMap.get(CRServo.class, "intakeServo");
+            intakeThreshMotor = new ThresholdMotor(intakeMotor);
+            intakeThreshServo = new ThresholdServo(intakeServo);
         }
         catch (Exception e)
         {
@@ -117,7 +124,7 @@ public class Intake
     //                motorPower = intakeRamp.update(motorPower);
     //                intakeMotor.setPower(motorPower);
     //                intakeMotor.setPower(runSlow ? SLOW_INTAKE_POWER : INTAKE_POWER);
-                    intakeServo.setPower(SERVO_POWER);
+                    intakeThreshServo.setPower(SERVO_POWER);
                 }
                 break;
             case SPITTING:
@@ -135,7 +142,7 @@ public class Intake
                     jamTimer.reset();
                     entry = false;
                 }
-                else if ( jamTimer.seconds() > 0.5)
+                else if ( jamTimer.seconds() > JAM_PAUSE)
                 {
                     changeState(State.INTAKING);
                 }
@@ -144,11 +151,11 @@ public class Intake
             case STOPPED:
 //                intakeMotor.setPower(0);
                 // If indexing is true, run servo even if motor is stopped
-                intakeServo.setPower(indexing ? SERVO_POWER : 0);
+                intakeThreshServo.setPower(indexing ? SERVO_POWER : 0);
                 break;
         }
         motorPower = intakeRamp.update(motorPower);
-        intakeMotor.setPower(motorPower);
+        intakeThreshMotor.setPower(motorPower);
 
         if (currentDraw >= STALL_CURRENT_LIMIT)
         {
