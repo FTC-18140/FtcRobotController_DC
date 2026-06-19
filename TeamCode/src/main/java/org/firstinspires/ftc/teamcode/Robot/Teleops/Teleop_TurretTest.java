@@ -44,6 +44,10 @@ public class Teleop_TurretTest extends OpMode {
         gp2.update();
         PoseVelocity2d robotPoseVel = drive.updatePoseEstimate();
 
+        if (gp2.getButtonPressed(TBDGamepad.Button.RIGHT_STICK_BUTTON))
+        {
+            turretController.toggleAimingMode();
+        }
         if ( gp2.getButtonPressed(TBDGamepad.Button.DPAD_LEFT))
         {
             testAngleChange -= STEP_CHANGE;

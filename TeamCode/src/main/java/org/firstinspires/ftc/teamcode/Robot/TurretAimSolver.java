@@ -36,6 +36,7 @@ public class TurretAimSolver
 
         lastOdoPose = startPose;
         targetPos = targetPosBlue;
+        currentOdoPose = startPose;
         getAutoAimAngle();  // used to initialize trueTargetVector
     }
 

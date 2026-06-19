@@ -11,6 +11,7 @@ public class TurretController
     private TurretAimSolver solver;
     private Aimer aimer;
 
+    private boolean enter = true;
     public enum AimingMode
     {AUTO, MANUAL, HOLD}
 
@@ -36,7 +37,12 @@ public class TurretController
                 aimer.setAimSolution(solver.getSolution());
                 break;
             case HOLD:
-                aimer.holdAtCurrentPosition();
+                if ( enter )
+                {
+                    aimer.holdAtCurrentPosition();
+                    enter = false;
+                }
+//                aimer.holdAtCurrentPosition();
                 break;
         }
         aimer.update();
@@ -64,6 +70,7 @@ public class TurretController
 
     public void setAimingMode(AimingMode mode)
     {
+        enter = true;
         aimingMode = mode;
     }
     public void toggleAimingMode()
@@ -74,7 +81,7 @@ public class TurretController
         }
         else
         {
-            setAimingMode(AimingMode.HOLD);
+            setAimingMode(AimingMode.AUTO);
         }
     }
 
@@ -82,7 +89,6 @@ public class TurretController
     {
         setAimingMode(AimingMode.HOLD);
     }
-
     public void manuallyMoveTarget(double degrees)
     {
         if ( aimingMode == AimingMode.MANUAL)
