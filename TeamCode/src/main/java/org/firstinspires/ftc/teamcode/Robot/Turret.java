@@ -41,7 +41,7 @@ public class Turret
     public static double P_TURRET = 0.01, I_TURRET = 0.0, D_TURRET = 0.0025;
 
     public static double F_STATIC = 0.035;
-    public static double KV_ROT = 0.27;
+    public static double KV_ROT_O = 0.27;
     public static double KV_TRANS = 0.12;
     public static double TURRET_POWER_THRESHOLD = 0.005;
     public static double MAX_POWER = 0.6;
@@ -153,7 +153,7 @@ public class Turret
         double mediumErrorScalar = (errorAbs * errorAbs) / (TURRET_ANGLE_SOFT_TOLERANCE * TURRET_ANGLE_SOFT_TOLERANCE);
 
         double ffStatic = F_STATIC * Math.signum(pidPower);
-        double ffRobotRot = vel.angVel * KV_ROT;
+        double ffRobotRot = vel.angVel * KV_ROT_O;
         double ffTrans = calculateTranslationalFF(pose, vel, target);
 
         double ffAccel = (0.025 < targetShift ? Math.min(F_ACCEL / targetShift, F_ACCEL_MAX) : 0);

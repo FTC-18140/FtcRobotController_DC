@@ -125,7 +125,6 @@ public class Teleop_Blue_Postseason extends OpMode
 
         // --- 1. CORE UPDATES ---
         // Refresh robot hardware states and process gamepad debounce logic.
-        // robot.update() now triggers LauncherFacade.update(), which handles Auto-Aim.
         robot.update();
         theGamepad1.update();
         theGamepad2.update();

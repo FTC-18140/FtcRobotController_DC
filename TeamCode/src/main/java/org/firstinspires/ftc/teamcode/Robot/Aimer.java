@@ -44,8 +44,7 @@ public class Aimer
     public static double MIN_TURRET_POS = -90;
     public static double MAX_TURRET_POS = 360 + MIN_TURRET_POS;
 
-    public static double KV_ROT = 0.001;
-    public static double KA_ROT = 0.0001;
+    public static double KV_ROT = 0.004;
 
     public enum State
     {STOP, HOLDING, SEEKING_ANGLE, MANUAL_CONTROL}
@@ -100,8 +99,7 @@ public class Aimer
         updateCurrentPosition();
         turretAimPID.setPID(P, I, D);
         double power = turretAimPID.calculate(currentAngle, solution.angle) +
-                       KV_ROT*solution.velocity +
-                       KA_ROT*solution.acceleration;
+                       KV_ROT*solution.velocity;
         switch (currentState)
         {
             case HOLDING:

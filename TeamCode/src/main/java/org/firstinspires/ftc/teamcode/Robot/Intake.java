@@ -22,7 +22,7 @@ import org.firstinspires.ftc.teamcode.Utilities.ThresholdServo;
 @Config
 public class Intake
 {
-    public static  double JAM_PAUSE = 0.25;
+    public static  double JAM_PAUSE = 0.125;
     // Constants
     public static double INTAKE_POWER = 0.85;
     public static double SERVO_POWER = 1.0;

@@ -518,7 +518,6 @@ public class TransferFacade
             case LAUNCHING:
                 if (enter)
                 {
-
                     enter = false;
                 }
                 else if (turnstile.isAtTarget())

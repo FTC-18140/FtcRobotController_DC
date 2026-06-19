@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Robot.Drives.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Robot.TurretController;
+import org.firstinspires.ftc.teamcode.Utilities.LoopTime;
 import org.firstinspires.ftc.teamcode.Utilities.TBDGamepad;
 
 @TeleOp(name = "PID Aimer Test", group = "Testing")
@@ -18,6 +19,7 @@ public class Teleop_TurretTest extends OpMode {
     public static double STEP_CHANGE = 20;
 //    Aimer turret = new Aimer();
     public MecanumDrive drive = null;
+    public LoopTime loopTime = new LoopTime();
 
     TurretController turretController = new TurretController();
 
@@ -36,13 +38,18 @@ public class Teleop_TurretTest extends OpMode {
         gp2.init(telemetry);
 
         drive = new MecanumDrive(hardwareMap, pose);
-
+        loopTime.init();
     }
 
     @Override
-    public void loop() {
+    public void loop()
+    {
         gp2.update();
+        loopTime.update();
+
+        /////////
         PoseVelocity2d robotPoseVel = drive.updatePoseEstimate();
+        /////////
 
         if (gp2.getButtonPressed(TBDGamepad.Button.RIGHT_STICK_BUTTON))
         {
@@ -73,11 +80,9 @@ public class Teleop_TurretTest extends OpMode {
                 }
             }
         }
-
+        /////////
         turretController.update(drive.localizer.getPose(), robotPoseVel);
-
-//        telemetry.addData("Target Angle", testAngleChange);
-//        telemetry.addData("Current Angle", turret.getCurrentAngle());
+        /////////
 
         telemetry.update();
     }

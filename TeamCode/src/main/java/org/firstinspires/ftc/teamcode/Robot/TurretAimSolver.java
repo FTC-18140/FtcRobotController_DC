@@ -20,7 +20,6 @@ public class TurretAimSolver
     private static final Vector2d targetPosRed = new Vector2d(67.0, -67.0);
     private Pose2d lastOdoPose = null; // Used to calculate delta
     private Pose2d currentOdoPose = null;
-    private double lastVelocity = 0.0;
     private PoseVelocity2d currentOdoVelocity = null;
     public static double TURRET_OFFSET_X = -0.94488;
     public static double TURRET_OFFSET_Y = -3.04528;
@@ -45,6 +44,8 @@ public class TurretAimSolver
         this.currentOdoPose = currentOdoPose;
         this.currentTurretAngle = currentTurretAngle;
         this.currentOdoVelocity = currentOdoVelocity;
+        double dt = LoopTime.LOOP_TIME;
+
 
         // Handle first loop where lastOdoPose is not yet initialized
         if (null == lastOdoPose)
@@ -54,17 +55,16 @@ public class TurretAimSolver
             return;
         }
 
-        double angle = getAutoAimAngle();
+        double currentDesiredAngle = getAutoAimAngle();  // what do I need to aim at now ?
 
-        Pose2d futurePose = getFuturePosition();
-        double futureAngle = getAutoAimAngle(futurePose);
-        double angularVelocity = getAutoAimVelocity(futureAngle);
-        double angularAcceleration = getAutoAimAcceleration(angularVelocity);
-        solution = new AimSolution( angle, angularVelocity, angularAcceleration, distance);
+        Pose2d futurePose = getFuturePosition(); // where will I be located in the future ?
+        double futureDesiredAngle = getAutoAimAngle(futurePose); // what will I need to aim at from this future position ?
+        double desiredAngularVelocity = (futureDesiredAngle - currentDesiredAngle ) / dt; // how much is my desired aim drifting over time ?
+        solution = new AimSolution( currentDesiredAngle, desiredAngularVelocity, distance);
 
         if (DEBUG_TURRET)
         {
-            telemetry.addData("AimSolution Angle", angle);
+            telemetry.addData("AimSolution Angle", currentDesiredAngle);
         }
     }
 
@@ -123,23 +123,6 @@ public class TurretAimSolver
             return currentTurretAngle;
         }
         return targetTurretAngle;
-    }
-
-    private double getAutoAimVelocity( double futureAngle )
-    {
-        // Calculate Feed-Forward (Angular velocity needed to track the target)
-        // velocityFF = (futureAngle - currentAngle) / dt
-        double dt = LoopTime.LOOP_TIME;
-        return (futureAngle - currentTurretAngle) / dt;
-    }
-
-    private double getAutoAimAcceleration( double angularVelocity )
-    {
-        double dt = LoopTime.LOOP_TIME;
-
-        double currentAccel = (angularVelocity - lastVelocity) / dt;
-        lastVelocity = angularVelocity;
-        return currentAccel;
     }
 
     private Pose2d getFuturePosition() {

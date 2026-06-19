@@ -36,6 +36,7 @@ public class LiftingTurnstile
 
     public static double P = 0.0027, I = 0.0, D = 0.00011;
     public static double LAUNCH_D = 0.00015;
+    public static double LAUNCH_P = 0.0032;
     private State currentState = State.OFF;
 
     private static final double COUNTS_PER_REVOLUTION = 8192;
@@ -122,7 +123,7 @@ public class LiftingTurnstile
         }
         else
         {
-            angleController.setPID(P, I, LAUNCH_D);
+            angleController.setPID(LAUNCH_P, I, LAUNCH_D);
         }
         currentState = State.CONTROL_TO_ANGLE;
     }
