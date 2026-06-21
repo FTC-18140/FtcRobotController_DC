@@ -23,7 +23,7 @@ import org.firstinspires.ftc.teamcode.Utilities.DataLoggable;
 import org.firstinspires.ftc.teamcode.Utilities.DataLogger;
 import org.jetbrains.annotations.Nullable;
 
-@Config
+//@Config
 public class ThunderBot2025 implements DataLoggable {
     public static final String STARTING_POSE_KEY = "ENDING_POSE_AUTO";
     public MecanumDrive drive = null;

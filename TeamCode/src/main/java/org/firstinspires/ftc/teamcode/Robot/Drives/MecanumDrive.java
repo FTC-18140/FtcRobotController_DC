@@ -65,7 +65,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-@Config
+//@Config
 public final class MecanumDrive {
     public static final String LEFT_FRONT_MOTOR = "leftFront";
     public static final String LEFT_BACK_MOTOR = "leftBack";

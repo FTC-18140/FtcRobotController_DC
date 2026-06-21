@@ -22,7 +22,7 @@ import org.firstinspires.ftc.teamcode.Utilities.DataLogger;
 
 import java.util.Objects;
 
-@Config
+//@Config
 public class LauncherFacade
 {
 

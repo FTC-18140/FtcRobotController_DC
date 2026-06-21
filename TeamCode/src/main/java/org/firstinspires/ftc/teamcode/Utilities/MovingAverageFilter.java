@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Utilities;
 
-public class MovingAverageFilter {
+public class MovingAverageFilter
+{
     private final int windowSize; // Number of values to average
     private final double[] buffer; // Circular buffer to store values
     private int index; // Current position in buffer
@@ -9,10 +10,13 @@ public class MovingAverageFilter {
 
     /**
      * Constructor for the moving average filter.
+     *
      * @param windowSize The number of values to include in the moving average.
      */
-    public MovingAverageFilter(int windowSize) {
-        if (windowSize <= 0) {
+    public MovingAverageFilter(int windowSize)
+    {
+        if (windowSize <= 0)
+        {
             throw new IllegalArgumentException("Window size must be positive");
         }
         this.windowSize = windowSize;
@@ -24,15 +28,18 @@ public class MovingAverageFilter {
 
     /**
      * Adds a new sensor value and returns the current moving average.
+     *
      * @param value The new sensor value to add.
      * @return The moving average of the current window.
      */
-    public double addValue(double value) {
+    public double addValue(double value)
+    {
 // Add new value to sum
         sum += value;
 
 // If buffer is full, subtract the oldest value before overwriting
-        if (count >= windowSize) {
+        if (count >= windowSize)
+        {
             sum -= buffer[index];
         }
 
@@ -43,7 +50,8 @@ public class MovingAverageFilter {
         index = (index + 1) % windowSize;
 
 // Update count until buffer is full
-        if (count < windowSize) {
+        if (count < windowSize)
+        {
             count++;
         }
 
@@ -54,20 +62,24 @@ public class MovingAverageFilter {
     /**
      * Resets the filter to initial state.
      */
-    public void reset() {
+    public void reset()
+    {
         index = 0;
         sum = 0.0;
         count = 0;
-        for (int i = 0; i < windowSize; i++) {
+        for (int i = 0; i < windowSize; i++)
+        {
             buffer[i] = 0.0;
         }
     }
 
     /**
      * Gets the current window size.
+     *
      * @return The window size.
      */
-    public int getWindowSize() {
+    public int getWindowSize()
+    {
         return windowSize;
     }
 }

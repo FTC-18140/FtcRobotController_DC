@@ -20,7 +20,7 @@ import org.firstinspires.ftc.teamcode.Robot.Auto.AutoRedDepot_12;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 import org.firstinspires.ftc.teamcode.Utilities.ThresholdMotor;
 
-@Config
+//@Config
 public class Turret
 {
 

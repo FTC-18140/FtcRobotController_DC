@@ -9,7 +9,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.util.Arrays;
 
-@Config
+//@Config
 public class TBDGamepad
 {
     private Telemetry telemetry;

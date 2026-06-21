@@ -3,9 +3,9 @@ package org.firstinspires.ftc.teamcode.Robot.Auto;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Vector2d;
 
-@Config
+//@Config
 public class AutoPositions {
-    @Config
+//    @Config
     public enum Positions {
         START_BLUE_FAR(new Vector2d(-63.0, 16.5)),
         START_BLUE_FAR_SIDE(new Vector2d(-63.0, 11.5)),

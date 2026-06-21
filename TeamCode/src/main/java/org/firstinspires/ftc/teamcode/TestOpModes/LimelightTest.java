@@ -3,12 +3,14 @@ package org.firstinspires.ftc.teamcode.TestOpModes;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import java.util.List;
 
 @TeleOp(group = IndexerTest.TEST_TELEOP_GROUP)
+@Disabled
 public class LimelightTest extends OpMode {
     Limelight3A limelight = null;
 

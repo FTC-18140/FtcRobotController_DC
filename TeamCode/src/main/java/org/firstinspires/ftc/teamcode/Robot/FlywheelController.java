@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -23,8 +22,8 @@ public class FlywheelController
     public static double RPM_TOLERANCE = 40;
     public static double voltage_comp = 12.988;
 
-    public static double[] distances = {50, 70, 94, 167};
-    public static double[] rpms = {1750, 1750, 1850, 2400};
+//    public static double[] distances = {50, 70, 94, 167};
+//    public static double[] rpms = {1750, 1750, 1850, 2400};
 
     public enum RunMode
     {
@@ -38,19 +37,24 @@ public class FlywheelController
 
     static class DistRPM
     {
-        double x, y;
+        double distance, rpm;
 
-        DistRPM(double x, double y)
+        DistRPM(double distance, double rpm)
         {
             super();
-            this.x = x;
-            this.y = y;
+            this.distance = distance;
+            this.rpm = rpm;
         }
     }
 
-    public static DistRPM distRPMs[] = new DistRPM[distances.length];
-
-    ;
+//    public static DistRPM distRPMs[] = new DistRPM[distances.length];
+    public static DistRPM[] distRPMs =
+            {
+                    new DistRPM(50, 1750),
+                    new DistRPM(70, 1750),
+                    new DistRPM(94, 1850),
+                    new DistRPM(167, 2400)
+            };
 
     public static class LowerPID
     {
@@ -76,7 +80,7 @@ public class FlywheelController
     public void init(HardwareMap hwMap, Telemetry telem)
     {
         telemetry = telem;
-        initDistRPMs();
+//        initDistRPMs();
         lowerWheel = new Flywheel();
         upperWheel = new Flywheel();
 
@@ -96,7 +100,7 @@ public class FlywheelController
 
     public void update(PoseVelocity2d currentOdoVelocity, double fieldAngleToGoal, double voltage, double distance)
     {
-        initDistRPMs();
+//        initDistRPMs();
 
         // 1. ALWAYS calculate what the RPM SHOULD be (Continuous knowledge)
         lastCalculatedDistanceRpm = interpolateDistRPM(distance);
@@ -146,13 +150,13 @@ public class FlywheelController
         return lastCalculatedDistanceRpm;
     }
 
-    private void initDistRPMs()
-    {
-        for (int i = 0; i < distances.length; i++)
-        {
-            distRPMs[i] = new DistRPM(distances[i], rpms[i]);
-        }
-    }
+//    private void initDistRPMs()
+//    {
+//        for (int i = 0; i < distances.length; i++)
+//        {
+//            distRPMs[i] = new DistRPM(distances[i], rpms[i]);
+//        }
+//    }
 
 
     public void stop()
@@ -217,30 +221,38 @@ public class FlywheelController
     }
 
     /**
-     * function to interpolate the given data points using Lagrange's formula
-     * https://www.geeksforgeeks.org/dsa/lagranges-interpolation/
+     * function to interpolate the given data points using linear piecewise
      *
-     * @param xi corresponds to the new data point whose value is to be obtained
-     * @return
+     * @param distance corresponds to the distance to use for interpolation.
+     * @return rpm
      */
-    public static double interpolateDistRPM(double xi)
+    public static double interpolateDistRPM(double distance)
     {
-        double result = 0; // Initialize result
-        int n = distRPMs.length; //represents the number of known data points
-        for (int i = 0; i < n; i++)
+        if (distance <= distRPMs[0].distance)
+            return distRPMs[0].rpm;
+
+        if (distance >= distRPMs[distRPMs.length - 1].distance)
+            return distRPMs[distRPMs.length - 1].rpm;
+
+        for (int i = 0; i < distRPMs.length - 1; i++)
         {
-            // Compute individual terms of above formula
-            double term = distRPMs[i].y;
-            for (int j = 0; j < n; j++)
+            DistRPM p0 = distRPMs[i];
+            DistRPM p1 = distRPMs[i + 1];
+
+            if (distance >= p0.distance && distance <= p1.distance)
             {
-                if (j != i)
-                {term = term * (xi - distRPMs[j].x) / (distRPMs[i].x - distRPMs[j].x);}
+                double t =
+                        (distance - p0.distance) /
+                                (p1.distance - p0.distance);
+
+                return p0.rpm + t * (p1.rpm - p0.rpm);
             }
-            // Add current term to result
-            result += term;
         }
-        return result;
+
+        return distRPMs[distRPMs.length - 1].rpm;
     }
+
+
 
     public double calculateBallVelocity(double distance, double height, double angleDegrees)
     {
