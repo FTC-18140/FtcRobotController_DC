@@ -266,7 +266,7 @@ public class Teleop_Blue_Postseason extends OpMode
 //        }
 
         // --- MANUAL INDEXER MODE ---
-        if (theGamepad2.getButtonPressed(TBDGamepad.Button.LEFT_BUMPER))
+        if (theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER))
         {
             robot.indexer.overrideLaunching(!robot.indexer.isOverridden());
         }

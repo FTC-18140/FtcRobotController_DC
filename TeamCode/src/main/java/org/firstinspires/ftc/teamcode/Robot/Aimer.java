@@ -35,7 +35,7 @@ public class Aimer
     private double manualPower = 0.0;
 
 //    public static double P = 0.0136, I = 0.0, D = 0.001645;
-    public static double P=0.045, I=0, D=0.003;
+    public static double P=0.05, I=0, D=0.0035;
     public static double TURRET_DEGREES_PER_ENCODER_TICK = (double) 1 / 8192.0 * 360.0 * 16 / 100;
     public static double TURRET_POWER_THRESHOLD = 0.005;
     public static double MAX_POWER = 0.6;
@@ -44,7 +44,8 @@ public class Aimer
     public static double MIN_TURRET_POS = -90;
     public static double MAX_TURRET_POS = 360 + MIN_TURRET_POS;
 
-    public static double KV_ROT = 0.004;
+    public static double KV_ROT = 0.005
+            ;
 
     public enum State
     {STOP, HOLDING, SEEKING_ANGLE, MANUAL_CONTROL}

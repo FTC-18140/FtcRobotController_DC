@@ -4,6 +4,7 @@ import static org.firstinspires.ftc.teamcode.TelemetryConfig.DEBUG_DRIVE;
 
 import androidx.annotation.NonNull;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
@@ -20,7 +21,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Robot.Drives.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Utilities.LoopTime;
 import org.jetbrains.annotations.Nullable;
-
+@Config
 public class ThunderBot2026
 {
     public static final String STARTING_POSE_KEY = "ENDING_POSE_AUTO";
@@ -47,7 +48,7 @@ public class ThunderBot2026
     private ThunderBot2026.Alliance_Color color = ThunderBot2026.Alliance_Color.BLUE;
     public TransferFacade.BallState lastBallState = null;
     private Telemetry telemetry = null;
-    private static boolean field_centric = true;
+    public static boolean field_centric = true;
     public static final double MIN_SPEED = 0.3;
     public static final double DEFAULT_SPEED = 0.7;
     public static final double MAX_SPEED = 1.0;
