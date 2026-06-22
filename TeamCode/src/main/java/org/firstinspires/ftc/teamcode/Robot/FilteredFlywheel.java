@@ -44,7 +44,7 @@ public class FilteredFlywheel
     private double batteryVoltage = 13.0;
     public static double NOMINAL_VOLTAGE = 13.0;
 
-    private double P = 0.0, I = 0.0, D = 0.0;
+    private double P = 0.0012, I = 0.0, D = 0.0;
 
     public static double MAX_SHOOTER_RPM = 3000.0;
     public static double MIN_SHOOTER_RPM = 1500.0;
@@ -211,6 +211,7 @@ public class FilteredFlywheel
 
         pidOutput = Range.clip(pidOutput,-1.0,1.0);
 
+        telemetry.addData("PID OUTPUT", pidOutput);
         return feedforward + pidOutput;
     }
 

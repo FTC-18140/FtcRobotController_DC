@@ -289,12 +289,14 @@ public class FlywheelController
 
     public void DEBUG_upperFlywheel()
     {
-        upperWheel.setPower(0.5);
+        upperWheel.setTargetRpm(1000);
+        telemetry.addLine("Upper RPM Set to 1000");
     }
 
     public void DEBUG_lowerFlywheel()
     {
-        lowerWheel.setPower(0.5);
+        lowerWheel.setTargetRpm(1000);
+        telemetry.addLine("Lower RPM set to 1000");
     }
 
 }

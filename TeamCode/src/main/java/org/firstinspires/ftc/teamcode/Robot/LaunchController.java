@@ -9,7 +9,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class LaunchController
 {
     TurretController turretController = null;
-    FlywheelController flywheelController = null;
+    public FlywheelController flywheelController = null;
 
     Telemetry telemetry = null;
 
