@@ -12,12 +12,13 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.teamcode.Utilities.LoopTime;
 import org.firstinspires.ftc.teamcode.Utilities.MovingAverageFilter;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 import org.firstinspires.ftc.teamcode.Utilities.ThresholdMotor;
 
 @Config
-public class Flywheel
+public class FilteredFlywheel
 {
     static final double GOBILDA_MOTOR_STALL_CURRENT = 9.2;
     private static final double ENCODER_TICKS_PER_REVOLUTION = 28.0;
@@ -36,36 +37,38 @@ public class Flywheel
     private DcMotorEx launcherEnc = null;
     private ThresholdMotor launcherWriter = null;
     private PIDController rpmController = null;
-    public static int FILTER_SIZE = 2;
-    private MovingAverageFilter rpmFilter = new MovingAverageFilter(FILTER_SIZE);
     private Telemetry telemetry = null;
 
     private double KS;
     private double KV;
     private double batteryVoltage = 13.0;
-    private static final double NOMINAL_VOLTAGE = 13.0;
+    public static double NOMINAL_VOLTAGE = 13.0;
 
     private double P = 0.0, I = 0.0, D = 0.0;
-    private double F_MAX = 0.0, F_MIN = 0.0, F_VEL = 0, F_STATIC = 0;
 
     public static double MAX_SHOOTER_RPM = 3000.0;
     public static double MIN_SHOOTER_RPM = 1500.0;
-    public static double STATIC_RPM = 1750;
-    private static final double SHOOTER_RADIUS = 0.072 / 2.0;
-    public static double SPIN_EFFICIENCY = 0.83;
     public double FLYWHEEL_RATIO = 1.0;
     public double FLYWHEEL_GEAR_RATIO = 2.0;
-
-
-    private double targetRpm = 0;
-
-    public static double RPM_LOWER_BOUND = 25.0;
-    public static double RPM_UPPER_BOUND = 20.0;
-    public static double POWER_THRESHOLD = 0.01; // Tunable threshold for power updates
     private double currentRpm = 0;
-    private double previousRpm = 0;
-    private double currentAccel = 0;
-    public static double ACCEL_RATE = 0;
+    private double targetRpm = 0;
+    private double measuredRpm = 0;
+    public static double POWER_THRESHOLD = 0.01; // Tunable threshold for power updates
+
+    private double filteredRpm = 0;
+    private boolean filterInitialized = false;
+
+    private double lastPower = 0.0;
+
+    // Tunables
+    public static double ALPHA = 0.25;
+
+    // rpm/sec produced by full power
+    public static double K_POWER = 5000.0;
+
+    // drag coefficient (1/sec)
+    public static double K_DRAG = 1.5;
+
 
     public void init(HardwareMap hwMap, Telemetry telem, String motorName, String encoderName)
     {
@@ -88,71 +91,26 @@ public class Flywheel
         }
     }
 
-    void setEncoderReversed()
-    {
-//        launcherEnc.setDirection(DcMotorSimple.Direction.REVERSE);
-    }
 
-    private void setPID(double p, double i, double d)
-    {
-        P = p;
-        I = i;
-        D = d;
-    }
-
-    void setParameters(double p, double i, double d, double fMin, double fMax, double fVel, double fStatic, double gearRatio, double ratio)
+    void setParameters(double p, double i, double d, double gearRatio, double ratio)
     {
         setPID(p, i, d);
-        F_MIN = fMin;
-        F_MAX = fMax;
-        F_VEL = fVel;
-        F_STATIC = fStatic;
         FLYWHEEL_GEAR_RATIO = gearRatio;
         FLYWHEEL_RATIO = ratio;
 
     }
 
-    // --- High-Level Commands to Change State ---
 
     /**
      * Commands the flywheel to spin up to a target RPM.
      */
-    void setTargetRpm(double rpm)
+    public void setTargetRpm(double rpm)
     {
         targetRpm = Range.clip(rpm * FLYWHEEL_RATIO, MIN_SHOOTER_RPM * FLYWHEEL_RATIO, MAX_SHOOTER_RPM * FLYWHEEL_RATIO);
         currentState = State.CONTROLLING_SPEED;
     }
 
-    double getCurrentRpm()
-    {
-        return currentRpm;
-    }
-
-    double getTargetRpm()
-    {
-        return targetRpm;
-    }
-
-    double getError()
-    {
-        return targetRpm - currentRpm;
-    }
-
-    private double getRPM()
-    {
-        double tps;
-        if (null != launcherEnc)
-        {
-            tps = launcherEnc.getVelocity();
-        }
-        else
-        {
-            tps = launcher.getVelocity();
-        }
-        return (tps * 60.0) / (ENCODER_TICKS_PER_REVOLUTION * FLYWHEEL_GEAR_RATIO);
-    }
-
-    double getCurrentDraw()
+    public double getCurrentDraw()
     {
         return launcher.getCurrent(CurrentUnit.AMPS);
     }
@@ -163,6 +121,25 @@ public class Flywheel
     public void stop()
     {
         currentState = State.IDLE;
+
+        filterInitialized = false;
+        filteredRpm = 0;
+        currentRpm = 0;
+        lastPower = 0;
+    }
+    public double getCurrentRpm()
+    {
+        return currentRpm;
+    }
+
+    public double getTargetRpm()
+    {
+        return targetRpm;
+    }
+
+    public double getError()
+    {
+        return targetRpm - currentRpm;
     }
 
     // --- Main Update Method ---
@@ -172,77 +149,57 @@ public class Flywheel
      */
     public void update()
     {
+
         rpmController.setPID(P, I, D);
         double currentDraw = getCurrentDraw();
         if (currentDraw >= GOBILDA_MOTOR_STALL_CURRENT)
         {
             telemetry.addData("FLYWHEEL STALLED", 0);
         }
-
-//        double detectedRpm = rpmFilter.addValue(getRPM());
-//        if (previousRpm == 0) {previousRpm = currentRpm;}
-//
-//        if (detectedRpm == previousRpm)
-//        {
-//            currentRpm += currentAccel;
-//        }
-//        else
-//        {
-//            currentRpm = detectedRpm;
-//        }
-//        previousRpm = detectedRpm;
+        measuredRpm = getRPM();
+        currentRpm = updateRpmFilter(measuredRpm);
 
         switch (currentState)
         {
             case IDLE:
                 setPower(0);
-                currentAccel = 0;
                 if ( DEBUG_FLYWHEEL || SHOW_DEBUG_ALL)
                 {
                     telemetry.addLine("Flywheel stopped.");
                 }
                 break;
             case CONTROLLING_SPEED:
-                // --- Step 1: Calculate the Feedforward value ---
                 setPower(calculatePower());
-//                double scaledPower = Range.scale(targetRpm, MIN_SHOOTER_RPM * FLYWHEEL_RATIO, MAX_SHOOTER_RPM * FLYWHEEL_RATIO, F_MIN, F_MAX);
-//                double feedforward = Range.clip(scaledPower + F_VEL * targetRpm + F_STATIC, F_MIN, 1.0);
-
-                // --- Step 2: Calculate the PID correction ---
-//                double pidOutput = rpmController.calculate(currentRpm, targetRpm);
-//                double clippedPidOutput = Range.clip(pidOutput, -1.0, 1.0);
-
-                // --- Step 3: Combine and Set the Final Power ---
-//                double finalPower = feedforward + clippedPidOutput;
-//                currentAccel = clippedPidOutput * ACCEL_RATE;
-//                setPower(finalPower);
 
                 // --- Telemetry for Debugging ---
                 if ( DEBUG_FLYWHEEL || SHOW_DEBUG_ALL)
                 {
                     telemetry.addData("Target RPM", targetRpm);
-                    telemetry.addData("Current RPM", currentRpm);
-                    telemetry.addData("RPM Acceleration", currentAccel);
-//                    telemetry.addData("Feedforward", feedforward);
-//                    telemetry.addData("PID Output", clippedPidOutput);
-//                    telemetry.addData("Final Power", finalPower);
                     telemetry.addData("Current Draw", getCurrentDraw());
+                    telemetry.addData("Measured RPM", measuredRpm);
+                    telemetry.addData("Filtered RPM", currentRpm);
+                    telemetry.addData("Observer Error", measuredRpm-currentRpm);
+                    telemetry.addData("Last Power", lastPower);
                 }
                 break;
         }
     }
 
+    private void setPID(double p, double i, double d)
+    {
+        P = p;
+        I = i;
+        D = d;
+    }
+
     public void setPower(double power)
     {
+        lastPower = power;
+
         if (launcherWriter != null)
         {
             launcherWriter.setPower(power);
         }
-    }
-
-    double calculateWheelRPM(double ballVelocity)
-    {
-        return (60.0 * ballVelocity) / (2.0 * Math.PI * SHOOTER_RADIUS * SPIN_EFFICIENCY);
     }
 
     private double calculatePower()
@@ -270,5 +227,54 @@ public class Flywheel
 
         return effectiveKS +
                 effectiveKV * targetRpm;
+    }
+
+    private double updateRpmFilter(double measuredRpm)
+    {
+        double dt = LoopTime.LOOP_TIME;
+
+        if (!filterInitialized)
+        {
+            filteredRpm = measuredRpm;
+            filterInitialized = true;
+            return filteredRpm;
+        }
+
+        //
+        // Prediction
+        //
+        double rpmDot =
+                K_POWER * lastPower
+                        - K_DRAG * filteredRpm;
+
+        double predictedRpm =
+                filteredRpm +
+                        rpmDot * dt;
+
+        //
+        // Measurement correction
+        //
+        double error =
+                measuredRpm -
+                        predictedRpm;
+
+        filteredRpm =
+                predictedRpm +
+                        ALPHA * error;
+
+        return filteredRpm;
+    }
+    private double getRPM()
+    {
+        double tps;
+        if (null != launcherEnc)
+        {
+            tps = launcherEnc.getVelocity();
+        }
+        else
+        {
+            tps = launcher.getVelocity();
+        }
+        return (tps * 60.0) / (ENCODER_TICKS_PER_REVOLUTION * FLYWHEEL_GEAR_RATIO);
     }
 }

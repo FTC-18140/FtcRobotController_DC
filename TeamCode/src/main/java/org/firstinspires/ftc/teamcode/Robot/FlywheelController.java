@@ -12,8 +12,8 @@ public class FlywheelController
 {
 
     private Telemetry telemetry = null;
-    private Flywheel lowerWheel = null;
-    private Flywheel upperWheel = null;
+    private FilteredFlywheel lowerWheel = null;
+    private FilteredFlywheel upperWheel = null;
 
     private double last_distance = 0;
     double angleToGoal = 0.0;
@@ -81,16 +81,16 @@ public class FlywheelController
     {
         telemetry = telem;
 //        initDistRPMs();
-        lowerWheel = new Flywheel();
-        upperWheel = new Flywheel();
+        lowerWheel = new FilteredFlywheel();
+        upperWheel = new FilteredFlywheel();
 
         lowerWheel.init(hwMap, telem, "launcher2", "launcher2");
         upperWheel.init(hwMap, telem, "launcher", "turret");
-        upperWheel.setEncoderReversed();
-        lowerWheel.setEncoderReversed();
+//        upperWheel.setEncoderReversed();
+//        lowerWheel.setEncoderReversed();
 
-        lowerWheel.setParameters(LOWER_PID.P, LOWER_PID.I, LOWER_PID.D, LOWER_PID.F_MIN, LOWER_PID.F_MAX, LOWER_PID.F_VEL, LOWER_PID.F_STATIC, LOWER_PID.GEAR_RATIO, FLYWHEEL_RATIO);
-        upperWheel.setParameters(UPPER_PID.P, UPPER_PID.I, UPPER_PID.D, UPPER_PID.F_MIN, UPPER_PID.F_MAX, UPPER_PID.F_VEL, UPPER_PID.F_STATIC, UPPER_PID.GEAR_RATIO, 1 / FLYWHEEL_RATIO);
+//        lowerWheel.setParameters(LOWER_PID.P, LOWER_PID.I, LOWER_PID.D, LOWER_PID.F_MIN, LOWER_PID.F_MAX, LOWER_PID.F_VEL, LOWER_PID.F_STATIC, LOWER_PID.GEAR_RATIO, FLYWHEEL_RATIO);
+//        upperWheel.setParameters(UPPER_PID.P, UPPER_PID.I, UPPER_PID.D, UPPER_PID.F_MIN, UPPER_PID.F_MAX, UPPER_PID.F_VEL, UPPER_PID.F_STATIC, UPPER_PID.GEAR_RATIO, 1 / FLYWHEEL_RATIO);
     }
 
     public void update(PoseVelocity2d currentOdoVelocity, double distance)
@@ -107,8 +107,8 @@ public class FlywheelController
 
         double voltageFactor = voltage_comp / voltage + (voltage_comp - 13);
 
-        lowerWheel.setParameters(LOWER_PID.P, LOWER_PID.I, LOWER_PID.D, LOWER_PID.F_MIN, LOWER_PID.F_MAX * voltageFactor, LOWER_PID.F_VEL, LOWER_PID.F_STATIC * voltageFactor, LOWER_PID.GEAR_RATIO, FLYWHEEL_RATIO);
-        upperWheel.setParameters(UPPER_PID.P, UPPER_PID.I, UPPER_PID.D, UPPER_PID.F_MIN, UPPER_PID.F_MAX * voltageFactor, UPPER_PID.F_VEL, UPPER_PID.F_STATIC * voltageFactor, UPPER_PID.GEAR_RATIO, 1 / FLYWHEEL_RATIO);
+//        lowerWheel.setParameters(LOWER_PID.P, LOWER_PID.I, LOWER_PID.D, LOWER_PID.F_MIN, LOWER_PID.F_MAX * voltageFactor, LOWER_PID.F_VEL, LOWER_PID.F_STATIC * voltageFactor, LOWER_PID.GEAR_RATIO, FLYWHEEL_RATIO);
+//        upperWheel.setParameters(UPPER_PID.P, UPPER_PID.I, UPPER_PID.D, UPPER_PID.F_MIN, UPPER_PID.F_MAX * voltageFactor, UPPER_PID.F_VEL, UPPER_PID.F_STATIC * voltageFactor, UPPER_PID.GEAR_RATIO, 1 / FLYWHEEL_RATIO);
 
         // 2. Decide what to actually tell the motors based on the Mode
         switch (currentMode)
@@ -271,14 +271,14 @@ public class FlywheelController
         return ballVelocity - (INERTIA_FACTOR * odoVelocity.linearVel.dot(new Vector2d(Math.sin(angleToGoal), Math.cos(angleToGoal))));
     }
 
-    void setTargetRpmFromVelocity(double velocity)
-    {
-        double lowerWheelRpm = lowerWheel.calculateWheelRPM(velocity);
-        double upperWheelRpm = upperWheel.calculateWheelRPM(velocity);
-
-        lowerWheel.setTargetRpm(lowerWheelRpm);
-        upperWheel.setTargetRpm(upperWheelRpm);
-    }
+//    void setTargetRpmFromVelocity(double velocity)
+//    {
+//        double lowerWheelRpm = lowerWheel.calculateWheelRPM(velocity);
+//        double upperWheelRpm = upperWheel.calculateWheelRPM(velocity);
+//
+//        lowerWheel.setTargetRpm(lowerWheelRpm);
+//        upperWheel.setTargetRpm(upperWheelRpm);
+//    }
 
     void setTargetRpmFromDistance(double distance)
     {
