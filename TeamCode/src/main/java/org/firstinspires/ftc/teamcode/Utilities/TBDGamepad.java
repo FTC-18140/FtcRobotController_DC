@@ -37,7 +37,7 @@ public class TBDGamepad
     {
         A(0), B(1), X(2), Y(3), LEFT_BUMPER(4), RIGHT_BUMPER(5), BACK(6),
         START(7), DPAD_UP(8), DPAD_DOWN(9), DPAD_LEFT(10), DPAD_RIGHT(11),
-        LEFT_STICK_BUTTON(12), RIGHT_STICK_BUTTON(13);
+        LEFT_STICK_BUTTON(12), RIGHT_STICK_BUTTON(13), TRIANGLE(3), CROSS(0), SQUARE(2), CIRCLE(1);
         final int index;
 
         Button(int ind)
@@ -110,15 +110,19 @@ public class TBDGamepad
         switch (button)
         {
             case A:
+                case CROSS:
                 buttonValue = gamepad.a;
                 break;
             case B:
+            case CIRCLE:
                 buttonValue = gamepad.b;
                 break;
             case X:
+                case SQUARE:
                 buttonValue = gamepad.x;
                 break;
             case Y:
+            case TRIANGLE:
                 buttonValue = gamepad.y;
                 break;
             case LEFT_BUMPER:

@@ -20,7 +20,10 @@ public class FlywheelController
     PoseVelocity2d odoVelocity = null;
     public static double INERTIA_FACTOR = 0.009;
     public static double RPM_TOLERANCE = 40;
-    public static double voltage_comp = 12.988;
+//    public static double voltage_comp = 12.988;
+    public static double STATIC_RPM = 1750;
+    private static final double NOMINAL_VOLTAGE = 13.0 ;
+
 
 //    public static double[] distances = {50, 70, 94, 167};
 //    public static double[] rpms = {1750, 1750, 1850, 2400};
@@ -33,7 +36,6 @@ public class FlywheelController
     }
 
     private RunMode currentMode = RunMode.OFF;
-    private double lastCalculatedDistanceRpm = 0;
 
     static class DistRPM
     {
@@ -48,7 +50,15 @@ public class FlywheelController
     }
 
 //    public static DistRPM distRPMs[] = new DistRPM[distances.length];
-    public static DistRPM[] distRPMs =
+    public static DistRPM[] upperDistRPMs =
+    {
+            new DistRPM(50, 1750),
+            new DistRPM(70, 1750),
+            new DistRPM(94, 1850),
+            new DistRPM(167, 2400)
+    };
+
+    public static DistRPM[] lowerDistRPMs =
             {
                     new DistRPM(50, 1750),
                     new DistRPM(70, 1750),
@@ -72,10 +82,7 @@ public class FlywheelController
 
     public static LowerPID LOWER_PID = new LowerPID();
     public static UpperPID UPPER_PID = new UpperPID();
-
-
     public static double FLYWHEEL_RATIO = 1.0;
-
 
     public void init(HardwareMap hwMap, Telemetry telem)
     {
@@ -91,35 +98,38 @@ public class FlywheelController
 
 //        lowerWheel.setParameters(LOWER_PID.P, LOWER_PID.I, LOWER_PID.D, LOWER_PID.F_MIN, LOWER_PID.F_MAX, LOWER_PID.F_VEL, LOWER_PID.F_STATIC, LOWER_PID.GEAR_RATIO, FLYWHEEL_RATIO);
 //        upperWheel.setParameters(UPPER_PID.P, UPPER_PID.I, UPPER_PID.D, UPPER_PID.F_MIN, UPPER_PID.F_MAX, UPPER_PID.F_VEL, UPPER_PID.F_STATIC, UPPER_PID.GEAR_RATIO, 1 / FLYWHEEL_RATIO);
+        lowerWheel.setPID(LOWER_PID.P, LOWER_PID.I, LOWER_PID.D);
+        upperWheel.setPID(UPPER_PID.P, UPPER_PID.I, UPPER_PID.D);
     }
 
-    public void update(PoseVelocity2d currentOdoVelocity, double distance)
+    void update(PoseVelocity2d currentOdoVelocity, double distance)
     {
         update(currentOdoVelocity, 0.0, 13.0, distance);
     }
 
-    public void update(PoseVelocity2d currentOdoVelocity, double fieldAngleToGoal, double voltage, double distance)
+    public void update(PoseVelocity2d currentOdoVelocity, double fieldAngleToGoal, double batteryVoltage, double distance)
     {
-//        initDistRPMs();
+        // ALWAYS calculate what the RPM SHOULD be (Continuous knowledge)
+        double lastCalcDistRPMUpper = interpolateDistRPM(distance, upperDistRPMs);
+        double lastCalcDistRPMLower = interpolateDistRPM(distance, lowerDistRPMs);
 
-        // 1. ALWAYS calculate what the RPM SHOULD be (Continuous knowledge)
-        lastCalculatedDistanceRpm = interpolateDistRPM(distance);
+        double voltageFactor = NOMINAL_VOLTAGE / batteryVoltage;
 
-        double voltageFactor = voltage_comp / voltage + (voltage_comp - 13);
-
-//        lowerWheel.setParameters(LOWER_PID.P, LOWER_PID.I, LOWER_PID.D, LOWER_PID.F_MIN, LOWER_PID.F_MAX * voltageFactor, LOWER_PID.F_VEL, LOWER_PID.F_STATIC * voltageFactor, LOWER_PID.GEAR_RATIO, FLYWHEEL_RATIO);
-//        upperWheel.setParameters(UPPER_PID.P, UPPER_PID.I, UPPER_PID.D, UPPER_PID.F_MIN, UPPER_PID.F_MAX * voltageFactor, UPPER_PID.F_VEL, UPPER_PID.F_STATIC * voltageFactor, UPPER_PID.GEAR_RATIO, 1 / FLYWHEEL_RATIO);
+        lowerWheel.setPID(LOWER_PID.P, LOWER_PID.I, LOWER_PID.D);
+        upperWheel.setPID(UPPER_PID.P, UPPER_PID.I, UPPER_PID.D);
 
         // 2. Decide what to actually tell the motors based on the Mode
         switch (currentMode)
         {
             case DISTANCE:
                 // Actively track the moving distance
-                setMotorTargets(lastCalculatedDistanceRpm);
+                upperWheel.setTargetRpm(lastCalcDistRPMUpper*voltageFactor);
+                lowerWheel.setTargetRpm(lastCalcDistRPMLower*voltageFactor);
                 break;
             case STATIC:
                 // Use your defined static idle speed (e.g., 1800)
-                setMotorTargets(Flywheel.STATIC_RPM);
+                upperWheel.setTargetRpm(STATIC_RPM);
+                lowerWheel.setTargetRpm(STATIC_RPM);
                 break;
             case OFF:
                 lowerWheel.stop();
@@ -134,21 +144,15 @@ public class FlywheelController
         odoVelocity = currentOdoVelocity;
     }
 
-    private void setMotorTargets(double rpm)
-    {
-        lowerWheel.setTargetRpm(rpm);
-        upperWheel.setTargetRpm(rpm);
-    }
-
     public void setMode(RunMode mode)
     {
         this.currentMode = mode;
     }
 
-    public double getCalculatedRpm()
-    {
-        return lastCalculatedDistanceRpm;
-    }
+//    public double getCalculatedRpm()
+//    {
+//        return lastCalcDistRPMUpper;
+//    }
 
 //    private void initDistRPMs()
 //    {
@@ -211,12 +215,7 @@ public class FlywheelController
     {
         boolean atRpm;
         double meanSqr = (Math.pow(lowerWheel.getError(), 2) + Math.pow(upperWheel.getError(), 2)) / 2;
-        atRpm = RPM_TOLERANCE > Math.sqrt(meanSqr);
-
-//        telemetry.addData("lower Flywheel error: ", lowerWheel.getError());
-//        telemetry.addData("upper Flywheel error: ", upperWheel.getError());
-//        telemetry.addData("Flywheel mean: ", Math.sqrt(meanSqr));
-
+        atRpm = Math.sqrt(meanSqr) < RPM_TOLERANCE;
         return atRpm;
     }
 
@@ -226,7 +225,7 @@ public class FlywheelController
      * @param distance corresponds to the distance to use for interpolation.
      * @return rpm
      */
-    public static double interpolateDistRPM(double distance)
+    private static double interpolateDistRPM(double distance, DistRPM[] distRPMs)
     {
         if (distance <= distRPMs[0].distance)
             return distRPMs[0].rpm;
@@ -252,9 +251,7 @@ public class FlywheelController
         return distRPMs[distRPMs.length - 1].rpm;
     }
 
-
-
-    public double calculateBallVelocity(double distance, double height, double angleDegrees)
+    private double calculateBallVelocity(double distance, double height, double angleDegrees)
     {
         last_distance = distance;
 
@@ -280,22 +277,23 @@ public class FlywheelController
 //        upperWheel.setTargetRpm(upperWheelRpm);
 //    }
 
-    void setTargetRpmFromDistance(double distance)
+    private void setTargetRpmFromDistance(double distance)
     {
-        double rpm = interpolateDistRPM(distance);
-        lowerWheel.setTargetRpm(rpm);
-        upperWheel.setTargetRpm(rpm);
+        double rpmUpper = interpolateDistRPM(distance, upperDistRPMs);
+        double rpmLower = interpolateDistRPM(distance, lowerDistRPMs);
+        upperWheel.setTargetRpm(rpmUpper);
+        lowerWheel.setTargetRpm(rpmLower);
     }
 
-    public void DEBUG_upperFlywheel()
+    public void DEBUG_upperFlywheel( double rpm)
     {
-        upperWheel.setTargetRpm(1000);
+        upperWheel.setTargetRpm(rpm);
         telemetry.addLine("Upper RPM Set to 1000");
     }
 
-    public void DEBUG_lowerFlywheel()
+    public void DEBUG_lowerFlywheel( double rpm)
     {
-        lowerWheel.setTargetRpm(1000);
+        lowerWheel.setTargetRpm(rpm);
         telemetry.addLine("Lower RPM set to 1000");
     }
 

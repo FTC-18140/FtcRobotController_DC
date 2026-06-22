@@ -41,8 +41,8 @@ public class FilteredFlywheel
 
     private double KS;
     private double KV;
-    private double batteryVoltage = 13.0;
-    public static double NOMINAL_VOLTAGE = 13.0;
+//    private double batteryVoltage = 13.0;
+//    public static double NOMINAL_VOLTAGE = 13.0;
 
     private double P = 0.0012, I = 0.0, D = 0.0;
 
@@ -92,14 +92,12 @@ public class FilteredFlywheel
     }
 
 
-    void setParameters(double p, double i, double d, double gearRatio, double ratio)
+    public void setParameters(double p, double i, double d, double gearRatio)
     {
         setPID(p, i, d);
         FLYWHEEL_GEAR_RATIO = gearRatio;
-        FLYWHEEL_RATIO = ratio;
 
     }
-
 
     /**
      * Commands the flywheel to spin up to a target RPM.
@@ -185,7 +183,7 @@ public class FilteredFlywheel
         }
     }
 
-    private void setPID(double p, double i, double d)
+    public void setPID(double p, double i, double d)
     {
         P = p;
         I = i;
@@ -204,30 +202,16 @@ public class FilteredFlywheel
 
     private double calculatePower()
     {
-        double feedforward = calculateFeedforward();
+        double feedforward =  KS + KV*targetRpm;
 
-        double pidOutput =
-                rpmController.calculate(currentRpm, targetRpm);
+        double pidOutput = rpmController.calculate(currentRpm, targetRpm);
 
         pidOutput = Range.clip(pidOutput,-1.0,1.0);
 
         telemetry.addData("PID OUTPUT", pidOutput);
+        telemetry.addData("FEEDFORWARD", feedforward);
+
         return feedforward + pidOutput;
-    }
-
-    private double calculateFeedforward()
-    {
-        double voltageFactor =
-                NOMINAL_VOLTAGE / batteryVoltage;
-
-        double effectiveKS =
-                KS * voltageFactor;
-
-        double effectiveKV =
-                KV * voltageFactor;
-
-        return effectiveKS +
-                effectiveKV * targetRpm;
     }
 
     private double updateRpmFilter(double measuredRpm)
