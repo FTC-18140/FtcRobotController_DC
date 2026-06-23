@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
+import static org.firstinspires.ftc.teamcode.TelemetryConfig.DEBUG_FLYWHEEL;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
@@ -23,6 +25,8 @@ public class FlywheelController
 //    public static double voltage_comp = 12.988;
     public static double STATIC_RPM = 1750;
     private static final double NOMINAL_VOLTAGE = 13.0 ;
+    private double lowerRPM = 0.0;
+    private double upperRPM = 0.0;
 
 
 //    public static double[] distances = {50, 70, 94, 167};
@@ -32,7 +36,8 @@ public class FlywheelController
     {
         OFF,
         STATIC,   // For chargeLow()
-        DISTANCE  // For charge() / prepShot()
+        DISTANCE,  // For charge() / prepShot()
+        MANUAL
     }
 
     private RunMode currentMode = RunMode.OFF;
@@ -109,9 +114,7 @@ public class FlywheelController
 
     public void update(PoseVelocity2d currentOdoVelocity, double fieldAngleToGoal, double batteryVoltage, double distance)
     {
-        // ALWAYS calculate what the RPM SHOULD be (Continuous knowledge)
-        double lastCalcDistRPMUpper = interpolateDistRPM(distance, upperDistRPMs);
-        double lastCalcDistRPMLower = interpolateDistRPM(distance, lowerDistRPMs);
+
 
         double voltageFactor = NOMINAL_VOLTAGE / batteryVoltage;
 
@@ -122,9 +125,12 @@ public class FlywheelController
         switch (currentMode)
         {
             case DISTANCE:
+                // ALWAYS calculate what the RPM SHOULD be (Continuous knowledge)
+                upperRPM = interpolateDistRPM(distance, upperDistRPMs);
+                lowerRPM = interpolateDistRPM(distance, lowerDistRPMs);
                 // Actively track the moving distance
-                upperWheel.setTargetRpm(lastCalcDistRPMUpper*voltageFactor);
-                lowerWheel.setTargetRpm(lastCalcDistRPMLower*voltageFactor);
+                upperWheel.setTargetRpm(upperRPM*voltageFactor);
+                lowerWheel.setTargetRpm(lowerRPM*voltageFactor);
                 break;
             case STATIC:
                 // Use your defined static idle speed (e.g., 1800)
@@ -135,6 +141,9 @@ public class FlywheelController
                 lowerWheel.stop();
                 upperWheel.stop();
                 break;
+            case MANUAL:
+                lowerWheel.setTargetRpm(lowerRPM);
+                upperWheel.setTargetRpm(upperRPM);
         }
 
         lowerWheel.update();
@@ -142,6 +151,14 @@ public class FlywheelController
 
         angleToGoal = fieldAngleToGoal;
         odoVelocity = currentOdoVelocity;
+
+        if ( DEBUG_FLYWHEEL )
+        {
+            telemetry.addData("Flywheel Controller Mode", currentMode);
+            telemetry.addData("Calc dist upper", upperRPM);
+            telemetry.addData("Calc dist lower", lowerRPM);
+
+        }
     }
 
     public void setMode(RunMode mode)
@@ -287,14 +304,18 @@ public class FlywheelController
 
     public void DEBUG_upperFlywheel( double rpm)
     {
-        upperWheel.setTargetRpm(rpm);
-        telemetry.addLine("Upper RPM Set to 1000");
+        upperRPM = rpm;
+        setMode(RunMode.MANUAL);
+//        upperWheel.setTargetRpm(rpm);
+//        telemetry.addLine("Upper RPM Set to 1000");
     }
 
     public void DEBUG_lowerFlywheel( double rpm)
     {
-        lowerWheel.setTargetRpm(rpm);
-        telemetry.addLine("Lower RPM set to 1000");
+        lowerRPM = rpm;
+        setMode(RunMode.MANUAL);
+//        lowerWheel.setTargetRpm(rpm);
+//        telemetry.addLine("Lower RPM set to 1000");
     }
 
 }

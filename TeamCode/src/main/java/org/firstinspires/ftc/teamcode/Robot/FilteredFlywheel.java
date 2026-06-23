@@ -39,8 +39,8 @@ public class FilteredFlywheel
     private PIDController rpmController = null;
     private Telemetry telemetry = null;
 
-    private double KS;
-    private double KV;
+    public static double KS = 0.125;
+    public static double KV = 0.00033;
 //    private double batteryVoltage = 13.0;
 //    public static double NOMINAL_VOLTAGE = 13.0;
 
@@ -61,13 +61,13 @@ public class FilteredFlywheel
     private double lastPower = 0.0;
 
     // Tunables
-    public static double ALPHA = 0.25;
+    public static double ALPHA = 0.05;
 
     // rpm/sec produced by full power
-    public static double K_POWER = 5000.0;
+    public static double K_POWER = 4000.0;
 
     // drag coefficient (1/sec)
-    public static double K_DRAG = 1.5;
+    public static double K_DRAG = 2.0;
 
 
     public void init(HardwareMap hwMap, Telemetry telem, String motorName, String encoderName)
@@ -104,7 +104,8 @@ public class FilteredFlywheel
      */
     public void setTargetRpm(double rpm)
     {
-        targetRpm = Range.clip(rpm * FLYWHEEL_RATIO, MIN_SHOOTER_RPM * FLYWHEEL_RATIO, MAX_SHOOTER_RPM * FLYWHEEL_RATIO);
+//        targetRpm = Range.clip(rpm * FLYWHEEL_RATIO, MIN_SHOOTER_RPM * FLYWHEEL_RATIO, MAX_SHOOTER_RPM * FLYWHEEL_RATIO);
+        targetRpm = rpm;
         currentState = State.CONTROLLING_SPEED;
     }
 
@@ -168,18 +169,17 @@ public class FilteredFlywheel
                 break;
             case CONTROLLING_SPEED:
                 setPower(calculatePower());
-
-                // --- Telemetry for Debugging ---
-                if ( DEBUG_FLYWHEEL || SHOW_DEBUG_ALL)
-                {
-                    telemetry.addData("Target RPM", targetRpm);
-                    telemetry.addData("Current Draw", getCurrentDraw());
-                    telemetry.addData("Measured RPM", measuredRpm);
-                    telemetry.addData("Filtered RPM", currentRpm);
-                    telemetry.addData("Observer Error", measuredRpm-currentRpm);
-                    telemetry.addData("Last Power", lastPower);
-                }
                 break;
+
+        }
+        if ( DEBUG_FLYWHEEL || SHOW_DEBUG_ALL)
+        {
+            telemetry.addData("Target RPM", targetRpm);
+            telemetry.addData("Measured RPM", measuredRpm);
+            telemetry.addData("Filtered RPM", currentRpm);
+            telemetry.addData("Observer Error", measuredRpm-currentRpm);
+            telemetry.addData("Current Draw", getCurrentDraw());
+            telemetry.addData("Last Power", lastPower);
         }
     }
 
@@ -225,28 +225,16 @@ public class FilteredFlywheel
             return filteredRpm;
         }
 
-        //
         // Prediction
-        //
-        double rpmDot =
-                K_POWER * lastPower
-                        - K_DRAG * filteredRpm;
+        
+        double rpmDot = K_POWER * lastPower - K_DRAG * filteredRpm;
+        double predictedRpm = filteredRpm + rpmDot * dt;
 
-        double predictedRpm =
-                filteredRpm +
-                        rpmDot * dt;
-
-        //
+        telemetry.addData("Predicted RPM", predictedRpm);
         // Measurement correction
-        //
-        double error =
-                measuredRpm -
-                        predictedRpm;
-
-        filteredRpm =
-                predictedRpm +
-                        ALPHA * error;
-
+        double error = measuredRpm - predictedRpm;
+        filteredRpm = predictedRpm + ALPHA * error;
+//        filteredRpm = filteredRpm + ALPHA * (measuredRpm - filteredRpm);
         return filteredRpm;
     }
     private double getRPM()

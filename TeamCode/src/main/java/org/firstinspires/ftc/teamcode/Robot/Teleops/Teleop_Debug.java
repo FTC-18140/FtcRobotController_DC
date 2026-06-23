@@ -83,6 +83,7 @@ public class Teleop_Debug extends OpMode
 
         robot.drive.localizer.update();
 
+        telemetry.addData("setpoint", currentValue);
         telemetry.addData("Flywheel Upper: ", robot.launcher.getUpperFlywheelRpm());
         telemetry.addData("Flywheel Lower: ", robot.launcher.getLowerFlywheelRpm());
 
