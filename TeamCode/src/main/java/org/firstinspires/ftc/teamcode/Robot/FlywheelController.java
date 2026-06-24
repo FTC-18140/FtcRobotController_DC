@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.Robot;
 
 import static org.firstinspires.ftc.teamcode.TelemetryConfig.DEBUG_FLYWHEEL;
 
+import android.health.connect.datatypes.PowerRecord;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
@@ -28,7 +30,6 @@ public class FlywheelController
     private double lowerRPM = 0.0;
     private double upperRPM = 0.0;
 
-
 //    public static double[] distances = {50, 70, 94, 167};
 //    public static double[] rpms = {1750, 1750, 1850, 2400};
 
@@ -37,7 +38,8 @@ public class FlywheelController
         OFF,
         STATIC,   // For chargeLow()
         DISTANCE,  // For charge() / prepShot()
-        MANUAL
+        MANUAL,
+        POWER
     }
 
     private RunMode currentMode = RunMode.OFF;
@@ -73,14 +75,14 @@ public class FlywheelController
 
     public static class LowerPID
     {
-        public double P = 0.0012, I = 0.00, D = 0.000085;
+        public double P = 0.0012, I = 0.00, D = 0.0000;
         public double F_MAX = 0.55, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.625;
         public double GEAR_RATIO = 2.0;
     }
 
     public static class UpperPID
     {
-        public double P = 0.0012, I = 0.00, D = 0.000085;
+        public double P = 0.0012, I = 0.00, D = 0.0000;
         public double F_MAX = 0.55, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.625;
         public double GEAR_RATIO = 32.0 / 15.0;
     }
@@ -144,6 +146,9 @@ public class FlywheelController
             case MANUAL:
                 lowerWheel.setTargetRpm(lowerRPM);
                 upperWheel.setTargetRpm(upperRPM);
+                break;
+            default:
+                break;
         }
 
         lowerWheel.update();
@@ -316,6 +321,20 @@ public class FlywheelController
         setMode(RunMode.MANUAL);
 //        lowerWheel.setTargetRpm(rpm);
 //        telemetry.addLine("Lower RPM set to 1000");
+    }
+
+    public void DEBUG_upperFlywheelPwr(double commandedPower)
+    {
+        upperWheel.manual();
+        upperWheel.setPower(commandedPower);
+        setMode(RunMode.POWER);
+    }
+
+    public void DEBUG_lowerFlywheelPwr( double commandedPower)
+    {
+        lowerWheel.manual();
+        lowerWheel.setPower(commandedPower);
+        setMode(RunMode.POWER);
     }
 
 }

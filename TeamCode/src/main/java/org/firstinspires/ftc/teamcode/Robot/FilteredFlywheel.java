@@ -27,7 +27,8 @@ public class FilteredFlywheel
     private enum State
     {
         IDLE,
-        CONTROLLING_SPEED
+        CONTROLLING_SPEED,
+        POWER
     }
 
     private State currentState = State.IDLE; // Initial state
@@ -40,7 +41,7 @@ public class FilteredFlywheel
     private Telemetry telemetry = null;
 
     public static double KS = 0.125;
-    public static double KV = 0.00033;
+    public static double KV = 0.00034;
 //    private double batteryVoltage = 13.0;
 //    public static double NOMINAL_VOLTAGE = 13.0;
 
@@ -61,13 +62,13 @@ public class FilteredFlywheel
     private double lastPower = 0.0;
 
     // Tunables
-    public static double ALPHA = 0.05;
-
-    // rpm/sec produced by full power
-    public static double K_POWER = 4000.0;
+    public static double ALPHA = 0.08;
 
     // drag coefficient (1/sec)
-    public static double K_DRAG = 2.0;
+    // measured the time constant at 0.41 sec.
+    public static double K_DRAG = 1.0/0.41;
+
+    public static double K_POWER = 5725.0;
 
 
     public void init(HardwareMap hwMap, Telemetry telem, String motorName, String encoderName)
@@ -148,7 +149,7 @@ public class FilteredFlywheel
      */
     public void update()
     {
-
+//        K_POWER = K_DRAG*1864.0/0.75;
         rpmController.setPID(P, I, D);
         double currentDraw = getCurrentDraw();
         if (currentDraw >= GOBILDA_MOTOR_STALL_CURRENT)
@@ -157,6 +158,7 @@ public class FilteredFlywheel
         }
         measuredRpm = getRPM();
         currentRpm = updateRpmFilter(measuredRpm);
+//        currentRpm = measuredRpm;
 
         switch (currentState)
         {
@@ -170,7 +172,8 @@ public class FilteredFlywheel
             case CONTROLLING_SPEED:
                 setPower(calculatePower());
                 break;
-
+            case POWER:
+                break;
         }
         if ( DEBUG_FLYWHEEL || SHOW_DEBUG_ALL)
         {
@@ -188,6 +191,11 @@ public class FilteredFlywheel
         P = p;
         I = i;
         D = d;
+    }
+
+    public void manual()
+    {
+        currentState = State.POWER;
     }
 
     public void setPower(double power)

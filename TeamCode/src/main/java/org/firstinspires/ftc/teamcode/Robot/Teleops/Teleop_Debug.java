@@ -1,17 +1,20 @@
 package org.firstinspires.ftc.teamcode.Robot.Teleops;
 
+import static org.firstinspires.ftc.teamcode.Utilities.TBDGamepad.Button.CIRCLE;
 import static org.firstinspires.ftc.teamcode.Utilities.TBDGamepad.Button.CROSS;
 import static org.firstinspires.ftc.teamcode.Utilities.TBDGamepad.Button.DPAD_DOWN;
+import static org.firstinspires.ftc.teamcode.Utilities.TBDGamepad.Button.DPAD_LEFT;
+import static org.firstinspires.ftc.teamcode.Utilities.TBDGamepad.Button.DPAD_RIGHT;
 import static org.firstinspires.ftc.teamcode.Utilities.TBDGamepad.Button.DPAD_UP;
+import static org.firstinspires.ftc.teamcode.Utilities.TBDGamepad.Button.SQUARE;
 import static org.firstinspires.ftc.teamcode.Utilities.TBDGamepad.Button.TRIANGLE;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Robot.ThunderBot2026;
 import org.firstinspires.ftc.teamcode.Utilities.TBDGamepad;
@@ -30,7 +33,8 @@ public class Teleop_Debug extends OpMode
     private TBDGamepad theGamepad2 = null;
 
     ThunderBot2026 robot = new ThunderBot2026();
-    private double currentValue = 0.0;
+    private double commandedRPM = 0.0;
+    private double commandedPower = 0.0;
     public static double increment = 50;
 
     @Override
@@ -64,26 +68,47 @@ public class Teleop_Debug extends OpMode
 
         if (theGamepad2.getButtonPressed(DPAD_UP))
         {
-            currentValue += increment;
+            commandedRPM += increment;
         }
         if (theGamepad2.getButtonPressed(DPAD_DOWN))
         {
-            currentValue -= increment;
+            commandedRPM -= increment;
         }
+        if (theGamepad2.getButtonPressed(DPAD_RIGHT))
+        {
+            commandedPower += 0.25;
+        }
+        if (theGamepad2.getButtonPressed(DPAD_LEFT))
+        {
+            commandedPower -= 0.25;
+        }
+
+        commandedPower = Range.clip(commandedPower, 0,1);
+        commandedRPM = Range.clip(commandedRPM, 0, 2100);
 
         if (theGamepad2.getButtonPressed(TRIANGLE))
         {
-            robot.launcher.flywheelController.DEBUG_upperFlywheel(currentValue);
+            robot.launcher.flywheelController.DEBUG_upperFlywheel(commandedRPM);
         }
 
         if (theGamepad2.getButtonPressed(CROSS))
         {
-            robot.launcher.flywheelController.DEBUG_lowerFlywheel(currentValue);
+            robot.launcher.flywheelController.DEBUG_lowerFlywheel(commandedRPM);
+        }
+
+        if (theGamepad2.getButtonPressed(CIRCLE))
+        {
+            robot.launcher.flywheelController.DEBUG_upperFlywheelPwr(commandedPower);
+        }
+        if (theGamepad2.getButtonPressed(SQUARE))
+        {
+            robot.launcher.flywheelController.DEBUG_lowerFlywheelPwr(commandedPower);
         }
 
         robot.drive.localizer.update();
 
-        telemetry.addData("setpoint", currentValue);
+        telemetry.addData("setpoint", commandedRPM);
+        telemetry.addData("power setpt", commandedPower);
         telemetry.addData("Flywheel Upper: ", robot.launcher.getUpperFlywheelRpm());
         telemetry.addData("Flywheel Lower: ", robot.launcher.getLowerFlywheelRpm());
 
