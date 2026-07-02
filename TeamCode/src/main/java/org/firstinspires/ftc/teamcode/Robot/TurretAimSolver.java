@@ -39,6 +39,18 @@ public class TurretAimSolver
         getAutoAimAngle();  // used to initialize trueTargetVector
     }
 
+    public void setAlliance(ThunderBot2025.Alliance_Color color2025)
+    {
+        if (color2025 == ThunderBot2025.Alliance_Color.RED)
+        {
+            targetPos = targetPosRed;
+        }
+        else if (color2025 == ThunderBot2025.Alliance_Color.BLUE)
+        {
+            targetPos = targetPosBlue;
+        }
+    }
+
     public void update(Pose2d currentOdoPose, PoseVelocity2d currentOdoVelocity, double currentTurretAngle)
     {
         this.currentOdoPose = currentOdoPose;

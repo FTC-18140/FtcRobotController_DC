@@ -12,6 +12,7 @@ public class TurretController
     private Aimer aimer;
 
     private boolean enter = true;
+
     public enum AimingMode
     {AUTO, MANUAL, HOLD}
 
@@ -73,6 +74,19 @@ public class TurretController
         enter = true;
         aimingMode = mode;
     }
+
+    public AimingMode getAimingMode()
+    {
+        return aimingMode;
+    }
+
+
+    public void setAlliance(ThunderBot2025.Alliance_Color color2025)
+    {
+        solver.setAlliance(color2025);
+    }
+
+
     public void toggleAimingMode()
     {
         if ( aimingMode != AimingMode.MANUAL)

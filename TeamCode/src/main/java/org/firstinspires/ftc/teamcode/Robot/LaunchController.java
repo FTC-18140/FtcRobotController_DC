@@ -44,6 +44,11 @@ public class LaunchController
         return turretController.isAtTarget();
     }
 
+    public boolean isManualAiming()
+    {
+        return turretController.getAimingMode() == TurretController.AimingMode.MANUAL;
+    }
+
     public double getLowerFlywheelRpm()
     {
         return flywheelController.getLowerFlywheelCurrentRPM();
@@ -69,7 +74,10 @@ public class LaunchController
         return turretController.getTurretAngle();
     }
 
-    public void setAlliance(ThunderBot2025.Alliance_Color color2025) {}
+    public void setAlliance(ThunderBot2025.Alliance_Color color2025)
+    {
+        turretController.setAlliance(color2025);
+    }
 
     public double getTotalCurrentDraw()
     {

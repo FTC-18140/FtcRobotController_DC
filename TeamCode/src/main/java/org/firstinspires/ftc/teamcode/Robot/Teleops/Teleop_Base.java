@@ -30,6 +30,8 @@ public abstract class Teleop_Base extends OpMode
     double manualAngle;
     ElapsedTime loopTimer = new ElapsedTime( ElapsedTime.Resolution.MILLISECONDS);
 
+    public static double STEP_CHANGE = 0.25;
+
     /**
      * Performs hardware mapping, initializes robot subsystems,
      * and sets default gamepad configurations.
@@ -96,18 +98,16 @@ public abstract class Teleop_Base extends OpMode
          * ACTION                 | INPUT               | DESCRIPTION
          * -----------------------|---------------------|---------------------------------------
          * Toggle Aiming Mode     | Right Stick Button  | Switches between Main (Auto) and Manual
-         * Manual Turret Control  | Right Stick (Y, X)  | Sets field-angle or power based on mode
          * Home Turret            | D-Pad Up            | Resets turret to zero/home position
          * -----------------------|---------------------|---------------------------------------
          * Toggle Idle Flywheel   | D-Pad Down          | Toggles low-speed "Pre-Spin" state
          * Charge Flywheel        | Left Trigger        | Full power spin-up for firing
          * Launch Single          | Right Trigger       | Launches one game piece
          * -----------------------|---------------------|---------------------------------------
-         * Prep Sequence          | Button Y            | Runs indexer preparation state machine
          * Launch All             | Right Bumper        | Rapidly launches all available pieces
          * Toggle Launch Override | Left Bumper         | Enables/Disables manual launch control
          * Cycle Indexer          | D-Pad Left/Right    | Manually moves turnstile slots
-         * Indexer Slot 3         | Left Stick Button   | Adjusts indexer to third position
+         * Home Indexer           | Left Stick Button   | Adjusts indexer to home position
          * -----------------------|---------------------|---------------------------------------
          * Intake Controls        | Buttons X, B, A     | Shared with GP1 (Start, Stop, Spit)
          * --------------------------------------------------------------------------------------
@@ -194,33 +194,21 @@ public abstract class Teleop_Base extends OpMode
             robot.launcher.toggleAim();
         }
 
-        // Handle Manual Aiming Inputs ONLY if not in Auto (MAIN) mode
-
-//        if (currentMode == LauncherFacade.AimingMode.MANUAL)
-//        {
-        // Calculate stick magnitude to determine if the driver is actively aiming
-        double stickMag = Math.sqrt(Math.pow(theGamepad2.getRightX(), 2) + Math.pow(theGamepad2.getRightY(), 2));
-
-        if (stickMag > 0.1)
+        // Handle Manual Aiming Inputs ONLY if manually Aiming
+        if ( robot.launcher.isManualAiming())
         {
-            // Set the desired field-centric angle based on stick direction
-            manualAngle = Math.toDegrees(Math.atan2(theGamepad2.getRightY(), theGamepad2.getRightX()));
+            if ( theGamepad2.getRightX() < -0.9)
+            {
+                manualAngle = robot.launcher.getTurretAngle() - STEP_CHANGE;
+                robot.launcher.moveAimingTarget(-STEP_CHANGE);
+            }
+            else if ( theGamepad2.getRightX() > 0.9)
+            {
+                manualAngle = robot.launcher.getTurretAngle() + STEP_CHANGE;
+                robot.launcher.moveAimingTarget(STEP_CHANGE);
+            }
             telemetry.addData("Manual Angle", manualAngle);
-            robot.launcher.moveAimingTarget(manualAngle);
         }
-//            else
-//            {
-//                // If stick is released, hold current position to prevent drifting
-//                robot.launcher.holdTurretPosition();
-//            }
-//        }
-//        else if (currentMode == LauncherFacade.AimingMode.DIRECTIONAL)
-//        {
-//            // Use Right X for raw power override
-//            robot.launcher.setTurretManualPower(theGamepad2.getRightX() * 0.35);
-//        }
-        // NOTE: If mode is MAIN, LauncherFacade.update() handles aim() automatically.
-        // No manual call to robot.launcher.aim() is needed here anymore.
 
         // Toggle idle state
         if (theGamepad2.getButtonPressed(TBDGamepad.Button.DPAD_DOWN))
@@ -243,24 +231,18 @@ public abstract class Teleop_Base extends OpMode
             robot.chargeStop(); // Mode -> OFF. Motors float.
         }
 
-        // Shooting Commands
+        // Shooting and Indexer Commands
         if (theGamepad2.getTriggerPressed(TBDGamepad.Trigger.RIGHT_TRIGGER))
         {
             robot.launch();
         }
-
-//        // --- 6. INDEXER CONTROLS (GAMEPAD 2) ---
-//        if (theGamepad2.getButtonPressed(TBDGamepad.Button.Y))
-//        {
-//            robot.indexer.prepSequence();
-//        }
-
         // --- MANUAL INDEXER MODE ---
-        if (theGamepad2.getButton(TBDGamepad.Button.LEFT_BUMPER))
+        if (theGamepad2.getButtonPressed(TBDGamepad.Button.LEFT_BUMPER))
         {
             robot.indexer.overrideLaunching(!robot.indexer.isOverridden());
         }
 
+        // Launch All
         if (theGamepad2.getButton(TBDGamepad.Button.RIGHT_BUMPER))
         {
             robot.launchAll();
