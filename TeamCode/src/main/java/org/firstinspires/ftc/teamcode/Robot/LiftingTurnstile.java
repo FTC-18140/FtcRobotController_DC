@@ -45,14 +45,14 @@ public class LiftingTurnstile
     private enum State {OFF, HOMING, CONTROL_TO_ANGLE, LAUNCHING} // Added MANUAL_SPIN
 
     public static double LAUNCHING_POWER = 0.95;
-    public static double CONTROLLING_POWER = 0.35;
+    public static double CONTROLLING_POWER = 0.5;
     public static double HOMING_POWER = 0.065;
     public static double ANGLE_TOLERANCE = 5;// In degrees
     public static double BACKWARD_TOLERANCE = 30;
     public static double LAUNCH_DECEL_ANGLE = 30;
 
     public static double INITIAL_CONTROL_POWER = 0.05;
-    public static double POWER_RAMP_TIME_CONSTANT = 0.15;
+    public static double POWER_RAMP_TIME_CONSTANT = 0.175;
 
     private double currentControlLimit = INITIAL_CONTROL_POWER;
     ElapsedTime moveTimer = new ElapsedTime();
