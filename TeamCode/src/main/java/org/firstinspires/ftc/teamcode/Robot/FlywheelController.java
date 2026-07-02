@@ -68,21 +68,21 @@ public class FlywheelController
     public static DistRPM[] lowerDistRPMs =
             {
                     new DistRPM(50, 1750),
-                    new DistRPM(70, 1750),
-                    new DistRPM(94, 1850),
+                    new DistRPM(70, 1800),
+                    new DistRPM(94, 2100),
                     new DistRPM(167, 2400)
             };
 
     public static class LowerPID
     {
-        public double P = 0.0012, I = 0.00, D = 0.0000;
+        public double P = 0.0022, I = 0.00, D = 0.0000;
         public double F_MAX = 0.55, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.625;
         public double GEAR_RATIO = 2.0;
     }
 
     public static class UpperPID
     {
-        public double P = 0.0012, I = 0.00, D = 0.0000;
+        public double P = 0.0022, I = 0.00, D = 0.0000;
         public double F_MAX = 0.55, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.625;
         public double GEAR_RATIO = 32.0 / 15.0;
     }
