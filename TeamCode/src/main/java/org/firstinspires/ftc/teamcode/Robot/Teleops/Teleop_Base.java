@@ -30,7 +30,7 @@ public abstract class Teleop_Base extends OpMode
     double manualAngle;
     ElapsedTime loopTimer = new ElapsedTime( ElapsedTime.Resolution.MILLISECONDS);
 
-    public static double STEP_CHANGE = 0.25;
+    public static double STEP_CHANGE = 5;
 
     /**
      * Performs hardware mapping, initializes robot subsystems,
@@ -131,8 +131,8 @@ public abstract class Teleop_Base extends OpMode
         }
 
         // --- 3. DRIVE CONTROLS (GAMEPAD 1) ---
-        double forward = theGamepad1.getLeftY();
-        double strafe = theGamepad1.getLeftX();
+        double forward = -theGamepad1.getLeftY();
+        double strafe = -theGamepad1.getLeftX();
         double turn = theGamepad1.getRightX();
         double speed = ThunderBot2026.DEFAULT_SPEED;
         double turnFactor = 0.7;
@@ -200,12 +200,12 @@ public abstract class Teleop_Base extends OpMode
             if ( theGamepad2.getRightX() < -0.9)
             {
                 manualAngle = robot.launcher.getTurretAngle() - STEP_CHANGE;
-                robot.launcher.moveAimingTarget(-STEP_CHANGE);
+                robot.launcher.moveAimingTarget(STEP_CHANGE);
             }
             else if ( theGamepad2.getRightX() > 0.9)
             {
                 manualAngle = robot.launcher.getTurretAngle() + STEP_CHANGE;
-                robot.launcher.moveAimingTarget(STEP_CHANGE);
+                robot.launcher.moveAimingTarget(-STEP_CHANGE);
             }
             telemetry.addData("Manual Angle", manualAngle);
         }

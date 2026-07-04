@@ -44,8 +44,7 @@ public class Aimer
     public static double MIN_TURRET_POS = -90;
     public static double MAX_TURRET_POS = 360 + MIN_TURRET_POS;
 
-    public static double KV_ROT = 0.005
-            ;
+    public static double KV_ROT = 0.005;
 
     public enum State
     {STOP, HOLDING, SEEKING_ANGLE, MANUAL_CONTROL}

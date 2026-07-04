@@ -31,6 +31,7 @@ public class LiftingTurnstile
     private double startingAngle = 0;
     private double targetAngle = 0;
     private boolean limitSwitchPressed = false;
+    private boolean firstLSPressed = false;
     private boolean isHomed = false;
     private Telemetry telemetry;
 
@@ -47,9 +48,9 @@ public class LiftingTurnstile
     public static double LAUNCHING_POWER = 0.95;
     public static double CONTROLLING_POWER = 0.5;
     public static double HOMING_POWER = 0.065;
-    public static double ANGLE_TOLERANCE = 5;// In degrees
+    public static double ANGLE_TOLERANCE = 7.5;// In degrees
     public static double BACKWARD_TOLERANCE = 30;
-    public static double LAUNCH_DECEL_ANGLE = 30;
+    public static double LAUNCH_DECEL_ANGLE = 45;
 
     public static double INITIAL_CONTROL_POWER = 0.05;
     public static double POWER_RAMP_TIME_CONSTANT = 0.175;
@@ -175,13 +176,27 @@ public class LiftingTurnstile
                 stopServos();
                 break;
             case HOMING:
-                pwr = HOMING_POWER;
-                driveServos(pwr);
-                if (limitSwitchPressed)
+                if (limitSwitchPressed && !firstLSPressed )
+                {
+                    pwr = -0.055;
+                    firstLSPressed = true;
+                }
+                else if (!limitSwitchPressed && firstLSPressed)
+                {
+                    pwr = -0.055;
+                }
+                else if (limitSwitchPressed )
                 {
                     finalizeHome();
                     currentState = State.CONTROL_TO_ANGLE;
+                    firstLSPressed = false;
                 }
+                else
+                {
+                    pwr = HOMING_POWER;
+                }
+
+                driveServos(pwr);
                 break;
             case CONTROL_TO_ANGLE:
 //                angleController.setPID(P, I, D); // Gains
@@ -203,6 +218,7 @@ public class LiftingTurnstile
                 {
                     currentControlLimit = INITIAL_CONTROL_POWER;
                     currentState = State.CONTROL_TO_ANGLE;
+                    angleController.setPID(P, I, D);
                 }
                 break;
         }

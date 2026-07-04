@@ -420,7 +420,7 @@ public class TransferFacade
         // Necessary to know if our ball count in the robot is > 3
         if (beamBreak.ballInIntake())
         {
-            count++;
+//            count++;
 //            telemetry.addLine("2 updateBallCount: ADDING BALL FOR INTAKE.");
         }
 //        telemetry.addData("3 updateBallCount: FINAL BALL COUNT", count);
@@ -522,8 +522,8 @@ public class TransferFacade
                 }
                 else if (turnstile.isAtTarget())
                 {
-                    rotateBallStates(1);
-                    updateBallModel();
+//                    rotateBallStates(1);
+//                    updateBallModel();
                     changeState(State.IDLE);
                 }
                 break;

@@ -26,7 +26,7 @@ public class Intake
     // Constants
     public static double INTAKE_POWER = 0.85;
     public static double SERVO_POWER = 1.0;
-    public static double SLOW_INTAKE_POWER = 0.45;
+    public static double SLOW_INTAKE_POWER = 0.65;
     private static final double STALL_CURRENT_LIMIT = 8.5;
 
     // Hardware

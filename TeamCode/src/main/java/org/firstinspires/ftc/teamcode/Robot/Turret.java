@@ -38,7 +38,7 @@ public class Turret
 
     // --- CORE CONSTANTS ---
 //    public static double P_TURRET = 0.0136, I_TURRET = 0.0, D_TURRET = 0.001645;
-    public static double P_TURRET = 0.01, I_TURRET = 0.0, D_TURRET = 0.0025;
+    public static double P_TURRET = 0.007, I_TURRET = 0.0, D_TURRET = 0.0025;
 
     public static double F_STATIC = 0.035;
     public static double KV_ROT_O = 0.27;
