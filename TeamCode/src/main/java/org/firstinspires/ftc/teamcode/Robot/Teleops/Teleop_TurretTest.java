@@ -81,6 +81,7 @@ public class Teleop_TurretTest extends OpMode {
             }
         }
         /////////
+        telemetry.addData("Loop Time", LoopTime.LOOP_TIME);
         turretController.update(drive.localizer.getPose(), robotPoseVel);
         /////////
 

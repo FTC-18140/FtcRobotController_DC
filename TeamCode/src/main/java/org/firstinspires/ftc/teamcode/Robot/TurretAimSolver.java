@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Robot;
 
 import static org.firstinspires.ftc.teamcode.TelemetryConfig.DEBUG_TURRET;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Rotation2d;
@@ -11,6 +12,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Utilities.LoopTime;
 
+@Config
 public class TurretAimSolver
 {
     Telemetry telemetry = null;
@@ -27,6 +29,7 @@ public class TurretAimSolver
     private AimSolution solution = null;
     private Vector2d trueTargetVector = null;
     private double distance = 0.0;
+    public static double LOOKAHEAD = 0.15;
 
 
     public void init(HardwareMap hwMap, Telemetry telem, Pose2d startPose)
@@ -58,7 +61,6 @@ public class TurretAimSolver
         this.currentOdoVelocity = currentOdoVelocity;
         double dt = LoopTime.LOOP_TIME;
 
-
         // Handle first loop where lastOdoPose is not yet initialized
         if (null == lastOdoPose)
         {
@@ -69,9 +71,9 @@ public class TurretAimSolver
 
         double currentDesiredAngle = getAutoAimAngle();  // what do I need to aim at now ?
 
-        Pose2d futurePose = getFuturePosition(); // where will I be located in the future ?
+        Pose2d futurePose = getFuturePosition(LOOKAHEAD); // where will I be located in the future ?
         double futureDesiredAngle = getAutoAimAngle(futurePose); // what will I need to aim at from this future position ?
-        double desiredAngularVelocity = (futureDesiredAngle - currentDesiredAngle ) / dt; // how much is my desired aim drifting over time ?
+        double desiredAngularVelocity = (futureDesiredAngle - currentDesiredAngle ) / LOOKAHEAD; // how much is my desired aim drifting over time ?
         solution = new AimSolution( currentDesiredAngle, desiredAngularVelocity, distance);
 
         if (DEBUG_TURRET)
@@ -137,9 +139,10 @@ public class TurretAimSolver
         return targetTurretAngle;
     }
 
-    private Pose2d getFuturePosition() {
+    private Pose2d getFuturePosition( double lookahead ) {
         // 1. Define lookahead time (seconds)
-        double dt = LoopTime.LOOP_TIME; // Adjust this based on how far ahead you want to predict
+        double dt = lookahead;
+//        .LOOP_TIME; // Adjust this based on how far ahead you want to predict
 
         // 2. Predict future position
         // Linear: pos + (velocity * dt)

@@ -30,7 +30,7 @@ public abstract class Teleop_Base extends OpMode
     double manualAngle;
     ElapsedTime loopTimer = new ElapsedTime( ElapsedTime.Resolution.MILLISECONDS);
 
-    public static double STEP_CHANGE = 5;
+    public static double STEP_CHANGE = 8;
 
     /**
      * Performs hardware mapping, initializes robot subsystems,
@@ -266,7 +266,7 @@ public abstract class Teleop_Base extends OpMode
         }
 
         // --- 7. FINAL UPDATES & TELEMETRY ---
-        robot.drive.localizer.update();
+//        robot.drive.localizer.update();
         dashboard.sendTelemetryPacket(p);
 
     }

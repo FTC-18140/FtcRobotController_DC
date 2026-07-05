@@ -1,7 +1,9 @@
 package org.firstinspires.ftc.teamcode.Utilities;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+@Config
 public class LoopTime
 {
     ElapsedTime loopTimer = new ElapsedTime(ElapsedTime.MILLIS_IN_NANO);

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
 import static org.firstinspires.ftc.teamcode.TelemetryConfig.DEBUG_DRIVE;
+import static org.firstinspires.ftc.teamcode.Utilities.LoopTime.LOOP_TIME;
 
 import androidx.annotation.NonNull;
 
@@ -198,13 +199,13 @@ public class ThunderBot2026
             intake.spit();
         }
 
-//        telemetry.addData("Loop Time", LOOP_TIME);
+        telemetry.addData("Loop Time", LOOP_TIME);
 //        telemetry.addData("Pose Update", poseUpdateTime);
 //        telemetry.addData("Launcher Update", launcherUpdateTime);
 //        telemetry.addData("Indexer Update", indexerUpdateTime);
 //        telemetry.addData( "LED Update", ledUpdateTime);
 //        telemetry.addData("Intake Update", intakeUpdateTime);
-       // telemetry.update();
+        telemetry.update();
     }
 
     private void addTelemetry()
@@ -311,7 +312,7 @@ public class ThunderBot2026
 
     private void fieldCentricDrive(double north, double east, double clockwise, double speed)
     {
-        drive.updatePoseEstimate();
+//        drive.updatePoseEstimate();
         double heading = drive.localizer.getPose().heading.toDouble() - Math.toRadians(90);
         Vector2d theVector = new Vector2d(
                 north * Math.cos(-heading) - (-east) * Math.sin(-heading),
