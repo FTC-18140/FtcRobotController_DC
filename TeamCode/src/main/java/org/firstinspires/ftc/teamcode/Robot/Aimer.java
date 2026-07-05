@@ -41,9 +41,8 @@ public class Aimer
     public static double MAX_POWER = 0.6;
 
     public static double TURRET_ANGLE_TOLERANCE = 3.5;
-    public static double MIN_TURRET_POS = -90;
-    public static double MAX_TURRET_POS = 360 + MIN_TURRET_POS;
-
+    public static double TURRET_CCW_LIMIT = -90;
+    public static double TURRET_CW_LIMIT = 270 + TURRET_CCW_LIMIT;
     public static double KV_ROT = 0.004;
 
     public enum State
@@ -93,12 +92,13 @@ public class Aimer
     {
         this.solution = solution;
         targetAngle = solution.angle;
+        targetAngle = applyHardwareConstraints(targetAngle);
     }
     public void update()
     {
         updateCurrentPosition();
         turretAimPID.setPID(P, I, D);
-        double power = turretAimPID.calculate(currentAngle, solution.angle) +
+        double power = turretAimPID.calculate(currentAngle, targetAngle) +
                        KV_ROT*solution.velocity;
         switch (currentState)
         {
@@ -166,21 +166,102 @@ public class Aimer
         setAimSolution( new AimSolution(this.currentAngle, 0.0, 0.0) );
         changeState(State.HOLDING);
     }
-    private double applyHardwareConstraints(double angle)
-    {
-        double finalAngle = angle % 360.0;
-        if (finalAngle < MIN_TURRET_POS)
+//    private double applyHardwareConstraints(double angle)
+//    {
+//        double finalAngle = angle % 360.0;
+//        if (finalAngle < MIN_TURRET_POS)
+//        {
+//            if (finalAngle < MIN_TURRET_POS - TURRET_ANGLE_TOLERANCE) {finalAngle += 360;}
+//            else {finalAngle = MIN_TURRET_POS;}
+//        }
+//        else if (finalAngle > MAX_TURRET_POS)
+//        {
+//            if (finalAngle > MAX_TURRET_POS + TURRET_ANGLE_TOLERANCE) {finalAngle -= 360;}
+//            else {finalAngle = MAX_TURRET_POS;}
+//        }
+//        return finalAngle;
+//    }
+        private double applyHardwareConstraints(double desired)
         {
-            if (finalAngle < MIN_TURRET_POS - TURRET_ANGLE_TOLERANCE) {finalAngle += 360;}
-            else {finalAngle = MIN_TURRET_POS;}
+            double wrapThreshold = (TURRET_CW_LIMIT - TURRET_CCW_LIMIT)/2.0;
+            wrapThreshold = 45;
+
+            // Already inside legal region?
+            if (desired >= TURRET_CCW_LIMIT && desired <= TURRET_CW_LIMIT)
+            {
+                return desired;
+            }
+
+            // Sitting at CCW stop?
+            if (currentAngle <= TURRET_CCW_LIMIT + TURRET_ANGLE_TOLERANCE)
+            {
+                if (desired < TURRET_CCW_LIMIT - wrapThreshold)
+                {
+                    return desired + 360;
+                }
+                return TURRET_CCW_LIMIT;
+            }
+
+            // Sitting at CW stop?
+            if (currentAngle >= TURRET_CW_LIMIT - TURRET_ANGLE_TOLERANCE)
+            {
+                if (desired > TURRET_CW_LIMIT + wrapThreshold)
+                {
+                    return desired - 360;
+                }
+                return TURRET_CW_LIMIT;
+            }
+
+            // Otherwise use nearest legal equivalent
+            double best = Double.NaN;
+            double bestError = Double.POSITIVE_INFINITY;
+
+            for (int k=-2;k<=2;k++)
+            {
+                double candidate = desired + 360*k;
+
+                if (candidate >= TURRET_CCW_LIMIT && candidate <= TURRET_CW_LIMIT)
+                {
+                    double err = Math.abs(candidate-currentAngle);
+
+                    if (err < bestError)
+                    {
+                        bestError = err;
+                        best = candidate;
+                    }
+                }
+            }
+            if (Double.isNaN(best))
+            {
+                // crossed far enough past CCW stop to wrap
+                if (desired < TURRET_CCW_LIMIT - wrapThreshold)
+                {
+                    return TURRET_CW_LIMIT;
+                }
+
+                // merely exceeded CCW stop
+                if (desired < TURRET_CCW_LIMIT)
+                {
+                    return TURRET_CCW_LIMIT;
+                }
+
+                // crossed far enough past CW stop to wrap
+                if (desired > TURRET_CW_LIMIT + wrapThreshold)
+                {
+                    return TURRET_CCW_LIMIT;
+                }
+
+                // merely exceeded CW stop
+                if (desired > TURRET_CW_LIMIT)
+                {
+                    return TURRET_CW_LIMIT;
+                }
+
+                // should never happen, but NEVER return NaN
+                return currentAngle;
+            }
+            return best;
         }
-        else if (finalAngle > MAX_TURRET_POS)
-        {
-            if (finalAngle > MAX_TURRET_POS + TURRET_ANGLE_TOLERANCE) {finalAngle -= 360;}
-            else {finalAngle = MAX_TURRET_POS;}
-        }
-        return finalAngle;
-    }
 
     private void updateCurrentPosition()
     {

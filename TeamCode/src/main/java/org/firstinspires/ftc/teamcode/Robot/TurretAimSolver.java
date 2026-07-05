@@ -121,14 +121,14 @@ public class TurretAimSolver
             // Adjust the calculated target angle to be within the continuous range of the turret
             // and closest to its current position, to avoid unnecessary 360-degree rotations.
 
-            while (180.0 < targetTurretAngle - currentTurretAngle)
-            {
-                targetTurretAngle -= 360.0;
-            }
-            while (-180.0 >= targetTurretAngle - currentTurretAngle)
-            {
-                targetTurretAngle += 360.0;
-            }
+//            while (180.0 < targetTurretAngle - currentTurretAngle)
+//            {
+//                targetTurretAngle -= 360.0;
+//            }
+//            while (-180.0 >= targetTurretAngle - currentTurretAngle)
+//            {
+//                targetTurretAngle += 360.0;
+//            }
         }
         else
         {
