@@ -24,8 +24,7 @@ public class FlywheelController
     PoseVelocity2d odoVelocity = null;
     public static double INERTIA_FACTOR = 0.009;
     public static double RPM_TOLERANCE = 40;
-//    public static double voltage_comp = 12.988;
-    public static double STATIC_RPM = 1750;
+    public static double STATIC_RPM = 1500;
     private static final double NOMINAL_VOLTAGE = 13.0 ;
     private double lowerRPM = 0.0;
     private double upperRPM = 0.0;
@@ -57,32 +56,39 @@ public class FlywheelController
     }
 
 //    public static DistRPM distRPMs[] = new DistRPM[distances.length];
-    public static DistRPM[] upperDistRPMs =
+    private static DistRPM[] upperDistRPMs =
     {
-            new DistRPM(50, 1750),
-            new DistRPM(70, 1750),
-            new DistRPM(94, 2100),
-            new DistRPM(167, 2400)
+            new DistRPM(50, 1700),
+            new DistRPM(58, 1700),
+            new DistRPM(73, 1700),
+            new DistRPM(94, 1950),
+            new DistRPM(136, 2450),
+            new DistRPM(167, 2475)
     };
 
-    public static DistRPM[] lowerDistRPMs =
+    private static DistRPM[] lowerDistRPMs =
             {
-                    new DistRPM(50, 1850),
-                    new DistRPM(70, 1850),
-                    new DistRPM(94, 2100),
-                    new DistRPM(167, 2400)
+                    new DistRPM(50, 1700),
+                    new DistRPM(58, 1700),
+                    new DistRPM(73, 1700),
+                    new DistRPM(94, 1950),
+                    new DistRPM(136, 2450),
+                    new DistRPM(167, 2475)
             };
+
+    public static double upperRPMTest = 1750;
+    public static double lowerRPMTest = 1750;
 
     public static class LowerPID
     {
-        public double P = 0.0028, I = 0.00, D = 0.0000;
+        public double P = 0.0032, I = 0.00, D = 0.0000;
         public double F_MAX = 0.55, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.625;
         public double GEAR_RATIO = 2.0;
     }
 
     public static class UpperPID
     {
-        public double P = 0.0028, I = 0.00, D = 0.0000;
+        public double P = 0.0032, I = 0.00, D = 0.0000;
         public double F_MAX = 0.55, F_MIN = 0.0, F_VEL = 0.0000, F_STATIC = 0.625;
         public double GEAR_RATIO = 32.0 / 15.0;
     }
@@ -130,6 +136,8 @@ public class FlywheelController
                 // ALWAYS calculate what the RPM SHOULD be (Continuous knowledge)
                 upperRPM = interpolateDistRPM(distance, upperDistRPMs);
                 lowerRPM = interpolateDistRPM(distance, lowerDistRPMs);
+//                upperRPM = upperRPMTest;
+//                lowerRPM = lowerRPMTest;
                 // Actively track the moving distance
                 upperWheel.setTargetRpm(upperRPM*voltageFactor);
                 lowerWheel.setTargetRpm(lowerRPM*voltageFactor);
@@ -160,8 +168,8 @@ public class FlywheelController
         if ( DEBUG_FLYWHEEL )
         {
             telemetry.addData("Flywheel Controller Mode", currentMode);
-            telemetry.addData("Calc dist upper", upperRPM);
-            telemetry.addData("Calc dist lower", lowerRPM);
+            telemetry.addData("Upper RPM setpoint", upperRPM);
+            telemetry.addData("Lower RPM setpoint", lowerRPM);
 
         }
     }
@@ -250,10 +258,15 @@ public class FlywheelController
     private static double interpolateDistRPM(double distance, DistRPM[] distRPMs)
     {
         if (distance <= distRPMs[0].distance)
+        {
             return distRPMs[0].rpm;
+        }
 
         if (distance >= distRPMs[distRPMs.length - 1].distance)
+        {
             return distRPMs[distRPMs.length - 1].rpm;
+        }
+
 
         for (int i = 0; i < distRPMs.length - 1; i++)
         {
@@ -262,9 +275,7 @@ public class FlywheelController
 
             if (distance >= p0.distance && distance <= p1.distance)
             {
-                double t =
-                        (distance - p0.distance) /
-                                (p1.distance - p0.distance);
+                double t = (distance - p0.distance) /  (p1.distance - p0.distance);
 
                 return p0.rpm + t * (p1.rpm - p0.rpm);
             }

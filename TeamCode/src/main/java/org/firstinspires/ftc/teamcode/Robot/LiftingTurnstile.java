@@ -37,26 +37,30 @@ public class LiftingTurnstile
 
     public static double P = 0.0027, I = 0.0, D = 0.00011;
     public static double LAUNCH_D = 0.00015;
-    public static double LAUNCH_P = 0.0032;
+    public static double LAUNCH_P = 0.0037;
     private State currentState = State.OFF;
 
     private static final double COUNTS_PER_REVOLUTION = 8192;
     private static final double COUNTS_PER_DEGREE = COUNTS_PER_REVOLUTION / 360;
 
-    private enum State {OFF, HOMING, CONTROL_TO_ANGLE, LAUNCHING} // Added MANUAL_SPIN
+    private enum State {OFF, HOMING, CONTROL_TO_ANGLE, SPAM_LAUNCH, SEQUENTIAL_LAUNCH} // Added MANUAL_SPIN
 
-    public static double LAUNCHING_POWER = 0.95;
+    public static double LAUNCHING_POWER = 0.75;
     public static double CONTROLLING_POWER = 0.5;
-    public static double HOMING_POWER = 0.065;
+    public static double HOMING_POWER = 0.075;
     public static double ANGLE_TOLERANCE = 7.5;// In degrees
     public static double BACKWARD_TOLERANCE = 30;
     public static double LAUNCH_DECEL_ANGLE = 45;
 
     public static double INITIAL_CONTROL_POWER = 0.05;
-    public static double POWER_RAMP_TIME_CONSTANT = 0.175;
+    public static double POWER_RAMP_TIME_CONSTANT = 0.125;
+    public static double MULTI_SHOT_DELAY = 0.175;
 
     private double currentControlLimit = INITIAL_CONTROL_POWER;
     ElapsedTime moveTimer = new ElapsedTime();
+    private int launchesRemaining = 0;
+    private ElapsedTime launchPauseTimer = new ElapsedTime();
+    private boolean waitingForPause = false;
 
     public static double MINIMUM_PWR = 0.0;
 
@@ -133,6 +137,26 @@ public class LiftingTurnstile
     {
         launchSlots(4);
     }
+
+    public void launchAllSequential()
+    {
+        launchesRemaining = 4;
+        waitingForPause = false;
+
+        currentState = State.SEQUENTIAL_LAUNCH;
+        angleController.setPID(LAUNCH_P, I, LAUNCH_D);
+        startNextLaunch();
+    }
+
+    private void startNextLaunch()
+    {
+        targetAngle = currentAngle - 120;
+        launchesRemaining--;
+
+        currentControlLimit = INITIAL_CONTROL_POWER;
+        moveTimer.reset();
+    }
+
     public void launchOne()
     {
         launchSlots(1);
@@ -160,8 +184,8 @@ public class LiftingTurnstile
         double pwr = 0;
         double pidPwr = 0;
 
-        double elapsedMovetime = moveTimer.seconds();
-        double alpha = 1.0-Math.exp(-elapsedMovetime/POWER_RAMP_TIME_CONSTANT);
+        double elapsedMoveTime = moveTimer.seconds();
+        double alpha = 1.0-Math.exp(-elapsedMoveTime/POWER_RAMP_TIME_CONSTANT);
 
         // Ramp the control power limit up to CONTROLLING_POWER
         currentControlLimit = INITIAL_CONTROL_POWER + alpha*(CONTROLLING_POWER - INITIAL_CONTROL_POWER);
@@ -178,12 +202,12 @@ public class LiftingTurnstile
             case HOMING:
                 if (limitSwitchPressed && !firstLSPressed )
                 {
-                    pwr = -0.055;
+                    pwr = -0.06;
                     firstLSPressed = true;
                 }
                 else if (!limitSwitchPressed && firstLSPressed)
                 {
-                    pwr = -0.055;
+                    pwr = -0.06;
                 }
                 else if (limitSwitchPressed )
                 {
@@ -199,18 +223,12 @@ public class LiftingTurnstile
                 driveServos(pwr);
                 break;
             case CONTROL_TO_ANGLE:
-//                angleController.setPID(P, I, D); // Gains
                 pidPwr = angleController.calculate(currentAngle, targetAngle);
-                pwr = pidPwr;
                 // Output Clamp (Safety)
-                pwr = Range.clip(
-                        pwr,
-                        -currentControlLimit,
-                        currentControlLimit);
-
+                pwr = Range.clip( pidPwr, -currentControlLimit, currentControlLimit);
                 driveServos(pwr);
                 break;
-            case LAUNCHING:
+            case SPAM_LAUNCH:
                 pwr = -LAUNCHING_POWER;
                 driveServos(pwr);
                 // Switch to PID control when we get close to the target to "brake"
@@ -220,6 +238,36 @@ public class LiftingTurnstile
                     currentState = State.CONTROL_TO_ANGLE;
                     angleController.setPID(P, I, D);
                 }
+                break;
+            case SEQUENTIAL_LAUNCH:
+                // use normal PID control
+                pidPwr = angleController.calculate(currentAngle, targetAngle);
+                pwr = Range.clip( pidPwr, -currentControlLimit, currentControlLimit);
+                driveServos(pwr);
+
+                // finished current launch?
+                if (isAtTarget())
+                {
+                    if (!waitingForPause)
+                    {
+                        launchPauseTimer.reset();
+                        waitingForPause = true;
+                    }
+                    else if (launchPauseTimer.seconds() >= MULTI_SHOT_DELAY)
+                    {
+                        waitingForPause = false;
+                        if (launchesRemaining > 0)
+                        {
+                            startNextLaunch();
+                        }
+                        else
+                        {
+                            angleController.setPID(P, I, D);
+                            currentState = State.CONTROL_TO_ANGLE;
+                        }
+                    }
+                }
+
                 break;
         }
         if (DEBUG_LIFTING_TURNSTILE || SHOW_DEBUG_ALL)
@@ -232,6 +280,7 @@ public class LiftingTurnstile
             telemetry.addData("Turnstile Power", pwr);
             telemetry.addData("Turnstile PID Pwr Calc", pidPwr);
             telemetry.addData("Limit Switch Pressed", limitSwitchPressed);
+            telemetry.addData("Launches Remaining", launchesRemaining);
         }
     }
 

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
+import static org.firstinspires.ftc.teamcode.TelemetryConfig.DEBUG_TURRET;
+
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -32,6 +34,11 @@ public class LaunchController
         turretController.update(currentPose, currentVelocity);
         AimSolution solution = turretController.getSolution();
         flywheelController.update(currentVelocity, solution.distance);
+
+        if ( DEBUG_TURRET )
+        {
+            telemetry.addData("Aim Solution Distance", solution.distance);
+        }
     }
 
     public boolean isAtTargetRpm()

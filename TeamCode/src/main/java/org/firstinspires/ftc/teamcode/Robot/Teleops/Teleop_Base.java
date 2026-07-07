@@ -125,8 +125,8 @@ public abstract class Teleop_Base extends OpMode
         {
             if (Math.ceil(robot.runtime.seconds() * 2) % 2 == 1)
             {
-                theGamepad1.blipDriver();
-                theGamepad2.blipDriver();
+//                theGamepad1.blipDriver();
+//                theGamepad2.blipDriver();
             }
         }
 

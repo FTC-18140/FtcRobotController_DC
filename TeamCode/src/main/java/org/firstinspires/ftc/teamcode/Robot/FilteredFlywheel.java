@@ -62,7 +62,7 @@ public class FilteredFlywheel
     private double lastPower = 0.0;
 
     // Tunables
-    public static double ALPHA = 0.5;
+    public static double ALPHA = 0.75;
 
     // drag coefficient (1/sec)
     // measured the time constant at 0.41 sec.
