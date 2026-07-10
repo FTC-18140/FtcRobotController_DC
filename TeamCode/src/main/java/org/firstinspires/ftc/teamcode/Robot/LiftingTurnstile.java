@@ -45,8 +45,9 @@ public class LiftingTurnstile
 
     private enum State {OFF, HOMING, CONTROL_TO_ANGLE, SPAM_LAUNCH, SEQUENTIAL_LAUNCH} // Added MANUAL_SPIN
 
-    public static double LAUNCHING_POWER = 0.75;
-    public static double CONTROLLING_POWER = 0.5;
+    public static double LAUNCHING_POWER = 0.3;
+    public static double CONTROLLING_POWER = 0.6
+            ;
     public static double HOMING_POWER = 0.075;
     public static double ANGLE_TOLERANCE = 7.5;// In degrees
     public static double BACKWARD_TOLERANCE = 30;
@@ -125,12 +126,13 @@ public class LiftingTurnstile
         if ( numToLaunch < 3 )
         {
             angleController.setPID(P, I, D);
+            currentState = State.CONTROL_TO_ANGLE;
         }
         else
         {
             angleController.setPID(LAUNCH_P, I, LAUNCH_D);
+            currentState = State.SPAM_LAUNCH;
         }
-        currentState = State.CONTROL_TO_ANGLE;
     }
 
     public void launchAll()
@@ -186,11 +188,17 @@ public class LiftingTurnstile
 
         double elapsedMoveTime = moveTimer.seconds();
         double alpha = 1.0-Math.exp(-elapsedMoveTime/POWER_RAMP_TIME_CONSTANT);
+        double targetPower = CONTROLLING_POWER;
+
+        if ( currentState == State.SPAM_LAUNCH )
+        {
+            targetPower = LAUNCHING_POWER;
+        }
 
         // Ramp the control power limit up to CONTROLLING_POWER
-        currentControlLimit = INITIAL_CONTROL_POWER + alpha*(CONTROLLING_POWER - INITIAL_CONTROL_POWER);
+        currentControlLimit = INITIAL_CONTROL_POWER + alpha*(targetPower - INITIAL_CONTROL_POWER);
 
-        currentControlLimit = Math.min(currentControlLimit, CONTROLLING_POWER);
+        currentControlLimit = Math.min(currentControlLimit, targetPower);
 
         // 2. State Machine
         switch (currentState)
@@ -222,23 +230,30 @@ public class LiftingTurnstile
 
                 driveServos(pwr);
                 break;
+            case SPAM_LAUNCH:
+                if (currentAngle <= targetAngle + LAUNCH_DECEL_ANGLE)
+                {
+                    currentState = State.CONTROL_TO_ANGLE;
+                    angleController.setPID(P, I, D);
+                }
+                // intended fall through
             case CONTROL_TO_ANGLE:
                 pidPwr = angleController.calculate(currentAngle, targetAngle);
                 // Output Clamp (Safety)
                 pwr = Range.clip( pidPwr, -currentControlLimit, currentControlLimit);
                 driveServos(pwr);
                 break;
-            case SPAM_LAUNCH:
-                pwr = -LAUNCHING_POWER;
-                driveServos(pwr);
-                // Switch to PID control when we get close to the target to "brake"
-                if (currentAngle <= targetAngle + LAUNCH_DECEL_ANGLE)
-                {
-                    currentControlLimit = INITIAL_CONTROL_POWER;
-                    currentState = State.CONTROL_TO_ANGLE;
-                    angleController.setPID(P, I, D);
-                }
-                break;
+//            case SPAM_LAUNCH:
+//                pwr = -LAUNCHING_POWER;
+//                driveServos(pwr);
+//                // Switch to PID control when we get close to the target to "brake"
+//                if (currentAngle <= targetAngle + LAUNCH_DECEL_ANGLE)
+//                {
+//                    currentControlLimit = INITIAL_CONTROL_POWER;
+//                    currentState = State.CONTROL_TO_ANGLE;
+//                    angleController.setPID(P, I, D);
+//                }
+//                break;
             case SEQUENTIAL_LAUNCH:
                 // use normal PID control
                 pidPwr = angleController.calculate(currentAngle, targetAngle);
