@@ -188,10 +188,10 @@ public class TBDGamepad
         switch (trigger)
         {
             case LEFT_TRIGGER:
-                triggerValue = 0.1 < gamepad.left_trigger;
+                triggerValue = gamepad.left_trigger_pressed;
                 break;
             case RIGHT_TRIGGER:
-                triggerValue = 0.1 < gamepad.right_trigger;
+                triggerValue = gamepad.right_trigger_pressed;
                 break;
             default:
                 break;
