@@ -49,7 +49,7 @@ public class ThunderBot2026
     private ThunderBot2026.Alliance_Color color = ThunderBot2026.Alliance_Color.BLUE;
     public TransferFacade.BallState lastBallState = null;
     private Telemetry telemetry = null;
-    public static boolean field_centric = true;
+    public static boolean field_centric = false;
     public static final double MIN_SPEED = 0.3;
     public static final double DEFAULT_SPEED = 0.7;
     public static final double MAX_SPEED = 1.0;
@@ -306,7 +306,7 @@ public class ThunderBot2026
 
     private void robotCentricDrive(double forward, double right, double clockwise, double speed)
     {
-        PoseVelocity2d thePose = new PoseVelocity2d(new Vector2d(forward, -right).times(speed), -clockwise);
+        PoseVelocity2d thePose = new PoseVelocity2d(new Vector2d(-forward, right).times(speed), -clockwise);
         drive.setDrivePowers(thePose);
     }
 
