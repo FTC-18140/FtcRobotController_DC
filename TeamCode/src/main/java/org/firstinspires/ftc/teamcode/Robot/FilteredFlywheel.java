@@ -42,8 +42,6 @@ public class FilteredFlywheel
 
     public static double KS = 0.125;
     public static double KV = 0.00034;
-//    private double batteryVoltage = 13.0;
-//    public static double NOMINAL_VOLTAGE = 13.0;
 
     private double P = 0.0012, I = 0.0, D = 0.0;
 
@@ -64,17 +62,20 @@ public class FilteredFlywheel
 
     private double appliedPower = 0.0;
 
-    // Tunables
-//    public static double ALPHA = 0.75;
+    // Flywheel Model Parameters
 
     // drag coefficient (1/sec)
     // measured the time constant at 0.41 sec.
     public static double K_DRAG = 1.0/0.41;
-
     public static double K_POWER = 5725.0;
 
-    public static double L1, L2 = 0;
-    public static double OBSERVER_POLE = 10;
+    public static double OBSERVER_POLE_1 = 0.45;
+    public static double OBSERVER_POLE_2 = 0.55;
+    private double A11;
+    private double A12;
+    private double B1;
+    private double L1;
+    private double L2;
 
     public void init(HardwareMap hwMap, Telemetry telem, String motorName, String encoderName)
     {
@@ -238,8 +239,6 @@ public class FilteredFlywheel
 
     private double updateRpmFilter(double measuredRpm)
     {
-        double dt = LoopTime.LOOP_TIME;
-
         if (!filterInitialized)
         {
             filteredRpm = measuredRpm;
@@ -249,34 +248,44 @@ public class FilteredFlywheel
         }
 
         //----------------------------------------
-        // Observer gains
+        // Update observer parameters (Dashboard tuning)
         //----------------------------------------
-
-        L1 = 2.0 * OBSERVER_POLE - K_DRAG;
-        L2 = OBSERVER_POLE * OBSERVER_POLE;
-
-        double L1d = L1 * dt;
-        double L2d = L2 * dt;
+        updateObserverParameters();
 
         //----------------------------------------
         // Prediction
         //----------------------------------------
-        double rpmDot =  K_POWER * appliedPower - K_DRAG * filteredRpm + estimatedDisturbance;
-        predictedRpm = filteredRpm + rpmDot * dt;
+        predictedRpm = A11*filteredRpm + A12*estimatedDisturbance + B1*appliedPower;
+        double predictedDisturbance = estimatedDisturbance;
 
         //----------------------------------------
-        // Innovation  -- what is the error of my prediction?
+        // Innovation
         //----------------------------------------
         double error = measuredRpm - predictedRpm;
 
         //----------------------------------------
-        // Correction -- The L1, L2 terms are like porportional control for the observer... they
-        // multiply by the error and are added.
+        // Correction
         //----------------------------------------
-        filteredRpm = predictedRpm + L1d * error;
-        estimatedDisturbance += L2d * error;
+        filteredRpm = predictedRpm + L1 * error;
+        estimatedDisturbance = predictedDisturbance + L2 * error;
 
         return filteredRpm;
+    }
+
+    private void updateObserverParameters()
+    {
+        double dt = LoopTime.LOOP_TIME;
+
+        A11 = Math.exp(-K_DRAG * dt);
+        A12 = (1.0 - A11) / K_DRAG;
+        B1  = K_POWER * A12;
+
+        // Observer poles (Dashboard tunable)
+        double p1 = OBSERVER_POLE_1;
+        double p2 = OBSERVER_POLE_2;
+
+        L1 = A11 + 1.0 - (p1 + p2);
+        L2 = ((1.0 - L1) * A11 - p1 * p2) / A12;
     }
     private double getRPM()
     {
