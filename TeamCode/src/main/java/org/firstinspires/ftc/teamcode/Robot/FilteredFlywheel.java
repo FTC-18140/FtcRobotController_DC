@@ -13,7 +13,6 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Utilities.LoopTime;
-import org.firstinspires.ftc.teamcode.Utilities.MovingAverageFilter;
 import org.firstinspires.ftc.teamcode.Utilities.PIDController;
 import org.firstinspires.ftc.teamcode.Utilities.ThresholdMotor;
 
@@ -22,6 +21,7 @@ public class FilteredFlywheel
 {
     static final double GOBILDA_MOTOR_STALL_CURRENT = 9.2;
     private static final double ENCODER_TICKS_PER_REVOLUTION = 28.0;
+    private double lastRPM = 0;
 
     // Define the states as an enum
     private enum State
@@ -54,15 +54,18 @@ public class FilteredFlywheel
     private double currentRpm = 0;
     private double targetRpm = 0;
     private double measuredRpm = 0;
+    private double predictedRpm = 0;
+
+    private double estimatedDisturbance = 0.0;  // RPM/sec
     public static double POWER_THRESHOLD = 0.01; // Tunable threshold for power updates
 
     private double filteredRpm = 0;
     private boolean filterInitialized = false;
 
-    private double lastPower = 0.0;
+    private double appliedPower = 0.0;
 
     // Tunables
-    public static double ALPHA = 0.75;
+//    public static double ALPHA = 0.75;
 
     // drag coefficient (1/sec)
     // measured the time constant at 0.41 sec.
@@ -70,6 +73,8 @@ public class FilteredFlywheel
 
     public static double K_POWER = 5725.0;
 
+    public static double L1, L2 = 0;
+    public static double OBSERVER_POLE = 10;
 
     public void init(HardwareMap hwMap, Telemetry telem, String motorName, String encoderName)
     {
@@ -125,7 +130,7 @@ public class FilteredFlywheel
         filterInitialized = false;
         filteredRpm = 0;
         currentRpm = 0;
-        lastPower = 0;
+        appliedPower = 0;
     }
     public double getCurrentRpm()
     {
@@ -156,9 +161,13 @@ public class FilteredFlywheel
         {
             telemetry.addData("FLYWHEEL STALLED", 0);
         }
-        measuredRpm = getRPM();
+
+        lastRPM = measuredRpm;
+        measuredRpm = getRPM();  // from Encoder -- this is the sensor reading
+
+        double measuredAccel = (measuredRpm - lastRPM) / LoopTime.LOOP_TIME;
+
         currentRpm = updateRpmFilter(measuredRpm);
-//        currentRpm = measuredRpm;
 
         switch (currentState)
         {
@@ -179,10 +188,12 @@ public class FilteredFlywheel
         {
             telemetry.addData("Target RPM", targetRpm);
             telemetry.addData("Measured RPM", measuredRpm);
+            telemetry.addData("Predicted RPM", predictedRpm);
             telemetry.addData("Filtered RPM", currentRpm);
-            telemetry.addData("Observer Error", measuredRpm-currentRpm);
+            telemetry.addData("Observer Error", measuredRpm-predictedRpm);
+            telemetry.addData("Estimated Disturbance", estimatedDisturbance);
             telemetry.addData("Current Draw", getCurrentDraw());
-            telemetry.addData("Last Power", lastPower);
+            telemetry.addData("Requested Power", appliedPower);
         }
     }
 
@@ -200,7 +211,7 @@ public class FilteredFlywheel
 
     public void setPower(double power)
     {
-        lastPower = power;
+        appliedPower = power;
 
         if (launcherWriter != null)
         {
@@ -214,12 +225,15 @@ public class FilteredFlywheel
 
         double pidOutput = rpmController.calculate(currentRpm, targetRpm);
 
-        pidOutput = Range.clip(pidOutput,-1.0,1.0);
-
         telemetry.addData("PID OUTPUT", pidOutput);
         telemetry.addData("FEEDFORWARD", feedforward);
 
-        return feedforward + pidOutput;
+        double clippedPower = feedforward + pidOutput;
+        clippedPower = Range.clip(clippedPower, -1.0, 1.0);
+
+        telemetry.addData("CLIPPED", clippedPower);
+
+        return clippedPower;
     }
 
     private double updateRpmFilter(double measuredRpm)
@@ -229,20 +243,39 @@ public class FilteredFlywheel
         if (!filterInitialized)
         {
             filteredRpm = measuredRpm;
+            estimatedDisturbance = 0.0;
             filterInitialized = true;
             return filteredRpm;
         }
 
-        // Prediction
-        
-        double rpmDot = K_POWER * lastPower - K_DRAG * filteredRpm;
-        double predictedRpm = filteredRpm + rpmDot * dt;
+        //----------------------------------------
+        // Observer gains
+        //----------------------------------------
 
-        telemetry.addData("Predicted RPM", predictedRpm);
-        // Measurement correction
+        L1 = 2.0 * OBSERVER_POLE - K_DRAG;
+        L2 = OBSERVER_POLE * OBSERVER_POLE;
+
+        double L1d = L1 * dt;
+        double L2d = L2 * dt;
+
+        //----------------------------------------
+        // Prediction
+        //----------------------------------------
+        double rpmDot =  K_POWER * appliedPower - K_DRAG * filteredRpm + estimatedDisturbance;
+        predictedRpm = filteredRpm + rpmDot * dt;
+
+        //----------------------------------------
+        // Innovation  -- what is the error of my prediction?
+        //----------------------------------------
         double error = measuredRpm - predictedRpm;
-        filteredRpm = predictedRpm + ALPHA * error;
-//        filteredRpm = filteredRpm + ALPHA * (measuredRpm - filteredRpm);
+
+        //----------------------------------------
+        // Correction -- The L1, L2 terms are like porportional control for the observer... they
+        // multiply by the error and are added.
+        //----------------------------------------
+        filteredRpm = predictedRpm + L1d * error;
+        estimatedDisturbance += L2d * error;
+
         return filteredRpm;
     }
     private double getRPM()
